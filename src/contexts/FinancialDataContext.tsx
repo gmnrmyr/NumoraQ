@@ -120,7 +120,7 @@ interface FinancialDataContextType {
   removeDebt: (id: string) => void;
   removeProperty: (id: string) => void;
   exportToCSV: () => void;
-  importFromJSON: (jsonData: string) => void;
+  importFromJSON: (jsonData: string): boolean => void;
   resetData: () => void;
 }
 
@@ -393,12 +393,38 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     window.URL.revokeObjectURL(url);
   };
 
-  const importFromJSON = (jsonData: string) => {
+  const importFromJSON = (jsonData: string): boolean => {
     try {
+      // Validate that it's actually JSON
       const parsedData = JSON.parse(jsonData);
-      setData(parsedData);
+      
+      // Basic validation - check if it has the expected structure
+      if (typeof parsedData !== 'object' || parsedData === null) {
+        throw new Error('Invalid data structure');
+      }
+      
+      // Merge with default data to ensure all required fields exist
+      const validatedData = {
+        ...defaultData,
+        ...parsedData,
+        // Ensure arrays exist even if empty
+        liquidAssets: Array.isArray(parsedData.liquidAssets) ? parsedData.liquidAssets : defaultData.liquidAssets,
+        illiquidAssets: Array.isArray(parsedData.illiquidAssets) ? parsedData.illiquidAssets : defaultData.illiquidAssets,
+        passiveIncome: Array.isArray(parsedData.passiveIncome) ? parsedData.passiveIncome : defaultData.passiveIncome,
+        activeIncome: Array.isArray(parsedData.activeIncome) ? parsedData.activeIncome : defaultData.activeIncome,
+        expenses: Array.isArray(parsedData.expenses) ? parsedData.expenses : defaultData.expenses,
+        tasks: Array.isArray(parsedData.tasks) ? parsedData.tasks : defaultData.tasks,
+        debts: Array.isArray(parsedData.debts) ? parsedData.debts : defaultData.debts,
+        properties: Array.isArray(parsedData.properties) ? parsedData.properties : defaultData.properties,
+        exchangeRates: parsedData.exchangeRates || defaultData.exchangeRates
+      };
+      
+      setData(validatedData);
+      console.log('Data imported successfully:', validatedData);
+      return true;
     } catch (error) {
       console.error('Error importing data:', error);
+      return false;
     }
   };
 

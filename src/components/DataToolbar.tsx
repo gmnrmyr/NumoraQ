@@ -8,7 +8,7 @@ import { Download, Upload, RotateCcw, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const DataToolbar: React.FC = () => {
-  const { exportToCSV, importFromJSON, resetData, data } = useFinancialData();
+  const { data, importFromJSON, resetData } = useFinancialData();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -19,32 +19,54 @@ export const DataToolbar: React.FC = () => {
       reader.onload = (e) => {
         try {
           const content = e.target?.result as string;
-          importFromJSON(content);
-          toast({
-            title: "Data imported successfully",
-            description: "Your financial data has been restored from the file.",
-          });
+          const success = importFromJSON(content);
+          if (success) {
+            toast({
+              title: "Data imported successfully",
+              description: "Your financial data has been restored from the file.",
+            });
+          } else {
+            throw new Error("Import failed");
+          }
         } catch (error) {
+          console.error('Import error:', error);
           toast({
             title: "Import failed",
-            description: "The file format is invalid or corrupted.",
+            description: "The file format is invalid or corrupted. Please ensure it's a valid JSON file.",
             variant: "destructive",
           });
         }
       };
       reader.readAsText(file);
     }
+    // Reset input value so same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleExportJSON = () => {
-    const dataStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `financial-dashboard-backup-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    try {
+      const dataStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `financial-dashboard-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      toast({
+        title: "Data exported successfully",
+        description: "Your financial data has been exported as JSON.",
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: "Export failed",
+        description: "Failed to export data. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleReset = () => {
@@ -63,23 +85,13 @@ export const DataToolbar: React.FC = () => {
         <div className="flex flex-wrap gap-2 items-center justify-between">
           <div className="flex flex-wrap gap-2">
             <Button
-              onClick={exportToCSV}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Download size={16} />
-              Export CSV
-            </Button>
-            
-            <Button
               onClick={handleExportJSON}
               variant="outline"
               size="sm"
               className="flex items-center gap-2"
             >
-              <Save size={16} />
-              Backup JSON
+              <Download size={16} />
+              Export JSON
             </Button>
             
             <Button
@@ -113,7 +125,7 @@ export const DataToolbar: React.FC = () => {
         </div>
         
         <div className="mt-2 text-xs text-slate-600">
-          💡 All data is automatically saved to your browser. Export for backup or sharing.
+          💡 Export your data as JSON for backup or sharing. Import to restore from backup.
         </div>
       </CardContent>
     </Card>
