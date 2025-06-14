@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,6 +22,11 @@ const userProfiles = {
     name: "Guilherme (GUI)",
     description: "GUI's complete financial profile",
     data: {
+      userProfile: {
+        name: "Gui",
+        defaultCurrency: "BRL" as const,
+        language: "en" as const
+      },
       exchangeRates: {
         brlToUsd: 0.18,
         usdToBrl: 5.54,
@@ -90,6 +94,11 @@ const userProfiles = {
     name: "Fernanda (FE)",
     description: "Random test profile for development",
     data: {
+      userProfile: {
+        name: "Fe",
+        defaultCurrency: "USD" as const,
+        language: "en" as const
+      },
       exchangeRates: {
         brlToUsd: 0.20,
         usdToBrl: 5.00,

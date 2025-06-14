@@ -1,5 +1,5 @@
 
-import { Github, Heart, Code } from 'lucide-react';
+import { Github, Heart, Code, DollarSign } from 'lucide-react';
 
 export const Footer = () => {
   return (
@@ -32,7 +32,7 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Open Source */}
+          {/* Open Source & Support */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Open Source</h3>
             <div className="space-y-2">
@@ -40,15 +40,24 @@ export const Footer = () => {
                 This project is and will always be open source. 
                 Contributions, suggestions, and improvements are welcome!
               </p>
-              <a 
-                href="https://github.com/yourusername/finance-tracker" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
-              >
-                <Github size={18} />
-                <span>View on GitHub</span>
-              </a>
+              <div className="flex flex-col space-y-2">
+                <a 
+                  href="https://github.com/yourusername/finance-tracker" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <Github size={18} />
+                  <span>View on GitHub</span>
+                </a>
+                <a 
+                  href="#" 
+                  className="inline-flex items-center space-x-2 text-green-600 hover:text-green-800 transition-colors"
+                >
+                  <DollarSign size={18} />
+                  <span>Support with Crypto</span>
+                </a>
+              </div>
             </div>
           </div>
 
