@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -29,21 +28,33 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useLiveData } from "@/hooks/useLiveData";
 import { EditableValue } from "@/components/ui/editable-value";
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 const Index = () => {
   const { data, updateExchangeRate } = useFinancialData();
   const { rates, isLoading } = useLiveData();
+  const prevRatesRef = useRef<any>();
 
-  // Update exchange rates when live data is received
+  // Memoize rates to prevent unnecessary updates
+  const memoizedRates = useMemo(() => rates, [
+    rates?.brlToUsd,
+    rates?.usdToBrl,
+    rates?.btcPrice,
+    rates?.ethPrice,
+    rates?.lastUpdated?.getTime()
+  ]);
+
+  // Update exchange rates when live data is received (with proper dependency checking)
   useEffect(() => {
-    if (rates) {
-      updateExchangeRate('brlToUsd', rates.brlToUsd);
-      updateExchangeRate('usdToBrl', rates.usdToBrl);
-      updateExchangeRate('btcPrice', rates.btcPrice);
-      updateExchangeRate('ethPrice', rates.ethPrice);
+    if (memoizedRates && memoizedRates !== prevRatesRef.current) {
+      console.log('Updating exchange rates with:', memoizedRates);
+      updateExchangeRate('brlToUsd', memoizedRates.brlToUsd);
+      updateExchangeRate('usdToBrl', memoizedRates.usdToBrl);
+      updateExchangeRate('btcPrice', memoizedRates.btcPrice);
+      updateExchangeRate('ethPrice', memoizedRates.ethPrice);
+      prevRatesRef.current = memoizedRates;
     }
-  }, [rates, updateExchangeRate]);
+  }, [memoizedRates]);
 
   // Calculate totals from context data (only active assets)
   const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
@@ -94,7 +105,7 @@ const Index = () => {
                 <Wifi className="w-4 h-4 text-success" />
               )}
               <span className="text-muted-high-contrast font-medium">
-                {rates ? `Updated ${rates.lastUpdated.toLocaleTimeString()}` : 'Loading...'}
+                {memoizedRates ? `Updated ${memoizedRates.lastUpdated.toLocaleTimeString()}` : 'Loading...'}
               </span>
             </div>
             <ThemeToggle />
@@ -110,42 +121,42 @@ const Index = () => {
         <Card className="glass-card-enhanced rounded-2xl border-0 shadow-2xl pulse-glow">
           <CardContent className="p-6">
             <div className="flex flex-wrap justify-around items-center gap-4 text-sm">
-              <div className="flex items-center gap-2 bg-white/20 dark:bg-black/30 rounded-xl px-4 py-2 backdrop-blur-sm">
-                <DollarSign size={16} className="text-purple-400" />
+              <div className="flex items-center gap-2 bg-white/40 dark:bg-black/50 rounded-xl px-4 py-2 backdrop-blur-sm">
+                <DollarSign size={16} className="text-purple-600 dark:text-purple-400" />
                 <span className="font-semibold text-high-contrast">BRL/USD: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.brlToUsd}
                   onSave={(value) => updateExchangeRate('brlToUsd', value)}
                   type="number"
-                  className="bg-white/30 dark:bg-black/40 border-white/40 text-high-contrast font-medium"
+                  className="bg-white/50 dark:bg-black/60 border-white/60 dark:border-white/30 text-high-contrast font-medium"
                 />
               </div>
-              <div className="flex items-center gap-2 bg-white/20 dark:bg-black/30 rounded-xl px-4 py-2 backdrop-blur-sm">
-                <DollarSign size={16} className="text-blue-400" />
+              <div className="flex items-center gap-2 bg-white/40 dark:bg-black/50 rounded-xl px-4 py-2 backdrop-blur-sm">
+                <DollarSign size={16} className="text-blue-600 dark:text-blue-400" />
                 <span className="font-semibold text-high-contrast">USD/BRL: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.usdToBrl}
                   onSave={(value) => updateExchangeRate('usdToBrl', value)}
                   type="number"
-                  className="bg-white/30 dark:bg-black/40 border-white/40 text-high-contrast font-medium"
+                  className="bg-white/50 dark:bg-black/60 border-white/60 dark:border-white/30 text-high-contrast font-medium"
                 />
               </div>
-              <div className="flex items-center gap-2 bg-white/20 dark:bg-black/30 rounded-xl px-4 py-2 backdrop-blur-sm">
-                <TrendingUp size={16} className="text-orange-400" />
+              <div className="flex items-center gap-2 bg-white/40 dark:bg-black/50 rounded-xl px-4 py-2 backdrop-blur-sm">
+                <TrendingUp size={16} className="text-orange-600 dark:text-orange-400" />
                 <span className="font-semibold text-high-contrast">BTC: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.btcPrice}
                   onSave={(value) => updateExchangeRate('btcPrice', value)}
-                  className="bg-white/30 dark:bg-black/40 border-white/40 text-high-contrast font-medium"
+                  className="bg-white/50 dark:bg-black/60 border-white/60 dark:border-white/30 text-high-contrast font-medium"
                 />
               </div>
-              <div className="flex items-center gap-2 bg-white/20 dark:bg-black/30 rounded-xl px-4 py-2 backdrop-blur-sm">
-                <TrendingUp size={16} className="text-indigo-400" />
+              <div className="flex items-center gap-2 bg-white/40 dark:bg-black/50 rounded-xl px-4 py-2 backdrop-blur-sm">
+                <TrendingUp size={16} className="text-indigo-600 dark:text-indigo-400" />
                 <span className="font-semibold text-high-contrast">ETH: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.ethPrice}
                   onSave={(value) => updateExchangeRate('ethPrice', value)}
-                  className="bg-white/30 dark:bg-black/40 border-white/40 text-high-contrast font-medium"
+                  className="bg-white/50 dark:bg-black/60 border-white/60 dark:border-white/30 text-high-contrast font-medium"
                 />
               </div>
             </div>
@@ -278,27 +289,27 @@ const Index = () => {
         {/* Main Dashboard Tabs - Glass Design */}
         <Tabs defaultValue="portfolio" className="space-y-6">
           <TabsList className="glass-card-enhanced rounded-2xl p-2 border-0 shadow-lg">
-            <TabsTrigger value="portfolio" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/30 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+            <TabsTrigger value="portfolio" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
               <Briefcase size={16} />
               <span className="hidden sm:inline">Portfolio</span>
             </TabsTrigger>
-            <TabsTrigger value="income" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/30 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+            <TabsTrigger value="income" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
               <TrendingUp size={16} />
               <span className="hidden sm:inline">Income</span>
             </TabsTrigger>
-            <TabsTrigger value="expenses" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/30 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+            <TabsTrigger value="expenses" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
               <TrendingDown size={16} />
               <span className="hidden sm:inline">Expenses</span>
             </TabsTrigger>
-            <TabsTrigger value="assets" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/30 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+            <TabsTrigger value="assets" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
               <Home size={16} />
               <span className="hidden sm:inline">Assets</span>
             </TabsTrigger>
-            <TabsTrigger value="tasks" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/30 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+            <TabsTrigger value="tasks" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
               <Calendar size={16} />
               <span className="hidden sm:inline">Tasks</span>
             </TabsTrigger>
-            <TabsTrigger value="debt" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/30 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+            <TabsTrigger value="debt" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
               <AlertCircle size={16} />
               <span className="hidden sm:inline">Debt</span>
             </TabsTrigger>
