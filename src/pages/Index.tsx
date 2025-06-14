@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -29,12 +28,15 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useLiveData } from "@/hooks/useLiveData";
 import { EditableValue } from "@/components/ui/editable-value";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { DevMenu } from "@/components/DevMenu";
 
 const Index = () => {
   const { data, updateExchangeRate } = useFinancialData();
   const { rates, isLoading } = useLiveData();
   const prevRatesRef = useRef<any>();
+  const [isDevMenuOpen, setIsDevMenuOpen] = useState(false);
 
   // Memoize rates to prevent unnecessary updates
   const memoizedRates = useMemo(() => rates, [
@@ -90,13 +92,13 @@ const Index = () => {
   const yearProjection = (monthlyBalance * 12) - totalVariableExpenses + totalAvailable - totalActiveDebt;
 
   return (
-    <div className="min-h-screen p-4 custom-scrollbar bg-background">
+    <div className="min-h-screen p-4 bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header with Theme Toggle */}
+        {/* Header with Theme Toggle and Dev Menu */}
         <div className="flex justify-between items-center">
           <div className="text-center space-y-2">
-            <h1 className="brutalist-title float-animation">Financial Dashboard</h1>
-            <p className="text-muted-high-contrast text-lg">Complete financial overview and management system</p>
+            <h1 className="text-4xl font-black text-readable">Financial Dashboard</h1>
+            <p className="text-readable-muted text-lg">Complete financial overview and management system</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-sm">
@@ -105,144 +107,152 @@ const Index = () => {
               ) : (
                 <Wifi className="w-4 h-4 text-success" />
               )}
-              <span className="text-high-contrast">
+              <span className="text-readable">
                 {memoizedRates ? `Updated ${memoizedRates.lastUpdated.toLocaleTimeString()}` : 'Loading...'}
               </span>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsDevMenuOpen(true)}
+              className="text-readable font-medium"
+            >
+              Dev Menu
+            </Button>
             <ThemeToggle />
           </div>
         </div>
 
         {/* Data Management Toolbar */}
-        <div className="brutalist-card rounded-lg p-4">
+        <div className="contrast-card rounded-lg p-4">
           <DataToolbar />
         </div>
 
         {/* Exchange Rates Banner */}
-        <Card className="brutalist-card rounded-lg border-2 border-border shadow-xl">
+        <Card className="contrast-card rounded-lg">
           <CardContent className="p-6">
             <div className="flex flex-wrap justify-around items-center gap-4 text-sm">
               <div className="flex items-center gap-2 bg-muted rounded-lg px-4 py-2">
                 <DollarSign size={16} className="text-foreground" />
-                <span className="font-bold text-high-contrast">BRL/USD: R$ </span>
+                <span className="font-bold text-readable">BRL/USD: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.brlToUsd}
                   onSave={(value) => updateExchangeRate('brlToUsd', value)}
                   type="number"
-                  className="bg-card border-border text-high-contrast font-semibold"
+                  className="bg-input border-border text-readable font-semibold"
                 />
               </div>
               <div className="flex items-center gap-2 bg-muted rounded-lg px-4 py-2">
                 <DollarSign size={16} className="text-foreground" />
-                <span className="font-bold text-high-contrast">USD/BRL: R$ </span>
+                <span className="font-bold text-readable">USD/BRL: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.usdToBrl}
                   onSave={(value) => updateExchangeRate('usdToBrl', value)}
                   type="number"
-                  className="bg-card border-border text-high-contrast font-semibold"
+                  className="bg-input border-border text-readable font-semibold"
                 />
               </div>
               <div className="flex items-center gap-2 bg-muted rounded-lg px-4 py-2">
                 <TrendingUp size={16} className="text-foreground" />
-                <span className="font-bold text-high-contrast">BTC: R$ </span>
+                <span className="font-bold text-readable">BTC: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.btcPrice}
                   onSave={(value) => updateExchangeRate('btcPrice', value)}
-                  className="bg-card border-border text-high-contrast font-semibold"
+                  className="bg-input border-border text-readable font-semibold"
                 />
               </div>
               <div className="flex items-center gap-2 bg-muted rounded-lg px-4 py-2">
                 <TrendingUp size={16} className="text-foreground" />
-                <span className="font-bold text-high-contrast">ETH: R$ </span>
+                <span className="font-bold text-readable">ETH: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.ethPrice}
                   onSave={(value) => updateExchangeRate('ethPrice', value)}
-                  className="bg-card border-border text-high-contrast font-semibold"
+                  className="bg-input border-border text-readable font-semibold"
                 />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Key Metrics Overview - Clean Cards */}
+        {/* Key Metrics Overview - High Contrast Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          <Card className="brutalist-success rounded-lg float-animation">
+          <Card className="contrast-success rounded-lg">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold text-success flex items-center gap-2">
+              <CardTitle className="text-sm font-bold text-success-foreground flex items-center gap-2">
                 <DollarSign size={16} />
                 Available Now
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-black text-success">
+              <div className="text-2xl font-black text-success-foreground">
                 R$ {totalAvailable.toLocaleString()}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="brutalist-primary rounded-lg float-animation" style={{ animation: 'float 6s ease-in-out infinite 0.5s' }}>
+          <Card className="contrast-primary rounded-lg">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold text-primary flex items-center gap-2">
+              <CardTitle className="text-sm font-bold text-primary-foreground flex items-center gap-2">
                 <TrendingUp size={16} />
                 Monthly Income
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-black text-primary">
+              <div className="text-2xl font-black text-primary-foreground">
                 R$ {(totalPassiveIncome + totalActiveIncome).toLocaleString()}
               </div>
-              <div className="text-xs text-muted-high-contrast font-bold">
+              <div className="text-xs text-primary-foreground/80 font-medium">
                 Passive: R$ {totalPassiveIncome.toLocaleString()} | Active: R$ {totalActiveIncome.toLocaleString()}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="brutalist-error rounded-lg float-animation" style={{ animation: 'float 6s ease-in-out infinite 1s' }}>
+          <Card className="contrast-error rounded-lg">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold text-destructive flex items-center gap-2">
+              <CardTitle className="text-sm font-bold text-destructive-foreground flex items-center gap-2">
                 <TrendingDown size={16} />
                 Monthly Expenses
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-black text-destructive">
+              <div className="text-2xl font-black text-destructive-foreground">
                 R$ {totalRecurringExpenses.toLocaleString()}
               </div>
-              <div className="text-xs text-muted-high-contrast font-bold">
+              <div className="text-xs text-destructive-foreground/80 font-medium">
                 Recurring monthly expenses
               </div>
             </CardContent>
           </Card>
 
-          <Card className="brutalist-warning rounded-lg float-animation" style={{ animation: 'float 6s ease-in-out infinite 1.5s' }}>
+          <Card className="contrast-warning rounded-lg">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold text-warning flex items-center gap-2">
+              <CardTitle className="text-sm font-bold text-warning-foreground flex items-center gap-2">
                 <AlertCircle size={16} />
                 Active Debts
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-black text-warning">
+              <div className="text-2xl font-black text-warning-foreground">
                 R$ {totalActiveDebt.toLocaleString()}
               </div>
-              <div className="text-xs text-muted-high-contrast font-bold">
+              <div className="text-xs text-warning-foreground/80 font-medium">
                 {activeDebts.length} active debts
               </div>
             </CardContent>
           </Card>
 
-          <Card className={`${monthlyBalance >= 0 ? 'brutalist-success' : 'brutalist-error'} rounded-lg float-animation`} style={{ animation: 'float 6s ease-in-out infinite 2s' }}>
+          <Card className={`${monthlyBalance >= 0 ? 'contrast-success' : 'contrast-error'} rounded-lg`}>
             <CardHeader className="pb-2">
-              <CardTitle className={`text-sm font-bold flex items-center gap-2 ${monthlyBalance >= 0 ? 'text-success' : 'text-destructive'}`}>
+              <CardTitle className={`text-sm font-bold flex items-center gap-2 ${monthlyBalance >= 0 ? 'text-success-foreground' : 'text-destructive-foreground'}`}>
                 <BarChart3 size={16} />
                 Monthly Balance
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-black ${monthlyBalance >= 0 ? 'text-success' : 'text-destructive'}`}>
+              <div className={`text-2xl font-black ${monthlyBalance >= 0 ? 'text-success-foreground' : 'text-destructive-foreground'}`}>
                 R$ {monthlyBalance.toLocaleString()}
               </div>
-              <div className={`text-xs text-muted-high-contrast font-bold`}>
+              <div className={`text-xs font-medium ${monthlyBalance >= 0 ? 'text-success-foreground/80' : 'text-destructive-foreground/80'}`}>
                 {monthlyBalance >= 0 ? 'Positive cash flow' : 'Negative cash flow'}
               </div>
             </CardContent>
@@ -250,35 +260,35 @@ const Index = () => {
         </div>
 
         {/* 12-Month Projection */}
-        <Card className="brutalist-card rounded-lg border-2 border-border shadow-xl">
+        <Card className="contrast-card rounded-lg">
           <CardHeader>
-            <CardTitle className="text-high-contrast flex items-center gap-2 text-2xl font-black">
+            <CardTitle className="text-readable-bold flex items-center gap-2 text-2xl font-black">
               <PieChart size={20} />
               12-Month Financial Projection
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="text-center p-4 brutalist-card rounded-lg">
-                <div className="text-sm text-muted-high-contrast mb-2 font-bold">Total Income (12m)</div>
+              <div className="text-center p-4 contrast-card rounded-lg">
+                <div className="text-sm text-readable-muted mb-2 font-medium">Total Income (12m)</div>
                 <div className="text-xl font-black text-success">
                   R$ {((totalPassiveIncome + totalActiveIncome) * 12).toLocaleString()}
                 </div>
               </div>
-              <div className="text-center p-4 brutalist-card rounded-lg">
-                <div className="text-sm text-muted-high-contrast mb-2 font-bold">Total Expenses (12m)</div>
+              <div className="text-center p-4 contrast-card rounded-lg">
+                <div className="text-sm text-readable-muted mb-2 font-medium">Total Expenses (12m)</div>
                 <div className="text-xl font-black text-destructive">
                   R$ {(totalRecurringExpenses * 12 + totalVariableExpenses).toLocaleString()}
                 </div>
               </div>
-              <div className="text-center p-4 brutalist-card rounded-lg">
-                <div className="text-sm text-muted-high-contrast mb-2 font-bold">Active Debts</div>
+              <div className="text-center p-4 contrast-card rounded-lg">
+                <div className="text-sm text-readable-muted mb-2 font-medium">Active Debts</div>
                 <div className="text-xl font-black text-warning">
                   R$ {totalActiveDebt.toLocaleString()}
                 </div>
               </div>
-              <div className="text-center p-4 brutalist-card rounded-lg">
-                <div className="text-sm text-muted-high-contrast mb-2 font-bold">Net Projection</div>
+              <div className="text-center p-4 contrast-card rounded-lg">
+                <div className="text-sm text-readable-muted mb-2 font-medium">Net Projection</div>
                 <div className={`text-2xl font-black ${yearProjection >= 0 ? 'text-primary' : 'text-destructive'}`}>
                   R$ {yearProjection.toLocaleString()}
                 </div>
@@ -289,74 +299,77 @@ const Index = () => {
 
         {/* Main Dashboard Tabs */}
         <Tabs defaultValue="portfolio" className="space-y-6">
-          <TabsList className="brutalist-card rounded-lg p-2 border-2 border-border shadow-lg">
-            <TabsTrigger value="portfolio" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
+          <TabsList className="contrast-card rounded-lg p-2 border border-border">
+            <TabsTrigger value="portfolio" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-readable font-medium">
               <Briefcase size={16} />
               <span className="hidden sm:inline">Portfolio</span>
             </TabsTrigger>
-            <TabsTrigger value="income" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
+            <TabsTrigger value="income" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-readable font-medium">
               <TrendingUp size={16} />
               <span className="hidden sm:inline">Income</span>
             </TabsTrigger>
-            <TabsTrigger value="expenses" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
+            <TabsTrigger value="expenses" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-readable font-medium">
               <TrendingDown size={16} />
               <span className="hidden sm:inline">Expenses</span>
             </TabsTrigger>
-            <TabsTrigger value="assets" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
+            <TabsTrigger value="assets" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-readable font-medium">
               <Home size={16} />
               <span className="hidden sm:inline">Assets</span>
             </TabsTrigger>
-            <TabsTrigger value="tasks" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
+            <TabsTrigger value="tasks" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-readable font-medium">
               <Calendar size={16} />
               <span className="hidden sm:inline">Tasks</span>
             </TabsTrigger>
-            <TabsTrigger value="debt" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
+            <TabsTrigger value="debt" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-readable font-medium">
               <AlertCircle size={16} />
               <span className="hidden sm:inline">Debt</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="portfolio" className="space-y-6">
-            <div className="brutalist-card rounded-lg border-2 border-border">
+            <div className="contrast-card rounded-lg border border-border">
               <PortfolioOverview />
             </div>
           </TabsContent>
 
           <TabsContent value="income" className="space-y-6">
-            <div className="brutalist-card rounded-lg border-2 border-border">
+            <div className="contrast-card rounded-lg border border-border">
               <IncomeTracking />
             </div>
           </TabsContent>
 
           <TabsContent value="expenses" className="space-y-6">
-            <div className="brutalist-card rounded-lg border-2 border-border">
+            <div className="contrast-card rounded-lg border border-border">
               <ExpenseTrackingEditable />
             </div>
           </TabsContent>
 
           <TabsContent value="assets" className="space-y-6">
-            <div className="brutalist-card rounded-lg border-2 border-border">
+            <div className="contrast-card rounded-lg border border-border">
               <AssetManagementEditable />
             </div>
           </TabsContent>
 
           <TabsContent value="tasks" className="space-y-6">
-            <div className="brutalist-card rounded-lg border-2 border-border">
+            <div className="contrast-card rounded-lg border border-border">
               <TaskManagementEditable />
             </div>
           </TabsContent>
 
           <TabsContent value="debt" className="space-y-6">
-            <div className="brutalist-card rounded-lg border-2 border-border">
+            <div className="contrast-card rounded-lg border border-border">
               <DebtTrackingEditable />
             </div>
           </TabsContent>
         </Tabs>
 
-        <div className="brutalist-card rounded-lg border-2 border-border">
+        <div className="contrast-card rounded-lg border border-border">
           <ProjectionChart />
         </div>
       </div>
+
+      {/* Dev Menu */}
+      <DevMenu isOpen={isDevMenuOpen} onClose={() => setIsDevMenuOpen(false)} />
     </div>
   );
 };

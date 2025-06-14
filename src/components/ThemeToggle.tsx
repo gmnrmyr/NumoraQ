@@ -12,14 +12,14 @@ export const ThemeToggle: React.FC = () => {
       variant="outline"
       size="sm"
       onClick={toggleTheme}
-      className="border-2 border-border bg-card hover:bg-muted font-bold text-high-contrast transition-all duration-300"
+      className="border border-border bg-card hover:bg-muted text-readable font-medium"
     >
       {theme === 'light' ? (
         <Moon className="h-4 w-4" />
       ) : (
         <Sun className="h-4 w-4" />
       )}
-      <span className="ml-2 hidden sm:inline font-bold">
+      <span className="ml-2 hidden sm:inline font-medium">
         {theme === 'light' ? 'Dark' : 'Light'}
       </span>
     </Button>
