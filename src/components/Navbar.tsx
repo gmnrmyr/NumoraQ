@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { User, DollarSign, BarChart3, Home, Signal, ChevronDown, UserPlus, Trash2, LogOut, LogIn, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -103,14 +104,16 @@ export const Navbar = () => {
   };
 
   const handleCurrencyChange = (newCurrency: 'BRL' | 'USD' | 'EUR') => {
+    console.log('Currency changed to:', newCurrency);
     updateUserProfile({ defaultCurrency: newCurrency });
   };
 
   const currencyDisplay = getCurrencyDisplay(data.userProfile.defaultCurrency);
   
-  // Improved live data status logic
+  // Fixed live data status logic
   const getLiveDataStatus = () => {
-    if (!user || !isLiveDataEnabled) return { status: 'off', color: 'text-orange-500' };
+    if (!user) return { status: 'off', color: 'text-gray-500' };
+    if (!isLiveDataEnabled) return { status: 'off', color: 'text-orange-500' };
     if (pricesLoading) return { status: 'updating', color: 'text-yellow-500 animate-pulse' };
     return { status: 'on', color: 'text-green-500' };
   };
@@ -216,7 +219,7 @@ export const Navbar = () => {
                 </>
               )}
 
-              {/* Live Numbers Status - Fixed status logic */}
+              {/* Live Numbers Status */}
               <div className="flex items-center space-x-1 text-sm text-gray-600">
                 <Signal 
                   size={16} 
