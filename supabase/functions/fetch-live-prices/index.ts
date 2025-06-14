@@ -85,8 +85,9 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const currency = url.searchParams.get('currency') || 'BRL';
+    // Parse the request body to get the currency
+    const body = await req.json().catch(() => ({}));
+    const currency = body.currency || 'BRL';
     
     console.log(`Processing request for currency: ${currency}`);
     
