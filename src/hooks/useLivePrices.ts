@@ -35,19 +35,12 @@ export const useLivePrices = () => {
       if (functionError) throw functionError;
       
       if (priceData) {
-        // Batch update all exchange rates to minimize re-renders
-        const updates = [
-          ['brlToUsd', priceData.brlToUsd],
-          ['usdToBrl', priceData.usdToBrl],
-          ['btcPrice', priceData.btcPrice],
-          ['ethPrice', priceData.ethPrice],
-          ['lastUpdated', priceData.lastUpdated]
-        ];
-
-        // Update all rates in sequence to avoid multiple re-renders
-        updates.forEach(([key, value]) => {
-          updateExchangeRate(key as string, value);
-        });
+        // Update each exchange rate individually with proper typing
+        updateExchangeRate('brlToUsd', priceData.brlToUsd);
+        updateExchangeRate('usdToBrl', priceData.usdToBrl);
+        updateExchangeRate('btcPrice', priceData.btcPrice);
+        updateExchangeRate('ethPrice', priceData.ethPrice);
+        updateExchangeRate('lastUpdated', priceData.lastUpdated);
         
         console.log('Live prices updated successfully:', priceData);
       }
