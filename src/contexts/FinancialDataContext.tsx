@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface LiquidAsset {
@@ -120,7 +121,7 @@ interface FinancialDataContextType {
   removeDebt: (id: string) => void;
   removeProperty: (id: string) => void;
   exportToCSV: () => void;
-  importFromJSON: (jsonData: string): boolean => void;
+  importFromJSON: (jsonData: string) => boolean;
   resetData: () => void;
 }
 
@@ -395,19 +396,24 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
 
   const importFromJSON = (jsonData: string): boolean => {
     try {
-      // Validate that it's actually JSON
+      console.log('Attempting to import JSON data:', jsonData.substring(0, 100) + '...');
+      
+      // Parse the JSON data
       const parsedData = JSON.parse(jsonData);
+      console.log('Parsed data structure keys:', Object.keys(parsedData));
       
       // Basic validation - check if it has the expected structure
       if (typeof parsedData !== 'object' || parsedData === null) {
+        console.error('Invalid data structure - not an object');
         throw new Error('Invalid data structure');
       }
       
       // Merge with default data to ensure all required fields exist
-      const validatedData = {
-        ...defaultData,
-        ...parsedData,
-        // Ensure arrays exist even if empty
+      const validatedData: FinancialData = {
+        exchangeRates: {
+          ...defaultData.exchangeRates,
+          ...(parsedData.exchangeRates || {})
+        },
         liquidAssets: Array.isArray(parsedData.liquidAssets) ? parsedData.liquidAssets : defaultData.liquidAssets,
         illiquidAssets: Array.isArray(parsedData.illiquidAssets) ? parsedData.illiquidAssets : defaultData.illiquidAssets,
         passiveIncome: Array.isArray(parsedData.passiveIncome) ? parsedData.passiveIncome : defaultData.passiveIncome,
@@ -416,20 +422,20 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
         tasks: Array.isArray(parsedData.tasks) ? parsedData.tasks : defaultData.tasks,
         debts: Array.isArray(parsedData.debts) ? parsedData.debts : defaultData.debts,
         properties: Array.isArray(parsedData.properties) ? parsedData.properties : defaultData.properties,
-        exchangeRates: parsedData.exchangeRates || defaultData.exchangeRates
       };
       
+      console.log('Setting validated data:', validatedData);
       setData(validatedData);
-      console.log('Data imported successfully:', validatedData);
       return true;
     } catch (error) {
-      console.error('Error importing data:', error);
+      console.error('Error importing JSON data:', error);
       return false;
     }
   };
 
   const resetData = () => {
     setData(defaultData);
+    console.log('Data reset to default values');
   };
 
   return (
