@@ -24,7 +24,7 @@ const iconMap: { [key: string]: any } = {
   PiggyBank, TrendingUp, DollarSign, Landmark, Gift,
   
   // Investment & Trading
-  Shield, Target, Zap, Gem, Star, TrendingUp,
+  Shield, Target, Zap, Gem, Star,
   
   // Tech & Digital
   Users, Globe, Smartphone, Monitor, Gamepad2,
