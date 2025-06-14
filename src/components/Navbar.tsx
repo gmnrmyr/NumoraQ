@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { User, DollarSign, BarChart3, Home, Signal } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { EditableValue } from '@/components/ui/editable-value';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -46,11 +47,11 @@ export const Navbar = () => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo/Brand */}
-            <div className="flex items-center space-x-2">
+            {/* Logo/Brand - now clickable to go back to landing */}
+            <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <BarChart3 className="text-blue-600" size={24} />
               <span className="text-xl font-bold text-gray-800">FinanceTracker</span>
-            </div>
+            </Link>
 
             {/* User Profile and Status */}
             <div className="flex items-center space-x-4">

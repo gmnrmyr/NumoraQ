@@ -17,7 +17,11 @@ import {
   ArrowRight,
   Lightbulb,
   Users,
-  Shield
+  Shield,
+  Download,
+  Bot,
+  FileJson,
+  Github
 } from "lucide-react";
 
 const LandingPage = () => {
@@ -200,6 +204,76 @@ const LandingPage = () => {
                 )}
               </Card>
             ))}
+          </div>
+        </div>
+
+        {/* AI Integration & Import/Export Section */}
+        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-slate-800 mb-4 flex items-center justify-center gap-3">
+              <Bot className="text-emerald-600" size={32} />
+              AI-Powered Data Management
+            </h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">
+              Leverage AI to quickly set up and customize your financial data.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Card className="border-emerald-200">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-emerald-800">
+                  <FileJson size={24} />
+                  Smart JSON Import
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-slate-600">
+                  Use AI to generate your financial data in the correct format:
+                </p>
+                <div className="bg-white p-4 rounded-lg border space-y-2 text-sm">
+                  <p><strong>1.</strong> Export your current data from the dashboard</p>
+                  <p><strong>2.</strong> Ask ChatGPT, Claude, or Grok:</p>
+                  <div className="bg-gray-50 p-3 rounded italic text-xs">
+                    "Please modify this financial JSON data according to my needs: [paste your requirements]. 
+                    Return only the JSON in the same format."
+                  </div>
+                  <p><strong>3.</strong> Import the AI-generated JSON back into FinanceTracker</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-teal-200">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-teal-800">
+                  <Download size={24} />
+                  Offline Usage
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-slate-600">
+                  Download and run FinanceTracker on your own machine:
+                </p>
+                <div className="bg-white p-4 rounded-lg border space-y-2 text-sm">
+                  <p><strong>1.</strong> Visit our GitHub repository</p>
+                  <p><strong>2.</strong> Clone or download the source code</p>
+                  <p><strong>3.</strong> Run <code className="bg-gray-100 px-1 rounded">npm install && npm run dev</code></p>
+                  <p><strong>4.</strong> Access at <code className="bg-gray-100 px-1 rounded">localhost:5173</code></p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Perfect for offline use or when the website is unavailable!
+                  </p>
+                </div>
+                <a 
+                  href="https://github.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm"
+                >
+                  <Github size={16} />
+                  View on GitHub
+                </a>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
