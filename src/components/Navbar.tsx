@@ -1,15 +1,21 @@
+
 import { useState, useEffect } from 'react';
-import { User, DollarSign, BarChart3, Home, Signal, ChevronDown, UserPlus, Trash2 } from 'lucide-react';
+import { User, DollarSign, BarChart3, Home, Signal, ChevronDown, UserPlus, Trash2, LogOut, LogIn, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLivePrices } from '@/hooks/useLivePrices';
 import { EditableValue } from '@/components/ui/editable-value';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 export const Navbar = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const { data, updateUserProfile, resetData, importFromJSON } = useFinancialData();
+  const { user, signOut } = useAuth();
+  const { fetchLivePrices, loading: pricesLoading, isLiveDataEnabled } = useLivePrices();
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -27,6 +33,20 @@ export const Navbar = () => {
     window.addEventListener('scroll', controlNavbar);
     return () => window.removeEventListener('scroll', controlNavbar);
   }, [lastScrollY]);
+
+  // Auto-fetch live prices every 5 minutes for authenticated users
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (user && isLiveDataEnabled) {
+      fetchLivePrices(); // Initial fetch
+      interval = setInterval(fetchLivePrices, 5 * 60 * 1000); // Every 5 minutes
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [user, isLiveDataEnabled, fetchLivePrices]);
 
   const getCurrencyDisplay = (currency: string) => {
     switch (currency) {
@@ -97,7 +117,12 @@ export const Navbar = () => {
     importFromJSON(templateJson);
   };
 
+  const handleCurrencyChange = (newCurrency: 'BRL' | 'USD' | 'EUR') => {
+    updateUserProfile({ defaultCurrency: newCurrency });
+  };
+
   const currencyDisplay = getCurrencyDisplay(data.userProfile.defaultCurrency);
+  const liveDataStatus = user && isLiveDataEnabled ? 'on' : 'off';
 
   return (
     <TooltipProvider>
@@ -109,7 +134,7 @@ export const Navbar = () => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo/Brand - now clickable to go back to landing */}
+            {/* Logo/Brand */}
             <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <BarChart3 className="text-blue-600" size={24} />
               <span className="text-xl font-bold text-gray-800">FinanceTracker</span>
@@ -117,65 +142,104 @@ export const Navbar = () => {
 
             {/* User Profile and Status */}
             <div className="flex items-center space-x-4">
-              {/* User Management Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <div className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100/70 px-2 py-1 rounded-lg transition-colors">
-                    <User className="text-gray-600" size={20} />
-                    <EditableValue
-                      value={data.userProfile.name}
-                      onSave={(value) => updateUserProfile({ name: String(value) })}
-                      type="text"
-                      className="text-gray-800 font-medium"
-                      placeholder="Enter your name"
-                    />
-                    <ChevronDown size={14} className="text-gray-400" />
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg">
-                  <DropdownMenuLabel>Profile Management</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => createNewUser('BRL')} className="cursor-pointer">
-                    <UserPlus size={16} className="mr-2" />
-                    New User (BRL 🇧🇷)
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => createNewUser('USD')} className="cursor-pointer">
-                    <UserPlus size={16} className="mr-2" />
-                    New User (USD 🇺🇸)
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={resetData} className="cursor-pointer text-red-600 hover:text-red-700">
-                    <Trash2 size={16} className="mr-2" />
-                    Reset to Default Data
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* Authentication Status */}
+              {!user ? (
+                <Link to="/auth">
+                  <Button variant="outline" size="sm">
+                    <LogIn size={16} className="mr-2" />
+                    Sign In
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  {/* User Management Dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <div className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100/70 px-2 py-1 rounded-lg transition-colors">
+                        <User className="text-gray-600" size={20} />
+                        <EditableValue
+                          value={data.userProfile.name || user.email || "User"}
+                          onSave={(value) => updateUserProfile({ name: String(value) })}
+                          type="text"
+                          className="text-gray-800 font-medium"
+                          placeholder="Enter your name"
+                        />
+                        <ChevronDown size={14} className="text-gray-400" />
+                      </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg">
+                      <DropdownMenuLabel>Profile Management</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => createNewUser('BRL')} className="cursor-pointer">
+                        <UserPlus size={16} className="mr-2" />
+                        New User (BRL 🇧🇷)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => createNewUser('USD')} className="cursor-pointer">
+                        <UserPlus size={16} className="mr-2" />
+                        New User (USD 🇺🇸)
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={resetData} className="cursor-pointer text-red-600 hover:text-red-700">
+                        <Trash2 size={16} className="mr-2" />
+                        Reset to Default Data
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={signOut} className="cursor-pointer text-red-600 hover:text-red-700">
+                        <LogOut size={16} className="mr-2" />
+                        Sign Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
-              {/* Currency Indicator with Flag and Tooltip */}
-              <div className="flex items-center space-x-1 text-sm text-gray-600">
-                <DollarSign size={16} />
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="cursor-help flex items-center space-x-1">
-                      <span>{currencyDisplay.flag}</span>
-                      <span>{currencyDisplay.symbol}</span>
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Currency is set permanently to avoid data conversion issues.<br />More currencies available in future versions!</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
+                  {/* Currency Selector */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <div className="flex items-center space-x-1 text-sm text-gray-600 cursor-pointer hover:bg-gray-100/70 px-2 py-1 rounded-lg transition-colors">
+                        <DollarSign size={16} />
+                        <span className="flex items-center space-x-1">
+                          <span>{currencyDisplay.flag}</span>
+                          <span>{currencyDisplay.symbol}</span>
+                        </span>
+                        <ChevronDown size={12} className="text-gray-400" />
+                      </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuLabel>Currency</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleCurrencyChange('BRL')} className="cursor-pointer">
+                        <Globe size={16} className="mr-2" />
+                        🇧🇷 Real (BRL)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleCurrencyChange('USD')} className="cursor-pointer">
+                        <Globe size={16} className="mr-2" />
+                        🇺🇸 Dollar (USD)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleCurrencyChange('EUR')} className="cursor-pointer">
+                        <Globe size={16} className="mr-2" />
+                        🇪🇺 Euro (EUR)
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              )}
 
               {/* Live Numbers Status */}
               <div className="flex items-center space-x-1 text-sm text-gray-600">
-                <Signal size={16} className="text-orange-500" />
+                <Signal size={16} className={liveDataStatus === 'on' ? "text-green-500" : "text-orange-500"} />
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="cursor-help text-orange-600 text-xs font-medium">live numbers: off</span>
+                    <span className={`cursor-help text-xs font-medium ${liveDataStatus === 'on' ? 'text-green-600' : 'text-orange-600'}`}>
+                      live numbers: {liveDataStatus}
+                      {pricesLoading ? ' (updating...)' : ''}
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>All prices (BTC, exchange rates, etc.) are manually input.<br />Live data integration coming in future versions.</p>
+                    <p>
+                      {liveDataStatus === 'on' 
+                        ? 'Live data fetching is enabled. Prices update automatically every 5 minutes.' 
+                        : 'Sign in to enable live price updates from real markets.'
+                      }
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
