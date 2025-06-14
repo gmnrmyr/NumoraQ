@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { User, DollarSign, BarChart3, Home, Signal, ChevronDown, UserPlus, Trash2, LogOut, LogIn, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -15,7 +14,7 @@ export const Navbar = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const { data, updateUserProfile, resetData, importFromJSON } = useFinancialData();
   const { user, signOut } = useAuth();
-  const { loading: pricesLoading, isLiveDataEnabled } = useLivePrices();
+  const { loading: pricesLoading, isLiveDataEnabled, timeSinceLastUpdate } = useLivePrices();
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -108,7 +107,15 @@ export const Navbar = () => {
   };
 
   const currencyDisplay = getCurrencyDisplay(data.userProfile.defaultCurrency);
-  const liveDataStatus = user && isLiveDataEnabled ? 'on' : 'off';
+  
+  // Improved live data status logic
+  const getLiveDataStatus = () => {
+    if (!user || !isLiveDataEnabled) return { status: 'off', color: 'text-orange-500' };
+    if (pricesLoading) return { status: 'updating', color: 'text-yellow-500 animate-pulse' };
+    return { status: 'on', color: 'text-green-500' };
+  };
+
+  const liveDataInfo = getLiveDataStatus();
 
   return (
     <TooltipProvider>
@@ -209,38 +216,32 @@ export const Navbar = () => {
                 </>
               )}
 
-              {/* Live Numbers Status - Improved visual feedback */}
+              {/* Live Numbers Status - Fixed status logic */}
               <div className="flex items-center space-x-1 text-sm text-gray-600">
                 <Signal 
                   size={16} 
-                  className={`transition-colors duration-300 ${
-                    liveDataStatus === 'on' 
-                      ? pricesLoading 
-                        ? "text-yellow-500 animate-pulse" 
-                        : "text-green-500" 
-                      : "text-orange-500"
-                  }`} 
+                  className={`transition-colors duration-300 ${liveDataInfo.color}`} 
                 />
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className={`cursor-help text-xs font-medium transition-colors duration-300 ${
-                      liveDataStatus === 'on' 
-                        ? pricesLoading 
-                          ? 'text-yellow-600' 
-                          : 'text-green-600' 
-                        : 'text-orange-600'
-                    }`}>
-                      live numbers: {liveDataStatus}
-                      {pricesLoading ? ' (updating...)' : ''}
-                    </span>
+                    <div className="cursor-help">
+                      <span className={`text-xs font-medium transition-colors duration-300 ${liveDataInfo.color}`}>
+                        live numbers: {liveDataInfo.status}
+                      </span>
+                      {timeSinceLastUpdate && liveDataInfo.status === 'on' && (
+                        <div className="text-xs text-gray-500">
+                          updated {timeSinceLastUpdate}
+                        </div>
+                      )}
+                    </div>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
-                      {liveDataStatus === 'on' 
-                        ? pricesLoading
+                      {liveDataInfo.status === 'off' 
+                        ? 'Sign in to enable live price updates from real markets.'
+                        : liveDataInfo.status === 'updating'
                           ? 'Live data is currently being updated...'
-                          : 'Live data fetching is enabled. Prices update automatically every 5 minutes.' 
-                        : 'Sign in to enable live price updates from real markets.'
+                          : `Live data fetching is enabled. Prices update automatically every 5 minutes.${timeSinceLastUpdate ? ` Last updated ${timeSinceLastUpdate}.` : ''}`
                       }
                     </p>
                   </TooltipContent>

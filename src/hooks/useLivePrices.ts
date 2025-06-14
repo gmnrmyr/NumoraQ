@@ -14,6 +14,7 @@ interface LivePriceData {
 export const useLivePrices = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
   const { data, updateExchangeRate } = useFinancialData();
   const fetchingRef = useRef(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -29,8 +30,10 @@ export const useLivePrices = () => {
     setError(null);
 
     try {
-      console.log('Fetching live prices...');
-      const { data: priceData, error: functionError } = await supabase.functions.invoke('fetch-live-prices');
+      console.log('Fetching live prices for currency:', data.userProfile.defaultCurrency);
+      const { data: priceData, error: functionError } = await supabase.functions.invoke('fetch-live-prices', {
+        body: { currency: data.userProfile.defaultCurrency }
+      });
       
       if (functionError) throw functionError;
       
@@ -42,6 +45,7 @@ export const useLivePrices = () => {
         updateExchangeRate('ethPrice', priceData.ethPrice);
         updateExchangeRate('lastUpdated', priceData.lastUpdated);
         
+        setLastFetchTime(new Date());
         console.log('Live prices updated successfully:', priceData);
       }
     } catch (err: any) {
@@ -78,7 +82,7 @@ export const useLivePrices = () => {
     return () => {
       clearExistingInterval();
     };
-  }, [data.userProfile?.name, fetchLivePrices, clearExistingInterval]);
+  }, [data.userProfile?.name, data.userProfile?.defaultCurrency, fetchLivePrices, clearExistingInterval]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -88,10 +92,26 @@ export const useLivePrices = () => {
     };
   }, [clearExistingInterval]);
 
+  // Calculate time since last update
+  const getTimeSinceLastUpdate = useCallback(() => {
+    if (!data.exchangeRates.lastUpdated) return null;
+    
+    const lastUpdate = new Date(data.exchangeRates.lastUpdated);
+    const now = new Date();
+    const diffMs = now.getTime() - lastUpdate.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    
+    if (diffMinutes < 1) return 'just now';
+    if (diffMinutes === 1) return '1 minute ago';
+    return `${diffMinutes} minutes ago`;
+  }, [data.exchangeRates.lastUpdated]);
+
   return {
     fetchLivePrices,
     loading,
     error,
+    lastFetchTime,
+    timeSinceLastUpdate: getTimeSinceLastUpdate(),
     isLiveDataEnabled: data.userProfile?.name !== '' // Enable for logged in users
   };
 };

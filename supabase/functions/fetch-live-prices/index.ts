@@ -14,7 +14,7 @@ interface PriceData {
   lastUpdated: string;
 }
 
-async function fetchExchangeRates(): Promise<PriceData> {
+async function fetchExchangeRates(currency: string = 'BRL'): Promise<PriceData> {
   try {
     // Fetch USD/BRL exchange rate from Exchange Rates API
     const exchangeResponse = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
@@ -29,25 +29,47 @@ async function fetchExchangeRates(): Promise<PriceData> {
     const btcPriceUSD = cryptoData.bitcoin?.usd || 100000;
     const ethPriceUSD = cryptoData.ethereum?.usd || 2500;
     
-    // Convert to BRL if needed (assuming user wants BRL prices)
-    const btcPrice = btcPriceUSD * usdToBrl;
-    const ethPrice = ethPriceUSD * usdToBrl;
+    // Convert crypto prices based on user's currency preference
+    let btcPrice, ethPrice;
+    if (currency === 'USD') {
+      btcPrice = Math.round(btcPriceUSD);
+      ethPrice = Math.round(ethPriceUSD);
+    } else if (currency === 'BRL') {
+      btcPrice = Math.round(btcPriceUSD * usdToBrl);
+      ethPrice = Math.round(ethPriceUSD * usdToBrl);
+    } else if (currency === 'EUR') {
+      const eurRate = exchangeData.rates.EUR || 0.85;
+      btcPrice = Math.round(btcPriceUSD * eurRate);
+      ethPrice = Math.round(ethPriceUSD * eurRate);
+    } else {
+      // Default to USD
+      btcPrice = Math.round(btcPriceUSD);
+      ethPrice = Math.round(ethPriceUSD);
+    }
 
     return {
       brlToUsd: Math.round(brlToUsd * 10000) / 10000,
       usdToBrl: Math.round(usdToBrl * 100) / 100,
-      btcPrice: Math.round(btcPrice),
-      ethPrice: Math.round(ethPrice),
+      btcPrice,
+      ethPrice,
       lastUpdated: new Date().toISOString()
     };
   } catch (error) {
     console.error('Error fetching prices:', error);
-    // Return fallback values
+    // Return fallback values based on currency
+    const fallbackPrices = {
+      BRL: { btc: 588300, eth: 14000 },
+      USD: { btc: 100000, eth: 2500 },
+      EUR: { btc: 85000, eth: 2125 }
+    };
+    
+    const prices = fallbackPrices[currency as keyof typeof fallbackPrices] || fallbackPrices.USD;
+    
     return {
       brlToUsd: 0.18,
       usdToBrl: 5.54,
-      btcPrice: 588300,
-      ethPrice: 14000,
+      btcPrice: prices.btc,
+      ethPrice: prices.eth,
       lastUpdated: new Date().toISOString()
     };
   }
@@ -59,7 +81,10 @@ serve(async (req) => {
   }
 
   try {
-    const priceData = await fetchExchangeRates();
+    const url = new URL(req.url);
+    const currency = url.searchParams.get('currency') || 'BRL';
+    
+    const priceData = await fetchExchangeRates(currency);
     
     return new Response(
       JSON.stringify(priceData),
