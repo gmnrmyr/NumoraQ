@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface LiquidAsset {
@@ -153,7 +152,7 @@ interface FinancialDataContextType {
 
 const defaultData: FinancialData = {
   userProfile: {
-    name: "User",
+    name: "Gui",
     defaultCurrency: "BRL",
     language: "en"
   },

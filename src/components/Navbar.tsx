@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { User, DollarSign, BarChart3, Home } from 'lucide-react';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { EditableValue } from '@/components/ui/editable-value';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const Navbar = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -36,52 +37,61 @@ export const Navbar = () => {
   };
 
   return (
-    <nav 
-      className={`fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 transition-transform duration-300 ${
-        isVisible ? 'transform translate-y-0' : 'transform -translate-y-full'
-      }`}
-      onMouseEnter={() => setIsVisible(true)}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo/Brand */}
-          <div className="flex items-center space-x-2">
-            <BarChart3 className="text-blue-600" size={24} />
-            <span className="text-xl font-bold text-gray-800">FinanceTracker</span>
-          </div>
-
-          {/* User Profile */}
-          <div className="flex items-center space-x-4">
+    <TooltipProvider>
+      <nav 
+        className={`fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 transition-transform duration-300 ${
+          isVisible ? 'transform translate-y-0' : 'transform -translate-y-full'
+        }`}
+        onMouseEnter={() => setIsVisible(true)}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo/Brand */}
             <div className="flex items-center space-x-2">
-              <User className="text-gray-600" size={20} />
-              <EditableValue
-                value={data.userProfile.name}
-                onSave={(value) => updateUserProfile({ name: String(value) })}
-                type="text"
-                className="text-gray-800 font-medium"
-                placeholder="Enter your name"
-              />
+              <BarChart3 className="text-blue-600" size={24} />
+              <span className="text-xl font-bold text-gray-800">FinanceTracker</span>
             </div>
 
-            {/* Currency Indicator */}
-            <div className="flex items-center space-x-1 text-sm text-gray-600">
-              <DollarSign size={16} />
-              <span>{getCurrencySymbol(data.userProfile.defaultCurrency)}</span>
-            </div>
+            {/* User Profile */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <User className="text-gray-600" size={20} />
+                <EditableValue
+                  value={data.userProfile.name}
+                  onSave={(value) => updateUserProfile({ name: String(value) })}
+                  type="text"
+                  className="text-gray-800 font-medium"
+                  placeholder="Enter your name"
+                />
+              </div>
 
-            {/* Quick Actions */}
-            <div className="flex items-center space-x-2">
-              <button 
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                title="Go to top"
-              >
-                <Home size={18} className="text-gray-600" />
-              </button>
+              {/* Currency Indicator with Tooltip */}
+              <div className="flex items-center space-x-1 text-sm text-gray-600">
+                <DollarSign size={16} />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="cursor-help">{getCurrencySymbol(data.userProfile.defaultCurrency)}</span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>More currencies coming soon!</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  title="Go to top"
+                >
+                  <Home size={18} className="text-gray-600" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </TooltipProvider>
   );
 };
