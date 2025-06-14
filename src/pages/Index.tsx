@@ -87,7 +87,7 @@ const Index = () => {
                 <DollarSign size={16} />
                 <span>BRL/USD: R$ </span>
                 <EditableValue
-                  value={data.exchangeRates.brlToUsd.toString()}
+                  value={data.exchangeRates.brlToUsd}
                   onSave={(value) => updateExchangeRate('brlToUsd', Number(value))}
                   type="number"
                   className="text-white bg-white/20 hover:bg-white/30"
@@ -97,7 +97,7 @@ const Index = () => {
                 <DollarSign size={16} />
                 <span>USD/BRL: R$ </span>
                 <EditableValue
-                  value={data.exchangeRates.usdToBrl.toString()}
+                  value={data.exchangeRates.usdToBrl}
                   onSave={(value) => updateExchangeRate('usdToBrl', Number(value))}
                   type="number"
                   className="text-white bg-white/20 hover:bg-white/30"
@@ -107,7 +107,7 @@ const Index = () => {
                 <TrendingUp size={16} />
                 <span>BTC: R$ </span>
                 <EditableValue
-                  value={data.exchangeRates.btcPrice.toString()}
+                  value={data.exchangeRates.btcPrice}
                   onSave={(value) => updateExchangeRate('btcPrice', Number(value))}
                   type="number"
                   className="text-white bg-white/20 hover:bg-white/30"
@@ -117,7 +117,7 @@ const Index = () => {
                 <TrendingUp size={16} />
                 <span>ETH: R$ </span>
                 <EditableValue
-                  value={data.exchangeRates.ethPrice.toString()}
+                  value={data.exchangeRates.ethPrice}
                   onSave={(value) => updateExchangeRate('ethPrice', Number(value))}
                   type="number"
                   className="text-white bg-white/20 hover:bg-white/30"
@@ -127,7 +127,7 @@ const Index = () => {
                 <Calendar size={16} />
                 <span>Projection: </span>
                 <EditableValue
-                  value={data.projectionMonths.toString()}
+                  value={data.projectionMonths}
                   onSave={(value) => updateProjectionMonths(Number(value))}
                   type="number"
                   className="text-white bg-white/20 hover:bg-white/30"

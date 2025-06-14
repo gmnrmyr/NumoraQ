@@ -84,6 +84,7 @@ export const IncomeTracking = () => {
                     <EditableValue
                       value={income.source}
                       onSave={(value) => updatePassiveIncome(income.id, { source: String(value) })}
+                      type="text"
                       className="font-medium"
                     />
                   </div>
@@ -103,7 +104,7 @@ export const IncomeTracking = () => {
                     <div className="text-right">
                       <div className="font-bold">
                         R$ <EditableValue
-                          value={income.amount.toString()}
+                          value={income.amount}
                           onSave={(value) => updatePassiveIncome(income.id, { amount: Number(value) })}
                           type="number"
                           className="inline"
@@ -119,6 +120,7 @@ export const IncomeTracking = () => {
                   <EditableValue
                     value={income.note || ""}
                     onSave={(value) => updatePassiveIncome(income.id, { note: String(value) || undefined })}
+                    type="text"
                     placeholder="Add note..."
                     className="text-xs text-amber-600 bg-amber-50 p-2 rounded w-full"
                   />
@@ -163,6 +165,7 @@ export const IncomeTracking = () => {
                     <EditableValue
                       value={income.source}
                       onSave={(value) => updateActiveIncome(income.id, { source: String(value) })}
+                      type="text"
                       className="font-medium"
                     />
                   </div>
@@ -182,7 +185,7 @@ export const IncomeTracking = () => {
                     <div className="text-right">
                       <div className="font-bold">
                         R$ <EditableValue
-                          value={income.amount.toString()}
+                          value={income.amount}
                           onSave={(value) => updateActiveIncome(income.id, { amount: Number(value) })}
                           type="number"
                           className="inline"
@@ -194,8 +197,9 @@ export const IncomeTracking = () => {
                 <Progress value={percentage} className="h-2" />
                 <div className="mt-2">
                   <EditableValue
-                    value={income.note || ""}
-                    onSave={(value) => updateActiveIncome(income.id, { note: String(value) || undefined })}
+                    value={(income as any).note || ""}
+                    onSave={(value) => updateActiveIncome(income.id, { note: String(value) || undefined } as any)}
+                    type="text"
                     placeholder="Add note..."
                     className="text-xs text-amber-600 bg-amber-50 p-2 rounded w-full"
                   />

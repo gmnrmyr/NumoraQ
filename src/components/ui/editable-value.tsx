@@ -4,12 +4,13 @@ import { Input } from './input';
 import { cn } from '@/lib/utils';
 
 interface EditableValueProps {
-  value: number;
-  onSave: (value: number) => void;
+  value: number | string;
+  onSave: (value: number | string) => void;
   className?: string;
   prefix?: string;
   suffix?: string;
-  type?: 'currency' | 'number' | 'percentage';
+  type?: 'currency' | 'number' | 'percentage' | 'text';
+  placeholder?: string;
 }
 
 export const EditableValue: React.FC<EditableValueProps> = ({
@@ -18,7 +19,8 @@ export const EditableValue: React.FC<EditableValueProps> = ({
   className,
   prefix = '',
   suffix = '',
-  type = 'currency'
+  type = 'currency',
+  placeholder
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value.toString());
@@ -32,8 +34,12 @@ export const EditableValue: React.FC<EditableValueProps> = ({
   }, [isEditing]);
 
   const handleSave = () => {
-    const numericValue = parseFloat(editValue) || 0;
-    onSave(numericValue);
+    if (type === 'text') {
+      onSave(editValue);
+    } else {
+      const numericValue = parseFloat(editValue) || 0;
+      onSave(numericValue);
+    }
     setIsEditing(false);
   };
 
@@ -46,11 +52,14 @@ export const EditableValue: React.FC<EditableValueProps> = ({
     }
   };
 
-  const formatValue = (val: number) => {
+  const formatValue = (val: number | string) => {
+    if (type === 'text') {
+      return val.toString();
+    }
     if (type === 'currency') {
-      return val.toLocaleString();
+      return Number(val).toLocaleString();
     } else if (type === 'percentage') {
-      return val.toFixed(2);
+      return Number(val).toFixed(2);
     }
     return val.toString();
   };
@@ -59,11 +68,12 @@ export const EditableValue: React.FC<EditableValueProps> = ({
     return (
       <Input
         ref={inputRef}
-        type="number"
+        type={type === 'text' ? 'text' : 'number'}
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
+        placeholder={placeholder}
         className={cn("w-full min-w-0", className)}
       />
     );
@@ -74,11 +84,12 @@ export const EditableValue: React.FC<EditableValueProps> = ({
       onClick={() => setIsEditing(true)}
       className={cn(
         "cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded transition-colors",
+        value === '' && placeholder ? 'text-slate-400' : '',
         className
       )}
       title="Click to edit"
     >
-      {prefix}{formatValue(value)}{suffix}
+      {value === '' && placeholder ? placeholder : `${prefix}${formatValue(value)}${suffix}`}
     </span>
   );
 };
