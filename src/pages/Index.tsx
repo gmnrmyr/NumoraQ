@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +13,8 @@ import {
   Calendar,
   AlertCircle,
   PieChart,
-  BarChart3
+  BarChart3,
+  User
 } from "lucide-react";
 import { PortfolioOverview } from "@/components/PortfolioOverview";
 import { IncomeTracking } from "@/components/IncomeTracking";
@@ -27,7 +29,7 @@ import { EditableValue } from "@/components/ui/editable-value";
 import { DevMenu } from "@/components/DevMenu";
 
 const Index = () => {
-  const { data, updateExchangeRate, updateProfileName, updateProjectionMonths } = useFinancialData();
+  const { data, updateExchangeRate, updateUserProfile, updateProjectionMonths } = useFinancialData();
 
   // Calculate totals from context data (only active assets)
   const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
@@ -66,10 +68,11 @@ const Index = () => {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-slate-800">
+          <h1 className="text-4xl font-bold text-slate-800 flex items-center justify-center gap-3">
+            <User className="text-blue-600" size={32} />
             <EditableValue
-              value={data.profileName}
-              onSave={(value) => updateProfileName(String(value))}
+              value={data.userProfile.name}
+              onSave={(value) => updateUserProfile({ name: String(value) })}
               className="inline-block text-center"
             />
           </h1>
@@ -134,6 +137,11 @@ const Index = () => {
                 />
                 <span> months</span>
               </div>
+              {data.exchangeRates.lastUpdated && (
+                <div className="flex items-center gap-2 text-xs opacity-75">
+                  <span>Updated: {new Date(data.exchangeRates.lastUpdated).toLocaleDateString()}</span>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -149,7 +157,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-800">
-                R$ {totalAvailable.toLocaleString()}
+                {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalAvailable.toLocaleString()}
               </div>
             </CardContent>
           </Card>
@@ -163,10 +171,10 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-800">
-                R$ {(totalPassiveIncome + totalActiveIncome).toLocaleString()}
+                {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {(totalPassiveIncome + totalActiveIncome).toLocaleString()}
               </div>
               <div className="text-xs text-blue-600">
-                Passive: R$ {totalPassiveIncome.toLocaleString()} | Active: R$ {totalActiveIncome.toLocaleString()}
+                Passive: {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalPassiveIncome.toLocaleString()} | Active: {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalActiveIncome.toLocaleString()}
               </div>
             </CardContent>
           </Card>
@@ -180,7 +188,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-red-800">
-                R$ {totalRecurringExpenses.toLocaleString()}
+                {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalRecurringExpenses.toLocaleString()}
               </div>
               <div className="text-xs text-red-600">
                 Recurring monthly expenses
@@ -197,7 +205,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-orange-800">
-                R$ {totalActiveDebt.toLocaleString()}
+                {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalActiveDebt.toLocaleString()}
               </div>
               <div className="text-xs text-orange-600">
                 {activeDebts.length} active debts
@@ -214,7 +222,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <div className={`text-2xl font-bold ${monthlyBalance >= 0 ? 'text-green-800' : 'text-red-800'}`}>
-                R$ {monthlyBalance.toLocaleString()}
+                {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {monthlyBalance.toLocaleString()}
               </div>
               <div className={`text-xs ${monthlyBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {monthlyBalance >= 0 ? 'Positive cash flow' : 'Negative cash flow'}
@@ -236,25 +244,25 @@ const Index = () => {
               <div className="text-center">
                 <div className="text-sm text-slate-600">Total Income ({data.projectionMonths}m)</div>
                 <div className="text-xl font-bold text-green-600">
-                  R$ {((totalPassiveIncome + totalActiveIncome) * data.projectionMonths).toLocaleString()}
+                  {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {((totalPassiveIncome + totalActiveIncome) * data.projectionMonths).toLocaleString()}
                 </div>
               </div>
               <div className="text-center">
                 <div className="text-sm text-slate-600">Total Expenses ({data.projectionMonths}m)</div>
                 <div className="text-xl font-bold text-red-600">
-                  R$ {(totalRecurringExpenses * data.projectionMonths + totalVariableExpenses).toLocaleString()}
+                  {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {(totalRecurringExpenses * data.projectionMonths + totalVariableExpenses).toLocaleString()}
                 </div>
               </div>
               <div className="text-center">
                 <div className="text-sm text-slate-600">Active Debts</div>
                 <div className="text-xl font-bold text-orange-600">
-                  R$ {totalActiveDebt.toLocaleString()}
+                  {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalActiveDebt.toLocaleString()}
                 </div>
               </div>
               <div className="text-center">
                 <div className="text-sm text-slate-600">Net Projection</div>
                 <div className={`text-2xl font-bold ${yearProjection >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
-                  R$ {yearProjection.toLocaleString()}
+                  {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {yearProjection.toLocaleString()}
                 </div>
               </div>
             </div>

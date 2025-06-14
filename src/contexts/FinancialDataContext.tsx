@@ -6,7 +6,7 @@ export interface LiquidAsset {
   value: number;
   icon: string;
   color: string;
-  isActive: boolean; // New field to control if it counts in calculations
+  isActive: boolean;
 }
 
 export interface IlliquidAsset {
@@ -15,7 +15,7 @@ export interface IlliquidAsset {
   value: number;
   icon: string;
   color: string;
-  isActive: boolean; // New field to control if it counts in calculations
+  isActive: boolean;
 }
 
 export interface PassiveIncomeItem {
@@ -33,6 +33,7 @@ export interface ActiveIncomeItem {
   amount: number;
   status: 'active' | 'pending' | 'inactive';
   icon: string;
+  note?: string;
 }
 
 export interface ExpenseItem {
@@ -61,7 +62,7 @@ export interface DebtItem {
   status: 'pending' | 'partial' | 'paid';
   icon: string;
   description: string;
-  isActive: boolean; // New field to control if it counts in calculations
+  isActive: boolean;
 }
 
 export interface PropertyItem {
@@ -80,14 +81,24 @@ export interface PropertyItem {
 }
 
 export interface FinancialData {
-  profileName: string;
+  // User Configuration
+  userProfile: {
+    name: string;
+    defaultCurrency: 'BRL' | 'USD' | 'EUR';
+    language: 'en' | 'pt' | 'es';
+  };
   projectionMonths: number;
+  
+  // Exchange Rates (will be enhanced with live data later)
   exchangeRates: {
     brlToUsd: number;
     usdToBrl: number;
     btcPrice: number;
     ethPrice: number;
+    lastUpdated?: string;
   };
+  
+  // Financial Data
   liquidAssets: LiquidAsset[];
   illiquidAssets: IlliquidAsset[];
   passiveIncome: PassiveIncomeItem[];
@@ -96,11 +107,16 @@ export interface FinancialData {
   tasks: TaskItem[];
   debts: DebtItem[];
   properties: PropertyItem[];
+  
+  // Metadata for future compatibility
+  version: string;
+  createdAt: string;
+  lastModified: string;
 }
 
 interface FinancialDataContextType {
   data: FinancialData;
-  updateProfileName: (name: string) => void;
+  updateUserProfile: (updates: Partial<FinancialData['userProfile']>) => void;
   updateProjectionMonths: (months: number) => void;
   updateExchangeRate: (key: keyof FinancialData['exchangeRates'], value: number) => void;
   updateLiquidAsset: (id: string, updates: Partial<LiquidAsset>) => void;
@@ -130,16 +146,23 @@ interface FinancialDataContextType {
   exportToCSV: () => void;
   importFromJSON: (jsonData: string) => boolean;
   resetData: () => void;
+  // Legacy support
+  updateProfileName: (name: string) => void;
 }
 
 const defaultData: FinancialData = {
-  profileName: "My Financial Dashboard",
+  userProfile: {
+    name: "Guilherme",
+    defaultCurrency: 'BRL',
+    language: 'en'
+  },
   projectionMonths: 12,
   exchangeRates: {
     brlToUsd: 0.18,
     usdToBrl: 5.54,
     btcPrice: 588300,
-    ethPrice: 14000
+    ethPrice: 14000,
+    lastUpdated: new Date().toISOString()
   },
   liquidAssets: [
     { id: '1', name: 'BTC', value: 33500, icon: 'Bitcoin', color: 'text-orange-600', isActive: true },
@@ -186,7 +209,10 @@ const defaultData: FinancialData = {
     { id: '1', name: 'Laurindo', value: 230400, status: 'rented', currentRent: 1600, statusIcon: '✅', statusText: 'Alugado', prediction: 'Atual', rentRange: 'R$ 1.600' },
     { id: '2', name: 'Macuco (Moema)', value: 1050000, status: 'renovating', currentRent: 0, expectedRent: 6000, statusIcon: '🔄', statusText: 'Reformando', prediction: 'outubro/2025', rentRange: 'R$ 6.000' },
     { id: '3', name: 'Ataliba (comercial)', value: 206220, minValue: 172440, maxValue: 240000, status: 'planned', currentRent: 0, expectedRent: 1750, statusIcon: '📋', statusText: 'Planejado', prediction: '2027', rentRange: 'R$ 1.500-2.000' }
-  ]
+  ],
+  version: '1.0.0',
+  createdAt: new Date().toISOString(),
+  lastModified: new Date().toISOString()
 };
 
 const FinancialDataContext = createContext<FinancialDataContextType | undefined>(undefined);
@@ -203,25 +229,64 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
   const [data, setData] = useState<FinancialData>(() => {
     const savedData = localStorage.getItem('financialData');
     if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      // Ensure new fields exist with defaults
-      return {
-        profileName: "My Financial Dashboard",
-        projectionMonths: 12,
-        ...parsedData
-      };
+      try {
+        const parsedData = JSON.parse(savedData);
+        
+        // Handle legacy data migration
+        const migratedData: FinancialData = {
+          // New structure
+          userProfile: {
+            name: parsedData.profileName || parsedData.userProfile?.name || "User",
+            defaultCurrency: parsedData.userProfile?.defaultCurrency || 'BRL',
+            language: parsedData.userProfile?.language || 'en'
+          },
+          projectionMonths: parsedData.projectionMonths || 12,
+          exchangeRates: {
+            ...defaultData.exchangeRates,
+            ...(parsedData.exchangeRates || {}),
+            lastUpdated: parsedData.exchangeRates?.lastUpdated || new Date().toISOString()
+          },
+          
+          // Existing data with fallbacks
+          liquidAssets: Array.isArray(parsedData.liquidAssets) ? parsedData.liquidAssets : defaultData.liquidAssets,
+          illiquidAssets: Array.isArray(parsedData.illiquidAssets) ? parsedData.illiquidAssets : defaultData.illiquidAssets,
+          passiveIncome: Array.isArray(parsedData.passiveIncome) ? parsedData.passiveIncome : defaultData.passiveIncome,
+          activeIncome: Array.isArray(parsedData.activeIncome) ? parsedData.activeIncome : defaultData.activeIncome,
+          expenses: Array.isArray(parsedData.expenses) ? parsedData.expenses : defaultData.expenses,
+          tasks: Array.isArray(parsedData.tasks) ? parsedData.tasks : defaultData.tasks,
+          debts: Array.isArray(parsedData.debts) ? parsedData.debts : defaultData.debts,
+          properties: Array.isArray(parsedData.properties) ? parsedData.properties : defaultData.properties,
+          
+          // Metadata
+          version: parsedData.version || '1.0.0',
+          createdAt: parsedData.createdAt || new Date().toISOString(),
+          lastModified: new Date().toISOString()
+        };
+        
+        return migratedData;
+      } catch (error) {
+        console.error('Error parsing saved data, using defaults:', error);
+        return defaultData;
+      }
     }
     return defaultData;
   });
 
   useEffect(() => {
-    localStorage.setItem('financialData', JSON.stringify(data));
+    const dataToSave = {
+      ...data,
+      lastModified: new Date().toISOString()
+    };
+    localStorage.setItem('financialData', JSON.stringify(dataToSave));
   }, [data]);
 
-  const updateProfileName = (name: string) => {
+  const updateUserProfile = (updates: Partial<FinancialData['userProfile']>) => {
     setData(prev => ({
       ...prev,
-      profileName: name
+      userProfile: {
+        ...prev.userProfile,
+        ...updates
+      }
     }));
   };
 
@@ -237,9 +302,15 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
       ...prev,
       exchangeRates: {
         ...prev.exchangeRates,
-        [key]: value
+        [key]: value,
+        lastUpdated: new Date().toISOString()
       }
     }));
+  };
+
+  // Legacy support
+  const updateProfileName = (name: string) => {
+    updateUserProfile({ name });
   };
 
   const updateLiquidAsset = (id: string, updates: Partial<LiquidAsset>) => {
@@ -451,29 +522,32 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `financial-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `financial-dashboard-${data.userProfile.name.toLowerCase()}-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
   const importFromJSON = (jsonData: string): boolean => {
-    try {
-      console.log('Attempting to import JSON data:', jsonData.substring(0, 100) + '...');
-      
+    try {      
       const parsedData = JSON.parse(jsonData);
-      console.log('Parsed data structure keys:', Object.keys(parsedData));
       
       if (typeof parsedData !== 'object' || parsedData === null) {
         console.error('Invalid data structure - not an object');
         throw new Error('Invalid data structure');
       }
       
+      // Handle both new and legacy data formats
       const validatedData: FinancialData = {
-        profileName: parsedData.profileName || "My Financial Dashboard",
+        userProfile: {
+          name: parsedData.userProfile?.name || parsedData.profileName || "User",
+          defaultCurrency: parsedData.userProfile?.defaultCurrency || 'BRL',
+          language: parsedData.userProfile?.language || 'en'
+        },
         projectionMonths: parsedData.projectionMonths || 12,
         exchangeRates: {
           ...defaultData.exchangeRates,
-          ...(parsedData.exchangeRates || {})
+          ...(parsedData.exchangeRates || {}),
+          lastUpdated: parsedData.exchangeRates?.lastUpdated || new Date().toISOString()
         },
         liquidAssets: Array.isArray(parsedData.liquidAssets) ? parsedData.liquidAssets : defaultData.liquidAssets,
         illiquidAssets: Array.isArray(parsedData.illiquidAssets) ? parsedData.illiquidAssets : defaultData.illiquidAssets,
@@ -483,9 +557,11 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
         tasks: Array.isArray(parsedData.tasks) ? parsedData.tasks : defaultData.tasks,
         debts: Array.isArray(parsedData.debts) ? parsedData.debts : defaultData.debts,
         properties: Array.isArray(parsedData.properties) ? parsedData.properties : defaultData.properties,
+        version: parsedData.version || '1.0.0',
+        createdAt: parsedData.createdAt || new Date().toISOString(),
+        lastModified: new Date().toISOString()
       };
       
-      console.log('Setting validated data:', validatedData);
       setData(validatedData);
       return true;
     } catch (error) {
@@ -502,7 +578,7 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
   return (
     <FinancialDataContext.Provider value={{
       data,
-      updateProfileName,
+      updateUserProfile,
       updateProjectionMonths,
       updateExchangeRate,
       updateLiquidAsset,
@@ -531,7 +607,8 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
       removeProperty,
       exportToCSV,
       importFromJSON,
-      resetData
+      resetData,
+      updateProfileName // Legacy support
     }}>
       {children}
     </FinancialDataContext.Provider>
