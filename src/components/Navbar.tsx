@@ -28,14 +28,16 @@ export const Navbar = () => {
     return () => window.removeEventListener('scroll', controlNavbar);
   }, [lastScrollY]);
 
-  const getCurrencySymbol = (currency: string) => {
+  const getCurrencyDisplay = (currency: string) => {
     switch (currency) {
-      case 'BRL': return 'R$';
-      case 'USD': return '$';
-      case 'EUR': return '€';
-      default: return currency;
+      case 'BRL': return { symbol: 'R$', flag: '🇧🇷' };
+      case 'USD': return { symbol: '$', flag: '🇺🇸' };
+      case 'EUR': return { symbol: '€', flag: '🇪🇺' };
+      default: return { symbol: currency, flag: '' };
     }
   };
+
+  const currencyDisplay = getCurrencyDisplay(data.userProfile.defaultCurrency);
 
   return (
     <TooltipProvider>
@@ -66,15 +68,18 @@ export const Navbar = () => {
                 />
               </div>
 
-              {/* Currency Indicator with Tooltip */}
+              {/* Currency Indicator with Flag and Tooltip */}
               <div className="flex items-center space-x-1 text-sm text-gray-600">
                 <DollarSign size={16} />
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="cursor-help">{getCurrencySymbol(data.userProfile.defaultCurrency)}</span>
+                    <span className="cursor-help flex items-center space-x-1">
+                      <span>{currencyDisplay.flag}</span>
+                      <span>{currencyDisplay.symbol}</span>
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>More currencies coming soon!</p>
+                    <p>Currency is set permanently to avoid data conversion issues.<br />More currencies available in future versions!</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
