@@ -19,21 +19,23 @@ export const useLivePrices = () => {
   const fetchingRef = useRef(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchLivePrices = useCallback(async () => {
-    if (!data.userProfile || !data.userProfile.name || fetchingRef.current) {
-      console.log('Skipping fetch: no user profile or already fetching');
+  const fetchLivePrices = useCallback(async (currency?: string) => {
+    if (fetchingRef.current) {
+      console.log('Already fetching, skipping...');
       return;
     }
 
+    const targetCurrency = currency || data.userProfile?.defaultCurrency || 'BRL';
+    
     fetchingRef.current = true;
     setLoading(true);
     setError(null);
 
     try {
-      console.log('Fetching live prices for currency:', data.userProfile.defaultCurrency);
+      console.log('Fetching live prices for currency:', targetCurrency);
       
       const { data: priceData, error: functionError } = await supabase.functions.invoke('fetch-live-prices', {
-        body: { currency: data.userProfile.defaultCurrency }
+        body: { currency: targetCurrency }
       });
       
       if (functionError) {
@@ -42,7 +44,6 @@ export const useLivePrices = () => {
       }
       
       if (priceData) {
-        // Update exchange rates
         updateExchangeRate('brlToUsd', priceData.brlToUsd);
         updateExchangeRate('usdToBrl', priceData.usdToBrl);
         updateExchangeRate('btcPrice', priceData.btcPrice);
@@ -50,7 +51,7 @@ export const useLivePrices = () => {
         updateExchangeRate('lastUpdated', priceData.lastUpdated);
         
         setLastFetchTime(new Date());
-        console.log('Live prices updated successfully:', priceData);
+        console.log('Live prices updated successfully for', targetCurrency, ':', priceData);
       }
     } catch (err: any) {
       console.error('Error fetching live prices:', err);
@@ -59,9 +60,9 @@ export const useLivePrices = () => {
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, [data.userProfile?.name, data.userProfile?.defaultCurrency, updateExchangeRate]);
+  }, [updateExchangeRate]); // Only depend on updateExchangeRate
 
-  // Clear existing interval when user changes or component updates
+  // Clear existing interval
   const clearExistingInterval = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -72,27 +73,30 @@ export const useLivePrices = () => {
 
   // Set up auto-fetch interval for authenticated users
   useEffect(() => {
-    clearExistingInterval();
-
-    if (data.userProfile?.name) {
-      console.log('Setting up price fetch interval for authenticated user');
-      
-      // Initial fetch
-      fetchLivePrices();
-      
-      // Set up interval for subsequent fetches every 5 minutes
-      intervalRef.current = setInterval(() => {
-        console.log('Interval fetch triggered');
-        fetchLivePrices();
-      }, 5 * 60 * 1000);
-    } else {
-      console.log('No authenticated user, skipping price fetch setup');
+    if (!data.userProfile?.name) {
+      console.log('No authenticated user, clearing interval');
+      clearExistingInterval();
+      return;
     }
+
+    console.log('Setting up price fetch interval for authenticated user');
+    
+    // Clear any existing interval first
+    clearExistingInterval();
+    
+    // Initial fetch
+    fetchLivePrices(data.userProfile.defaultCurrency);
+    
+    // Set up interval for subsequent fetches every 5 minutes
+    intervalRef.current = setInterval(() => {
+      console.log('Interval fetch triggered');
+      fetchLivePrices(data.userProfile.defaultCurrency);
+    }, 5 * 60 * 1000);
 
     return () => {
       clearExistingInterval();
     };
-  }, [data.userProfile?.name, data.userProfile?.defaultCurrency, fetchLivePrices, clearExistingInterval]);
+  }, [data.userProfile?.name, data.userProfile?.defaultCurrency]); // Stable dependencies
 
   // Cleanup on unmount
   useEffect(() => {
@@ -117,11 +121,11 @@ export const useLivePrices = () => {
   }, [data.exchangeRates.lastUpdated]);
 
   return {
-    fetchLivePrices,
+    fetchLivePrices: (currency?: string) => fetchLivePrices(currency),
     loading,
     error,
     lastFetchTime,
     timeSinceLastUpdate: getTimeSinceLastUpdate(),
-    isLiveDataEnabled: !!data.userProfile?.name // Enable for logged in users
+    isLiveDataEnabled: !!data.userProfile?.name
   };
 };
