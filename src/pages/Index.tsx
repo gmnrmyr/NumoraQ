@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import { PortfolioOverview } from "@/components/PortfolioOverview";
 import { IncomeTracking } from "@/components/IncomeTracking";
-import { ExpenseTracking } from "@/components/ExpenseTracking";
-import { AssetManagement } from "@/components/AssetManagement";
+import { ExpenseTrackingEditable } from "@/components/ExpenseTrackingEditable";
+import { AssetManagementEditable } from "@/components/AssetManagementEditable";
 import { TaskManagementEditable } from "@/components/TaskManagementEditable";
 import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
 import { ProjectionChart } from "@/components/ProjectionChart";
@@ -53,8 +53,12 @@ const Index = () => {
     .filter(expense => expense.type === 'variable' && expense.status === 'active')
     .reduce((sum, expense) => sum + expense.amount, 0);
 
+  // Fix debt calculation - only count active debts
+  const activeDebts = data.debts.filter(debt => debt.isActive);
+  const totalActiveDebt = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
+
   const monthlyBalance = totalPassiveIncome + totalActiveIncome - totalRecurringExpenses;
-  const yearProjection = (monthlyBalance * 12) - totalVariableExpenses + totalAvailable;
+  const yearProjection = (monthlyBalance * 12) - totalVariableExpenses + totalAvailable - totalActiveDebt;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
@@ -115,7 +119,7 @@ const Index = () => {
         </Card>
 
         {/* Key Metrics Overview - using calculated values */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <Card className="bg-green-50 border-green-200">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-green-700 flex items-center gap-2">
@@ -164,6 +168,23 @@ const Index = () => {
             </CardContent>
           </Card>
 
+          <Card className="bg-orange-50 border-orange-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-orange-700 flex items-center gap-2">
+                <AlertCircle size={16} />
+                Active Debts
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-800">
+                R$ {totalActiveDebt.toLocaleString()}
+              </div>
+              <div className="text-xs text-orange-600">
+                {activeDebts.length} active debts
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className={`${monthlyBalance >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
             <CardHeader className="pb-2">
               <CardTitle className={`text-sm font-medium flex items-center gap-2 ${monthlyBalance >= 0 ? 'text-green-700' : 'text-red-700'}`}>
@@ -191,7 +212,7 @@ const Index = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="text-center">
                 <div className="text-sm text-slate-600">Total Income (12m)</div>
                 <div className="text-xl font-bold text-green-600">
@@ -205,9 +226,15 @@ const Index = () => {
                 </div>
               </div>
               <div className="text-center">
+                <div className="text-sm text-slate-600">Active Debts</div>
+                <div className="text-xl font-bold text-orange-600">
+                  R$ {totalActiveDebt.toLocaleString()}
+                </div>
+              </div>
+              <div className="text-center">
                 <div className="text-sm text-slate-600">Net Projection</div>
-                <div className="text-2xl font-bold text-purple-600">
-                  R$ {Math.max(0, yearProjection).toLocaleString()}
+                <div className={`text-2xl font-bold ${yearProjection >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
+                  R$ {yearProjection.toLocaleString()}
                 </div>
               </div>
             </div>
@@ -252,11 +279,11 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="expenses" className="space-y-6">
-            <ExpenseTracking />
+            <ExpenseTrackingEditable />
           </TabsContent>
 
           <TabsContent value="assets" className="space-y-6">
-            <AssetManagement />
+            <AssetManagementEditable />
           </TabsContent>
 
           <TabsContent value="tasks" className="space-y-6">

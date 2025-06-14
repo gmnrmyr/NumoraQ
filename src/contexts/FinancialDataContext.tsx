@@ -109,12 +109,16 @@ interface FinancialDataContextType {
   updateProperty: (id: string, updates: Partial<PropertyItem>) => void;
   addLiquidAsset: (asset: Omit<LiquidAsset, 'id'>) => void;
   addIlliquidAsset: (asset: Omit<IlliquidAsset, 'id'>) => void;
+  addExpense: (expense: Omit<ExpenseItem, 'id'>) => void;
   addTask: (task: Omit<TaskItem, 'id'>) => void;
   addDebt: (debt: Omit<DebtItem, 'id'>) => void;
+  addProperty: (property: Omit<PropertyItem, 'id'>) => void;
   removeLiquidAsset: (id: string) => void;
   removeIlliquidAsset: (id: string) => void;
+  removeExpense: (id: string) => void;
   removeTask: (id: string) => void;
   removeDebt: (id: string) => void;
+  removeProperty: (id: string) => void;
   exportToCSV: () => void;
   importFromJSON: (jsonData: string) => void;
   resetData: () => void;
@@ -293,6 +297,14 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     }));
   };
 
+  const addExpense = (expense: Omit<ExpenseItem, 'id'>) => {
+    const newExpense = { ...expense, id: Date.now().toString() };
+    setData(prev => ({
+      ...prev,
+      expenses: [...prev.expenses, newExpense]
+    }));
+  };
+
   const addTask = (task: Omit<TaskItem, 'id'>) => {
     const newTask = { ...task, id: Date.now().toString() };
     setData(prev => ({
@@ -306,6 +318,14 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     setData(prev => ({
       ...prev,
       debts: [...prev.debts, newDebt]
+    }));
+  };
+
+  const addProperty = (property: Omit<PropertyItem, 'id'>) => {
+    const newProperty = { ...property, id: Date.now().toString() };
+    setData(prev => ({
+      ...prev,
+      properties: [...prev.properties, newProperty]
     }));
   };
 
@@ -323,6 +343,13 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     }));
   };
 
+  const removeExpense = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      expenses: prev.expenses.filter(expense => expense.id !== id)
+    }));
+  };
+
   const removeTask = (id: string) => {
     setData(prev => ({
       ...prev,
@@ -334,6 +361,13 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     setData(prev => ({
       ...prev,
       debts: prev.debts.filter(debt => debt.id !== id)
+    }));
+  };
+
+  const removeProperty = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      properties: prev.properties.filter(property => property.id !== id)
     }));
   };
 
@@ -386,12 +420,16 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
       updateProperty,
       addLiquidAsset,
       addIlliquidAsset,
+      addExpense,
       addTask,
       addDebt,
+      addProperty,
       removeLiquidAsset,
       removeIlliquidAsset,
+      removeExpense,
       removeTask,
       removeDebt,
+      removeProperty,
       exportToCSV,
       importFromJSON,
       resetData

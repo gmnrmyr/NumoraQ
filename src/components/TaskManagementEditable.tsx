@@ -68,20 +68,20 @@ export const TaskManagementEditable = () => {
         {tasks.map((task: any) => {
           const Icon = iconMap[task.icon] || User;
           return (
-            <div key={task.id} className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+            <div key={task.id} className={`flex items-center justify-between p-3 bg-white rounded-lg shadow-sm ${task.completed ? 'opacity-75' : ''}`}>
               <div className="flex items-center gap-3 flex-1">
                 <Icon size={16} className="text-slate-600" />
                 <div className="flex-1">
                   <Input
                     value={task.item}
                     onChange={(e) => updateTask(task.id, { item: e.target.value })}
-                    className="border-none p-0 font-medium bg-transparent"
+                    className={`border-none p-0 font-medium bg-transparent ${task.completed ? 'line-through text-slate-500' : ''}`}
                   />
                   <Input
                     value={task.date}
                     onChange={(e) => updateTask(task.id, { date: e.target.value })}
                     placeholder="Date"
-                    className="border-none p-0 text-xs text-slate-500 bg-transparent mt-1"
+                    className={`border-none p-0 text-xs text-slate-500 bg-transparent mt-1 ${task.completed ? 'line-through' : ''}`}
                   />
                 </div>
               </div>
@@ -102,6 +102,7 @@ export const TaskManagementEditable = () => {
                   onClick={() => updateTask(task.id, { completed: !task.completed })}
                   variant={task.completed ? "default" : "outline"}
                   size="sm"
+                  className={task.completed ? "bg-green-600 hover:bg-green-700" : ""}
                 >
                   ✓
                 </Button>
