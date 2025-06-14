@@ -20,61 +20,125 @@ import {
 
 const userProfiles = {
   user1_gui: {
-    name: "GUI Developer",
-    description: "UI/UX focused profile with design assets",
+    name: "Guilherme (GUI)",
+    description: "GUI's complete financial profile",
     data: {
+      exchangeRates: {
+        brlToUsd: 0.18,
+        usdToBrl: 5.54,
+        btcPrice: 588300,
+        ethPrice: 14000
+      },
       liquidAssets: [
-        { id: '1', name: 'Checking Account', value: 15000, isActive: true },
-        { id: '2', name: 'Savings Account', value: 45000, isActive: true },
-        { id: '3', name: 'Design Tools Budget', value: 2500, isActive: true }
+        { id: '1', name: 'BTC', value: 33500, icon: 'Bitcoin', color: 'text-orange-600', isActive: true },
+        { id: '2', name: 'Altcoins & NFT', value: 4500, icon: 'Coins', color: 'text-purple-600', isActive: true },
+        { id: '3', name: 'Banco', value: 100, icon: 'Banknote', color: 'text-green-600', isActive: true },
+        { id: '4', name: 'PXL DEX', value: 50000, icon: 'Coins', color: 'text-blue-600', isActive: false }
+      ],
+      illiquidAssets: [
+        { id: '1', name: 'Bens GUI', value: 50000, icon: 'Building', color: 'text-slate-600', isActive: true },
+        { id: '2', name: 'Bens Pais', value: 30000, icon: 'Building', color: 'text-slate-600', isActive: true }
       ],
       passiveIncome: [
-        { id: '1', name: 'UI Kit Sales', amount: 1200, status: 'active' as const },
-        { id: '2', name: 'Design Subscription', amount: 800, status: 'active' as const }
+        { id: '1', source: 'Locação Macuco', amount: 6000, status: 'pending' as const, icon: 'Home', note: 'Não alugado ainda, simulado' },
+        { id: '2', source: 'Locação Laurindo', amount: 1600, status: 'active' as const, icon: 'Home' },
+        { id: '3', source: 'Aposentadoria Mãe', amount: 1518, status: 'active' as const, icon: 'User' },
+        { id: '4', source: 'Locação Ataliba', amount: 1300, status: 'active' as const, icon: 'Home' },
+        { id: '5', source: 'Apoio da IRA', amount: 1000, status: 'active' as const, icon: 'Heart' },
+        { id: '6', source: 'Aposentadoria Pai', amount: 0, status: 'pending' as const, icon: 'User' }
       ],
       activeIncome: [
-        { id: '1', name: 'Freelance Design', amount: 4500, status: 'active' as const },
-        { id: '2', name: 'UI Consultation', amount: 2000, status: 'active' as const }
+        { id: '1', source: 'Freelas Pai', amount: 600, status: 'active' as const, icon: 'Briefcase' },
+        { id: '2', source: 'CLT GUI (Gestor Seller)', amount: 1800, status: 'active' as const, icon: 'Briefcase' },
+        { id: '3', source: 'Freelas GUI', amount: 600, status: 'active' as const, icon: 'Briefcase' }
       ],
       expenses: [
-        { id: '1', name: 'Adobe Creative Suite', amount: 60, type: 'recurring' as const, status: 'active' as const },
-        { id: '2', name: 'Figma Pro', amount: 15, type: 'recurring' as const, status: 'active' as const },
-        { id: '3', name: 'Design Courses', amount: 1200, type: 'variable' as const, status: 'active' as const }
+        { id: '1', name: 'Condomínio Macuco', amount: 1117, category: 'Vacância', type: 'recurring' as const, status: 'active' as const },
+        { id: '2', name: 'Locação Taubaté', amount: 2800, category: 'Moradia', type: 'recurring' as const, status: 'active' as const },
+        { id: '3', name: 'Convênio GUI', amount: 1163, category: 'Saúde', type: 'recurring' as const, status: 'active' as const },
+        { id: '4', name: 'Convênio Mãe', amount: 1295, category: 'Saúde', type: 'recurring' as const, status: 'active' as const },
+        { id: '5', name: 'Cannabis GUI', amount: 1000, category: 'Vícios', type: 'recurring' as const, status: 'active' as const },
+        { id: '6', name: 'Internet Vivo', amount: 90, category: 'Serviços', type: 'recurring' as const, status: 'active' as const },
+        { id: '7', name: 'Goró Pai', amount: 100, category: 'Vícios', type: 'recurring' as const, status: 'active' as const },
+        { id: '8', name: 'IPVA (2)', amount: 100, category: 'Imposto', type: 'recurring' as const, status: 'active' as const },
+        { id: '9', name: 'Mercado - Limpeza', amount: 200, category: 'Higiene', type: 'recurring' as const, status: 'active' as const },
+        { id: '10', name: 'IPTU (3)', amount: 200, category: 'Imposto', type: 'recurring' as const, status: 'active' as const },
+        { id: '11', name: 'Planos Celulares', amount: 270, category: 'Serviços', type: 'recurring' as const, status: 'active' as const },
+        { id: '12', name: 'Reforma Macuco', amount: 7100, category: 'Reforma', type: 'variable' as const, status: 'active' as const },
+        { id: '13', name: 'Cartão Inter GUI', amount: 4600, category: 'Cartão', type: 'variable' as const, status: 'active' as const }
+      ],
+      tasks: [
+        { id: '1', item: 'Exames', date: 'Domingo', priority: 1, icon: 'User', completed: false },
+        { id: '2', item: 'Encontrar carteira de trabalho', date: 'Segunda', priority: 2, icon: 'FileText', completed: false },
+        { id: '3', item: 'Consulta Psiquiatra', date: 'Julho', priority: 5, icon: 'User', completed: false },
+        { id: '4', item: 'Pagar contas pendentes', date: 'Urgente', priority: 7, icon: 'CreditCard', completed: false },
+        { id: '5', item: 'Fotografar móveis/scooter', date: 'Esta semana', priority: 8, icon: 'Camera', completed: false }
+      ],
+      debts: [
+        { id: '1', creditor: 'Goodstorage Avaria', amount: 1200, dueDate: 'INDEF', status: 'pending' as const, icon: 'Home', description: 'Storage damage compensation', isActive: true },
+        { id: '2', creditor: 'Devo Mãe', amount: 2000, dueDate: 'INDEF', status: 'pending' as const, icon: 'User', description: 'Condomínio, convênio, etc', isActive: true },
+        { id: '3', creditor: 'Devo Fernando', amount: 5000, dueDate: 'INDEF', status: 'pending' as const, icon: 'User', description: 'Personal loan', isActive: true }
+      ],
+      properties: [
+        { id: '1', name: 'Laurindo', value: 230400, status: 'rented' as const, currentRent: 1600, statusIcon: '✅', statusText: 'Alugado', prediction: 'Atual', rentRange: 'R$ 1.600' },
+        { id: '2', name: 'Macuco (Moema)', value: 1050000, status: 'renovating' as const, currentRent: 0, expectedRent: 6000, statusIcon: '🔄', statusText: 'Reformando', prediction: 'outubro/2025', rentRange: 'R$ 6.000' },
+        { id: '3', name: 'Ataliba (comercial)', value: 206220, minValue: 172440, maxValue: 240000, status: 'planned' as const, currentRent: 0, expectedRent: 1750, statusIcon: '📋', statusText: 'Planejado', prediction: '2027', rentRange: 'R$ 1.500-2.000' }
       ]
     }
   },
   user2_fe: {
-    name: "Frontend Developer",
-    description: "Tech-focused profile with development assets",
+    name: "Fernanda (FE)",
+    description: "Random test profile for development",
     data: {
+      exchangeRates: {
+        brlToUsd: 0.20,
+        usdToBrl: 5.00,
+        btcPrice: 600000,
+        ethPrice: 15000
+      },
       liquidAssets: [
-        { id: '1', name: 'Tech Savings', value: 25000, isActive: true },
-        { id: '2', name: 'Emergency Fund', value: 20000, isActive: true },
-        { id: '3', name: 'Equipment Fund', value: 5000, isActive: true }
+        { id: '1', name: 'Conta Corrente', value: 25000, icon: 'Banknote', color: 'text-green-600', isActive: true },
+        { id: '2', name: 'Poupança', value: 15000, icon: 'PiggyBank', color: 'text-blue-600', isActive: true },
+        { id: '3', name: 'Investimentos', value: 8000, icon: 'TrendingUp', color: 'text-purple-600', isActive: true }
+      ],
+      illiquidAssets: [
+        { id: '1', name: 'Apartamento', value: 350000, icon: 'Building', color: 'text-slate-600', isActive: true },
+        { id: '2', name: 'Carro', value: 45000, icon: 'Car', color: 'text-red-600', isActive: true }
       ],
       passiveIncome: [
-        { id: '1', name: 'NPM Package Revenue', amount: 300, status: 'active' as const },
-        { id: '2', name: 'Course Royalties', amount: 900, status: 'active' as const }
+        { id: '1', source: 'Aluguel', amount: 2500, status: 'active' as const, icon: 'Home' },
+        { id: '2', source: 'Dividendos', amount: 800, status: 'active' as const, icon: 'TrendingUp' }
       ],
       activeIncome: [
-        { id: '1', name: 'Frontend Development', amount: 6000, status: 'active' as const },
-        { id: '2', name: 'Code Review Services', amount: 1500, status: 'active' as const }
+        { id: '1', source: 'Salário CLT', amount: 5500, status: 'active' as const, icon: 'Briefcase' },
+        { id: '2', source: 'Freelances', amount: 1500, status: 'active' as const, icon: 'Laptop' }
       ],
       expenses: [
-        { id: '1', name: 'GitHub Pro', amount: 4, type: 'recurring' as const, status: 'active' as const },
-        { id: '2', name: 'Vercel Pro', amount: 20, type: 'recurring' as const, status: 'active' as const },
-        { id: '3', name: 'Tech Conferences', amount: 3000, type: 'variable' as const, status: 'active' as const }
+        { id: '1', name: 'Aluguel', amount: 1800, category: 'Moradia', type: 'recurring' as const, status: 'active' as const },
+        { id: '2', name: 'Supermercado', amount: 800, category: 'Alimentação', type: 'recurring' as const, status: 'active' as const },
+        { id: '3', name: 'Transporte', amount: 400, category: 'Transporte', type: 'recurring' as const, status: 'active' as const },
+        { id: '4', name: 'Lazer', amount: 600, category: 'Entretenimento', type: 'variable' as const, status: 'active' as const }
+      ],
+      tasks: [
+        { id: '1', item: 'Revisar investimentos', date: 'Esta semana', priority: 1, icon: 'TrendingUp', completed: false },
+        { id: '2', item: 'Planejar férias', date: 'Próximo mês', priority: 3, icon: 'Plane', completed: false }
+      ],
+      debts: [
+        { id: '1', creditor: 'Cartão de Crédito', amount: 3500, dueDate: '2024-07-15', status: 'pending' as const, icon: 'CreditCard', description: 'Fatura pendente', isActive: true }
+      ],
+      properties: [
+        { id: '1', name: 'Apartamento Centro', value: 350000, status: 'rented' as const, currentRent: 2500, statusIcon: '✅', statusText: 'Alugado', prediction: 'Atual', rentRange: 'R$ 2.500' }
       ]
     }
   }
 };
 
 const colorSchemes = {
-  default: "Default Scheme",
-  high_contrast: "High Contrast",
-  warm: "Warm Tones",
-  cool: "Cool Tones",
-  monochrome: "Monochrome"
+  default: { name: "Default", class: "" },
+  high_contrast: { name: "High Contrast", class: "contrast-125 saturate-150" },
+  warm: { name: "Warm Tones", class: "sepia-[0.15] hue-rotate-15" },
+  cool: { name: "Cool Tones", class: "hue-rotate-180 saturate-125" },
+  monochrome: { name: "Monochrome", class: "grayscale saturate-0" }
 };
 
 export const DevMenu: React.FC = () => {
@@ -88,13 +152,7 @@ export const DevMenu: React.FC = () => {
     const profile = userProfiles[profileKey as keyof typeof userProfiles];
     if (profile) {
       try {
-        // Create a partial data update
-        const updatedData = {
-          ...data,
-          ...profile.data
-        };
-        
-        importFromJSON(JSON.stringify(updatedData));
+        importFromJSON(JSON.stringify(profile.data));
         toast({
           title: "Profile Loaded",
           description: `${profile.name} profile loaded successfully`,
@@ -113,12 +171,12 @@ export const DevMenu: React.FC = () => {
     const testData = {
       ...data,
       liquidAssets: [
-        { id: '1', name: 'Test Account 1', value: Math.floor(Math.random() * 50000), isActive: true },
-        { id: '2', name: 'Test Account 2', value: Math.floor(Math.random() * 30000), isActive: true }
+        { id: '1', name: 'Test Account 1', value: Math.floor(Math.random() * 50000), icon: 'Banknote', color: 'text-green-600', isActive: true },
+        { id: '2', name: 'Test Account 2', value: Math.floor(Math.random() * 30000), icon: 'PiggyBank', color: 'text-blue-600', isActive: true }
       ],
       expenses: [
-        { id: '1', name: 'Test Expense 1', amount: Math.floor(Math.random() * 1000), type: 'recurring' as const, status: 'active' as const },
-        { id: '2', name: 'Test Expense 2', amount: Math.floor(Math.random() * 500), type: 'variable' as const, status: 'active' as const }
+        { id: '1', name: 'Test Expense 1', amount: Math.floor(Math.random() * 1000), category: 'Test', type: 'recurring' as const, status: 'active' as const },
+        { id: '2', name: 'Test Expense 2', amount: Math.floor(Math.random() * 500), category: 'Test', type: 'variable' as const, status: 'active' as const }
       ]
     };
     
@@ -145,12 +203,28 @@ export const DevMenu: React.FC = () => {
   };
 
   const applyColorScheme = (scheme: string) => {
-    // This would normally apply different CSS classes or update theme context
-    setSelectedColorScheme(scheme);
-    toast({
-      title: "Color Scheme Applied",
-      description: `${colorSchemes[scheme as keyof typeof colorSchemes]} applied`,
-    });
+    const colorScheme = colorSchemes[scheme as keyof typeof colorSchemes];
+    if (colorScheme) {
+      // Remove all existing filter classes
+      document.documentElement.className = document.documentElement.className
+        .replace(/contrast-\d+/g, '')
+        .replace(/saturate-\d+/g, '')
+        .replace(/sepia-\[[^\]]+\]/g, '')
+        .replace(/hue-rotate-\d+/g, '')
+        .replace(/grayscale/g, '')
+        .trim();
+      
+      // Apply new filter classes
+      if (colorScheme.class) {
+        document.documentElement.className += ` ${colorScheme.class}`;
+      }
+      
+      setSelectedColorScheme(scheme);
+      toast({
+        title: "Color Scheme Applied",
+        description: `${colorScheme.name} filter applied`,
+      });
+    }
   };
 
   if (!isOpen) {
@@ -160,7 +234,7 @@ export const DevMenu: React.FC = () => {
           onClick={() => setIsOpen(true)}
           variant="outline"
           size="sm"
-          className="bg-slate-800 text-white hover:bg-slate-700 border-slate-600"
+          className="bg-slate-800 text-white hover:bg-slate-700 border-slate-600 shadow-lg"
         >
           <Settings size={16} />
           <span className="ml-2">Dev Menu</span>
@@ -257,16 +331,16 @@ export const DevMenu: React.FC = () => {
           <div>
             <h4 className="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
               <Palette size={14} />
-              Color Schemes
+              Color Filters
             </h4>
             <Select value={selectedColorScheme} onValueChange={applyColorScheme}>
               <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-600">
-                {Object.entries(colorSchemes).map(([key, name]) => (
+                {Object.entries(colorSchemes).map(([key, scheme]) => (
                   <SelectItem key={key} value={key} className="text-white">
-                    {name}
+                    {scheme.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -282,6 +356,8 @@ export const DevMenu: React.FC = () => {
               <div>Assets: {data.liquidAssets?.length || 0} liquid, {data.illiquidAssets?.length || 0} illiquid</div>
               <div>Income: {data.passiveIncome?.length || 0} passive, {data.activeIncome?.length || 0} active</div>
               <div>Expenses: {data.expenses?.length || 0} items</div>
+              <div>Tasks: {data.tasks?.length || 0} items</div>
+              <div>Debts: {data.debts?.length || 0} items</div>
             </div>
           </div>
         </CardContent>
