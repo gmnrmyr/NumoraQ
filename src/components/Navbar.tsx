@@ -1,15 +1,15 @@
-
 import { useState, useEffect } from 'react';
-import { User, DollarSign, BarChart3, Home, Signal } from 'lucide-react';
+import { User, DollarSign, BarChart3, Home, Signal, ChevronDown, UserPlus, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { EditableValue } from '@/components/ui/editable-value';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export const Navbar = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const { data, updateUserProfile } = useFinancialData();
+  const { data, updateUserProfile, resetData, importFromJSON } = useFinancialData();
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -37,6 +37,66 @@ export const Navbar = () => {
     }
   };
 
+  const createNewUser = (currency: 'BRL' | 'USD') => {
+    const templates = {
+      BRL: {
+        userProfile: {
+          name: "",
+          defaultCurrency: 'BRL' as const,
+          language: 'en' as const
+        },
+        projectionMonths: 12,
+        exchangeRates: {
+          brlToUsd: 0.18,
+          usdToBrl: 5.54,
+          btcPrice: 588300,
+          ethPrice: 14000,
+          lastUpdated: new Date().toISOString()
+        },
+        liquidAssets: [],
+        illiquidAssets: [],
+        passiveIncome: [],
+        activeIncome: [],
+        expenses: [],
+        tasks: [],
+        debts: [],
+        properties: [],
+        version: '1.0.0',
+        createdAt: new Date().toISOString(),
+        lastModified: new Date().toISOString()
+      },
+      USD: {
+        userProfile: {
+          name: "",
+          defaultCurrency: 'USD' as const,
+          language: 'en' as const
+        },
+        projectionMonths: 12,
+        exchangeRates: {
+          brlToUsd: 0.18,
+          usdToBrl: 5.54,
+          btcPrice: 100000,
+          ethPrice: 2500,
+          lastUpdated: new Date().toISOString()
+        },
+        liquidAssets: [],
+        illiquidAssets: [],
+        passiveIncome: [],
+        activeIncome: [],
+        expenses: [],
+        tasks: [],
+        debts: [],
+        properties: [],
+        version: '1.0.0',
+        createdAt: new Date().toISOString(),
+        lastModified: new Date().toISOString()
+      }
+    };
+
+    const templateJson = JSON.stringify(templates[currency]);
+    importFromJSON(templateJson);
+  };
+
   const currencyDisplay = getCurrencyDisplay(data.userProfile.defaultCurrency);
 
   return (
@@ -57,16 +117,39 @@ export const Navbar = () => {
 
             {/* User Profile and Status */}
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <User className="text-gray-600" size={20} />
-                <EditableValue
-                  value={data.userProfile.name}
-                  onSave={(value) => updateUserProfile({ name: String(value) })}
-                  type="text"
-                  className="text-gray-800 font-medium"
-                  placeholder="Enter your name"
-                />
-              </div>
+              {/* User Management Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100/70 px-2 py-1 rounded-lg transition-colors">
+                    <User className="text-gray-600" size={20} />
+                    <EditableValue
+                      value={data.userProfile.name}
+                      onSave={(value) => updateUserProfile({ name: String(value) })}
+                      type="text"
+                      className="text-gray-800 font-medium"
+                      placeholder="Enter your name"
+                    />
+                    <ChevronDown size={14} className="text-gray-400" />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg">
+                  <DropdownMenuLabel>Profile Management</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => createNewUser('BRL')} className="cursor-pointer">
+                    <UserPlus size={16} className="mr-2" />
+                    New User (BRL 🇧🇷)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => createNewUser('USD')} className="cursor-pointer">
+                    <UserPlus size={16} className="mr-2" />
+                    New User (USD 🇺🇸)
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={resetData} className="cursor-pointer text-red-600 hover:text-red-700">
+                    <Trash2 size={16} className="mr-2" />
+                    Reset to Default Data
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {/* Currency Indicator with Flag and Tooltip */}
               <div className="flex items-center space-x-1 text-sm text-gray-600">
