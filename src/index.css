@@ -3,91 +3,81 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Design System - Purple/Blue Theme with Glassmorphism */
+/* Modern Brutalist Design System - High Contrast */
 
 @layer base {
   :root {
-    --background: 245 245 250;
-    --foreground: 20 20 25;
+    --background: 255 255 255;
+    --foreground: 0 0 0;
 
-    --card: 255 255 255 / 0.95;
-    --card-foreground: 20 20 25;
+    --card: 255 255 255;
+    --card-foreground: 0 0 0;
 
-    --popover: 255 255 255 / 0.98;
-    --popover-foreground: 20 20 25;
+    --popover: 255 255 255;
+    --popover-foreground: 0 0 0;
 
-    --primary: 147 51 234;
+    --primary: 0 0 0;
     --primary-foreground: 255 255 255;
 
-    --secondary: 139 92 246;
+    --secondary: 229 229 229;
+    --secondary-foreground: 0 0 0;
+
+    --muted: 245 245 245;
+    --muted-foreground: 64 64 64;
+
+    --accent: 229 229 229;
+    --accent-foreground: 0 0 0;
+
+    --destructive: 220 38 38;
+    --destructive-foreground: 255 255 255;
+
+    --success: 21 128 61;
+    --success-foreground: 255 255 255;
+
+    --warning: 217 119 6;
+    --warning-foreground: 255 255 255;
+
+    --border: 229 229 229;
+    --input: 255 255 255;
+    --ring: 0 0 0;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0 0;
+    --foreground: 255 255 255;
+
+    --card: 18 18 18;
+    --card-foreground: 255 255 255;
+
+    --popover: 0 0 0;
+    --popover-foreground: 255 255 255;
+
+    --primary: 255 255 255;
+    --primary-foreground: 0 0 0;
+
+    --secondary: 38 38 38;
     --secondary-foreground: 255 255 255;
 
-    --muted: 245 245 250;
-    --muted-foreground: 60 60 65;
+    --muted: 38 38 38;
+    --muted-foreground: 163 163 163;
 
-    --accent: 196 181 253;
-    --accent-foreground: 20 20 25;
+    --accent: 38 38 38;
+    --accent-foreground: 255 255 255;
 
     --destructive: 239 68 68;
     --destructive-foreground: 255 255 255;
 
     --success: 34 197 94;
-    --success-foreground: 255 255 255;
+    --success-foreground: 0 0 0;
 
     --warning: 245 158 11;
-    --warning-foreground: 255 255 255;
+    --warning-foreground: 0 0 0;
 
-    --border: 229 229 234 / 0.6;
-    --input: 255 255 255 / 0.9;
-    --ring: 147 51 234 / 0.5;
-
-    --radius: 1rem;
-
-    /* Enhanced glassmorphism variables with much better contrast */
-    --glass-bg: 255 255 255 / 0.8;
-    --glass-border: 255 255 255 / 0.6;
-    --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-  }
-
-  .dark {
-    --background: 12 12 18;
-    --foreground: 250 250 252;
-
-    --card: 20 20 30 / 0.9;
-    --card-foreground: 250 250 252;
-
-    --popover: 12 12 18 / 0.98;
-    --popover-foreground: 250 250 252;
-
-    --primary: 168 85 247;
-    --primary-foreground: 12 12 18;
-
-    --secondary: 139 92 246;
-    --secondary-foreground: 250 250 252;
-
-    --muted: 39 39 42;
-    --muted-foreground: 200 200 210;
-
-    --accent: 124 58 237;
-    --accent-foreground: 250 250 252;
-
-    --destructive: 239 68 68;
-    --destructive-foreground: 250 250 252;
-
-    --success: 34 197 94;
-    --success-foreground: 250 250 252;
-
-    --warning: 245 158 11;
-    --warning-foreground: 250 250 252;
-
-    --border: 100 100 120 / 0.7;
-    --input: 20 20 30 / 0.8;
-    --ring: 168 85 247 / 0.5;
-
-    /* Dark glassmorphism with much better contrast */
-    --glass-bg: 20 20 30 / 0.85;
-    --glass-border: 255 255 255 / 0.3;
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --border: 38 38 38;
+    --input: 18 18 18;
+    --ring: 255 255 255;
   }
 }
 
@@ -98,59 +88,35 @@
 
   body {
     @apply bg-background text-foreground transition-colors duration-300;
-    background-image: 
-      radial-gradient(at 40% 20%, rgb(147, 51, 234) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgb(139, 92, 246) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, rgb(196, 181, 253) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, rgb(168, 85, 247) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgb(147, 51, 234) 0px, transparent 50%),
-      radial-gradient(at 80% 100%, rgb(139, 92, 246) 0px, transparent 50%),
-      radial-gradient(at 0% 0%, rgb(196, 181, 253) 0px, transparent 50%);
-    background-attachment: fixed;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     min-height: 100vh;
-  }
-
-  .dark body {
-    background-image: 
-      radial-gradient(at 40% 20%, rgba(147, 51, 234, 0.15) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, rgba(196, 181, 253, 0.1) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(147, 51, 234, 0.15) 0px, transparent 50%),
-      radial-gradient(at 80% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
-      radial-gradient(at 0% 0%, rgba(196, 181, 253, 0.1) 0px, transparent 50%);
   }
 }
 
 @layer components {
-  /* Enhanced Glassmorphism Card with much better contrast */
-  .glass-card {
-    @apply backdrop-blur-xl bg-white/80 dark:bg-gray-900/85 border border-white/60 dark:border-white/30 shadow-[0_8px_32px_rgba(31,38,135,0.37)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6)];
+  /* Clean Brutalist Cards */
+  .brutalist-card {
+    @apply bg-card border-2 border-border shadow-lg;
   }
 
-  /* Enhanced Glass Card with maximum contrast */
-  .glass-card-enhanced {
-    @apply backdrop-blur-2xl bg-white/90 dark:bg-gray-900/90 border border-white/70 dark:border-white/40 shadow-[0_12px_40px_rgba(31,38,135,0.4)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)];
+  /* Success Card */
+  .brutalist-success {
+    @apply bg-success/10 border-2 border-success text-success-foreground;
   }
 
-  /* Success Glass with high contrast */
-  .glass-success {
-    @apply backdrop-blur-xl bg-emerald-50/90 dark:bg-emerald-950/85 border border-emerald-200/60 dark:border-emerald-500/40 shadow-[0_8px_32px_rgba(34,197,94,0.3)];
+  /* Error Card */
+  .brutalist-error {
+    @apply bg-destructive/10 border-2 border-destructive text-destructive-foreground;
   }
 
-  /* Error Glass with high contrast */
-  .glass-error {
-    @apply backdrop-blur-xl bg-red-50/90 dark:bg-red-950/85 border border-red-200/60 dark:border-red-500/40 shadow-[0_8px_32px_rgba(239,68,68,0.3)];
+  /* Warning Card */
+  .brutalist-warning {
+    @apply bg-warning/10 border-2 border-warning text-warning-foreground;
   }
 
-  /* Warning Glass with high contrast */
-  .glass-warning {
-    @apply backdrop-blur-xl bg-amber-50/90 dark:bg-amber-950/85 border border-amber-200/60 dark:border-amber-500/40 shadow-[0_8px_32px_rgba(245,158,11,0.3)];
-  }
-
-  /* Primary Glass with high contrast */
-  .glass-primary {
-    @apply backdrop-blur-xl bg-purple-50/90 dark:bg-purple-950/85 border border-purple-200/60 dark:border-purple-500/40 shadow-[0_8px_32px_rgba(147,51,234,0.3)];
+  /* Primary Card */
+  .brutalist-primary {
+    @apply bg-primary/5 border-2 border-primary text-primary-foreground;
   }
 
   /* Floating Animation */
@@ -163,19 +129,9 @@
     50% { transform: translateY(-10px); }
   }
 
-  /* Pulse Glow */
-  .pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite alternate;
-  }
-
-  @keyframes pulse-glow {
-    from { box-shadow: 0 0 20px rgba(147, 51, 234, 0.4); }
-    to { box-shadow: 0 0 30px rgba(147, 51, 234, 0.6); }
-  }
-
-  /* Enhanced Gradient Text with maximum contrast */
-  .gradient-text {
-    @apply bg-gradient-to-r from-purple-900 via-blue-900 to-purple-900 dark:from-purple-300 dark:via-blue-300 dark:to-purple-300 bg-clip-text text-transparent font-bold;
+  /* Clean Bold Text */
+  .brutalist-title {
+    @apply text-4xl font-black text-foreground tracking-tight;
   }
 
   /* Custom Scrollbar */
@@ -184,29 +140,29 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-white/10 rounded-full;
+    @apply bg-muted;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-purple-500/50 rounded-full;
+    @apply bg-primary rounded;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-purple-500/70;
+    @apply bg-primary/80;
   }
 }
 
-/* Maximum contrast text utilities */
+/* High contrast text utilities */
 .text-high-contrast {
-  @apply text-gray-950 dark:text-gray-50 font-medium;
+  @apply text-foreground font-semibold;
 }
 
 .text-medium-contrast {
-  @apply text-gray-900 dark:text-gray-100 font-medium;
+  @apply text-foreground font-medium;
 }
 
 .text-muted-high-contrast {
-  @apply text-gray-800 dark:text-gray-200 font-medium;
+  @apply text-muted-foreground font-medium;
 }
 
 /* Transitions */

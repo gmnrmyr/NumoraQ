@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -89,13 +90,13 @@ const Index = () => {
   const yearProjection = (monthlyBalance * 12) - totalVariableExpenses + totalAvailable - totalActiveDebt;
 
   return (
-    <div className="min-h-screen p-4 custom-scrollbar">
+    <div className="min-h-screen p-4 custom-scrollbar bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header with Theme Toggle */}
         <div className="flex justify-between items-center">
           <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold gradient-text float-animation">Financial Dashboard</h1>
-            <p className="text-muted-high-contrast">Complete financial overview and management system</p>
+            <h1 className="brutalist-title float-animation">Financial Dashboard</h1>
+            <p className="text-muted-high-contrast text-lg">Complete financial overview and management system</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-sm">
@@ -104,7 +105,7 @@ const Index = () => {
               ) : (
                 <Wifi className="w-4 h-4 text-success" />
               )}
-              <span className="text-muted-high-contrast font-medium">
+              <span className="text-high-contrast">
                 {memoizedRates ? `Updated ${memoizedRates.lastUpdated.toLocaleTimeString()}` : 'Loading...'}
               </span>
             </div>
@@ -113,172 +114,172 @@ const Index = () => {
         </div>
 
         {/* Data Management Toolbar */}
-        <div className="glass-card rounded-2xl">
+        <div className="brutalist-card rounded-lg p-4">
           <DataToolbar />
         </div>
 
-        {/* Exchange Rates Banner - Enhanced Glass */}
-        <Card className="glass-card-enhanced rounded-2xl border-0 shadow-2xl pulse-glow">
+        {/* Exchange Rates Banner */}
+        <Card className="brutalist-card rounded-lg border-2 border-border shadow-xl">
           <CardContent className="p-6">
             <div className="flex flex-wrap justify-around items-center gap-4 text-sm">
-              <div className="flex items-center gap-2 bg-white/40 dark:bg-black/50 rounded-xl px-4 py-2 backdrop-blur-sm">
-                <DollarSign size={16} className="text-purple-600 dark:text-purple-400" />
-                <span className="font-semibold text-high-contrast">BRL/USD: R$ </span>
+              <div className="flex items-center gap-2 bg-muted rounded-lg px-4 py-2">
+                <DollarSign size={16} className="text-foreground" />
+                <span className="font-bold text-high-contrast">BRL/USD: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.brlToUsd}
                   onSave={(value) => updateExchangeRate('brlToUsd', value)}
                   type="number"
-                  className="bg-white/50 dark:bg-black/60 border-white/60 dark:border-white/30 text-high-contrast font-medium"
+                  className="bg-card border-border text-high-contrast font-semibold"
                 />
               </div>
-              <div className="flex items-center gap-2 bg-white/40 dark:bg-black/50 rounded-xl px-4 py-2 backdrop-blur-sm">
-                <DollarSign size={16} className="text-blue-600 dark:text-blue-400" />
-                <span className="font-semibold text-high-contrast">USD/BRL: R$ </span>
+              <div className="flex items-center gap-2 bg-muted rounded-lg px-4 py-2">
+                <DollarSign size={16} className="text-foreground" />
+                <span className="font-bold text-high-contrast">USD/BRL: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.usdToBrl}
                   onSave={(value) => updateExchangeRate('usdToBrl', value)}
                   type="number"
-                  className="bg-white/50 dark:bg-black/60 border-white/60 dark:border-white/30 text-high-contrast font-medium"
+                  className="bg-card border-border text-high-contrast font-semibold"
                 />
               </div>
-              <div className="flex items-center gap-2 bg-white/40 dark:bg-black/50 rounded-xl px-4 py-2 backdrop-blur-sm">
-                <TrendingUp size={16} className="text-orange-600 dark:text-orange-400" />
-                <span className="font-semibold text-high-contrast">BTC: R$ </span>
+              <div className="flex items-center gap-2 bg-muted rounded-lg px-4 py-2">
+                <TrendingUp size={16} className="text-foreground" />
+                <span className="font-bold text-high-contrast">BTC: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.btcPrice}
                   onSave={(value) => updateExchangeRate('btcPrice', value)}
-                  className="bg-white/50 dark:bg-black/60 border-white/60 dark:border-white/30 text-high-contrast font-medium"
+                  className="bg-card border-border text-high-contrast font-semibold"
                 />
               </div>
-              <div className="flex items-center gap-2 bg-white/40 dark:bg-black/50 rounded-xl px-4 py-2 backdrop-blur-sm">
-                <TrendingUp size={16} className="text-indigo-600 dark:text-indigo-400" />
-                <span className="font-semibold text-high-contrast">ETH: R$ </span>
+              <div className="flex items-center gap-2 bg-muted rounded-lg px-4 py-2">
+                <TrendingUp size={16} className="text-foreground" />
+                <span className="font-bold text-high-contrast">ETH: R$ </span>
                 <EditableValue
                   value={data.exchangeRates.ethPrice}
                   onSave={(value) => updateExchangeRate('ethPrice', value)}
-                  className="bg-white/50 dark:bg-black/60 border-white/60 dark:border-white/30 text-high-contrast font-medium"
+                  className="bg-card border-border text-high-contrast font-semibold"
                 />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Key Metrics Overview - Glassmorphism Cards */}
+        {/* Key Metrics Overview - Clean Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          <Card className="glass-success rounded-2xl border-0 float-animation">
+          <Card className="brutalist-success rounded-lg float-animation">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold text-success flex items-center gap-2">
+              <CardTitle className="text-sm font-bold text-success flex items-center gap-2">
                 <DollarSign size={16} />
                 Available Now
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-success">
+              <div className="text-2xl font-black text-success">
                 R$ {totalAvailable.toLocaleString()}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-primary rounded-2xl border-0 float-animation" style={{ animation: 'float 6s ease-in-out infinite 0.5s' }}>
+          <Card className="brutalist-primary rounded-lg float-animation" style={{ animation: 'float 6s ease-in-out infinite 0.5s' }}>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold text-primary flex items-center gap-2">
+              <CardTitle className="text-sm font-bold text-primary flex items-center gap-2">
                 <TrendingUp size={16} />
                 Monthly Income
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">
+              <div className="text-2xl font-black text-primary">
                 R$ {(totalPassiveIncome + totalActiveIncome).toLocaleString()}
               </div>
-              <div className="text-xs text-muted-high-contrast font-medium">
+              <div className="text-xs text-muted-high-contrast font-bold">
                 Passive: R$ {totalPassiveIncome.toLocaleString()} | Active: R$ {totalActiveIncome.toLocaleString()}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-error rounded-2xl border-0 float-animation" style={{ animation: 'float 6s ease-in-out infinite 1s' }}>
+          <Card className="brutalist-error rounded-lg float-animation" style={{ animation: 'float 6s ease-in-out infinite 1s' }}>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold text-destructive flex items-center gap-2">
+              <CardTitle className="text-sm font-bold text-destructive flex items-center gap-2">
                 <TrendingDown size={16} />
                 Monthly Expenses
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-destructive">
+              <div className="text-2xl font-black text-destructive">
                 R$ {totalRecurringExpenses.toLocaleString()}
               </div>
-              <div className="text-xs text-muted-high-contrast font-medium">
+              <div className="text-xs text-muted-high-contrast font-bold">
                 Recurring monthly expenses
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-warning rounded-2xl border-0 float-animation" style={{ animation: 'float 6s ease-in-out infinite 1.5s' }}>
+          <Card className="brutalist-warning rounded-lg float-animation" style={{ animation: 'float 6s ease-in-out infinite 1.5s' }}>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold text-warning flex items-center gap-2">
+              <CardTitle className="text-sm font-bold text-warning flex items-center gap-2">
                 <AlertCircle size={16} />
                 Active Debts
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-warning">
+              <div className="text-2xl font-black text-warning">
                 R$ {totalActiveDebt.toLocaleString()}
               </div>
-              <div className="text-xs text-muted-high-contrast font-medium">
+              <div className="text-xs text-muted-high-contrast font-bold">
                 {activeDebts.length} active debts
               </div>
             </CardContent>
           </Card>
 
-          <Card className={`${monthlyBalance >= 0 ? 'glass-success' : 'glass-error'} rounded-2xl border-0 float-animation`} style={{ animation: 'float 6s ease-in-out infinite 2s' }}>
+          <Card className={`${monthlyBalance >= 0 ? 'brutalist-success' : 'brutalist-error'} rounded-lg float-animation`} style={{ animation: 'float 6s ease-in-out infinite 2s' }}>
             <CardHeader className="pb-2">
-              <CardTitle className={`text-sm font-semibold flex items-center gap-2 ${monthlyBalance >= 0 ? 'text-success' : 'text-destructive'}`}>
+              <CardTitle className={`text-sm font-bold flex items-center gap-2 ${monthlyBalance >= 0 ? 'text-success' : 'text-destructive'}`}>
                 <BarChart3 size={16} />
                 Monthly Balance
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-bold ${monthlyBalance >= 0 ? 'text-success' : 'text-destructive'}`}>
+              <div className={`text-2xl font-black ${monthlyBalance >= 0 ? 'text-success' : 'text-destructive'}`}>
                 R$ {monthlyBalance.toLocaleString()}
               </div>
-              <div className={`text-xs text-muted-high-contrast font-medium`}>
+              <div className={`text-xs text-muted-high-contrast font-bold`}>
                 {monthlyBalance >= 0 ? 'Positive cash flow' : 'Negative cash flow'}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* 12-Month Projection - Enhanced Glass */}
-        <Card className="glass-card-enhanced rounded-2xl border-0 shadow-2xl">
+        {/* 12-Month Projection */}
+        <Card className="brutalist-card rounded-lg border-2 border-border shadow-xl">
           <CardHeader>
-            <CardTitle className="gradient-text flex items-center gap-2">
+            <CardTitle className="text-high-contrast flex items-center gap-2 text-2xl font-black">
               <PieChart size={20} />
               12-Month Financial Projection
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="text-center p-4 glass-card rounded-xl">
-                <div className="text-sm text-muted-high-contrast mb-2 font-medium">Total Income (12m)</div>
-                <div className="text-xl font-bold text-success">
+              <div className="text-center p-4 brutalist-card rounded-lg">
+                <div className="text-sm text-muted-high-contrast mb-2 font-bold">Total Income (12m)</div>
+                <div className="text-xl font-black text-success">
                   R$ {((totalPassiveIncome + totalActiveIncome) * 12).toLocaleString()}
                 </div>
               </div>
-              <div className="text-center p-4 glass-card rounded-xl">
-                <div className="text-sm text-muted-high-contrast mb-2 font-medium">Total Expenses (12m)</div>
-                <div className="text-xl font-bold text-destructive">
+              <div className="text-center p-4 brutalist-card rounded-lg">
+                <div className="text-sm text-muted-high-contrast mb-2 font-bold">Total Expenses (12m)</div>
+                <div className="text-xl font-black text-destructive">
                   R$ {(totalRecurringExpenses * 12 + totalVariableExpenses).toLocaleString()}
                 </div>
               </div>
-              <div className="text-center p-4 glass-card rounded-xl">
-                <div className="text-sm text-muted-high-contrast mb-2 font-medium">Active Debts</div>
-                <div className="text-xl font-bold text-warning">
+              <div className="text-center p-4 brutalist-card rounded-lg">
+                <div className="text-sm text-muted-high-contrast mb-2 font-bold">Active Debts</div>
+                <div className="text-xl font-black text-warning">
                   R$ {totalActiveDebt.toLocaleString()}
                 </div>
               </div>
-              <div className="text-center p-4 glass-card rounded-xl">
-                <div className="text-sm text-muted-high-contrast mb-2 font-medium">Net Projection</div>
-                <div className={`text-2xl font-bold ${yearProjection >= 0 ? 'text-primary' : 'text-destructive'}`}>
+              <div className="text-center p-4 brutalist-card rounded-lg">
+                <div className="text-sm text-muted-high-contrast mb-2 font-bold">Net Projection</div>
+                <div className={`text-2xl font-black ${yearProjection >= 0 ? 'text-primary' : 'text-destructive'}`}>
                   R$ {yearProjection.toLocaleString()}
                 </div>
               </div>
@@ -286,73 +287,73 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* Main Dashboard Tabs - Glass Design */}
+        {/* Main Dashboard Tabs */}
         <Tabs defaultValue="portfolio" className="space-y-6">
-          <TabsList className="glass-card-enhanced rounded-2xl p-2 border-0 shadow-lg">
-            <TabsTrigger value="portfolio" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+          <TabsList className="brutalist-card rounded-lg p-2 border-2 border-border shadow-lg">
+            <TabsTrigger value="portfolio" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
               <Briefcase size={16} />
               <span className="hidden sm:inline">Portfolio</span>
             </TabsTrigger>
-            <TabsTrigger value="income" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+            <TabsTrigger value="income" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
               <TrendingUp size={16} />
               <span className="hidden sm:inline">Income</span>
             </TabsTrigger>
-            <TabsTrigger value="expenses" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+            <TabsTrigger value="expenses" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
               <TrendingDown size={16} />
               <span className="hidden sm:inline">Expenses</span>
             </TabsTrigger>
-            <TabsTrigger value="assets" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+            <TabsTrigger value="assets" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
               <Home size={16} />
               <span className="hidden sm:inline">Assets</span>
             </TabsTrigger>
-            <TabsTrigger value="tasks" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+            <TabsTrigger value="tasks" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
               <Calendar size={16} />
               <span className="hidden sm:inline">Tasks</span>
             </TabsTrigger>
-            <TabsTrigger value="debt" className="flex items-center gap-2 px-4 py-3 rounded-xl data-[state=active]:bg-white/40 dark:data-[state=active]:bg-black/50 data-[state=active]:shadow-lg transition-all text-high-contrast font-medium">
+            <TabsTrigger value="debt" className="flex items-center gap-2 px-4 py-3 rounded data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all text-high-contrast font-bold">
               <AlertCircle size={16} />
               <span className="hidden sm:inline">Debt</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="portfolio" className="space-y-6">
-            <div className="glass-card rounded-2xl border-0">
+            <div className="brutalist-card rounded-lg border-2 border-border">
               <PortfolioOverview />
             </div>
           </TabsContent>
 
           <TabsContent value="income" className="space-y-6">
-            <div className="glass-card rounded-2xl border-0">
+            <div className="brutalist-card rounded-lg border-2 border-border">
               <IncomeTracking />
             </div>
           </TabsContent>
 
           <TabsContent value="expenses" className="space-y-6">
-            <div className="glass-card rounded-2xl border-0">
+            <div className="brutalist-card rounded-lg border-2 border-border">
               <ExpenseTrackingEditable />
             </div>
           </TabsContent>
 
           <TabsContent value="assets" className="space-y-6">
-            <div className="glass-card rounded-2xl border-0">
+            <div className="brutalist-card rounded-lg border-2 border-border">
               <AssetManagementEditable />
             </div>
           </TabsContent>
 
           <TabsContent value="tasks" className="space-y-6">
-            <div className="glass-card rounded-2xl border-0">
+            <div className="brutalist-card rounded-lg border-2 border-border">
               <TaskManagementEditable />
             </div>
           </TabsContent>
 
           <TabsContent value="debt" className="space-y-6">
-            <div className="glass-card rounded-2xl border-0">
+            <div className="brutalist-card rounded-lg border-2 border-border">
               <DebtTrackingEditable />
             </div>
           </TabsContent>
         </Tabs>
 
-        <div className="glass-card rounded-2xl border-0">
+        <div className="brutalist-card rounded-lg border-2 border-border">
           <ProjectionChart />
         </div>
       </div>
