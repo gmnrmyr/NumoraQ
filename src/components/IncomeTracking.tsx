@@ -2,7 +2,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Home, User, Heart, TrendingUp, Briefcase } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Home, User, Heart, TrendingUp, Briefcase, Plus, Trash2 } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { EditableValue } from "@/components/ui/editable-value";
 import { StatusToggle } from "@/components/ui/status-toggle";
@@ -15,21 +16,57 @@ const iconMap: { [key: string]: any } = {
 };
 
 export const IncomeTracking = () => {
-  const { data, updatePassiveIncome, updateActiveIncome } = useFinancialData();
+  const { 
+    data, 
+    updatePassiveIncome, 
+    updateActiveIncome, 
+    addPassiveIncome, 
+    addActiveIncome,
+    removePassiveIncome,
+    removeActiveIncome
+  } = useFinancialData();
 
   const totalPassive = data.passiveIncome.reduce((sum, income) => sum + income.amount, 0);
   const totalActive = data.activeIncome.reduce((sum, income) => sum + income.amount, 0);
   const totalIncome = totalPassive + totalActive;
+
+  const handleAddPassiveIncome = () => {
+    addPassiveIncome({
+      source: "New Passive Income",
+      amount: 0,
+      status: 'pending',
+      icon: 'TrendingUp'
+    });
+  };
+
+  const handleAddActiveIncome = () => {
+    addActiveIncome({
+      source: "New Active Income",
+      amount: 0,
+      status: 'pending',
+      icon: 'Briefcase'
+    });
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Passive Income */}
       <Card className="bg-green-50 border-green-200">
         <CardHeader>
-          <CardTitle className="text-green-800 flex items-center gap-2">
-            <TrendingUp size={20} />
-            Passive Income
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-green-800 flex items-center gap-2">
+              <TrendingUp size={20} />
+              Passive Income
+            </CardTitle>
+            <Button
+              onClick={handleAddPassiveIncome}
+              size="sm"
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Plus size={16} className="mr-1" />
+              Add
+            </Button>
+          </div>
           <div className="text-2xl font-bold text-green-700">
             R$ {totalPassive.toLocaleString()}/month
           </div>
@@ -44,9 +81,21 @@ export const IncomeTracking = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Icon size={16} className="text-green-600" />
-                    <span className="font-medium">{income.source}</span>
+                    <EditableValue
+                      value={income.source}
+                      onSave={(value) => updatePassiveIncome(income.id, { source: value })}
+                      className="font-medium"
+                    />
                   </div>
                   <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => removePassiveIncome(income.id)}
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-600 hover:text-red-700 p-1"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
                     <StatusToggle
                       status={income.status}
                       onToggle={(newStatus) => updatePassiveIncome(income.id, { status: newStatus })}
@@ -65,11 +114,14 @@ export const IncomeTracking = () => {
                 {income.amount > 0 && (
                   <Progress value={percentage} className="h-2" />
                 )}
-                {income.note && (
-                  <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded">
-                    {income.note}
-                  </p>
-                )}
+                <div className="mt-2">
+                  <EditableValue
+                    value={income.note || ""}
+                    onSave={(value) => updatePassiveIncome(income.id, { note: value || undefined })}
+                    placeholder="Add note..."
+                    className="text-xs text-amber-600 bg-amber-50 p-2 rounded w-full"
+                  />
+                </div>
               </div>
             );
           })}
@@ -79,10 +131,20 @@ export const IncomeTracking = () => {
       {/* Active Income */}
       <Card className="bg-blue-50 border-blue-200">
         <CardHeader>
-          <CardTitle className="text-blue-800 flex items-center gap-2">
-            <Briefcase size={20} />
-            Active Income
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-blue-800 flex items-center gap-2">
+              <Briefcase size={20} />
+              Active Income
+            </CardTitle>
+            <Button
+              onClick={handleAddActiveIncome}
+              size="sm"
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Plus size={16} className="mr-1" />
+              Add
+            </Button>
+          </div>
           <div className="text-2xl font-bold text-blue-700">
             R$ {totalActive.toLocaleString()}/month
           </div>
@@ -97,9 +159,21 @@ export const IncomeTracking = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Icon size={16} className="text-blue-600" />
-                    <span className="font-medium">{income.source}</span>
+                    <EditableValue
+                      value={income.source}
+                      onSave={(value) => updateActiveIncome(income.id, { source: value })}
+                      className="font-medium"
+                    />
                   </div>
                   <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => removeActiveIncome(income.id)}
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-600 hover:text-red-700 p-1"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
                     <StatusToggle
                       status={income.status}
                       onToggle={(newStatus) => updateActiveIncome(income.id, { status: newStatus })}
@@ -153,7 +227,7 @@ export const IncomeTracking = () => {
                 R$ {totalIncome.toLocaleString()}
               </div>
               <div className="text-xs text-slate-500">
-                R$ {(totalIncome * 12).toLocaleString()}/year
+                R$ {(totalIncome * data.projectionMonths).toLocaleString()}/{data.projectionMonths}-month
               </div>
             </div>
           </div>

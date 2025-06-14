@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface LiquidAsset {
@@ -81,6 +80,8 @@ export interface PropertyItem {
 }
 
 export interface FinancialData {
+  profileName: string;
+  projectionMonths: number;
   exchangeRates: {
     brlToUsd: number;
     usdToBrl: number;
@@ -99,6 +100,8 @@ export interface FinancialData {
 
 interface FinancialDataContextType {
   data: FinancialData;
+  updateProfileName: (name: string) => void;
+  updateProjectionMonths: (months: number) => void;
   updateExchangeRate: (key: keyof FinancialData['exchangeRates'], value: number) => void;
   updateLiquidAsset: (id: string, updates: Partial<LiquidAsset>) => void;
   updateIlliquidAsset: (id: string, updates: Partial<IlliquidAsset>) => void;
@@ -110,12 +113,16 @@ interface FinancialDataContextType {
   updateProperty: (id: string, updates: Partial<PropertyItem>) => void;
   addLiquidAsset: (asset: Omit<LiquidAsset, 'id'>) => void;
   addIlliquidAsset: (asset: Omit<IlliquidAsset, 'id'>) => void;
+  addPassiveIncome: (income: Omit<PassiveIncomeItem, 'id'>) => void;
+  addActiveIncome: (income: Omit<ActiveIncomeItem, 'id'>) => void;
   addExpense: (expense: Omit<ExpenseItem, 'id'>) => void;
   addTask: (task: Omit<TaskItem, 'id'>) => void;
   addDebt: (debt: Omit<DebtItem, 'id'>) => void;
   addProperty: (property: Omit<PropertyItem, 'id'>) => void;
   removeLiquidAsset: (id: string) => void;
   removeIlliquidAsset: (id: string) => void;
+  removePassiveIncome: (id: string) => void;
+  removeActiveIncome: (id: string) => void;
   removeExpense: (id: string) => void;
   removeTask: (id: string) => void;
   removeDebt: (id: string) => void;
@@ -126,6 +133,8 @@ interface FinancialDataContextType {
 }
 
 const defaultData: FinancialData = {
+  profileName: "My Financial Dashboard",
+  projectionMonths: 12,
   exchangeRates: {
     brlToUsd: 0.18,
     usdToBrl: 5.54,
@@ -193,12 +202,35 @@ export const useFinancialData = () => {
 export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [data, setData] = useState<FinancialData>(() => {
     const savedData = localStorage.getItem('financialData');
-    return savedData ? JSON.parse(savedData) : defaultData;
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      // Ensure new fields exist with defaults
+      return {
+        profileName: "My Financial Dashboard",
+        projectionMonths: 12,
+        ...parsedData
+      };
+    }
+    return defaultData;
   });
 
   useEffect(() => {
     localStorage.setItem('financialData', JSON.stringify(data));
   }, [data]);
+
+  const updateProfileName = (name: string) => {
+    setData(prev => ({
+      ...prev,
+      profileName: name
+    }));
+  };
+
+  const updateProjectionMonths = (months: number) => {
+    setData(prev => ({
+      ...prev,
+      projectionMonths: months
+    }));
+  };
 
   const updateExchangeRate = (key: keyof FinancialData['exchangeRates'], value: number) => {
     setData(prev => ({
@@ -298,6 +330,22 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     }));
   };
 
+  const addPassiveIncome = (income: Omit<PassiveIncomeItem, 'id'>) => {
+    const newIncome = { ...income, id: Date.now().toString() };
+    setData(prev => ({
+      ...prev,
+      passiveIncome: [...prev.passiveIncome, newIncome]
+    }));
+  };
+
+  const addActiveIncome = (income: Omit<ActiveIncomeItem, 'id'>) => {
+    const newIncome = { ...income, id: Date.now().toString() };
+    setData(prev => ({
+      ...prev,
+      activeIncome: [...prev.activeIncome, newIncome]
+    }));
+  };
+
   const addExpense = (expense: Omit<ExpenseItem, 'id'>) => {
     const newExpense = { ...expense, id: Date.now().toString() };
     setData(prev => ({
@@ -341,6 +389,20 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     setData(prev => ({
       ...prev,
       illiquidAssets: prev.illiquidAssets.filter(asset => asset.id !== id)
+    }));
+  };
+
+  const removePassiveIncome = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      passiveIncome: prev.passiveIncome.filter(income => income.id !== id)
+    }));
+  };
+
+  const removeActiveIncome = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      activeIncome: prev.activeIncome.filter(income => income.id !== id)
     }));
   };
 
@@ -398,18 +460,17 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     try {
       console.log('Attempting to import JSON data:', jsonData.substring(0, 100) + '...');
       
-      // Parse the JSON data
       const parsedData = JSON.parse(jsonData);
       console.log('Parsed data structure keys:', Object.keys(parsedData));
       
-      // Basic validation - check if it has the expected structure
       if (typeof parsedData !== 'object' || parsedData === null) {
         console.error('Invalid data structure - not an object');
         throw new Error('Invalid data structure');
       }
       
-      // Merge with default data to ensure all required fields exist
       const validatedData: FinancialData = {
+        profileName: parsedData.profileName || "My Financial Dashboard",
+        projectionMonths: parsedData.projectionMonths || 12,
         exchangeRates: {
           ...defaultData.exchangeRates,
           ...(parsedData.exchangeRates || {})
@@ -441,6 +502,8 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
   return (
     <FinancialDataContext.Provider value={{
       data,
+      updateProfileName,
+      updateProjectionMonths,
       updateExchangeRate,
       updateLiquidAsset,
       updateIlliquidAsset,
@@ -452,12 +515,16 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
       updateProperty,
       addLiquidAsset,
       addIlliquidAsset,
+      addPassiveIncome,
+      addActiveIncome,
       addExpense,
       addTask,
       addDebt,
       addProperty,
       removeLiquidAsset,
       removeIlliquidAsset,
+      removePassiveIncome,
+      removeActiveIncome,
       removeExpense,
       removeTask,
       removeDebt,

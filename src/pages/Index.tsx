@@ -27,7 +27,7 @@ import { EditableValue } from "@/components/ui/editable-value";
 import { DevMenu } from "@/components/DevMenu";
 
 const Index = () => {
-  const { data, updateExchangeRate } = useFinancialData();
+  const { data, updateExchangeRate, updateProfileName } = useFinancialData();
 
   // Calculate totals from context data (only active assets)
   const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
@@ -59,14 +59,20 @@ const Index = () => {
   const totalActiveDebt = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
 
   const monthlyBalance = totalPassiveIncome + totalActiveIncome - totalRecurringExpenses;
-  const yearProjection = (monthlyBalance * 12) - totalVariableExpenses + totalAvailable - totalActiveDebt;
+  const yearProjection = (monthlyBalance * data.projectionMonths) - totalVariableExpenses + totalAvailable - totalActiveDebt;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-slate-800">Financial Dashboard</h1>
+          <h1 className="text-4xl font-bold text-slate-800">
+            <EditableValue
+              value={data.profileName}
+              onSave={(value) => updateProfileName(value)}
+              className="inline-block text-center"
+            />
+          </h1>
           <p className="text-slate-600">Complete financial overview and management system</p>
         </div>
 
@@ -209,21 +215,21 @@ const Index = () => {
           <CardHeader>
             <CardTitle className="text-purple-800 flex items-center gap-2">
               <PieChart size={20} />
-              12-Month Financial Projection
+              {data.projectionMonths}-Month Financial Projection
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-sm text-slate-600">Total Income (12m)</div>
+                <div className="text-sm text-slate-600">Total Income ({data.projectionMonths}m)</div>
                 <div className="text-xl font-bold text-green-600">
-                  R$ {((totalPassiveIncome + totalActiveIncome) * 12).toLocaleString()}
+                  R$ {((totalPassiveIncome + totalActiveIncome) * data.projectionMonths).toLocaleString()}
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-sm text-slate-600">Total Expenses (12m)</div>
+                <div className="text-sm text-slate-600">Total Expenses ({data.projectionMonths}m)</div>
                 <div className="text-xl font-bold text-red-600">
-                  R$ {(totalRecurringExpenses * 12 + totalVariableExpenses).toLocaleString()}
+                  R$ {(totalRecurringExpenses * data.projectionMonths + totalVariableExpenses).toLocaleString()}
                 </div>
               </div>
               <div className="text-center">
