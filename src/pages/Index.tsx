@@ -24,6 +24,7 @@ import { ProjectionChart } from "@/components/ProjectionChart";
 import { DataToolbar } from "@/components/DataToolbar";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { EditableValue } from "@/components/ui/editable-value";
+import { DevMenu } from "@/components/DevMenu";
 
 const Index = () => {
   const { data, updateExchangeRate } = useFinancialData();
@@ -297,6 +298,9 @@ const Index = () => {
 
         <ProjectionChart />
       </div>
+      
+      {/* Add DevMenu at the end */}
+      <DevMenu />
     </div>
   );
 };
