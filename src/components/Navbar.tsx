@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { User, DollarSign, BarChart3, Home, Signal, ChevronDown, UserPlus, Trash2, LogOut, LogIn, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -15,7 +14,7 @@ export const Navbar = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const { data, updateUserProfile, resetData, importFromJSON } = useFinancialData();
   const { user, signOut } = useAuth();
-  const { loading: pricesLoading, isLiveDataEnabled, timeSinceLastUpdate } = useLivePrices();
+  const { loading: pricesLoading, isLiveDataEnabled, timeSinceLastUpdate, fetchLivePrices } = useLivePrices();
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -103,9 +102,15 @@ export const Navbar = () => {
     importFromJSON(templateJson);
   };
 
-  const handleCurrencyChange = (newCurrency: 'BRL' | 'USD' | 'EUR') => {
+  const handleCurrencyChange = async (newCurrency: 'BRL' | 'USD' | 'EUR') => {
     console.log('Currency changed to:', newCurrency);
     updateUserProfile({ defaultCurrency: newCurrency });
+    
+    // Immediately fetch prices for the new currency if user is authenticated
+    if (user && isLiveDataEnabled) {
+      console.log('Fetching prices for new currency:', newCurrency);
+      await fetchLivePrices(newCurrency);
+    }
   };
 
   const currencyDisplay = getCurrencyDisplay(data.userProfile.defaultCurrency);
