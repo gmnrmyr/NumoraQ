@@ -15,7 +15,7 @@ export const Navbar = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const { data, updateUserProfile, resetData, importFromJSON } = useFinancialData();
   const { user, signOut } = useAuth();
-  const { fetchLivePrices, loading: pricesLoading, isLiveDataEnabled } = useLivePrices();
+  const { loading: pricesLoading, isLiveDataEnabled } = useLivePrices();
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -33,20 +33,6 @@ export const Navbar = () => {
     window.addEventListener('scroll', controlNavbar);
     return () => window.removeEventListener('scroll', controlNavbar);
   }, [lastScrollY]);
-
-  // Auto-fetch live prices every 5 minutes for authenticated users
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (user && isLiveDataEnabled) {
-      fetchLivePrices(); // Initial fetch
-      interval = setInterval(fetchLivePrices, 5 * 60 * 1000); // Every 5 minutes
-    }
-    
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [user, isLiveDataEnabled, fetchLivePrices]);
 
   const getCurrencyDisplay = (currency: string) => {
     switch (currency) {
@@ -223,12 +209,27 @@ export const Navbar = () => {
                 </>
               )}
 
-              {/* Live Numbers Status */}
+              {/* Live Numbers Status - Improved visual feedback */}
               <div className="flex items-center space-x-1 text-sm text-gray-600">
-                <Signal size={16} className={liveDataStatus === 'on' ? "text-green-500" : "text-orange-500"} />
+                <Signal 
+                  size={16} 
+                  className={`transition-colors duration-300 ${
+                    liveDataStatus === 'on' 
+                      ? pricesLoading 
+                        ? "text-yellow-500 animate-pulse" 
+                        : "text-green-500" 
+                      : "text-orange-500"
+                  }`} 
+                />
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className={`cursor-help text-xs font-medium ${liveDataStatus === 'on' ? 'text-green-600' : 'text-orange-600'}`}>
+                    <span className={`cursor-help text-xs font-medium transition-colors duration-300 ${
+                      liveDataStatus === 'on' 
+                        ? pricesLoading 
+                          ? 'text-yellow-600' 
+                          : 'text-green-600' 
+                        : 'text-orange-600'
+                    }`}>
                       live numbers: {liveDataStatus}
                       {pricesLoading ? ' (updating...)' : ''}
                     </span>
@@ -236,7 +237,9 @@ export const Navbar = () => {
                   <TooltipContent>
                     <p>
                       {liveDataStatus === 'on' 
-                        ? 'Live data fetching is enabled. Prices update automatically every 5 minutes.' 
+                        ? pricesLoading
+                          ? 'Live data is currently being updated...'
+                          : 'Live data fetching is enabled. Prices update automatically every 5 minutes.' 
                         : 'Sign in to enable live price updates from real markets.'
                       }
                     </p>
