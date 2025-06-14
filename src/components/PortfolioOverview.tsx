@@ -6,16 +6,93 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Bitcoin, Coins, Building, Banknote, Plus, Trash2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Bitcoin, Coins, Building, Banknote, Plus, Trash2, 
+  Wallet, CreditCard, PiggyBank, TrendingUp, DollarSign,
+  Landmark, Gift, Shield, Target, Zap, Gem, Star,
+  Users, Globe, Smartphone, Monitor, Car, Home,
+  Briefcase, GraduationCap, Heart, Music, Gamepad2,
+  Camera, Palette, Coffee, Book, Plane, ShoppingBag
+} from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { EditableValue } from "@/components/ui/editable-value";
 
 const iconMap: { [key: string]: any } = {
-  Bitcoin,
-  Coins,
-  Building,
-  Banknote
+  // Financial
+  Bitcoin, Coins, Building, Banknote, Wallet, CreditCard, 
+  PiggyBank, TrendingUp, DollarSign, Landmark, Gift,
+  
+  // Investment & Trading
+  Shield, Target, Zap, Gem, Star, TrendingUp,
+  
+  // Tech & Digital
+  Users, Globe, Smartphone, Monitor, Gamepad2,
+  
+  // Physical Assets
+  Car, Home, Camera, Book,
+  
+  // Business & Professional
+  Briefcase, GraduationCap, Palette,
+  
+  // Lifestyle & Entertainment
+  Heart, Music, Coffee, Plane, ShoppingBag
 };
+
+const iconOptions = [
+  // Financial Icons
+  { value: 'Bitcoin', label: 'Bitcoin', category: 'Crypto' },
+  { value: 'Coins', label: 'Coins', category: 'Crypto' },
+  { value: 'Wallet', label: 'Wallet', category: 'Financial' },
+  { value: 'CreditCard', label: 'Credit Card', category: 'Financial' },
+  { value: 'PiggyBank', label: 'Savings', category: 'Financial' },
+  { value: 'TrendingUp', label: 'Stocks/Growth', category: 'Investment' },
+  { value: 'DollarSign', label: 'Cash', category: 'Financial' },
+  { value: 'Landmark', label: 'Bank/Institution', category: 'Financial' },
+  
+  // Investment & Assets
+  { value: 'Shield', label: 'Insurance/Protection', category: 'Investment' },
+  { value: 'Target', label: 'Goal/Target', category: 'Investment' },
+  { value: 'Zap', label: 'Energy/Fast', category: 'Investment' },
+  { value: 'Gem', label: 'Precious/Rare', category: 'Investment' },
+  { value: 'Star', label: 'Premium/Star', category: 'Investment' },
+  { value: 'Gift', label: 'Gift/Bonus', category: 'Investment' },
+  
+  // Tech & Digital
+  { value: 'Users', label: 'Social/Community', category: 'Tech' },
+  { value: 'Globe', label: 'Global/Web', category: 'Tech' },
+  { value: 'Smartphone', label: 'Mobile/App', category: 'Tech' },
+  { value: 'Monitor', label: 'Computer/Digital', category: 'Tech' },
+  { value: 'Gamepad2', label: 'Gaming/NFT', category: 'Tech' },
+  
+  // Physical Assets
+  { value: 'Building', label: 'Real Estate', category: 'Physical' },
+  { value: 'Home', label: 'House/Property', category: 'Physical' },
+  { value: 'Car', label: 'Vehicle', category: 'Physical' },
+  { value: 'Camera', label: 'Equipment', category: 'Physical' },
+  { value: 'Book', label: 'Books/Education', category: 'Physical' },
+  
+  // Business & Professional
+  { value: 'Briefcase', label: 'Business', category: 'Business' },
+  { value: 'GraduationCap', label: 'Education', category: 'Business' },
+  { value: 'Palette', label: 'Creative/Art', category: 'Business' },
+  
+  // Lifestyle
+  { value: 'Heart', label: 'Health/Personal', category: 'Lifestyle' },
+  { value: 'Music', label: 'Entertainment', category: 'Lifestyle' },
+  { value: 'Coffee', label: 'Food/Lifestyle', category: 'Lifestyle' },
+  { value: 'Plane', label: 'Travel', category: 'Lifestyle' },
+  { value: 'ShoppingBag', label: 'Shopping/Retail', category: 'Lifestyle' },
+  { value: 'Banknote', label: 'Cash/Money', category: 'Financial' }
+];
+
+const groupedIcons = iconOptions.reduce((acc, icon) => {
+  if (!acc[icon.category]) {
+    acc[icon.category] = [];
+  }
+  acc[icon.category].push(icon);
+  return acc;
+}, {} as Record<string, typeof iconOptions>);
 
 export const PortfolioOverview = () => {
   const { data, updateLiquidAsset, updateIlliquidAsset, addLiquidAsset, addIlliquidAsset, removeLiquidAsset, removeIlliquidAsset } = useFinancialData();
@@ -75,6 +152,43 @@ export const PortfolioOverview = () => {
     }
   };
 
+  const IconSelector = ({ value, onChange, placeholder }: { value: string, onChange: (value: string) => void, placeholder: string }) => {
+    const SelectedIcon = iconMap[value] || Coins;
+    
+    return (
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={placeholder}>
+            <div className="flex items-center gap-2">
+              <SelectedIcon size={20} />
+              <span>{iconOptions.find(opt => opt.value === value)?.label || placeholder}</span>
+            </div>
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent className="max-h-80">
+          {Object.entries(groupedIcons).map(([category, icons]) => (
+            <div key={category}>
+              <div className="px-2 py-1.5 text-sm font-semibold text-slate-600 bg-slate-50">
+                {category}
+              </div>
+              {icons.map((iconOption) => {
+                const IconComponent = iconMap[iconOption.value];
+                return (
+                  <SelectItem key={iconOption.value} value={iconOption.value}>
+                    <div className="flex items-center gap-2">
+                      <IconComponent size={16} />
+                      <span>{iconOption.label}</span>
+                    </div>
+                  </SelectItem>
+                );
+              })}
+            </div>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Liquid Assets */}
@@ -107,6 +221,11 @@ export const PortfolioOverview = () => {
                     value={newLiquidAsset.value}
                     onChange={(e) => setNewLiquidAsset({ ...newLiquidAsset, value: parseFloat(e.target.value) || 0 })}
                   />
+                  <IconSelector
+                    value={newLiquidAsset.icon}
+                    onChange={(value) => setNewLiquidAsset({ ...newLiquidAsset, icon: value })}
+                    placeholder="Choose an icon"
+                  />
                   <Button onClick={handleAddLiquidAsset} className="w-full">
                     Add Asset
                   </Button>
@@ -115,7 +234,7 @@ export const PortfolioOverview = () => {
             </Dialog>
           </div>
           <div className="text-2xl font-bold text-green-700">
-            R$ {totalLiquid.toLocaleString()}
+            {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalLiquid.toLocaleString()}
           </div>
           <div className="text-xs text-green-600">
             {data.liquidAssets.length - activeLiquidAssets.length} assets inactive
@@ -130,7 +249,31 @@ export const PortfolioOverview = () => {
               <div key={asset.id} className={`space-y-2 ${!asset.isActive ? 'opacity-50' : ''}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Icon size={16} className={asset.color} />
+                    <Select value={asset.icon} onValueChange={(value) => updateLiquidAsset(asset.id, { icon: value })}>
+                      <SelectTrigger className="w-12 h-8 p-1 border-none">
+                        <Icon size={16} className={asset.color} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-80">
+                        {Object.entries(groupedIcons).map(([category, icons]) => (
+                          <div key={category}>
+                            <div className="px-2 py-1.5 text-sm font-semibold text-slate-600 bg-slate-50">
+                              {category}
+                            </div>
+                            {icons.map((iconOption) => {
+                              const IconComponent = iconMap[iconOption.value];
+                              return (
+                                <SelectItem key={iconOption.value} value={iconOption.value}>
+                                  <div className="flex items-center gap-2">
+                                    <IconComponent size={16} />
+                                    <span>{iconOption.label}</span>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Input
                       value={asset.name}
                       onChange={(e) => updateLiquidAsset(asset.id, { name: e.target.value })}
@@ -148,7 +291,7 @@ export const PortfolioOverview = () => {
                   <div className="flex items-center gap-2">
                     <div className="text-right">
                       <div className="font-bold">
-                        R$ <EditableValue
+                        {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} <EditableValue
                           value={asset.value}
                           onSave={(value) => updateLiquidAsset(asset.id, { value: Number(value) })}
                           type="number"
@@ -204,6 +347,11 @@ export const PortfolioOverview = () => {
                     value={newIlliquidAsset.value}
                     onChange={(e) => setNewIlliquidAsset({ ...newIlliquidAsset, value: parseFloat(e.target.value) || 0 })}
                   />
+                  <IconSelector
+                    value={newIlliquidAsset.icon}
+                    onChange={(value) => setNewIlliquidAsset({ ...newIlliquidAsset, icon: value })}
+                    placeholder="Choose an icon"
+                  />
                   <Button onClick={handleAddIlliquidAsset} className="w-full">
                     Add Asset
                   </Button>
@@ -212,7 +360,7 @@ export const PortfolioOverview = () => {
             </Dialog>
           </div>
           <div className="text-2xl font-bold text-slate-700">
-            R$ {totalIlliquid.toLocaleString()}
+            {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalIlliquid.toLocaleString()}
           </div>
           <div className="text-xs text-slate-600">
             {data.illiquidAssets.length - activeIlliquidAssets.length} assets inactive
@@ -227,7 +375,31 @@ export const PortfolioOverview = () => {
               <div key={asset.id} className={`space-y-2 ${!asset.isActive ? 'opacity-50' : ''}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Icon size={16} className={asset.color} />
+                    <Select value={asset.icon} onValueChange={(value) => updateIlliquidAsset(asset.id, { icon: value })}>
+                      <SelectTrigger className="w-12 h-8 p-1 border-none">
+                        <Icon size={16} className={asset.color} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-80">
+                        {Object.entries(groupedIcons).map(([category, icons]) => (
+                          <div key={category}>
+                            <div className="px-2 py-1.5 text-sm font-semibold text-slate-600 bg-slate-50">
+                              {category}
+                            </div>
+                            {icons.map((iconOption) => {
+                              const IconComponent = iconMap[iconOption.value];
+                              return (
+                                <SelectItem key={iconOption.value} value={iconOption.value}>
+                                  <div className="flex items-center gap-2">
+                                    <IconComponent size={16} />
+                                    <span>{iconOption.label}</span>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Input
                       value={asset.name}
                       onChange={(e) => updateIlliquidAsset(asset.id, { name: e.target.value })}
@@ -245,15 +417,14 @@ export const PortfolioOverview = () => {
                   <div className="flex items-center gap-2">
                     <div className="text-right">
                       <div className="font-bold">
-                        R$ <EditableValue
+                        {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} <EditableValue
                           value={asset.value}
                           onSave={(value) => updateIlliquidAsset(asset.id, { value: Number(value) })}
                           type="number"
                           className="inline"
                         />
                       </div>
-                      {asset.isActive && <div className="text-xs text-slate-600">{percentage.toFixed(1)}%</div>}
-                    </div>
+                      {asset.isActive && <div className="text-xs text-slate-600">{percentage.toFixed(1)}%</div>}</div>
                     <Button
                       onClick={() => removeIlliquidAsset(asset.id)}
                       variant="outline"
@@ -281,7 +452,7 @@ export const PortfolioOverview = () => {
             <div className="text-center p-4 bg-white rounded-lg shadow-sm">
               <div className="text-sm text-slate-600">Total Liquid (Active)</div>
               <div className="text-xl font-bold text-green-600">
-                R$ {totalLiquid.toLocaleString()}
+                {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalLiquid.toLocaleString()}
               </div>
               <div className="text-xs text-slate-500">
                 {totalPortfolio > 0 ? ((totalLiquid / totalPortfolio) * 100).toFixed(1) : 0}% of portfolio
@@ -290,7 +461,7 @@ export const PortfolioOverview = () => {
             <div className="text-center p-4 bg-white rounded-lg shadow-sm">
               <div className="text-sm text-slate-600">Total Illiquid (Active)</div>
               <div className="text-xl font-bold text-slate-600">
-                R$ {totalIlliquid.toLocaleString()}
+                {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalIlliquid.toLocaleString()}
               </div>
               <div className="text-xs text-slate-500">
                 {totalPortfolio > 0 ? ((totalIlliquid / totalPortfolio) * 100).toFixed(1) : 0}% of portfolio
@@ -299,7 +470,7 @@ export const PortfolioOverview = () => {
             <div className="text-center p-4 bg-white rounded-lg shadow-sm border-2 border-blue-200">
               <div className="text-sm text-slate-600">Total Portfolio (Active)</div>
               <div className="text-2xl font-bold text-blue-600">
-                R$ {totalPortfolio.toLocaleString()}
+                {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalPortfolio.toLocaleString()}
               </div>
               <Badge variant="outline" className="mt-1">Active Assets Only</Badge>
             </div>
