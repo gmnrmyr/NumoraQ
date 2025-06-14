@@ -151,10 +151,11 @@ interface FinancialDataContextType {
 }
 
 const defaultData: FinancialData = {
+  version: "1.0.0",
   userProfile: {
-    name: "Guilherme",
-    defaultCurrency: 'BRL',
-    language: 'en'
+    name: "User", // Fixed: was empty string causing NaN
+    defaultCurrency: "BRL",
+    language: "en"
   },
   projectionMonths: 12,
   exchangeRates: {
