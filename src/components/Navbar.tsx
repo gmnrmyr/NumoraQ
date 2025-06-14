@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { User, DollarSign, BarChart3, Home, Github } from 'lucide-react';
+import { User, DollarSign, BarChart3, Home } from 'lucide-react';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { EditableValue } from '@/components/ui/editable-value';
 
@@ -26,6 +26,15 @@ export const Navbar = () => {
     return () => window.removeEventListener('scroll', controlNavbar);
   }, [lastScrollY]);
 
+  const getCurrencySymbol = (currency: string) => {
+    switch (currency) {
+      case 'BRL': return 'R$';
+      case 'USD': return '$';
+      case 'EUR': return '€';
+      default: return currency;
+    }
+  };
+
   return (
     <nav 
       className={`fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 transition-transform duration-300 ${
@@ -48,14 +57,16 @@ export const Navbar = () => {
               <EditableValue
                 value={data.userProfile.name}
                 onSave={(value) => updateUserProfile({ name: String(value) })}
+                type="text"
                 className="text-gray-800 font-medium"
+                placeholder="Enter your name"
               />
             </div>
 
             {/* Currency Indicator */}
             <div className="flex items-center space-x-1 text-sm text-gray-600">
               <DollarSign size={16} />
-              <span>{data.userProfile.defaultCurrency}</span>
+              <span>{getCurrencySymbol(data.userProfile.defaultCurrency)}</span>
             </div>
 
             {/* Quick Actions */}

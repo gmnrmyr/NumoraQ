@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface LiquidAsset {
@@ -151,9 +152,8 @@ interface FinancialDataContextType {
 }
 
 const defaultData: FinancialData = {
-  version: "1.0.0",
   userProfile: {
-    name: "User", // Fixed: was empty string causing NaN
+    name: "User",
     defaultCurrency: "BRL",
     language: "en"
   },
