@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -15,38 +15,85 @@ export const useLivePrices = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { data, updateExchangeRate } = useFinancialData();
+  const fetchingRef = useRef(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchLivePrices = async () => {
-    if (!data.userProfile || !data.userProfile.name) {
-      // Don't fetch for anonymous users
+  const fetchLivePrices = useCallback(async () => {
+    if (!data.userProfile || !data.userProfile.name || fetchingRef.current) {
+      // Don't fetch for anonymous users or if already fetching
       return;
     }
 
+    fetchingRef.current = true;
     setLoading(true);
     setError(null);
 
     try {
+      console.log('Fetching live prices...');
       const { data: priceData, error: functionError } = await supabase.functions.invoke('fetch-live-prices');
       
       if (functionError) throw functionError;
       
       if (priceData) {
-        // Update exchange rates in the context
-        updateExchangeRate('brlToUsd', priceData.brlToUsd);
-        updateExchangeRate('usdToBrl', priceData.usdToBrl);
-        updateExchangeRate('btcPrice', priceData.btcPrice);
-        updateExchangeRate('ethPrice', priceData.ethPrice);
-        updateExchangeRate('lastUpdated', priceData.lastUpdated);
+        // Batch update all exchange rates to minimize re-renders
+        const updates = [
+          ['brlToUsd', priceData.brlToUsd],
+          ['usdToBrl', priceData.usdToBrl],
+          ['btcPrice', priceData.btcPrice],
+          ['ethPrice', priceData.ethPrice],
+          ['lastUpdated', priceData.lastUpdated]
+        ];
+
+        // Update all rates in sequence to avoid multiple re-renders
+        updates.forEach(([key, value]) => {
+          updateExchangeRate(key as string, value);
+        });
         
-        console.log('Live prices updated:', priceData);
+        console.log('Live prices updated successfully:', priceData);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch live prices');
       console.error('Error fetching live prices:', err);
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
     }
-  };
+  }, [data.userProfile, updateExchangeRate]);
+
+  // Clear existing interval when user changes or component updates
+  const clearExistingInterval = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  // Set up auto-fetch interval for authenticated users
+  useEffect(() => {
+    clearExistingInterval();
+
+    if (data.userProfile?.name) {
+      // Initial fetch
+      fetchLivePrices();
+      
+      // Set up interval for subsequent fetches
+      intervalRef.current = setInterval(() => {
+        fetchLivePrices();
+      }, 5 * 60 * 1000); // Every 5 minutes
+    }
+
+    return () => {
+      clearExistingInterval();
+    };
+  }, [data.userProfile?.name, fetchLivePrices, clearExistingInterval]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      clearExistingInterval();
+      fetchingRef.current = false;
+    };
+  }, [clearExistingInterval]);
 
   return {
     fetchLivePrices,
