@@ -2,20 +2,54 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, DollarSign, Calendar } from "lucide-react";
+import { useFinancialData } from "@/contexts/FinancialDataContext";
 
 export const ProjectionChart = () => {
+  const { data } = useFinancialData();
   const currentYear = new Date().getFullYear();
   
+  // Calculate values from actual data
+  const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
+  const availableNow = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  
+  const passiveIncome12m = data.passiveIncome
+    .filter(income => income.status === 'active')
+    .reduce((sum, income) => sum + income.amount, 0) * 12;
+  
+  const activeIncome12m = data.activeIncome
+    .filter(income => income.status === 'active')
+    .reduce((sum, income) => sum + income.amount, 0) * 12;
+  
+  const totalIncome12m = passiveIncome12m + activeIncome12m;
+  
+  const recurringExpenses12m = data.expenses
+    .filter(expense => expense.type === 'recurring' && expense.status === 'active')
+    .reduce((sum, expense) => sum + expense.amount, 0) * 12;
+  
+  const variableExpenses = data.expenses
+    .filter(expense => expense.type === 'variable' && expense.status === 'active')
+    .reduce((sum, expense) => sum + expense.amount, 0);
+  
+  const totalExpenses12m = recurringExpenses12m + variableExpenses;
+  
+  // Include active debts in calculations
+  const activeDebts = data.debts.filter(debt => debt.isActive);
+  const totalActiveDebt = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
+  
+  const netProjection = totalIncome12m - totalExpenses12m - totalActiveDebt;
+  const netProjectionWithPortfolio = netProjection + availableNow;
+
   const projectionData = {
-    availableNow: 38100,
-    passiveIncome12m: 121416,
-    activeIncome12m: 28800,
-    totalIncome12m: 188316,
-    recurringExpenses12m: 127020,
-    variableExpenses: 45900,
-    totalExpenses12m: 172920,
-    netProjection: 15396,
-    netProjectionWithPortfolio: 53496
+    availableNow,
+    passiveIncome12m,
+    activeIncome12m,
+    totalIncome12m,
+    recurringExpenses12m,
+    variableExpenses,
+    totalExpenses12m,
+    totalActiveDebt,
+    netProjection,
+    netProjectionWithPortfolio
   };
 
   const monthlyBreakdown = {
@@ -34,7 +68,7 @@ export const ProjectionChart = () => {
           12-Month Financial Projection ({currentYear})
         </CardTitle>
         <div className="text-sm text-slate-600">
-          Complete financial forecast including all income sources and expenses
+          Complete financial forecast including all income sources, expenses, and active debts
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -94,7 +128,7 @@ export const ProjectionChart = () => {
         </div>
 
         {/* Expense Projections */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="p-4 bg-white rounded-lg shadow-sm">
             <div className="flex items-center gap-2 mb-2">
               <TrendingDown size={16} className="text-red-600" />
@@ -119,15 +153,26 @@ export const ProjectionChart = () => {
             <div className="text-sm text-slate-600">One-time expenses</div>
           </div>
           
+          <div className="p-4 bg-white rounded-lg shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingDown size={16} className="text-red-600" />
+              <span className="font-medium text-red-800">Active Debts</span>
+            </div>
+            <div className="text-xl font-bold text-red-600">
+              R$ {projectionData.totalActiveDebt.toLocaleString()}
+            </div>
+            <div className="text-sm text-slate-600">{activeDebts.length} active debts</div>
+          </div>
+          
           <div className="p-4 bg-white rounded-lg shadow-sm border-2 border-red-200">
             <div className="flex items-center gap-2 mb-2">
               <TrendingDown size={16} className="text-red-600" />
-              <span className="font-medium text-red-800">Total Expenses</span>
+              <span className="font-medium text-red-800">Total Obligations</span>
             </div>
             <div className="text-xl font-bold text-red-600">
-              R$ {projectionData.totalExpenses12m.toLocaleString()}
+              R$ {(projectionData.totalExpenses12m + projectionData.totalActiveDebt).toLocaleString()}
             </div>
-            <div className="text-sm text-slate-600">Complete 12-month cost</div>
+            <div className="text-sm text-slate-600">Expenses + debts</div>
           </div>
         </div>
 
@@ -135,23 +180,23 @@ export const ProjectionChart = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-6 bg-gradient-to-r from-green-100 to-blue-100 rounded-lg shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <Calendar size={16} className="text-green-600" />
-              <span className="font-medium text-green-800">12-Month Net Result</span>
+              <Calendar size={16} className={projectionData.netProjection >= 0 ? "text-green-600" : "text-red-600"} />
+              <span className={`font-medium ${projectionData.netProjection >= 0 ? "text-green-800" : "text-red-800"}`}>12-Month Net Result</span>
             </div>
-            <div className="text-2xl font-bold text-green-600">
+            <div className={`text-2xl font-bold ${projectionData.netProjection >= 0 ? "text-green-600" : "text-red-600"}`}>
               R$ {projectionData.netProjection.toLocaleString()}
             </div>
             <div className="text-sm text-slate-600">
-              Income minus all expenses
+              Income minus expenses and debts
             </div>
           </div>
           
           <div className="p-6 bg-gradient-to-r from-purple-100 to-green-100 rounded-lg shadow-sm border-2 border-purple-300">
             <div className="flex items-center gap-2 mb-2">
-              <DollarSign size={16} className="text-purple-600" />
-              <span className="font-medium text-purple-800">Final Position</span>
+              <DollarSign size={16} className={projectionData.netProjectionWithPortfolio >= 0 ? "text-purple-600" : "text-red-600"} />
+              <span className={`font-medium ${projectionData.netProjectionWithPortfolio >= 0 ? "text-purple-800" : "text-red-800"}`}>Final Position</span>
             </div>
-            <div className="text-3xl font-bold text-purple-600">
+            <div className={`text-3xl font-bold ${projectionData.netProjectionWithPortfolio >= 0 ? "text-purple-600" : "text-red-600"}`}>
               R$ {projectionData.netProjectionWithPortfolio.toLocaleString()}
             </div>
             <div className="text-sm text-slate-600">
@@ -187,9 +232,12 @@ export const ProjectionChart = () => {
           <h3 className="font-semibold text-amber-800 mb-2">📊 Key Insights</h3>
           <ul className="text-sm text-amber-700 space-y-1">
             <li>• Passive income represents {((projectionData.passiveIncome12m / projectionData.totalIncome12m) * 100).toFixed(0)}% of total income</li>
-            <li>• Variable expenses are {((projectionData.variableExpenses / projectionData.totalExpenses12m) * 100).toFixed(0)}% of total expenses</li>
+            <li>• Variable expenses are {((projectionData.variableExpenses / (projectionData.totalExpenses12m + projectionData.totalActiveDebt)) * 100).toFixed(0)}% of total obligations</li>
+            <li>• Active debts represent {((projectionData.totalActiveDebt / (projectionData.totalExpenses12m + projectionData.totalActiveDebt)) * 100).toFixed(0)}% of total obligations</li>
             <li>• Monthly savings rate: {monthlyBreakdown.monthlyBalance >= 0 ? '+' : ''}{((monthlyBreakdown.monthlyBalance / monthlyBreakdown.monthlyTotalIncome) * 100).toFixed(1)}%</li>
-            <li>• Projected financial position improvement: +{((projectionData.netProjectionWithPortfolio / projectionData.availableNow - 1) * 100).toFixed(0)}%</li>
+            {projectionData.netProjectionWithPortfolio > 0 && (
+              <li>• Projected financial position improvement: +{((projectionData.netProjectionWithPortfolio / projectionData.availableNow - 1) * 100).toFixed(0)}%</li>
+            )}
           </ul>
         </div>
       </CardContent>
