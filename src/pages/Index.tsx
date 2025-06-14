@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -19,8 +18,8 @@ import { PortfolioOverview } from "@/components/PortfolioOverview";
 import { IncomeTracking } from "@/components/IncomeTracking";
 import { ExpenseTracking } from "@/components/ExpenseTracking";
 import { AssetManagement } from "@/components/AssetManagement";
-import { TaskManagement } from "@/components/TaskManagement";
-import { DebtTracking } from "@/components/DebtTracking";
+import { TaskManagementEditable } from "@/components/TaskManagementEditable";
+import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
 import { ProjectionChart } from "@/components/ProjectionChart";
 import { DataToolbar } from "@/components/DataToolbar";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
@@ -29,9 +28,13 @@ import { EditableValue } from "@/components/ui/editable-value";
 const Index = () => {
   const { data, updateExchangeRate } = useFinancialData();
 
-  // Calculate totals from context data
-  const totalLiquid = data.liquidAssets.reduce((sum, asset) => sum + asset.value, 0);
-  const totalIlliquid = data.illiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  // Calculate totals from context data (only active assets)
+  const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
+  const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  
+  const activeIlliquidAssets = data.illiquidAssets.filter(asset => asset.isActive);
+  const totalIlliquid = activeIlliquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  
   const totalAvailable = totalLiquid;
   
   const totalPassiveIncome = data.passiveIncome
@@ -257,11 +260,11 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="tasks" className="space-y-6">
-            <TaskManagement />
+            <TaskManagementEditable />
           </TabsContent>
 
           <TabsContent value="debt" className="space-y-6">
-            <DebtTracking />
+            <DebtTrackingEditable />
           </TabsContent>
         </Tabs>
 

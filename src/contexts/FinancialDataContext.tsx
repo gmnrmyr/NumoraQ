@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface LiquidAsset {
@@ -7,6 +6,7 @@ export interface LiquidAsset {
   value: number;
   icon: string;
   color: string;
+  isActive: boolean; // New field to control if it counts in calculations
 }
 
 export interface IlliquidAsset {
@@ -15,6 +15,7 @@ export interface IlliquidAsset {
   value: number;
   icon: string;
   color: string;
+  isActive: boolean; // New field to control if it counts in calculations
 }
 
 export interface PassiveIncomeItem {
@@ -60,6 +61,7 @@ export interface DebtItem {
   status: 'pending' | 'partial' | 'paid';
   icon: string;
   description: string;
+  isActive: boolean; // New field to control if it counts in calculations
 }
 
 export interface PropertyItem {
@@ -105,6 +107,14 @@ interface FinancialDataContextType {
   updateTask: (id: string, updates: Partial<TaskItem>) => void;
   updateDebt: (id: string, updates: Partial<DebtItem>) => void;
   updateProperty: (id: string, updates: Partial<PropertyItem>) => void;
+  addLiquidAsset: (asset: Omit<LiquidAsset, 'id'>) => void;
+  addIlliquidAsset: (asset: Omit<IlliquidAsset, 'id'>) => void;
+  addTask: (task: Omit<TaskItem, 'id'>) => void;
+  addDebt: (debt: Omit<DebtItem, 'id'>) => void;
+  removeLiquidAsset: (id: string) => void;
+  removeIlliquidAsset: (id: string) => void;
+  removeTask: (id: string) => void;
+  removeDebt: (id: string) => void;
   exportToCSV: () => void;
   importFromJSON: (jsonData: string) => void;
   resetData: () => void;
@@ -118,14 +128,14 @@ const defaultData: FinancialData = {
     ethPrice: 14000
   },
   liquidAssets: [
-    { id: '1', name: 'BTC', value: 33500, icon: 'Bitcoin', color: 'text-orange-600' },
-    { id: '2', name: 'Altcoins & NFT', value: 4500, icon: 'Coins', color: 'text-purple-600' },
-    { id: '3', name: 'Banco', value: 100, icon: 'Banknote', color: 'text-green-600' },
-    { id: '4', name: 'PXL DEX', value: 50000, icon: 'Coins', color: 'text-blue-600' }
+    { id: '1', name: 'BTC', value: 33500, icon: 'Bitcoin', color: 'text-orange-600', isActive: true },
+    { id: '2', name: 'Altcoins & NFT', value: 4500, icon: 'Coins', color: 'text-purple-600', isActive: true },
+    { id: '3', name: 'Banco', value: 100, icon: 'Banknote', color: 'text-green-600', isActive: true },
+    { id: '4', name: 'PXL DEX', value: 50000, icon: 'Coins', color: 'text-blue-600', isActive: false }
   ],
   illiquidAssets: [
-    { id: '1', name: 'Bens GUI', value: 50000, icon: 'Building', color: 'text-slate-600' },
-    { id: '2', name: 'Bens Pais', value: 30000, icon: 'Building', color: 'text-slate-600' }
+    { id: '1', name: 'Bens GUI', value: 50000, icon: 'Building', color: 'text-slate-600', isActive: true },
+    { id: '2', name: 'Bens Pais', value: 30000, icon: 'Building', color: 'text-slate-600', isActive: true }
   ],
   passiveIncome: [
     { id: '1', source: 'Locação Macuco', amount: 6000, status: 'pending', icon: 'Home', note: 'Not rented yet, simulated' },
@@ -154,9 +164,9 @@ const defaultData: FinancialData = {
     { id: '3', item: 'Consulta Psiquiatra', date: 'Julho', priority: 5, icon: 'User', completed: false }
   ],
   debts: [
-    { id: '1', creditor: 'Goodstorage Avaria', amount: 1200, dueDate: 'INDEF', status: 'pending', icon: 'Home', description: 'Storage damage compensation' },
-    { id: '2', creditor: 'Devo Mãe', amount: 2000, dueDate: 'INDEF', status: 'pending', icon: 'User', description: 'Family loan - various expenses' },
-    { id: '3', creditor: 'Devo Fernando', amount: 5000, dueDate: 'INDEF', status: 'pending', icon: 'User', description: 'Personal loan' }
+    { id: '1', creditor: 'Goodstorage Avaria', amount: 1200, dueDate: 'INDEF', status: 'pending', icon: 'Home', description: 'Storage damage compensation', isActive: true },
+    { id: '2', creditor: 'Devo Mãe', amount: 2000, dueDate: 'INDEF', status: 'pending', icon: 'User', description: 'Family loan - various expenses', isActive: true },
+    { id: '3', creditor: 'Devo Fernando', amount: 5000, dueDate: 'INDEF', status: 'pending', icon: 'User', description: 'Personal loan', isActive: true }
   ],
   properties: [
     { id: '1', name: 'Laurindo', value: 230400, status: 'rented', currentRent: 1600, statusIcon: '✅', statusText: 'Alugado', prediction: 'Atual', rentRange: 'R$ 1.600' },
@@ -267,6 +277,66 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     }));
   };
 
+  const addLiquidAsset = (asset: Omit<LiquidAsset, 'id'>) => {
+    const newAsset = { ...asset, id: Date.now().toString() };
+    setData(prev => ({
+      ...prev,
+      liquidAssets: [...prev.liquidAssets, newAsset]
+    }));
+  };
+
+  const addIlliquidAsset = (asset: Omit<IlliquidAsset, 'id'>) => {
+    const newAsset = { ...asset, id: Date.now().toString() };
+    setData(prev => ({
+      ...prev,
+      illiquidAssets: [...prev.illiquidAssets, newAsset]
+    }));
+  };
+
+  const addTask = (task: Omit<TaskItem, 'id'>) => {
+    const newTask = { ...task, id: Date.now().toString() };
+    setData(prev => ({
+      ...prev,
+      tasks: [...prev.tasks, newTask]
+    }));
+  };
+
+  const addDebt = (debt: Omit<DebtItem, 'id'>) => {
+    const newDebt = { ...debt, id: Date.now().toString() };
+    setData(prev => ({
+      ...prev,
+      debts: [...prev.debts, newDebt]
+    }));
+  };
+
+  const removeLiquidAsset = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      liquidAssets: prev.liquidAssets.filter(asset => asset.id !== id)
+    }));
+  };
+
+  const removeIlliquidAsset = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      illiquidAssets: prev.illiquidAssets.filter(asset => asset.id !== id)
+    }));
+  };
+
+  const removeTask = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      tasks: prev.tasks.filter(task => task.id !== id)
+    }));
+  };
+
+  const removeDebt = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      debts: prev.debts.filter(debt => debt.id !== id)
+    }));
+  };
+
   const exportToCSV = () => {
     const csvData = [
       ['Section', 'Item', 'Value', 'Status', 'Category'],
@@ -314,6 +384,14 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
       updateTask,
       updateDebt,
       updateProperty,
+      addLiquidAsset,
+      addIlliquidAsset,
+      addTask,
+      addDebt,
+      removeLiquidAsset,
+      removeIlliquidAsset,
+      removeTask,
+      removeDebt,
       exportToCSV,
       importFromJSON,
       resetData
