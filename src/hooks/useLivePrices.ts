@@ -21,7 +21,7 @@ export const useLivePrices = () => {
 
   const fetchLivePrices = useCallback(async () => {
     if (!data.userProfile || !data.userProfile.name || fetchingRef.current) {
-      // Don't fetch for anonymous users or if already fetching
+      console.log('Skipping fetch: no user profile or already fetching');
       return;
     }
 
@@ -31,14 +31,18 @@ export const useLivePrices = () => {
 
     try {
       console.log('Fetching live prices for currency:', data.userProfile.defaultCurrency);
+      
       const { data: priceData, error: functionError } = await supabase.functions.invoke('fetch-live-prices', {
         body: { currency: data.userProfile.defaultCurrency }
       });
       
-      if (functionError) throw functionError;
+      if (functionError) {
+        console.error('Function error:', functionError);
+        throw functionError;
+      }
       
       if (priceData) {
-        // Update each exchange rate individually with proper typing
+        // Update exchange rates
         updateExchangeRate('brlToUsd', priceData.brlToUsd);
         updateExchangeRate('usdToBrl', priceData.usdToBrl);
         updateExchangeRate('btcPrice', priceData.btcPrice);
@@ -49,19 +53,20 @@ export const useLivePrices = () => {
         console.log('Live prices updated successfully:', priceData);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch live prices');
       console.error('Error fetching live prices:', err);
+      setError(err.message || 'Failed to fetch live prices');
     } finally {
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, [data.userProfile, updateExchangeRate]);
+  }, [data.userProfile?.name, data.userProfile?.defaultCurrency, updateExchangeRate]);
 
   // Clear existing interval when user changes or component updates
   const clearExistingInterval = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
+      console.log('Cleared existing price fetch interval');
     }
   }, []);
 
@@ -70,13 +75,18 @@ export const useLivePrices = () => {
     clearExistingInterval();
 
     if (data.userProfile?.name) {
+      console.log('Setting up price fetch interval for authenticated user');
+      
       // Initial fetch
       fetchLivePrices();
       
-      // Set up interval for subsequent fetches
+      // Set up interval for subsequent fetches every 5 minutes
       intervalRef.current = setInterval(() => {
+        console.log('Interval fetch triggered');
         fetchLivePrices();
-      }, 5 * 60 * 1000); // Every 5 minutes
+      }, 5 * 60 * 1000);
+    } else {
+      console.log('No authenticated user, skipping price fetch setup');
     }
 
     return () => {
@@ -112,6 +122,6 @@ export const useLivePrices = () => {
     error,
     lastFetchTime,
     timeSinceLastUpdate: getTimeSinceLastUpdate(),
-    isLiveDataEnabled: data.userProfile?.name !== '' // Enable for logged in users
+    isLiveDataEnabled: !!data.userProfile?.name // Enable for logged in users
   };
 };
