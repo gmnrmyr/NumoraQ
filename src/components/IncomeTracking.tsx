@@ -3,42 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Home, User, Heart, TrendingUp, Briefcase } from "lucide-react";
+import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { EditableValue } from "@/components/ui/editable-value";
+import { StatusToggle } from "@/components/ui/status-toggle";
+
+const iconMap: { [key: string]: any } = {
+  Home,
+  User,
+  Heart,
+  Briefcase
+};
 
 export const IncomeTracking = () => {
-  const passiveIncome = [
-    { source: "Locação Macuco", amount: 6000, status: "pending", icon: Home, note: "Not rented yet, simulated" },
-    { source: "Locação Laurindo", amount: 1600, status: "active", icon: Home },
-    { source: "Aposentadoria Mãe", amount: 1518, status: "active", icon: User },
-    { source: "Locação Ataliba", amount: 1300, status: "active", icon: Home },
-    { source: "Apoio da IRA", amount: 1000, status: "active", icon: Heart },
-    { source: "Aposentadoria Pai", amount: 0, status: "pending", icon: User }
-  ];
+  const { data, updatePassiveIncome, updateActiveIncome } = useFinancialData();
 
-  const activeIncome = [
-    { source: "Freelas Pai", amount: 600, status: "active", icon: Briefcase },
-    { source: "CLT GUI (Gestor Seller)", amount: 1800, status: "active", icon: Briefcase },
-    { source: "Freelas GUI", amount: 600, status: "active", icon: Briefcase }
-  ];
-
-  const totalPassive = passiveIncome.reduce((sum, income) => sum + income.amount, 0);
-  const totalActive = activeIncome.reduce((sum, income) => sum + income.amount, 0);
+  const totalPassive = data.passiveIncome.reduce((sum, income) => sum + income.amount, 0);
+  const totalActive = data.activeIncome.reduce((sum, income) => sum + income.amount, 0);
   const totalIncome = totalPassive + totalActive;
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default: return 'bg-slate-100 text-slate-800 border-slate-200';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'active': return 'Active';
-      case 'pending': return 'Pending';
-      default: return 'Inactive';
-    }
-  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -54,23 +35,30 @@ export const IncomeTracking = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {passiveIncome.map((income, index) => {
-            const Icon = income.icon;
+          {data.passiveIncome.map((income) => {
+            const Icon = iconMap[income.icon] || TrendingUp;
             const percentage = totalPassive > 0 ? (income.amount / totalPassive) * 100 : 0;
             
             return (
-              <div key={index} className="space-y-2 p-3 bg-white rounded-lg shadow-sm">
+              <div key={income.id} className="space-y-2 p-3 bg-white rounded-lg shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Icon size={16} className="text-green-600" />
                     <span className="font-medium">{income.source}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className={getStatusColor(income.status)}>
-                      {getStatusText(income.status)}
-                    </Badge>
+                    <StatusToggle
+                      status={income.status}
+                      onToggle={(newStatus) => updatePassiveIncome(income.id, { status: newStatus })}
+                    />
                     <div className="text-right">
-                      <div className="font-bold">R$ {income.amount.toLocaleString()}</div>
+                      <div className="font-bold">
+                        R$ <EditableValue
+                          value={income.amount}
+                          onSave={(value) => updatePassiveIncome(income.id, { amount: value })}
+                          className="inline"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -100,23 +88,30 @@ export const IncomeTracking = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {activeIncome.map((income, index) => {
-            const Icon = income.icon;
+          {data.activeIncome.map((income) => {
+            const Icon = iconMap[income.icon] || Briefcase;
             const percentage = totalActive > 0 ? (income.amount / totalActive) * 100 : 0;
             
             return (
-              <div key={index} className="space-y-2 p-3 bg-white rounded-lg shadow-sm">
+              <div key={income.id} className="space-y-2 p-3 bg-white rounded-lg shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Icon size={16} className="text-blue-600" />
                     <span className="font-medium">{income.source}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className={getStatusColor(income.status)}>
-                      {getStatusText(income.status)}
-                    </Badge>
+                    <StatusToggle
+                      status={income.status}
+                      onToggle={(newStatus) => updateActiveIncome(income.id, { status: newStatus })}
+                    />
                     <div className="text-right">
-                      <div className="font-bold">R$ {income.amount.toLocaleString()}</div>
+                      <div className="font-bold">
+                        R$ <EditableValue
+                          value={income.amount}
+                          onSave={(value) => updateActiveIncome(income.id, { amount: value })}
+                          className="inline"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -2,7 +2,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { 
   DollarSign, 
@@ -23,25 +22,36 @@ import { AssetManagement } from "@/components/AssetManagement";
 import { TaskManagement } from "@/components/TaskManagement";
 import { DebtTracking } from "@/components/DebtTracking";
 import { ProjectionChart } from "@/components/ProjectionChart";
+import { DataToolbar } from "@/components/DataToolbar";
+import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { EditableValue } from "@/components/ui/editable-value";
 
 const Index = () => {
-  // Exchange rates and crypto prices
-  const exchangeRates = {
-    brlToUsd: 0.18,
-    usdToBrl: 5.54,
-    btcPrice: 588300,
-    ethPrice: 14000
-  };
+  const { data, updateExchangeRate } = useFinancialData();
 
-  // Key financial metrics
-  const totalAvailable = 38100;
-  const totalPassiveIncome = 10118;
-  const totalActiveIncome = 2400;
-  const totalRecurringExpenses = 10585;
-  const totalVariableExpenses = 45900;
-  const yearProjection = 53496;
+  // Calculate totals from context data
+  const totalLiquid = data.liquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  const totalIlliquid = data.illiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  const totalAvailable = totalLiquid;
+  
+  const totalPassiveIncome = data.passiveIncome
+    .filter(income => income.status === 'active')
+    .reduce((sum, income) => sum + income.amount, 0);
+  
+  const totalActiveIncome = data.activeIncome
+    .filter(income => income.status === 'active')
+    .reduce((sum, income) => sum + income.amount, 0);
+  
+  const totalRecurringExpenses = data.expenses
+    .filter(expense => expense.type === 'recurring' && expense.status === 'active')
+    .reduce((sum, expense) => sum + expense.amount, 0);
+  
+  const totalVariableExpenses = data.expenses
+    .filter(expense => expense.type === 'variable' && expense.status === 'active')
+    .reduce((sum, expense) => sum + expense.amount, 0);
 
   const monthlyBalance = totalPassiveIncome + totalActiveIncome - totalRecurringExpenses;
+  const yearProjection = (monthlyBalance * 12) - totalVariableExpenses + totalAvailable;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
@@ -52,31 +62,56 @@ const Index = () => {
           <p className="text-slate-600">Complete financial overview and management system</p>
         </div>
 
+        {/* Data Management Toolbar */}
+        <DataToolbar />
+
         {/* Exchange Rates Banner */}
         <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
           <CardContent className="p-4">
             <div className="flex flex-wrap justify-around items-center gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <DollarSign size={16} />
-                <span>BRL/USD: R$ {exchangeRates.brlToUsd}</span>
+                <span>BRL/USD: R$ </span>
+                <EditableValue
+                  value={data.exchangeRates.brlToUsd}
+                  onSave={(value) => updateExchangeRate('brlToUsd', value)}
+                  type="number"
+                  className="text-white bg-white/20 hover:bg-white/30"
+                />
               </div>
               <div className="flex items-center gap-2">
                 <DollarSign size={16} />
-                <span>USD/BRL: R$ {exchangeRates.usdToBrl}</span>
+                <span>USD/BRL: R$ </span>
+                <EditableValue
+                  value={data.exchangeRates.usdToBrl}
+                  onSave={(value) => updateExchangeRate('usdToBrl', value)}
+                  type="number"
+                  className="text-white bg-white/20 hover:bg-white/30"
+                />
               </div>
               <div className="flex items-center gap-2">
                 <TrendingUp size={16} />
-                <span>BTC: R$ {exchangeRates.btcPrice.toLocaleString()}</span>
+                <span>BTC: R$ </span>
+                <EditableValue
+                  value={data.exchangeRates.btcPrice}
+                  onSave={(value) => updateExchangeRate('btcPrice', value)}
+                  className="text-white bg-white/20 hover:bg-white/30"
+                />
               </div>
               <div className="flex items-center gap-2">
                 <TrendingUp size={16} />
-                <span>ETH: R$ {exchangeRates.ethPrice.toLocaleString()}</span>
+                <span>ETH: R$ </span>
+                <EditableValue
+                  value={data.exchangeRates.ethPrice}
+                  onSave={(value) => updateExchangeRate('ethPrice', value)}
+                  className="text-white bg-white/20 hover:bg-white/30"
+                />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Key Metrics Overview */}
+        {/* Key Metrics Overview - using calculated values */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="bg-green-50 border-green-200">
             <CardHeader className="pb-2">
@@ -156,15 +191,21 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
                 <div className="text-sm text-slate-600">Total Income (12m)</div>
-                <div className="text-xl font-bold text-green-600">R$ 188.316</div>
+                <div className="text-xl font-bold text-green-600">
+                  R$ {((totalPassiveIncome + totalActiveIncome) * 12).toLocaleString()}
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-sm text-slate-600">Total Expenses (12m)</div>
-                <div className="text-xl font-bold text-red-600">R$ 172.920</div>
+                <div className="text-xl font-bold text-red-600">
+                  R$ {(totalRecurringExpenses * 12 + totalVariableExpenses).toLocaleString()}
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-sm text-slate-600">Net Projection</div>
-                <div className="text-2xl font-bold text-purple-600">R$ {yearProjection.toLocaleString()}</div>
+                <div className="text-2xl font-bold text-purple-600">
+                  R$ {Math.max(0, yearProjection).toLocaleString()}
+                </div>
               </div>
             </div>
           </CardContent>

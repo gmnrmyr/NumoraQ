@@ -3,22 +3,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Bitcoin, Coins, Building, Banknote } from "lucide-react";
+import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { EditableValue } from "@/components/ui/editable-value";
+
+const iconMap: { [key: string]: any } = {
+  Bitcoin,
+  Coins,
+  Building,
+  Banknote
+};
 
 export const PortfolioOverview = () => {
-  const liquidAssets = [
-    { name: "BTC", value: 33500, icon: Bitcoin, color: "text-orange-600" },
-    { name: "Altcoins & NFT", value: 4500, icon: Coins, color: "text-purple-600" },
-    { name: "Banco", value: 100, icon: Banknote, color: "text-green-600" },
-    { name: "PXL DEX", value: 50000, icon: Coins, color: "text-blue-600" }
-  ];
+  const { data, updateLiquidAsset, updateIlliquidAsset } = useFinancialData();
 
-  const illiquidAssets = [
-    { name: "Bens GUI", value: 50000, icon: Building, color: "text-slate-600" },
-    { name: "Bens Pais", value: 30000, icon: Building, color: "text-slate-600" }
-  ];
-
-  const totalLiquid = liquidAssets.reduce((sum, asset) => sum + asset.value, 0);
-  const totalIlliquid = illiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  const totalLiquid = data.liquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  const totalIlliquid = data.illiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
   const totalPortfolio = totalLiquid + totalIlliquid;
 
   return (
@@ -35,19 +34,25 @@ export const PortfolioOverview = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {liquidAssets.map((asset, index) => {
-            const Icon = asset.icon;
-            const percentage = (asset.value / totalLiquid) * 100;
+          {data.liquidAssets.map((asset) => {
+            const Icon = iconMap[asset.icon] || Coins;
+            const percentage = totalLiquid > 0 ? (asset.value / totalLiquid) * 100 : 0;
             
             return (
-              <div key={index} className="space-y-2">
+              <div key={asset.id} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Icon size={16} className={asset.color} />
                     <span className="font-medium">{asset.name}</span>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">R$ {asset.value.toLocaleString()}</div>
+                    <div className="font-bold">
+                      R$ <EditableValue
+                        value={asset.value}
+                        onSave={(value) => updateLiquidAsset(asset.id, { value })}
+                        className="inline"
+                      />
+                    </div>
                     <div className="text-xs text-slate-600">{percentage.toFixed(1)}%</div>
                   </div>
                 </div>
@@ -70,19 +75,25 @@ export const PortfolioOverview = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {illiquidAssets.map((asset, index) => {
-            const Icon = asset.icon;
-            const percentage = (asset.value / totalIlliquid) * 100;
+          {data.illiquidAssets.map((asset) => {
+            const Icon = iconMap[asset.icon] || Building;
+            const percentage = totalIlliquid > 0 ? (asset.value / totalIlliquid) * 100 : 0;
             
             return (
-              <div key={index} className="space-y-2">
+              <div key={asset.id} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Icon size={16} className={asset.color} />
                     <span className="font-medium">{asset.name}</span>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">R$ {asset.value.toLocaleString()}</div>
+                    <div className="font-bold">
+                      R$ <EditableValue
+                        value={asset.value}
+                        onSave={(value) => updateIlliquidAsset(asset.id, { value })}
+                        className="inline"
+                      />
+                    </div>
                     <div className="text-xs text-slate-600">{percentage.toFixed(1)}%</div>
                   </div>
                 </div>
@@ -106,7 +117,7 @@ export const PortfolioOverview = () => {
                 R$ {totalLiquid.toLocaleString()}
               </div>
               <div className="text-xs text-slate-500">
-                {((totalLiquid / totalPortfolio) * 100).toFixed(1)}% of portfolio
+                {totalPortfolio > 0 ? ((totalLiquid / totalPortfolio) * 100).toFixed(1) : 0}% of portfolio
               </div>
             </div>
             <div className="text-center p-4 bg-white rounded-lg shadow-sm">
@@ -115,7 +126,7 @@ export const PortfolioOverview = () => {
                 R$ {totalIlliquid.toLocaleString()}
               </div>
               <div className="text-xs text-slate-500">
-                {((totalIlliquid / totalPortfolio) * 100).toFixed(1)}% of portfolio
+                {totalPortfolio > 0 ? ((totalIlliquid / totalPortfolio) * 100).toFixed(1) : 0}% of portfolio
               </div>
             </div>
             <div className="text-center p-4 bg-white rounded-lg shadow-sm border-2 border-blue-200">
