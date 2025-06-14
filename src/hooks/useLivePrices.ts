@@ -18,6 +18,7 @@ export const useLivePrices = () => {
   const { data, updateExchangeRate } = useFinancialData();
   const fetchingRef = useRef(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastCurrencyRef = useRef<string | null>(null);
 
   const fetchLivePrices = useCallback(async (currency?: string) => {
     if (fetchingRef.current) {
@@ -60,7 +61,7 @@ export const useLivePrices = () => {
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, [updateExchangeRate]); // Only depend on updateExchangeRate
+  }, [updateExchangeRate]);
 
   // Clear existing interval
   const clearExistingInterval = useCallback(() => {
@@ -76,27 +77,38 @@ export const useLivePrices = () => {
     if (!data.userProfile?.name) {
       console.log('No authenticated user, clearing interval');
       clearExistingInterval();
+      lastCurrencyRef.current = null;
       return;
     }
 
-    console.log('Setting up price fetch interval for authenticated user');
+    const currentCurrency = data.userProfile.defaultCurrency;
     
-    // Clear any existing interval first
-    clearExistingInterval();
+    // Check if currency changed - if so, fetch immediately
+    if (lastCurrencyRef.current && lastCurrencyRef.current !== currentCurrency) {
+      console.log(`Currency changed from ${lastCurrencyRef.current} to ${currentCurrency}, fetching new prices`);
+      clearExistingInterval();
+      fetchLivePrices(currentCurrency);
+    } else if (!lastCurrencyRef.current) {
+      // Initial setup
+      console.log('Setting up price fetch interval for authenticated user');
+      clearExistingInterval();
+      fetchLivePrices(currentCurrency);
+    }
     
-    // Initial fetch
-    fetchLivePrices(data.userProfile.defaultCurrency);
+    lastCurrencyRef.current = currentCurrency;
     
     // Set up interval for subsequent fetches every 5 minutes
-    intervalRef.current = setInterval(() => {
-      console.log('Interval fetch triggered');
-      fetchLivePrices(data.userProfile.defaultCurrency);
-    }, 5 * 60 * 1000);
+    if (!intervalRef.current) {
+      intervalRef.current = setInterval(() => {
+        console.log('Interval fetch triggered for currency:', currentCurrency);
+        fetchLivePrices(currentCurrency);
+      }, 5 * 60 * 1000);
+    }
 
     return () => {
       clearExistingInterval();
     };
-  }, [data.userProfile?.name, data.userProfile?.defaultCurrency]); // Stable dependencies
+  }, [data.userProfile?.name, data.userProfile?.defaultCurrency, fetchLivePrices, clearExistingInterval]);
 
   // Cleanup on unmount
   useEffect(() => {
