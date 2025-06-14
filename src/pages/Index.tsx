@@ -27,7 +27,7 @@ import { EditableValue } from "@/components/ui/editable-value";
 import { DevMenu } from "@/components/DevMenu";
 
 const Index = () => {
-  const { data, updateExchangeRate, updateProfileName } = useFinancialData();
+  const { data, updateExchangeRate, updateProfileName, updateProjectionMonths } = useFinancialData();
 
   // Calculate totals from context data (only active assets)
   const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
@@ -69,7 +69,7 @@ const Index = () => {
           <h1 className="text-4xl font-bold text-slate-800">
             <EditableValue
               value={data.profileName}
-              onSave={(value) => updateProfileName(value)}
+              onSave={(value) => updateProfileName(String(value))}
               className="inline-block text-center"
             />
           </h1>
@@ -87,8 +87,8 @@ const Index = () => {
                 <DollarSign size={16} />
                 <span>BRL/USD: R$ </span>
                 <EditableValue
-                  value={data.exchangeRates.brlToUsd}
-                  onSave={(value) => updateExchangeRate('brlToUsd', value)}
+                  value={data.exchangeRates.brlToUsd.toString()}
+                  onSave={(value) => updateExchangeRate('brlToUsd', Number(value))}
                   type="number"
                   className="text-white bg-white/20 hover:bg-white/30"
                 />
@@ -97,8 +97,8 @@ const Index = () => {
                 <DollarSign size={16} />
                 <span>USD/BRL: R$ </span>
                 <EditableValue
-                  value={data.exchangeRates.usdToBrl}
-                  onSave={(value) => updateExchangeRate('usdToBrl', value)}
+                  value={data.exchangeRates.usdToBrl.toString()}
+                  onSave={(value) => updateExchangeRate('usdToBrl', Number(value))}
                   type="number"
                   className="text-white bg-white/20 hover:bg-white/30"
                 />
@@ -107,8 +107,9 @@ const Index = () => {
                 <TrendingUp size={16} />
                 <span>BTC: R$ </span>
                 <EditableValue
-                  value={data.exchangeRates.btcPrice}
-                  onSave={(value) => updateExchangeRate('btcPrice', value)}
+                  value={data.exchangeRates.btcPrice.toString()}
+                  onSave={(value) => updateExchangeRate('btcPrice', Number(value))}
+                  type="number"
                   className="text-white bg-white/20 hover:bg-white/30"
                 />
               </div>
@@ -116,10 +117,22 @@ const Index = () => {
                 <TrendingUp size={16} />
                 <span>ETH: R$ </span>
                 <EditableValue
-                  value={data.exchangeRates.ethPrice}
-                  onSave={(value) => updateExchangeRate('ethPrice', value)}
+                  value={data.exchangeRates.ethPrice.toString()}
+                  onSave={(value) => updateExchangeRate('ethPrice', Number(value))}
+                  type="number"
                   className="text-white bg-white/20 hover:bg-white/30"
                 />
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar size={16} />
+                <span>Projection: </span>
+                <EditableValue
+                  value={data.projectionMonths.toString()}
+                  onSave={(value) => updateProjectionMonths(Number(value))}
+                  type="number"
+                  className="text-white bg-white/20 hover:bg-white/30"
+                />
+                <span> months</span>
               </div>
             </div>
           </CardContent>
