@@ -135,7 +135,8 @@ export const ExpenseTrackingEditable = () => {
           <span className="font-medium">
             R$ <EditableValue
               value={expense.amount}
-              onSave={(value) => updateExpense(expense.id, { amount: value })}
+              onSave={(value) => updateExpense(expense.id, { amount: Number(value) })}
+              type="number"
               className="inline"
             />
           </span>

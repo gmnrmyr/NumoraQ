@@ -150,7 +150,8 @@ export const PortfolioOverview = () => {
                       <div className="font-bold">
                         R$ <EditableValue
                           value={asset.value}
-                          onSave={(value) => updateLiquidAsset(asset.id, { value })}
+                          onSave={(value) => updateLiquidAsset(asset.id, { value: Number(value) })}
+                          type="number"
                           className="inline"
                         />
                       </div>
@@ -246,7 +247,8 @@ export const PortfolioOverview = () => {
                       <div className="font-bold">
                         R$ <EditableValue
                           value={asset.value}
-                          onSave={(value) => updateIlliquidAsset(asset.id, { value })}
+                          onSave={(value) => updateIlliquidAsset(asset.id, { value: Number(value) })}
+                          type="number"
                           className="inline"
                         />
                       </div>

@@ -249,7 +249,8 @@ export const AssetManagementEditable = () => {
                   <span className="font-bold text-blue-600">
                     R$ <EditableValue
                       value={property.value}
-                      onSave={(value) => updateProperty(property.id, { value })}
+                      onSave={(value) => updateProperty(property.id, { value: Number(value) })}
+                      type="number"
                       className="inline"
                     />
                   </span>
@@ -261,13 +262,15 @@ export const AssetManagementEditable = () => {
                     <div className="text-xs text-slate-500">
                       R$ <EditableValue
                         value={property.minValue || 0}
-                        onSave={(value) => updateProperty(property.id, { minValue: value })}
+                        onSave={(value) => updateProperty(property.id, { minValue: Number(value) })}
+                        type="number"
                         className="inline"
                       />
                       {" - "}
                       R$ <EditableValue
                         value={property.maxValue || 0}
-                        onSave={(value) => updateProperty(property.id, { maxValue: value })}
+                        onSave={(value) => updateProperty(property.id, { maxValue: Number(value) })}
+                        type="number"
                         className="inline"
                       />
                     </div>
@@ -279,7 +282,8 @@ export const AssetManagementEditable = () => {
                   <span className="font-medium text-green-600">
                     R$ <EditableValue
                       value={property.currentRent}
-                      onSave={(value) => updateProperty(property.id, { currentRent: value })}
+                      onSave={(value) => updateProperty(property.id, { currentRent: Number(value) })}
+                      type="number"
                       className="inline"
                     />
                   </span>
@@ -291,7 +295,8 @@ export const AssetManagementEditable = () => {
                     <span className="font-medium text-purple-600">
                       R$ <EditableValue
                         value={property.expectedRent}
-                        onSave={(value) => updateProperty(property.id, { expectedRent: value })}
+                        onSave={(value) => updateProperty(property.id, { expectedRent: Number(value) })}
+                        type="number"
                         className="inline"
                       />
                     </span>

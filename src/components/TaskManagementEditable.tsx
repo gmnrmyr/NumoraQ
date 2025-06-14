@@ -93,7 +93,7 @@ export const TaskManagementEditable = () => {
                   <span className="text-xs">#</span>
                   <EditableValue
                     value={task.priority}
-                    onSave={(value) => updateTask(task.id, { priority: value })}
+                    onSave={(value) => updateTask(task.id, { priority: Number(value) })}
                     type="number"
                     className="w-12"
                   />
