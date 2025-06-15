@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +25,6 @@ import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
 import { ProjectionChart } from "@/components/ProjectionChart";
 import { DataToolbar } from "@/components/DataToolbar";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
-import { useTranslation } from "@/contexts/TranslationContext";
 import { EditableValue } from "@/components/ui/editable-value";
 import { DevMenu } from "@/components/DevMenu";
 import { Navbar } from "@/components/Navbar";
@@ -32,7 +32,6 @@ import { Footer } from "@/components/Footer";
 
 const Dashboard = () => {
   const { data, updateExchangeRate, updateUserProfile, updateProjectionMonths } = useFinancialData();
-  const { t } = useTranslation();
 
   // Helper function to get currency symbol
   const getCurrencySymbol = (currency: string) => {
@@ -87,9 +86,9 @@ const Dashboard = () => {
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold text-slate-800 flex items-center justify-center gap-3">
               <DollarSign className="text-blue-600" size={32} />
-              {t('dashboard.title')}
+              Financial Dashboard
             </h1>
-            <p className="text-slate-600">{t('dashboard.subtitle')}</p>
+            <p className="text-slate-600">Complete financial overview and management system</p>
           </div>
 
           {/* Data Management Toolbar */}
@@ -101,7 +100,7 @@ const Dashboard = () => {
               <div className="flex flex-wrap justify-around items-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <DollarSign size={16} />
-                  <span>{t('exchange.brl_usd')}: </span>
+                  <span>BRL/USD: </span>
                   <EditableValue
                     value={data.exchangeRates.brlToUsd}
                     onSave={(value) => updateExchangeRate('brlToUsd', Number(value))}
@@ -111,7 +110,7 @@ const Dashboard = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <DollarSign size={16} />
-                  <span>{t('exchange.usd_brl')}: R$ </span>
+                  <span>USD/BRL: R$ </span>
                   <EditableValue
                     value={data.exchangeRates.usdToBrl}
                     onSave={(value) => updateExchangeRate('usdToBrl', Number(value))}
@@ -121,7 +120,7 @@ const Dashboard = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <TrendingUp size={16} />
-                  <span>{t('exchange.btc')}: {currencySymbol} </span>
+                  <span>BTC: {currencySymbol} </span>
                   <EditableValue
                     value={data.exchangeRates.btcPrice}
                     onSave={(value) => updateExchangeRate('btcPrice', Number(value))}
@@ -131,7 +130,7 @@ const Dashboard = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <TrendingUp size={16} />
-                  <span>{t('exchange.eth')}: {currencySymbol} </span>
+                  <span>ETH: {currencySymbol} </span>
                   <EditableValue
                     value={data.exchangeRates.ethPrice}
                     onSave={(value) => updateExchangeRate('ethPrice', Number(value))}
@@ -141,31 +140,31 @@ const Dashboard = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar size={16} />
-                  <span>{t('common.projection')}: </span>
+                  <span>Projection: </span>
                   <EditableValue
                     value={data.projectionMonths}
                     onSave={(value) => updateProjectionMonths(Number(value))}
                     type="number"
                     className="text-white bg-white/20 hover:bg-white/30"
                   />
-                  <span> {t('common.months')}</span>
+                  <span> months</span>
                 </div>
                 {data.exchangeRates.lastUpdated && (
                   <div className="flex items-center gap-2 text-xs opacity-75">
-                    <span>{t('common.updated')}: {new Date(data.exchangeRates.lastUpdated).toLocaleDateString()}</span>
+                    <span>Updated: {new Date(data.exchangeRates.lastUpdated).toLocaleDateString()}</span>
                   </div>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Key Metrics Overview */}
+          {/* Key Metrics Overview - updated to use dynamic currency symbol */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <Card className="bg-green-50 border-green-200">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-green-700 flex items-center gap-2">
                   <DollarSign size={16} />
-                  {t('dashboard.available_now')}
+                  Available Now
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -179,7 +178,7 @@ const Dashboard = () => {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-blue-700 flex items-center gap-2">
                   <TrendingUp size={16} />
-                  {t('dashboard.monthly_income')}
+                  Monthly Income
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -187,7 +186,7 @@ const Dashboard = () => {
                   {currencySymbol} {(totalPassiveIncome + totalActiveIncome).toLocaleString()}
                 </div>
                 <div className="text-xs text-blue-600">
-                  {t('income.passive')}: {currencySymbol} {totalPassiveIncome.toLocaleString()} | {t('income.active')}: {currencySymbol} {totalActiveIncome.toLocaleString()}
+                  Passive: {currencySymbol} {totalPassiveIncome.toLocaleString()} | Active: {currencySymbol} {totalActiveIncome.toLocaleString()}
                 </div>
               </CardContent>
             </Card>
@@ -196,7 +195,7 @@ const Dashboard = () => {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-red-700 flex items-center gap-2">
                   <TrendingDown size={16} />
-                  {t('dashboard.monthly_expenses')}
+                  Monthly Expenses
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -204,7 +203,7 @@ const Dashboard = () => {
                   {currencySymbol} {totalRecurringExpenses.toLocaleString()}
                 </div>
                 <div className="text-xs text-red-600">
-                  {t('expenses.recurring_monthly')}
+                  Recurring monthly expenses
                 </div>
               </CardContent>
             </Card>
@@ -213,7 +212,7 @@ const Dashboard = () => {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-orange-700 flex items-center gap-2">
                   <AlertCircle size={16} />
-                  {t('dashboard.active_debts')}
+                  Active Debts
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -221,7 +220,7 @@ const Dashboard = () => {
                   {currencySymbol} {totalActiveDebt.toLocaleString()}
                 </div>
                 <div className="text-xs text-orange-600">
-                  {activeDebts.length} {t('common.active_debts_count')}
+                  {activeDebts.length} active debts
                 </div>
               </CardContent>
             </Card>
@@ -230,7 +229,7 @@ const Dashboard = () => {
               <CardHeader className="pb-2">
                 <CardTitle className={`text-sm font-medium flex items-center gap-2 ${monthlyBalance >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                   <BarChart3 size={16} />
-                  {t('dashboard.monthly_balance')}
+                  Monthly Balance
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -238,42 +237,42 @@ const Dashboard = () => {
                   {currencySymbol} {monthlyBalance.toLocaleString()}
                 </div>
                 <div className={`text-xs ${monthlyBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {monthlyBalance >= 0 ? t('dashboard.positive_cash_flow') : t('dashboard.negative_cash_flow')}
+                  {monthlyBalance >= 0 ? 'Positive cash flow' : 'Negative cash flow'}
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* 12-Month Projection */}
+          {/* 12-Month Projection - updated currency symbols */}
           <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
             <CardHeader>
               <CardTitle className="text-purple-800 flex items-center gap-2">
                 <PieChart size={20} />
-                {data.projectionMonths}-{t('common.month')} {t('dashboard.financial_projection')}
+                {data.projectionMonths}-Month Financial Projection
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="text-center">
-                  <div className="text-sm text-slate-600">{t('dashboard.total_income')} ({data.projectionMonths}m)</div>
+                  <div className="text-sm text-slate-600">Total Income ({data.projectionMonths}m)</div>
                   <div className="text-xl font-bold text-green-600">
                     {currencySymbol} {((totalPassiveIncome + totalActiveIncome) * data.projectionMonths).toLocaleString()}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-slate-600">{t('dashboard.total_expenses')} ({data.projectionMonths}m)</div>
+                  <div className="text-sm text-slate-600">Total Expenses ({data.projectionMonths}m)</div>
                   <div className="text-xl font-bold text-red-600">
                     {currencySymbol} {(totalRecurringExpenses * data.projectionMonths + totalVariableExpenses).toLocaleString()}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-slate-600">{t('dashboard.active_debts')}</div>
+                  <div className="text-sm text-slate-600">Active Debts</div>
                   <div className="text-xl font-bold text-orange-600">
                     {currencySymbol} {totalActiveDebt.toLocaleString()}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-slate-600">{t('dashboard.net_projection')}</div>
+                  <div className="text-sm text-slate-600">Net Projection</div>
                   <div className={`text-2xl font-bold ${yearProjection >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
                     {currencySymbol} {yearProjection.toLocaleString()}
                   </div>
@@ -287,27 +286,27 @@ const Dashboard = () => {
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 h-auto p-1">
               <TabsTrigger value="portfolio" className="flex items-center gap-2 px-3 py-2">
                 <Briefcase size={16} />
-                <span className="hidden sm:inline">{t('tabs.portfolio')}</span>
+                <span className="hidden sm:inline">Portfolio</span>
               </TabsTrigger>
               <TabsTrigger value="income" className="flex items-center gap-2 px-3 py-2">
                 <TrendingUp size={16} />
-                <span className="hidden sm:inline">{t('tabs.income')}</span>
+                <span className="hidden sm:inline">Income</span>
               </TabsTrigger>
               <TabsTrigger value="expenses" className="flex items-center gap-2 px-3 py-2">
                 <TrendingDown size={16} />
-                <span className="hidden sm:inline">{t('tabs.expenses')}</span>
+                <span className="hidden sm:inline">Expenses</span>
               </TabsTrigger>
               <TabsTrigger value="assets" className="flex items-center gap-2 px-3 py-2">
                 <Home size={16} />
-                <span className="hidden sm:inline">{t('tabs.assets')}</span>
+                <span className="hidden sm:inline">Assets</span>
               </TabsTrigger>
               <TabsTrigger value="tasks" className="flex items-center gap-2 px-3 py-2">
                 <Calendar size={16} />
-                <span className="hidden sm:inline">{t('tabs.tasks')}</span>
+                <span className="hidden sm:inline">Tasks</span>
               </TabsTrigger>
               <TabsTrigger value="debt" className="flex items-center gap-2 px-3 py-2">
                 <AlertCircle size={16} />
-                <span className="hidden sm:inline">{t('tabs.debt')}</span>
+                <span className="hidden sm:inline">Debt</span>
               </TabsTrigger>
             </TabsList>
 
@@ -339,6 +338,7 @@ const Dashboard = () => {
           <ProjectionChart />
         </div>
         
+        {/* Add DevMenu at the end */}
         <DevMenu />
       </div>
       <Footer />
