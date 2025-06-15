@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from './input';
 import { cn } from '@/lib/utils';
@@ -26,14 +25,14 @@ export const EditableValue: React.FC<EditableValueProps> = ({
   const [editValue, setEditValue] = useState(value.toString());
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // When entering edit mode, set editValue from value prop
+  // When value prop changes from parent, update our local copy if not editing
   useEffect(() => {
-    if (isEditing) {
+    if (!isEditing) {
       setEditValue(value.toString());
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditing]);
+  }, [value, isEditing]);
 
+  // Focus and select input when editing starts
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
@@ -41,15 +40,13 @@ export const EditableValue: React.FC<EditableValueProps> = ({
     }
   }, [isEditing]);
 
-  // Don't close editing due to value prop change while editing
-  useEffect(() => {
-    if (!isEditing) {
-      setEditValue(value.toString());
-    }
-  }, [value, isEditing]);
-
   const handleSave = () => {
     setIsEditing(false);
+    // Prevent saving if value is unchanged
+    if (editValue === value.toString()) {
+      return;
+    }
+    
     if (type === 'text') {
       onSave(editValue);
     } else {
@@ -58,21 +55,24 @@ export const EditableValue: React.FC<EditableValueProps> = ({
     }
   };
 
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditValue(value.toString()); // Revert changes
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSave();
     } else if (e.key === 'Escape') {
-      setEditValue(value.toString());
-      setIsEditing(false);
+      handleCancel();
     }
   };
-
-  const handleBlur = () => {
-    // Only save when blur is real (not click inside input)
-    if (isEditing) {
-      handleSave();
-    }
-  };
+  
+  const handleStartEditing = () => {
+    // Sync with prop value before entering edit mode
+    setEditValue(value.toString());
+    setIsEditing(true);
+  }
 
   const formatValue = (val: number | string) => {
     if (type === 'text') {
@@ -93,7 +93,7 @@ export const EditableValue: React.FC<EditableValueProps> = ({
         type={type === 'text' ? 'text' : 'number'}
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
-        onBlur={handleBlur}
+        onBlur={handleSave} // Save on blur
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className={cn("w-full min-w-0", className)}
@@ -103,7 +103,7 @@ export const EditableValue: React.FC<EditableValueProps> = ({
 
   return (
     <span
-      onClick={() => setIsEditing(true)}
+      onClick={handleStartEditing}
       className={cn(
         "cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded transition-colors",
         value === '' && placeholder ? 'text-slate-400' : '',
