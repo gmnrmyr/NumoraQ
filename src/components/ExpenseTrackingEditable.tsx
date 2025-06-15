@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +22,8 @@ export const ExpenseTrackingEditable = () => {
     amount: 0,
     category: 'Moradia',
     type: 'recurring' as 'recurring' | 'variable',
-    status: 'active' as 'active' | 'inactive'
+    status: 'active' as 'active' | 'inactive',
+    day: '',
   });
   const [isAddingExpense, setIsAddingExpense] = useState(false);
 
@@ -74,13 +74,14 @@ export const ExpenseTrackingEditable = () => {
 
   const handleAddExpense = () => {
     if (newExpense.name.trim()) {
-      addExpense(newExpense);
+      addExpense(newExpense); // context should spread extra fields (day) to the DB
       setNewExpense({
         name: '',
         amount: 0,
         category: 'Moradia',
         type: 'recurring',
-        status: 'active'
+        status: 'active',
+        day: '',
       });
       setIsAddingExpense(false);
     }
@@ -118,6 +119,21 @@ export const ExpenseTrackingEditable = () => {
                   <SelectItem value="Cartão">Cartão</SelectItem>
                 </SelectContent>
               </Select>
+            )}
+            {/* Only for recurring expenses */}
+            {expense.type === 'recurring' && (
+              <div className="mt-1 flex items-center text-xs gap-1">
+                <span>Day:</span>
+                <Input 
+                  type="number" 
+                  min={1} 
+                  max={31} 
+                  value={expense.day || ''} 
+                  onChange={(e) => updateExpense(expense.id, { day: e.target.value })} 
+                  className="w-14 bg-slate-50 px-1 py-0 h-6 text-xs border border-slate-200"
+                  placeholder="1-31"
+                />
+              </div>
             )}
           </div>
         </div>
@@ -216,6 +232,17 @@ export const ExpenseTrackingEditable = () => {
                           <SelectItem value="variable">Variable</SelectItem>
                         </SelectContent>
                       </Select>
+                      {/* Only show due day when adding recurring expense */}
+                      {newExpense.type === 'recurring' && (
+                        <Input
+                          type="number"
+                          min={1}
+                          max={31}
+                          placeholder="Due day (1-31)"
+                          value={newExpense.day}
+                          onChange={(e) => setNewExpense({ ...newExpense, day: e.target.value })}
+                        />
+                      )}
                       <Button onClick={handleAddExpense} className="w-full">
                         Add Expense
                       </Button>
