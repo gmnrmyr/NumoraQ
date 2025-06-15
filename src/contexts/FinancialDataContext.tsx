@@ -145,6 +145,7 @@ interface FinancialDataContextType {
   removeActiveIncome: (id: string) => void;
   removeExpense: (id: string) => void;
   removeTask: (id: string) => void;
+  removeCompletedTasks: () => void; // Added this line
   removeDebt: (id: string) => void;
   removeProperty: (id: string) => void;
   exportToCSV: () => void;
@@ -733,6 +734,7 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     removeActiveIncome,
     removeExpense,
     removeTask,
+    removeCompletedTasks, // Added this line
     removeDebt,
     removeProperty,
     exportToCSV,
