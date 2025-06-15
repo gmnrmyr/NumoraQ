@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface LiquidAsset {
   id: string;
@@ -586,34 +587,19 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
 
   // Use Auth Context to get user id for cloud sync
   // Dynamically import so no circular deps
-  let authUser: { id: string } | null = null;
-  try {
-    // avoid SSR issues
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    // at runtime, use require to prevent circular import
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const useAuth = require('@/contexts/AuthContext').useAuth;
-    try {
-      // try/catch for SSR safety
-      authUser = useAuth().user;
-    } catch {
-      authUser = null;
-    }
-  } catch {
-    authUser = null;
-  }
+  const { user } = useAuth();
 
   // Fix saveToCloud to cast data to any
   const saveToCloud = async () => {
     try {
       setIsSyncing(true);
-      const userId = authUser?.id;
+      const userId = user?.id;
       if (!userId) {
         toast({ title: "Error", description: "No user found for sync.", variant: "destructive" });
         setIsSyncing(false);
         return;
       }
-      // Type-cast data to any/unknown to satisfy Supabase types
+      // Ensure data is JSON-serializable
       const { error: upsertErr } = await supabase
         .from("financial_data")
         .upsert(
