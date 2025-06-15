@@ -7,7 +7,7 @@ import { Download, Upload, RotateCcw, Cloud, CloudDownload, AlertTriangle } from
 import { useToast } from '@/hooks/use-toast';
 
 export const DataToolbar: React.FC = () => {
-  const { data, importFromJSON, resetData, saveToCloud, loadFromCloud, isSyncing, lastSync } = useFinancialData();
+  const { data, importFromJSON, resetData, saveToCloud, loadFromCloud, syncState, lastSync } = useFinancialData();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -128,22 +128,22 @@ export const DataToolbar: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => loadFromCloud()}
-            disabled={isSyncing}
+            disabled={syncState !== 'idle'}
             className="flex items-center gap-2"
           >
             <CloudDownload size={16} />
-            {isSyncing ? "Loading..." : "Load Cloud"}
+            {syncState === 'loading' ? "Loading..." : "Load Cloud"}
           </Button>
           
           <Button
             variant="default"
             size="sm"
             onClick={saveToCloud}
-            disabled={isSyncing}
+            disabled={syncState !== 'idle'}
             className="flex items-center gap-2"
           >
             <Cloud size={16} />
-            {isSyncing ? "Saving..." : "Save Cloud"}
+            {syncState === 'saving' ? "Saving..." : "Save Cloud"}
           </Button>
         </div>
       </div>

@@ -145,7 +145,7 @@ interface FinancialDataContextType {
   removeActiveIncome: (id: string) => void;
   removeExpense: (id: string) => void;
   removeTask: (id: string) => void;
-  removeCompletedTasks: () => void; // Added this line
+  removeCompletedTasks: () => void;
   removeDebt: (id: string) => void;
   removeProperty: (id: string) => void;
   exportToCSV: () => void;
@@ -156,7 +156,7 @@ interface FinancialDataContextType {
   // Add these:
   saveToCloud: () => Promise<void>;
   loadFromCloud: () => Promise<void>;
-  isSyncing: boolean;
+  syncState: 'idle' | 'loading' | 'saving';
   lastSync: string | null;
 }
 
@@ -285,7 +285,7 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
   // Use Auth Context to get user for cloud sync
   const { user } = useAuth();
   
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncState, setSyncState] = useState<'idle' | 'loading' | 'saving'>('idle');
   const [lastSync, setLastSync] = useState<string | null>(null);
 
   useEffect(() => {
@@ -631,7 +631,7 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
       return;
     }
 
-    setIsSyncing(true);
+    setSyncState('loading');
     try {
       const { data: cloudData, error } = await supabase
         .from('financial_data')
@@ -670,16 +670,16 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
       }
       console.error("Cloud load failed:", err);
     } finally {
-      setIsSyncing(false);
+      setSyncState('idle');
     }
   };
 
   const saveToCloud = async () => {
-    setIsSyncing(true);
+    setSyncState('saving');
     const userId = user?.id;
     if (!userId) {
       toast({ title: "Error", description: "No user found for sync.", variant: "destructive" });
-      setIsSyncing(false);
+      setSyncState('idle');
       return;
     }
     
@@ -703,7 +703,7 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     } catch (err: any) {
       toast({ title: "Save Failed", description: err.message || String(err), variant: "destructive" });
     } finally {
-      setIsSyncing(false);
+      setSyncState('idle');
     }
   };
 
@@ -734,7 +734,7 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     removeActiveIncome,
     removeExpense,
     removeTask,
-    removeCompletedTasks, // Added this line
+    removeCompletedTasks,
     removeDebt,
     removeProperty,
     exportToCSV,
@@ -743,7 +743,7 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     updateProfileName, // Legacy support
     saveToCloud,
     loadFromCloud, // New
-    isSyncing,
+    syncState,
     lastSync, // New
   };
 
