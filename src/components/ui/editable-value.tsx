@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from './input';
 import { cn } from '@/lib/utils';
@@ -24,6 +23,7 @@ export const EditableValue: React.FC<EditableValueProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value.toString());
+  const [hasBlurred, setHasBlurred] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -34,13 +34,14 @@ export const EditableValue: React.FC<EditableValueProps> = ({
   }, [isEditing]);
 
   const handleSave = () => {
+    setIsEditing(false);
     if (type === 'text') {
       onSave(editValue);
     } else {
       const numericValue = parseFloat(editValue) || 0;
       onSave(numericValue);
     }
-    setIsEditing(false);
+    setHasBlurred(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -49,6 +50,16 @@ export const EditableValue: React.FC<EditableValueProps> = ({
     } else if (e.key === 'Escape') {
       setEditValue(value.toString());
       setIsEditing(false);
+      setHasBlurred(false);
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Only save if focus moved outside, not due to rerender or other reasons
+    // (We use hasBlurred to avoid double submission)
+    if (!hasBlurred) {
+      setHasBlurred(true);
+      handleSave();
     }
   };
 
@@ -71,7 +82,7 @@ export const EditableValue: React.FC<EditableValueProps> = ({
         type={type === 'text' ? 'text' : 'number'}
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
-        onBlur={handleSave}
+        onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className={cn("w-full min-w-0", className)}
@@ -81,7 +92,10 @@ export const EditableValue: React.FC<EditableValueProps> = ({
 
   return (
     <span
-      onClick={() => setIsEditing(true)}
+      onClick={() => {
+        setIsEditing(true);
+        setHasBlurred(false);
+      }}
       className={cn(
         "cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded transition-colors",
         value === '' && placeholder ? 'text-slate-400' : '',
