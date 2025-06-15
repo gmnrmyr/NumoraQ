@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface LiquidAsset {
   id: string;
@@ -575,41 +577,75 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     console.log('Data reset to default values');
   };
 
+  // Add sync states
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Manual sync: Save current local data to Supabase and then pull latest back
+  const saveToCloud = async () => {
+    try {
+      setIsSyncing(true);
+      // Save data to Supabase (merge into your preferred table/row)
+      const user = data.userProfile && data.userProfile.id;
+      if (!user) {
+        toast({ title: "Error", description: "No user found for sync." });
+        setIsSyncing(false);
+        return;
+      }
+      // Save to financial_data table
+      const { error: upsertErr } = await supabase
+        .from("financial_data")
+        .upsert([{ user_id: user, data }], { onConflict: "user_id" });
+      if (upsertErr) {
+        toast({ title: "Cloud Save Failed", description: upsertErr.message, variant: "destructive" });
+      } else {
+        toast({ title: "Saved!", description: "Data synced to cloud.", variant: "default" });
+      }
+    } catch (err: any) {
+      toast({ title: "Save Failed", description: err.message || err, variant: "destructive" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const contextValue = {
+    data,
+    updateUserProfile,
+    updateProjectionMonths,
+    updateExchangeRate,
+    updateLiquidAsset,
+    updateIlliquidAsset,
+    updatePassiveIncome,
+    updateActiveIncome,
+    updateExpense,
+    updateTask,
+    updateDebt,
+    updateProperty,
+    addLiquidAsset,
+    addIlliquidAsset,
+    addPassiveIncome,
+    addActiveIncome,
+    addExpense,
+    addTask,
+    addDebt,
+    addProperty,
+    removeLiquidAsset,
+    removeIlliquidAsset,
+    removePassiveIncome,
+    removeActiveIncome,
+    removeExpense,
+    removeTask,
+    removeDebt,
+    removeProperty,
+    exportToCSV,
+    importFromJSON,
+    resetData,
+    updateProfileName, // Legacy support
+    saveToCloud,
+    isSyncing,
+  };
+
   return (
-    <FinancialDataContext.Provider value={{
-      data,
-      updateUserProfile,
-      updateProjectionMonths,
-      updateExchangeRate,
-      updateLiquidAsset,
-      updateIlliquidAsset,
-      updatePassiveIncome,
-      updateActiveIncome,
-      updateExpense,
-      updateTask,
-      updateDebt,
-      updateProperty,
-      addLiquidAsset,
-      addIlliquidAsset,
-      addPassiveIncome,
-      addActiveIncome,
-      addExpense,
-      addTask,
-      addDebt,
-      addProperty,
-      removeLiquidAsset,
-      removeIlliquidAsset,
-      removePassiveIncome,
-      removeActiveIncome,
-      removeExpense,
-      removeTask,
-      removeDebt,
-      removeProperty,
-      exportToCSV,
-      importFromJSON,
-      resetData,
-      updateProfileName // Legacy support
-    }}>
+    <FinancialDataContext.Provider value={contextValue}>
       {children}
     </FinancialDataContext.Provider>
   );
