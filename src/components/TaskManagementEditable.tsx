@@ -1,20 +1,21 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Calendar, AlertCircle, User, FileText, Wrench, Car, Home, Plus, Trash2, Edit } from "lucide-react";
+import { Calendar, AlertCircle, User, FileText, Wrench, Car, Home, Plus, Trash2 } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { EditableValue } from "@/components/ui/editable-value";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const iconMap: { [key: string]: any } = {
   User, FileText, Wrench, Car, Home, AlertCircle
 };
 
 export const TaskManagementEditable = () => {
-  const { data, updateTask, addTask, removeTask } = useFinancialData();
+  const { data, updateTask, addTask, removeTask, removeCompletedTasks } = useFinancialData();
   const [newTask, setNewTask] = useState({
     item: '',
     date: '',
@@ -23,6 +24,7 @@ export const TaskManagementEditable = () => {
     completed: false
   });
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(true);
 
   const getPriorityColor = (priority: number) => {
     if (priority <= 5) return 'bg-red-100 text-red-800 border-red-200';
@@ -50,7 +52,14 @@ export const TaskManagementEditable = () => {
     }
   };
 
-  const sortedTasks = [...data.tasks].sort((a, b) => a.priority - b.priority);
+  const handleRemoveCompleted = () => {
+    if (window.confirm('Are you sure you want to delete all completed tasks? This action cannot be undone.')) {
+      removeCompletedTasks();
+    }
+  };
+
+  const tasksToDisplay = showCompleted ? data.tasks : data.tasks.filter(t => !t.completed);
+  const sortedTasks = [...tasksToDisplay].sort((a, b) => a.priority - b.priority);
   const highPriorityTasks = sortedTasks.filter(task => task.priority <= 5);
   const mediumPriorityTasks = sortedTasks.filter(task => task.priority > 5 && task.priority <= 15);
   const lowPriorityTasks = sortedTasks.filter(task => task.priority > 15);
@@ -127,42 +136,62 @@ export const TaskManagementEditable = () => {
       {/* Task Overview */}
       <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
         <CardHeader>
-          <CardTitle className="text-blue-800 flex items-center gap-2">
-            Task Overview
-            <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="ml-auto">
-                  <Plus size={16} className="mr-1" />
-                  Add Task
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add New Task</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <Input
-                    placeholder="Task description"
-                    value={newTask.item}
-                    onChange={(e) => setNewTask({ ...newTask, item: e.target.value })}
-                  />
-                  <Input
-                    placeholder="Date (optional)"
-                    value={newTask.date}
-                    onChange={(e) => setNewTask({ ...newTask, date: e.target.value })}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Priority (1-30)"
-                    value={newTask.priority}
-                    onChange={(e) => setNewTask({ ...newTask, priority: parseInt(e.target.value) || 1 })}
-                  />
-                  <Button onClick={handleAddTask} className="w-full">
+          <CardTitle className="text-blue-800 flex items-center justify-between gap-2">
+            <span>Task Overview</span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="show-completed"
+                  checked={showCompleted}
+                  onCheckedChange={setShowCompleted}
+                />
+                <Label htmlFor="show-completed" className="text-sm font-medium">Show Completed</Label>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleRemoveCompleted}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                disabled={data.tasks.filter(t => t.completed).length === 0}
+              >
+                <Trash2 size={16} className="mr-1" />
+                Delete Completed
+              </Button>
+              <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
+                <DialogTrigger asChild>
+                  <Button size="sm">
+                    <Plus size={16} className="mr-1" />
                     Add Task
                   </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Task</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <Input
+                      placeholder="Task description"
+                      value={newTask.item}
+                      onChange={(e) => setNewTask({ ...newTask, item: e.target.value })}
+                    />
+                    <Input
+                      placeholder="Date (optional)"
+                      value={newTask.date}
+                      onChange={(e) => setNewTask({ ...newTask, date: e.target.value })}
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Priority (1-30)"
+                      value={newTask.priority}
+                      onChange={(e) => setNewTask({ ...newTask, priority: parseInt(e.target.value) || 1 })}
+                    />
+                    <Button onClick={handleAddTask} className="w-full">
+                      Add Task
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>

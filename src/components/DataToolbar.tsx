@@ -1,15 +1,17 @@
-import React, { useRef, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+
+import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
-import { Download, Upload, RotateCcw, Save, Cloud } from 'lucide-react';
+import { Download, Upload, RotateCcw, Cloud, CloudDownload, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const DataToolbar: React.FC = () => {
-  const { data, importFromJSON, resetData, saveToCloud, isSyncing } = useFinancialData();
+  const { data, importFromJSON, resetData, saveToCloud, loadFromCloud, isSyncing, lastSync } = useFinancialData();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isOutOfSync = lastSync && data.lastModified && new Date(data.lastModified) > new Date(lastSync);
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -79,61 +81,87 @@ export const DataToolbar: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-wrap gap-2 md:gap-3 items-center justify-between bg-white/50 border rounded-lg px-3 py-2 my-2">
-      <div className="flex flex-wrap gap-2">
-        <Button
-          onClick={handleExportJSON}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-        >
-          <Download size={16} />
-          Export JSON
-        </Button>
+    <div className="flex flex-col gap-2 bg-white/50 border rounded-lg px-3 py-2 my-2">
+      <div className="flex flex-wrap gap-2 md:gap-3 items-center justify-between">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            onClick={handleExportJSON}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <Download size={16} />
+            Export JSON
+          </Button>
+          
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <Upload size={16} />
+            Import JSON
+          </Button>
+          
+          <Input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleImport}
+            className="hidden"
+          />
+        </div>
         
-        <Button
-          onClick={() => fileInputRef.current?.click()}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-        >
-          <Upload size={16} />
-          Import JSON
-        </Button>
-        
-        <Input
-          ref={fileInputRef}
-          type="file"
-          accept=".json"
-          onChange={handleImport}
-          className="hidden"
-        />
+        <div className="flex gap-2 items-center">
+          <Button
+            onClick={handleReset}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <RotateCcw size={16} />
+            Reset Data
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => loadFromCloud()}
+            disabled={isSyncing}
+            className="flex items-center gap-2"
+          >
+            <CloudDownload size={16} />
+            {isSyncing ? "Loading..." : "Load Cloud"}
+          </Button>
+          
+          <Button
+            variant="default"
+            size="sm"
+            onClick={saveToCloud}
+            disabled={isSyncing}
+            className="flex items-center gap-2"
+          >
+            <Cloud size={16} />
+            {isSyncing ? "Saving..." : "Save Cloud"}
+          </Button>
+        </div>
       </div>
       
-      <div className="flex gap-1 items-center">
-        <Button
-          onClick={handleReset}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-        >
-          <RotateCcw size={16} />
-          Reset Data
-        </Button>
-        
-        <Button
-          variant="outline"
-          onClick={saveToCloud}
-          disabled={isSyncing}
-          className="flex items-center gap-2"
-        >
-          <Cloud size={16} />
-          {isSyncing ? "Saving..." : "Save to Cloud"}
-        </Button>
-      </div>
-      
-      <div className="mt-2 text-xs text-slate-600">
-        💡 Export your data as JSON for backup or sharing. Import to restore from backup.
+      <div className="mt-1 pt-2 border-t text-xs text-slate-600 flex justify-between items-center">
+        <span>💡 Export your data as JSON for backup. Use Cloud Save for cross-device sync.</span>
+        <div className="flex items-center gap-3 text-right">
+            {isOutOfSync && (
+                <span className="flex items-center gap-1 text-orange-500 font-semibold">
+                    <AlertTriangle size={14} /> Unsaved changes
+                </span>
+            )}
+            {lastSync ? (
+                <span>Last cloud save: {new Date(lastSync).toLocaleString()}</span>
+            ) : (
+              <span>No cloud data synced yet.</span>
+            )}
+        </div>
       </div>
     </div>
   );
