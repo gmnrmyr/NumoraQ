@@ -603,7 +603,7 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     authUser = null;
   }
 
-  // Fix saveToCloud to properly reference user id from AuthContext
+  // Fix saveToCloud to cast data to any
   const saveToCloud = async () => {
     try {
       setIsSyncing(true);
@@ -613,12 +613,11 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
         setIsSyncing(false);
         return;
       }
-      // Save to financial_data table
-      // financial_data expects data: jsonb, user_id: uuid
+      // Type-cast data to any/unknown to satisfy Supabase types
       const { error: upsertErr } = await supabase
         .from("financial_data")
         .upsert(
-          [{ user_id: userId, data }],
+          [{ user_id: userId, data: data as any }],
           { onConflict: "user_id" }
         );
       if (upsertErr) {
