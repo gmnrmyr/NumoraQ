@@ -79,7 +79,8 @@ export const EditableValue: React.FC<EditableValueProps> = ({
       return val.toString();
     }
     if (type === 'currency') {
-      return Number(val).toLocaleString();
+      // Use toLocaleString for currency formatting
+      return Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     } else if (type === 'percentage') {
       return Number(val).toFixed(2);
     }
