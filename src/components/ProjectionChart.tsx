@@ -296,10 +296,7 @@ export const ProjectionChart = () => {
             </div>
             <div>
               <div className="text-sm text-slate-600">{t('projection.cash_flow_status')}</div>
-              <Badge className={monthlyBreakdown.month
-
-
-Balance >= 0 
+              <Badge className={monthlyBreakdown.monthlyBalance >= 0 
                 ? 'bg-green-100 text-green-800 border-green-200' 
                 : 'bg-red-100 text-red-800 border-red-200'
               }>
