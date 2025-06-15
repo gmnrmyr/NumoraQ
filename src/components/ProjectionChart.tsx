@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, DollarSign, Calendar, Settings } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, Calendar, Settings, Target, AlertTriangle, CheckCircle } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { EditableValue } from "@/components/ui/editable-value";
 
@@ -14,6 +14,7 @@ export const ProjectionChart = () => {
   const projectionEndDate = new Date(today);
   projectionEndDate.setMonth(projectionEndDate.getMonth() + projectionMonths);
   const projectionEndYear = projectionEndDate.getFullYear();
+  const projectionEndMonth = projectionEndDate.toLocaleDateString('en-US', { month: 'long' });
   
   // Calculate values from actual data
   const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
@@ -82,6 +83,22 @@ export const ProjectionChart = () => {
     monthlyBalance: totalIncomeMonthly - recurringExpensesMonthly
   };
 
+  // Financial health indicators
+  const passiveIncomeRatio = totalIncomeProjection > 0 ? (projectionData.passiveIncomeProjection / projectionData.totalIncomeProjection) * 100 : 0;
+  const savingsRate = monthlyBreakdown.monthlyTotalIncome > 0 ? (monthlyBreakdown.monthlyBalance / monthlyBreakdown.monthlyTotalIncome) * 100 : 0;
+  const debtToIncomeRatio = totalIncomeProjection > 0 ? (projectionData.totalActiveDebt / projectionData.totalIncomeProjection) * 100 : 0;
+
+  // Financial health status
+  const getFinancialHealthStatus = () => {
+    if (monthlyBreakdown.monthlyBalance < 0) return { status: 'warning', text: 'Negative Cash Flow', color: 'text-red-600' };
+    if (passiveIncomeRatio >= 50) return { status: 'excellent', text: 'Excellent', color: 'text-green-600' };
+    if (savingsRate >= 20) return { status: 'good', text: 'Good', color: 'text-blue-600' };
+    if (savingsRate >= 10) return { status: 'fair', text: 'Fair', color: 'text-yellow-600' };
+    return { status: 'needs-improvement', text: 'Needs Improvement', color: 'text-orange-600' };
+  };
+
+  const healthStatus = getFinancialHealthStatus();
+
   return (
     <Card className="bg-gradient-to-br from-purple-50 via-blue-50 to-green-50 border-purple-200">
       <CardHeader>
@@ -94,7 +111,7 @@ export const ProjectionChart = () => {
               type="number"
               className="inline-block"
             />
-            -Month Financial Projection (ending {projectionEndYear})
+            -Month Financial Projection
           </CardTitle>
           <div className="flex items-center gap-2 text-sm text-purple-600">
             <Settings size={16} />
@@ -102,11 +119,39 @@ export const ProjectionChart = () => {
           </div>
         </div>
         <div className="text-sm text-slate-600">
-          Complete financial forecast from {today.toLocaleDateString()} to {projectionEndDate.toLocaleDateString()}
+          Complete financial forecast from {today.toLocaleDateString()} to {projectionEndMonth} {projectionEndYear}
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
         
+        {/* Financial Health Score */}
+        <div className="p-4 bg-white rounded-lg shadow-sm border-l-4 border-purple-500">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-semibold text-purple-800 flex items-center gap-2">
+              {healthStatus.status === 'excellent' ? <CheckCircle size={16} /> : 
+               healthStatus.status === 'warning' ? <AlertTriangle size={16} /> : <Target size={16} />}
+              Financial Health Score
+            </h3>
+            <Badge className={`${healthStatus.color} bg-opacity-10 border-opacity-20`}>
+              {healthStatus.text}
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+            <div>
+              <div className="text-xs text-slate-500 uppercase tracking-wide">Passive Income Ratio</div>
+              <div className="text-lg font-semibold">{passiveIncomeRatio.toFixed(1)}%</div>
+            </div>
+            <div>
+              <div className="text-xs text-slate-500 uppercase tracking-wide">Savings Rate</div>
+              <div className="text-lg font-semibold">{savingsRate.toFixed(1)}%</div>
+            </div>
+            <div>
+              <div className="text-xs text-slate-500 uppercase tracking-wide">Debt-to-Income</div>
+              <div className="text-lg font-semibold">{debtToIncomeRatio.toFixed(1)}%</div>
+            </div>
+          </div>
+        </div>
+
         {/* Current Position */}
         <div className="p-4 bg-white rounded-lg shadow-sm border-l-4 border-blue-500">
           <h3 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
@@ -263,16 +308,19 @@ export const ProjectionChart = () => {
           </div>
         </div>
 
-        {/* Key Insights */}
+        {/* Enhanced Key Insights */}
         <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
-          <h3 className="font-semibold text-amber-800 mb-2">📊 Key Insights</h3>
+          <h3 className="font-semibold text-amber-800 mb-2">📊 Key Insights & Recommendations</h3>
           <ul className="text-sm text-amber-700 space-y-1">
-            <li>• Passive income represents {totalIncomeProjection > 0 ? ((projectionData.passiveIncomeProjection / projectionData.totalIncomeProjection) * 100).toFixed(0) : 0}% of total income</li>
+            <li>• Passive income represents {totalIncomeProjection > 0 ? ((projectionData.passiveIncomeProjection / projectionData.totalIncomeProjection) * 100).toFixed(0) : 0}% of total income {passiveIncomeRatio < 30 ? '(Consider increasing passive income sources)' : passiveIncomeRatio >= 50 ? '(Excellent passive income ratio!)' : ''}</li>
             <li>• Variable expenses are {(projectionData.totalExpensesProjection + projectionData.totalActiveDebt) > 0 ? ((projectionData.variableExpenses / (projectionData.totalExpensesProjection + projectionData.totalActiveDebt)) * 100).toFixed(0) : 0}% of total obligations</li>
-            <li>• Active debts represent {(projectionData.totalExpensesProjection + projectionData.totalActiveDebt) > 0 ? ((projectionData.totalActiveDebt / (projectionData.totalExpensesProjection + projectionData.totalActiveDebt)) * 100).toFixed(0) : 0}% of total obligations</li>
-            <li>• Monthly savings rate: {monthlyBreakdown.monthlyTotalIncome > 0 ? (monthlyBreakdown.monthlyBalance >= 0 ? '+' : '') + ((monthlyBreakdown.monthlyBalance / monthlyBreakdown.monthlyTotalIncome) * 100).toFixed(1) : '0.0'}%</li>
+            <li>• Active debts represent {(projectionData.totalExpensesProjection + projectionData.totalActiveDebt) > 0 ? ((projectionData.totalActiveDebt / (projectionData.totalExpensesProjection + projectionData.totalActiveDebt)) * 100).toFixed(0) : 0}% of total obligations {debtToIncomeRatio > 40 ? '(Consider debt reduction strategy)' : ''}</li>
+            <li>• Monthly savings rate: {monthlyBreakdown.monthlyTotalIncome > 0 ? (monthlyBreakdown.monthlyBalance >= 0 ? '+' : '') + ((monthlyBreakdown.monthlyBalance / monthlyBreakdown.monthlyTotalIncome) * 100).toFixed(1) : '0.0'}% {savingsRate < 10 ? '(Recommended: 10-20%)' : savingsRate >= 20 ? '(Excellent savings rate!)' : ''}</li>
             {projectionData.netProjectionWithPortfolio > 0 && projectionData.availableNow > 0 && (
               <li>• Projected financial position improvement: +{((projectionData.netProjectionWithPortfolio / projectionData.availableNow - 1) * 100).toFixed(0)}%</li>
+            )}
+            {monthlyBreakdown.monthlyBalance > 0 && (
+              <li>• Time to double current liquid assets: ~{Math.ceil(projectionData.availableNow / monthlyBreakdown.monthlyBalance / 12)} years at current savings rate</li>
             )}
           </ul>
         </div>
