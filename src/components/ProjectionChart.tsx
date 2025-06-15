@@ -7,8 +7,13 @@ import { EditableValue } from "@/components/ui/editable-value";
 
 export const ProjectionChart = () => {
   const { data, updateProjectionMonths } = useFinancialData();
-  const currentYear = new Date().getFullYear();
+  const today = new Date();
   const projectionMonths = data.projectionMonths;
+  
+  // Calculate the projection end date
+  const projectionEndDate = new Date(today);
+  projectionEndDate.setMonth(projectionEndDate.getMonth() + projectionMonths);
+  const projectionEndYear = projectionEndDate.getFullYear();
   
   // Calculate values from actual data
   const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
@@ -44,6 +49,18 @@ export const ProjectionChart = () => {
   const netProjection = totalIncomeProjection - totalExpensesProjection - totalActiveDebt;
   const netProjectionWithPortfolio = netProjection + availableNow;
 
+  // Helper function to get currency symbol
+  const getCurrencySymbol = (currency: string) => {
+    switch (currency) {
+      case 'BRL': return 'R$';
+      case 'USD': return '$';
+      case 'EUR': return '€';
+      default: return currency;
+    }
+  };
+
+  const currencySymbol = getCurrencySymbol(data.userProfile.defaultCurrency);
+
   const projectionData = {
     availableNow,
     passiveIncomeProjection: passiveIncomeMonthly * projectionMonths,
@@ -77,7 +94,7 @@ export const ProjectionChart = () => {
               type="number"
               className="inline-block"
             />
-            -Month Financial Projection ({currentYear})
+            -Month Financial Projection (ending {projectionEndYear})
           </CardTitle>
           <div className="flex items-center gap-2 text-sm text-purple-600">
             <Settings size={16} />
@@ -85,7 +102,7 @@ export const ProjectionChart = () => {
           </div>
         </div>
         <div className="text-sm text-slate-600">
-          Complete financial forecast including all income sources, expenses, and active debts
+          Complete financial forecast from {today.toLocaleDateString()} to {projectionEndDate.toLocaleDateString()}
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -97,7 +114,7 @@ export const ProjectionChart = () => {
             Starting Position
           </h3>
           <div className="text-2xl font-bold text-blue-600">
-            R$ {projectionData.availableNow.toLocaleString()}
+            {currencySymbol} {projectionData.availableNow.toLocaleString()}
           </div>
           <div className="text-sm text-slate-600">Available cash now</div>
         </div>
@@ -110,10 +127,10 @@ export const ProjectionChart = () => {
               <span className="font-medium text-green-800">Passive Income</span>
             </div>
             <div className="text-xl font-bold text-green-600">
-              R$ {projectionData.passiveIncomeProjection.toLocaleString()}
+              {currencySymbol} {projectionData.passiveIncomeProjection.toLocaleString()}
             </div>
             <div className="text-sm text-slate-600">
-              R$ {Math.round(monthlyBreakdown.monthlyPassiveIncome).toLocaleString()}/month
+              {currencySymbol} {Math.round(monthlyBreakdown.monthlyPassiveIncome).toLocaleString()}/month
             </div>
           </div>
           
@@ -123,10 +140,10 @@ export const ProjectionChart = () => {
               <span className="font-medium text-blue-800">Active Income</span>
             </div>
             <div className="text-xl font-bold text-blue-600">
-              R$ {projectionData.activeIncomeProjection.toLocaleString()}
+              {currencySymbol} {projectionData.activeIncomeProjection.toLocaleString()}
             </div>
             <div className="text-sm text-slate-600">
-              R$ {Math.round(monthlyBreakdown.monthlyActiveIncome).toLocaleString()}/month
+              {currencySymbol} {Math.round(monthlyBreakdown.monthlyActiveIncome).toLocaleString()}/month
             </div>
           </div>
           
@@ -136,10 +153,10 @@ export const ProjectionChart = () => {
               <span className="font-medium text-green-800">Total Income</span>
             </div>
             <div className="text-xl font-bold text-green-600">
-              R$ {projectionData.totalIncomeProjection.toLocaleString()}
+              {currencySymbol} {projectionData.totalIncomeProjection.toLocaleString()}
             </div>
             <div className="text-sm text-slate-600">
-              R$ {Math.round(monthlyBreakdown.monthlyTotalIncome).toLocaleString()}/month
+              {currencySymbol} {Math.round(monthlyBreakdown.monthlyTotalIncome).toLocaleString()}/month
             </div>
           </div>
         </div>
@@ -152,10 +169,10 @@ export const ProjectionChart = () => {
               <span className="font-medium text-red-800">Recurring Expenses</span>
             </div>
             <div className="text-xl font-bold text-red-600">
-              R$ {projectionData.recurringExpensesProjection.toLocaleString()}
+              {currencySymbol} {projectionData.recurringExpensesProjection.toLocaleString()}
             </div>
             <div className="text-sm text-slate-600">
-              R$ {Math.round(monthlyBreakdown.monthlyRecurringExpenses).toLocaleString()}/month
+              {currencySymbol} {Math.round(monthlyBreakdown.monthlyRecurringExpenses).toLocaleString()}/month
             </div>
           </div>
           
@@ -165,7 +182,7 @@ export const ProjectionChart = () => {
               <span className="font-medium text-orange-800">Variable Expenses</span>
             </div>
             <div className="text-xl font-bold text-orange-600">
-              R$ {projectionData.variableExpenses.toLocaleString()}
+              {currencySymbol} {projectionData.variableExpenses.toLocaleString()}
             </div>
             <div className="text-sm text-slate-600">One-time expenses</div>
           </div>
@@ -176,7 +193,7 @@ export const ProjectionChart = () => {
               <span className="font-medium text-red-800">Active Debts</span>
             </div>
             <div className="text-xl font-bold text-red-600">
-              R$ {projectionData.totalActiveDebt.toLocaleString()}
+              {currencySymbol} {projectionData.totalActiveDebt.toLocaleString()}
             </div>
             <div className="text-sm text-slate-600">{activeDebts.length} active debts</div>
           </div>
@@ -187,7 +204,7 @@ export const ProjectionChart = () => {
               <span className="font-medium text-red-800">Total Obligations</span>
             </div>
             <div className="text-xl font-bold text-red-600">
-              R$ {(projectionData.totalExpensesProjection + projectionData.totalActiveDebt).toLocaleString()}
+              {currencySymbol} {(projectionData.totalExpensesProjection + projectionData.totalActiveDebt).toLocaleString()}
             </div>
             <div className="text-sm text-slate-600">Expenses + debts</div>
           </div>
@@ -203,7 +220,7 @@ export const ProjectionChart = () => {
               </span>
             </div>
             <div className={`text-2xl font-bold ${projectionData.netProjection >= 0 ? "text-green-600" : "text-red-600"}`}>
-              R$ {projectionData.netProjection.toLocaleString()}
+              {currencySymbol} {projectionData.netProjection.toLocaleString()}
             </div>
             <div className="text-sm text-slate-600">
               Income minus expenses and debts
@@ -216,7 +233,7 @@ export const ProjectionChart = () => {
               <span className={`font-medium ${projectionData.netProjectionWithPortfolio >= 0 ? "text-purple-800" : "text-red-800"}`}>Final Position</span>
             </div>
             <div className={`text-3xl font-bold ${projectionData.netProjectionWithPortfolio >= 0 ? "text-purple-600" : "text-red-600"}`}>
-              R$ {projectionData.netProjectionWithPortfolio.toLocaleString()}
+              {currencySymbol} {projectionData.netProjectionWithPortfolio.toLocaleString()}
             </div>
             <div className="text-sm text-slate-600">
               Net result + current available
@@ -231,7 +248,7 @@ export const ProjectionChart = () => {
             <div>
               <div className="text-sm text-slate-600">Average Monthly Balance</div>
               <div className={`text-xl font-bold ${monthlyBreakdown.monthlyBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                R$ {Math.round(monthlyBreakdown.monthlyBalance).toLocaleString()}
+                {currencySymbol} {Math.round(monthlyBreakdown.monthlyBalance).toLocaleString()}
               </div>
             </div>
             <div>
@@ -250,11 +267,11 @@ export const ProjectionChart = () => {
         <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
           <h3 className="font-semibold text-amber-800 mb-2">📊 Key Insights</h3>
           <ul className="text-sm text-amber-700 space-y-1">
-            <li>• Passive income represents {((projectionData.passiveIncomeProjection / projectionData.totalIncomeProjection) * 100).toFixed(0)}% of total income</li>
-            <li>• Variable expenses are {((projectionData.variableExpenses / (projectionData.totalExpensesProjection + projectionData.totalActiveDebt)) * 100).toFixed(0)}% of total obligations</li>
-            <li>• Active debts represent {((projectionData.totalActiveDebt / (projectionData.totalExpensesProjection + projectionData.totalActiveDebt)) * 100).toFixed(0)}% of total obligations</li>
-            <li>• Monthly savings rate: {monthlyBreakdown.monthlyBalance >= 0 ? '+' : ''}{((monthlyBreakdown.monthlyBalance / monthlyBreakdown.monthlyTotalIncome) * 100).toFixed(1)}%</li>
-            {projectionData.netProjectionWithPortfolio > 0 && (
+            <li>• Passive income represents {totalIncomeProjection > 0 ? ((projectionData.passiveIncomeProjection / projectionData.totalIncomeProjection) * 100).toFixed(0) : 0}% of total income</li>
+            <li>• Variable expenses are {(projectionData.totalExpensesProjection + projectionData.totalActiveDebt) > 0 ? ((projectionData.variableExpenses / (projectionData.totalExpensesProjection + projectionData.totalActiveDebt)) * 100).toFixed(0) : 0}% of total obligations</li>
+            <li>• Active debts represent {(projectionData.totalExpensesProjection + projectionData.totalActiveDebt) > 0 ? ((projectionData.totalActiveDebt / (projectionData.totalExpensesProjection + projectionData.totalActiveDebt)) * 100).toFixed(0) : 0}% of total obligations</li>
+            <li>• Monthly savings rate: {monthlyBreakdown.monthlyTotalIncome > 0 ? (monthlyBreakdown.monthlyBalance >= 0 ? '+' : '') + ((monthlyBreakdown.monthlyBalance / monthlyBreakdown.monthlyTotalIncome) * 100).toFixed(1) : '0.0'}%</li>
+            {projectionData.netProjectionWithPortfolio > 0 && projectionData.availableNow > 0 && (
               <li>• Projected financial position improvement: +{((projectionData.netProjectionWithPortfolio / projectionData.availableNow - 1) * 100).toFixed(0)}%</li>
             )}
           </ul>
