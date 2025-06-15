@@ -74,7 +74,26 @@ export const ExpenseTrackingEditable = () => {
 
   const handleAddExpense = () => {
     if (newExpense.name.trim()) {
-      addExpense(newExpense); // context should spread extra fields (day) to the DB
+      const payload =
+        newExpense.type === 'recurring'
+        ? {
+            name: newExpense.name,
+            amount: newExpense.amount,
+            category: newExpense.category,
+            type: newExpense.type,
+            status: newExpense.status,
+            day: newExpense.day,
+          }
+        : {
+            name: newExpense.name,
+            amount: newExpense.amount,
+            category: newExpense.category,
+            type: newExpense.type,
+            status: newExpense.status,
+            // don't include day in variable
+          };
+
+      addExpense(payload as any);
       setNewExpense({
         name: '',
         amount: 0,

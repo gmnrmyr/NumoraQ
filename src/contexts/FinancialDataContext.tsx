@@ -45,6 +45,7 @@ export interface ExpenseItem {
   category: string;
   type: 'recurring' | 'variable';
   status: 'active' | 'inactive';
+  day?: string;
 }
 
 export interface TaskItem {
@@ -150,6 +151,9 @@ interface FinancialDataContextType {
   resetData: () => void;
   // Legacy support
   updateProfileName: (name: string) => void;
+  // Add these:
+  saveToCloud: () => Promise<void>;
+  isSyncing: boolean;
 }
 
 const defaultData: FinancialData = {
@@ -580,28 +584,50 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
   // Add sync states
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Manual sync: Save current local data to Supabase and then pull latest back
+  // Use Auth Context to get user id for cloud sync
+  // Dynamically import so no circular deps
+  let authUser: { id: string } | null = null;
+  try {
+    // avoid SSR issues
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    // at runtime, use require to prevent circular import
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const useAuth = require('@/contexts/AuthContext').useAuth;
+    try {
+      // try/catch for SSR safety
+      authUser = useAuth().user;
+    } catch {
+      authUser = null;
+    }
+  } catch {
+    authUser = null;
+  }
+
+  // Fix saveToCloud to properly reference user id from AuthContext
   const saveToCloud = async () => {
     try {
       setIsSyncing(true);
-      // Save data to Supabase (merge into your preferred table/row)
-      const user = data.userProfile && data.userProfile.id;
-      if (!user) {
-        toast({ title: "Error", description: "No user found for sync." });
+      const userId = authUser?.id;
+      if (!userId) {
+        toast({ title: "Error", description: "No user found for sync.", variant: "destructive" });
         setIsSyncing(false);
         return;
       }
       // Save to financial_data table
+      // financial_data expects data: jsonb, user_id: uuid
       const { error: upsertErr } = await supabase
         .from("financial_data")
-        .upsert([{ user_id: user, data }], { onConflict: "user_id" });
+        .upsert(
+          [{ user_id: userId, data }],
+          { onConflict: "user_id" }
+        );
       if (upsertErr) {
         toast({ title: "Cloud Save Failed", description: upsertErr.message, variant: "destructive" });
       } else {
-        toast({ title: "Saved!", description: "Data synced to cloud.", variant: "default" });
+        toast({ title: "Saved!", description: "Data synced to cloud." });
       }
     } catch (err: any) {
-      toast({ title: "Save Failed", description: err.message || err, variant: "destructive" });
+      toast({ title: "Save Failed", description: err.message || String(err), variant: "destructive" });
     } finally {
       setIsSyncing(false);
     }
