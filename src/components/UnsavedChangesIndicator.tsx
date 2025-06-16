@@ -17,7 +17,8 @@ export const UnsavedChangesIndicator = () => {
     const lastSyncTime = new Date(lastSync).getTime();
     const lastModifiedTime = new Date(data.lastModified).getTime();
     
-    return lastModifiedTime > lastSyncTime;
+    // Add small buffer (1 second) to account for timestamp precision differences
+    return lastModifiedTime > lastSyncTime + 1000;
   };
 
   const getChangeSummary = () => {
@@ -32,13 +33,15 @@ export const UnsavedChangesIndicator = () => {
     const lastSyncTime = new Date(lastSync).getTime();
     const dataTime = new Date(data.lastModified || 0).getTime();
     
-    if (dataTime > lastSyncTime) {
+    if (dataTime > lastSyncTime + 1000) { // 1 second buffer
       changes.push("Data modified locally");
       
-      // Add more specific change detection based on timestamps or change logs
+      // Add more specific change detection based on data content
       if (data.liquidAssets.length > 0) changes.push(`${data.liquidAssets.length} liquid assets`);
       if (data.expenses.length > 0) changes.push(`${data.expenses.length} expenses`);
       if (data.passiveIncome.length > 0) changes.push(`${data.passiveIncome.length} income sources`);
+      if (data.debts.length > 0) changes.push(`${data.debts.length} debts`);
+      if (data.properties.length > 0) changes.push(`${data.properties.length} properties`);
     }
     
     return changes;

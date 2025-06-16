@@ -93,9 +93,13 @@ export const useCloudSync = (
       if (upsertErr) {
         toast({ title: "Cloud Save Failed", description: upsertErr.message, variant: "destructive" });
       } else {
-        // Use the server timestamp returned from the upsert
+        // Use the server timestamp returned from the upsert and update data state
         const serverTimestamp = savedData?.updated_at || now;
         setLastSync(serverTimestamp);
+        
+        // Also update the data state with the same timestamp to sync everything
+        setData({ ...dataToSave, lastModified: serverTimestamp });
+        
         toast({ title: "Saved!", description: "Data synced to cloud." });
       }
     } catch (err: any) {
