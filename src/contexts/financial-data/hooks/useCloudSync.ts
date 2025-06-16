@@ -17,7 +17,7 @@ export const useCloudSync = (
   });
   const { toast } = useToast();
 
-  // Persist lastSync to localStorage whenever it changes
+  // Always call useEffect, but conditionally execute the logic inside
   useEffect(() => {
     if (lastSync) {
       localStorage.setItem('lastSync', lastSync);
