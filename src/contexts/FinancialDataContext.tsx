@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCloudSync } from './financial-data/hooks/useCloudSync';
 import {
   FinancialData,
   FinancialDataContextType,
@@ -35,7 +35,6 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
         
         // Handle legacy data migration
         const migratedData: FinancialData = {
-          // New structure
           userProfile: {
             name: parsedData.profileName || parsedData.userProfile?.name || "User",
             defaultCurrency: parsedData.userProfile?.defaultCurrency || 'BRL',
@@ -47,8 +46,6 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
             ...(parsedData.exchangeRates || {}),
             lastUpdated: parsedData.exchangeRates?.lastUpdated || new Date().toISOString()
           },
-          
-          // Existing data with fallbacks
           liquidAssets: Array.isArray(parsedData.liquidAssets) ? parsedData.liquidAssets : defaultData.liquidAssets,
           illiquidAssets: Array.isArray(parsedData.illiquidAssets) ? parsedData.illiquidAssets : defaultData.illiquidAssets,
           passiveIncome: Array.isArray(parsedData.passiveIncome) ? parsedData.passiveIncome : defaultData.passiveIncome,
@@ -57,8 +54,6 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
           tasks: Array.isArray(parsedData.tasks) ? parsedData.tasks : defaultData.tasks,
           debts: Array.isArray(parsedData.debts) ? parsedData.debts : defaultData.debts,
           properties: Array.isArray(parsedData.properties) ? parsedData.properties : defaultData.properties,
-          
-          // Metadata
           version: parsedData.version || '1.0.0',
           createdAt: parsedData.createdAt || new Date().toISOString(),
           lastModified: new Date().toISOString()
@@ -73,11 +68,8 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     return defaultData;
   });
 
-  // Use Auth Context to get user for cloud sync
   const { user } = useAuth();
-  
-  const [syncState, setSyncState] = useState<'idle' | 'loading' | 'saving'>('idle');
-  const [lastSync, setLastSync] = useState<string | null>(null);
+  const { syncState, lastSync, loadFromCloud, saveToCloud } = useCloudSync(data, setData, importFromJSON, user);
 
   useEffect(() => {
     const dataToSave = {
@@ -87,12 +79,10 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     localStorage.setItem('financialData', JSON.stringify(dataToSave));
   }, [data]);
   
-  // New: Load from cloud when user is available
   useEffect(() => {
     if (user) {
-      loadFromCloud(true); // silent load on startup
+      loadFromCloud(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const updateUserProfile = (updates: Partial<FinancialData['userProfile']>) => {
@@ -365,7 +355,7 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     window.URL.revokeObjectURL(url);
   };
 
-  const importFromJSON = (jsonData: string): boolean => {
+  function importFromJSON(jsonData: string): boolean {
     try {      
       const parsedData = JSON.parse(jsonData);
       
@@ -374,7 +364,6 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
         throw new Error('Invalid data structure');
       }
       
-      // Handle both new and legacy data formats
       const validatedData: FinancialData = {
         userProfile: {
           name: parsedData.userProfile?.name || parsedData.profileName || "User",
@@ -406,96 +395,11 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
       console.error('Error importing JSON data:', error);
       return false;
     }
-  };
+  }
 
   const resetData = () => {
     setData(defaultData);
     console.log('Data reset to default values');
-  };
-
-  // New function to load data from the cloud
-  const loadFromCloud = async (isSilent = false) => {
-    if (!user) {
-      if (!isSilent) {
-        toast({ title: "Error", description: "You must be logged in to load data from the cloud.", variant: "destructive" });
-      }
-      return;
-    }
-
-    setSyncState('loading');
-    try {
-      const { data: cloudData, error } = await supabase
-        .from('financial_data')
-        .select('data, updated_at')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (cloudData && cloudData.data) {
-        const success = importFromJSON(JSON.stringify(cloudData.data));
-        if (success) {
-          setLastSync(cloudData.updated_at);
-          if (!isSilent) {
-            toast({
-              title: "Data loaded from cloud",
-              description: "Your data has been synced from the cloud."
-            });
-          }
-        } else {
-          throw new Error("Failed to parse cloud data.");
-        }
-      } else if (!isSilent) {
-        toast({
-          title: "No cloud data found",
-          description: "There is no saved data in the cloud for your account."
-        });
-      }
-    } catch (err: any) {
-      if (!isSilent) {
-        toast({
-          title: "Cloud Load Failed",
-          description: err.message || "Could not fetch data from the cloud.",
-          variant: "destructive",
-        });
-      }
-      console.error("Cloud load failed:", err);
-    } finally {
-      setSyncState('idle');
-    }
-  };
-
-  const saveToCloud = async () => {
-    setSyncState('saving');
-    const userId = user?.id;
-    if (!userId) {
-      toast({ title: "Error", description: "No user found for sync.", variant: "destructive" });
-      setSyncState('idle');
-      return;
-    }
-    
-    try {
-      // Ensure lastModified is updated before saving
-      const dataToSave = { ...data, lastModified: new Date().toISOString() };
-      
-      const { error: upsertErr } = await supabase
-        .from("financial_data")
-        .upsert(
-          [{ user_id: userId, data: dataToSave as any }],
-          { onConflict: "user_id" }
-        );
-
-      if (upsertErr) {
-        toast({ title: "Cloud Save Failed", description: upsertErr.message, variant: "destructive" });
-      } else {
-        setLastSync(dataToSave.lastModified); // Update sync time on success
-        toast({ title: "Saved!", description: "Data synced to cloud." });
-      }
-    } catch (err: any) {
-      toast({ title: "Save Failed", description: err.message || String(err), variant: "destructive" });
-    } finally {
-      setSyncState('idle');
-    }
   };
 
   const contextValue = {
@@ -531,11 +435,11 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     exportToCSV,
     importFromJSON,
     resetData,
-    updateProfileName, // Legacy support
+    updateProfileName,
     saveToCloud,
-    loadFromCloud, // New
+    loadFromCloud,
     syncState,
-    lastSync, // New
+    lastSync,
   };
 
   return (
