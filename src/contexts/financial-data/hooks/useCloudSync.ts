@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { FinancialData } from '../types';
@@ -11,8 +11,20 @@ export const useCloudSync = (
   user: any
 ) => {
   const [syncState, setSyncState] = useState<'idle' | 'loading' | 'saving'>('idle');
-  const [lastSync, setLastSync] = useState<string | null>(null);
+  const [lastSync, setLastSync] = useState<string | null>(() => {
+    // Initialize from localStorage
+    return localStorage.getItem('lastSync');
+  });
   const { toast } = useToast();
+
+  // Persist lastSync to localStorage whenever it changes
+  useEffect(() => {
+    if (lastSync) {
+      localStorage.setItem('lastSync', lastSync);
+    } else {
+      localStorage.removeItem('lastSync');
+    }
+  }, [lastSync]);
 
   const loadFromCloud = async (isSilent = false) => {
     if (!user) {
