@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from './input';
 import { cn } from '@/lib/utils';
@@ -67,6 +68,18 @@ export const EditableValue: React.FC<EditableValueProps> = ({
       handleCancel();
     }
   };
+
+  // Only save on blur if the user actually made changes
+  const handleBlur = () => {
+    // Small delay to allow for potential click events
+    setTimeout(() => {
+      if (editValue !== value.toString()) {
+        handleSave();
+      } else {
+        setIsEditing(false);
+      }
+    }, 100);
+  };
   
   const handleStartEditing = () => {
     // Sync with prop value before entering edit mode
@@ -94,7 +107,7 @@ export const EditableValue: React.FC<EditableValueProps> = ({
         type={type === 'text' ? 'text' : 'number'}
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
-        onBlur={handleSave} // Save on blur
+        onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className={cn("w-full min-w-0", className)}
