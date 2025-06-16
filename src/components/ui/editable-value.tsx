@@ -43,16 +43,14 @@ export const EditableValue: React.FC<EditableValueProps> = ({
 
   const handleSave = () => {
     setIsEditing(false);
-    // Prevent saving if value is unchanged
-    if (editValue === value.toString()) {
-      return;
-    }
-    
-    if (type === 'text') {
-      onSave(editValue);
-    } else {
-      const numericValue = parseFloat(editValue) || 0;
-      onSave(numericValue);
+    // Only save if value actually changed
+    if (editValue !== value.toString()) {
+      if (type === 'text') {
+        onSave(editValue);
+      } else {
+        const numericValue = parseFloat(editValue) || 0;
+        onSave(numericValue);
+      }
     }
   };
 
@@ -63,29 +61,30 @@ export const EditableValue: React.FC<EditableValueProps> = ({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       handleSave();
     } else if (e.key === 'Escape') {
+      e.preventDefault();
       handleCancel();
     }
   };
 
-  // Only save on blur if the user actually made changes
+  // Simple blur handler - only save if there are actual changes
   const handleBlur = () => {
-    // Small delay to allow for potential click events
-    setTimeout(() => {
-      if (editValue !== value.toString()) {
-        handleSave();
-      } else {
-        setIsEditing(false);
-      }
-    }, 100);
+    if (editValue !== value.toString()) {
+      handleSave();
+    } else {
+      setIsEditing(false);
+    }
   };
   
-  const handleStartEditing = () => {
+  const handleStartEditing = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     // Sync with prop value before entering edit mode
     setEditValue(value.toString());
     setIsEditing(true);
-  }
+  };
 
   const formatValue = (val: number | string) => {
     if (type === 'text') {
@@ -111,6 +110,7 @@ export const EditableValue: React.FC<EditableValueProps> = ({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className={cn("w-full min-w-0", className)}
+        onClick={(e) => e.stopPropagation()}
       />
     );
   }
