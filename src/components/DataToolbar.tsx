@@ -1,168 +1,186 @@
 
-import React, { useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useFinancialData } from '@/contexts/FinancialDataContext';
-import { Download, Upload, RotateCcw, Cloud, CloudDownload, AlertTriangle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { 
+  Download, 
+  Upload, 
+  RefreshCw, 
+  Cloud, 
+  CloudDownload, 
+  AlertCircle,
+  FileText,
+  Database
+} from "lucide-react";
+import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { UnsavedChangesIndicator } from "./UnsavedChangesIndicator";
 
-export const DataToolbar: React.FC = () => {
-  const { data, importFromJSON, resetData, saveToCloud, loadFromCloud, syncState, lastSync } = useFinancialData();
+export const DataToolbar = () => {
+  const { 
+    exportToCSV, 
+    importFromJSON, 
+    resetData, 
+    saveToCloud, 
+    loadFromCloud, 
+    syncState 
+  } = useFinancialData();
+  const { user } = useAuth();
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importData, setImportData] = useState('');
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
-  const isOutOfSync = lastSync && data.lastModified && new Date(data.lastModified) > new Date(lastSync);
+  const handleImport = () => {
+    if (importData.trim()) {
+      const success = importFromJSON(importData);
+      if (success) {
+        toast({
+          title: "Data imported successfully",
+          description: "Your financial data has been updated."
+        });
+        setImportData('');
+        setIsImportOpen(false);
+      } else {
+        toast({
+          title: "Import failed",
+          description: "The data format is invalid. Please check your JSON data.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
 
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        try {
-          const content = e.target?.result as string;
-          const success = importFromJSON(content);
-          if (success) {
-            toast({
-              title: "Data imported successfully",
-              description: "Your financial data has been restored from the file.",
-            });
-          } else {
-            throw new Error("Import failed");
-          }
-        } catch (error) {
-          console.error('Import error:', error);
-          toast({
-            title: "Import failed",
-            description: "The file format is invalid or corrupted. Please ensure it's a valid JSON file.",
-            variant: "destructive",
-          });
-        }
+        const content = e.target?.result as string;
+        setImportData(content);
       };
       reader.readAsText(file);
-    }
-    // Reset input value so same file can be selected again
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const handleExportJSON = () => {
-    try {
-      const dataStr = JSON.stringify(data, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `financial-dashboard-backup-${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-      toast({
-        title: "Data exported successfully",
-        description: "Your financial data has been exported as JSON.",
-      });
-    } catch (error) {
-      console.error('Export error:', error);
-      toast({
-        title: "Export failed",
-        description: "Failed to export data. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset all data to default values? This action cannot be undone.')) {
-      resetData();
-      toast({
-        title: "Data reset",
-        description: "All data has been reset to default values.",
-      });
     }
   };
 
   return (
-    <div className="flex flex-col gap-2 bg-white/50 border rounded-lg px-3 py-2 my-2">
-      <div className="flex flex-wrap gap-2 md:gap-3 items-center justify-between">
-        <div className="flex flex-wrap gap-2">
-          <Button
-            onClick={handleExportJSON}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Download size={16} />
-            Export JSON
-          </Button>
+    <Card className="bg-white/70 backdrop-blur-sm border-gray-200/50">
+      <CardContent className="p-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Database size={20} className="text-blue-600" />
+            <span className="font-medium text-gray-700">Data Management</span>
+          </div>
           
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Upload size={16} />
-            Import JSON
-          </Button>
-          
-          <Input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleImport}
-            className="hidden"
-          />
-        </div>
-        
-        <div className="flex gap-2 items-center">
-          <Button
-            onClick={handleReset}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <RotateCcw size={16} />
-            Reset Data
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => loadFromCloud()}
-            disabled={syncState !== 'idle'}
-            className="flex items-center gap-2"
-          >
-            <CloudDownload size={16} />
-            {syncState === 'loading' ? "Loading..." : "Load Cloud"}
-          </Button>
-          
-          <Button
-            variant="default"
-            size="sm"
-            onClick={saveToCloud}
-            disabled={syncState !== 'idle'}
-            className="flex items-center gap-2"
-          >
-            <Cloud size={16} />
-            {syncState === 'saving' ? "Saving..." : "Save Cloud"}
-          </Button>
-        </div>
-      </div>
-      
-      <div className="mt-1 pt-2 border-t text-xs text-slate-600 flex justify-between items-center">
-        <span>💡 Export your data as JSON for backup. Use Cloud Save for cross-device sync.</span>
-        <div className="flex items-center gap-3 text-right">
-            {isOutOfSync && (
-                <span className="flex items-center gap-1 text-orange-500 font-semibold">
-                    <AlertTriangle size={14} /> Unsaved changes
-                </span>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Unsaved Changes Indicator */}
+            <UnsavedChangesIndicator />
+            
+            {/* Cloud Operations */}
+            {user && (
+              <>
+                <Button
+                  onClick={() => saveToCloud()}
+                  disabled={syncState === 'saving'}
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {syncState === 'saving' ? (
+                    <RefreshCw size={14} className="mr-1 animate-spin" />
+                  ) : (
+                    <Cloud size={14} className="mr-1" />
+                  )}
+                  Save to Cloud
+                </Button>
+                
+                <Button
+                  onClick={() => loadFromCloud()}
+                  disabled={syncState === 'loading'}
+                  variant="outline"
+                  size="sm"
+                >
+                  {syncState === 'loading' ? (
+                    <RefreshCw size={14} className="mr-1 animate-spin" />
+                  ) : (
+                    <CloudDownload size={14} className="mr-1" />
+                  )}
+                  Load from Cloud
+                </Button>
+              </>
             )}
-            {lastSync ? (
-                <span>Last cloud save: {new Date(lastSync).toLocaleString()}</span>
-            ) : (
-              <span>No cloud data synced yet.</span>
-            )}
+            
+            {/* Local Operations */}
+            <Button
+              onClick={exportToCSV}
+              variant="outline"
+              size="sm"
+            >
+              <Download size={14} className="mr-1" />
+              Export CSV
+            </Button>
+            
+            <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Upload size={14} className="mr-1" />
+                  Import JSON
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Import Financial Data</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="file-upload">Upload JSON File</Label>
+                    <Input
+                      id="file-upload"
+                      type="file"
+                      accept=".json"
+                      onChange={handleFileImport}
+                      className="mt-1"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="json-data">Or paste JSON data directly</Label>
+                    <textarea
+                      id="json-data"
+                      value={importData}
+                      onChange={(e) => setImportData(e.target.value)}
+                      placeholder="Paste your JSON data here..."
+                      className="w-full h-48 p-3 border border-gray-200 rounded-md text-sm font-mono"
+                    />
+                  </div>
+                  
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsImportOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleImport} disabled={!importData.trim()}>
+                      <FileText size={14} className="mr-1" />
+                      Import Data
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+            
+            <Button
+              onClick={resetData}
+              variant="outline"
+              size="sm"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <RefreshCw size={14} className="mr-1" />
+              Reset
+            </Button>
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
