@@ -13,6 +13,14 @@ export const UserProfileSection = () => {
   const displayName = user?.email || data.userProfile.name || 'Default User';
   const userEmail = user?.email || 'user@example.com';
 
+  const handleCurrencyUpdate = (value: string | number) => {
+    const currencyValue = String(value);
+    // Validate that the currency is one of the allowed types
+    if (currencyValue === 'BRL' || currencyValue === 'USD' || currencyValue === 'EUR') {
+      updateUserProfile({ defaultCurrency: currencyValue });
+    }
+  };
+
   return (
     <Card className="bg-gradient-to-r from-slate-700 to-slate-800 text-white mb-6">
       <CardHeader className="pb-3">
@@ -40,7 +48,7 @@ export const UserProfileSection = () => {
           <span className="text-sm">Default Currency:</span>
           <EditableValue
             value={data.userProfile.defaultCurrency}
-            onSave={(value) => updateUserProfile({ defaultCurrency: String(value) })}
+            onSave={handleCurrencyUpdate}
             type="text"
             className="text-white bg-white/20 hover:bg-white/30"
           />
