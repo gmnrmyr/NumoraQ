@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { User, DollarSign, BarChart3, Home, Signal, ChevronDown, UserPlus, Trash2, LogOut, LogIn, Globe, Languages } from 'lucide-react';
+import { BarChart3, Home, Signal, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,17 +8,17 @@ import { useLivePrices } from '@/hooks/useLivePrices';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { EditableValue } from '@/components/ui/editable-value';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { VersionBadge } from '@/components/VersionBadge';
+import { UserSettingsPanel } from '@/components/navbar/UserSettingsPanel';
 
 export const Navbar = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const { data, updateUserProfile, resetData, importFromJSON } = useFinancialData();
-  const { user, signOut } = useAuth();
-  const { loading: pricesLoading, isLiveDataEnabled, timeSinceLastUpdate, fetchLivePrices } = useLivePrices();
-  const { language, t, setLanguage } = useTranslation();
+  const { data, updateUserProfile } = useFinancialData();
+  const { user } = useAuth();
+  const { loading: pricesLoading, isLiveDataEnabled, timeSinceLastUpdate } = useLivePrices();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -37,87 +37,6 @@ export const Navbar = () => {
     return () => window.removeEventListener('scroll', controlNavbar);
   }, [lastScrollY]);
 
-  const getCurrencyDisplay = (currency: string) => {
-    switch (currency) {
-      case 'BRL': return { symbol: 'R$', flag: '🇧🇷' };
-      case 'USD': return { symbol: '$', flag: '🇺🇸' };
-      case 'EUR': return { symbol: '€', flag: '🇪🇺' };
-      default: return { symbol: currency, flag: '' };
-    }
-  };
-
-  const createNewUser = (currency: 'BRL' | 'USD') => {
-    const templates = {
-      BRL: {
-        userProfile: {
-          name: "",
-          defaultCurrency: 'BRL' as const,
-          language: language
-        },
-        projectionMonths: 12,
-        exchangeRates: {
-          brlToUsd: 0.18,
-          usdToBrl: 5.54,
-          btcPrice: 588300,
-          ethPrice: 14000,
-          lastUpdated: new Date().toISOString()
-        },
-        liquidAssets: [],
-        illiquidAssets: [],
-        passiveIncome: [],
-        activeIncome: [],
-        expenses: [],
-        tasks: [],
-        debts: [],
-        properties: [],
-        version: '1.0.0',
-        createdAt: new Date().toISOString(),
-        lastModified: new Date().toISOString()
-      },
-      USD: {
-        userProfile: {
-          name: "",
-          defaultCurrency: 'USD' as const,
-          language: language
-        },
-        projectionMonths: 12,
-        exchangeRates: {
-          brlToUsd: 0.18,
-          usdToBrl: 5.54,
-          btcPrice: 100000,
-          ethPrice: 2500,
-          lastUpdated: new Date().toISOString()
-        },
-        liquidAssets: [],
-        illiquidAssets: [],
-        passiveIncome: [],
-        activeIncome: [],
-        expenses: [],
-        tasks: [],
-        debts: [],
-        properties: [],
-        version: '1.0.0',
-        createdAt: new Date().toISOString(),
-        lastModified: new Date().toISOString()
-      }
-    };
-
-    const templateJson = JSON.stringify(templates[currency]);
-    importFromJSON(templateJson);
-  };
-
-  const handleCurrencyChange = async (newCurrency: 'BRL' | 'USD' | 'EUR') => {
-    console.log('Currency changed to:', newCurrency);
-    updateUserProfile({ defaultCurrency: newCurrency });
-    
-    if (user && isLiveDataEnabled) {
-      console.log('Fetching prices for new currency:', newCurrency);
-      await fetchLivePrices(newCurrency);
-    }
-  };
-
-  const currencyDisplay = getCurrencyDisplay(data.userProfile.defaultCurrency);
-  
   const getLiveDataStatus = () => {
     if (!user) return { status: 'off', color: 'text-gray-500' };
     if (!isLiveDataEnabled) return { status: 'off', color: 'text-orange-500' };
@@ -148,34 +67,18 @@ export const Navbar = () => {
 
             {/* User Profile and Status */}
             <div className="flex items-center space-x-2 sm:space-x-4">
-              {/* Language Selector */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="hidden sm:flex">
-                    <Languages size={16} className="mr-1" />
-                    {language.toUpperCase()}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-white z-50">
-                  <DropdownMenuLabel>{t.defaultCurrency}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setLanguage('en')}>
-                    🇺🇸 English
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('pt')}>
-                    🇧🇷 Português
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('es')}>
-                    🇪🇸 Español
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('fr')}>
-                    🇫🇷 Français
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('de')}>
-                    🇩🇪 Deutsch
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* User Name (Editable) */}
+              {user && (
+                <div className="hidden sm:flex items-center space-x-2">
+                  <EditableValue
+                    value={data.userProfile.name || user.email || "User"}
+                    onSave={(value) => updateUserProfile({ name: String(value) })}
+                    type="text"
+                    className="text-gray-800 font-medium text-sm max-w-32"
+                    placeholder="Enter your name"
+                  />
+                </div>
+              )}
 
               {/* Authentication Status */}
               {!user ? (
@@ -186,76 +89,7 @@ export const Navbar = () => {
                   </Button>
                 </Link>
               ) : (
-                <>
-                  {/* User Management Dropdown */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <div className="flex items-center space-x-1 sm:space-x-2 cursor-pointer hover:bg-gray-100/70 px-1 sm:px-2 py-1 rounded-lg transition-colors">
-                        <User className="text-gray-600" size={18} />
-                        <EditableValue
-                          value={data.userProfile.name || user.email || "User"}
-                          onSave={(value) => updateUserProfile({ name: String(value) })}
-                          type="text"
-                          className="text-gray-800 font-medium text-sm"
-                          placeholder="Enter your name"
-                        />
-                        <ChevronDown size={12} className="text-gray-400" />
-                      </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 sm:w-56 bg-white z-50">
-                      <DropdownMenuLabel>{t.userProfile}</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => createNewUser('BRL')} className="cursor-pointer">
-                        <UserPlus size={16} className="mr-2" />
-                        New User (BRL 🇧🇷)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => createNewUser('USD')} className="cursor-pointer">
-                        <UserPlus size={16} className="mr-2" />
-                        New User (USD 🇺🇸)
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={resetData} className="cursor-pointer text-red-600 hover:text-red-700">
-                        <Trash2 size={16} className="mr-2" />
-                        {t.resetData}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={signOut} className="cursor-pointer text-red-600 hover:text-red-700">
-                        <LogOut size={16} className="mr-2" />
-                        {t.signOut}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  {/* Currency Selector */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <div className="flex items-center space-x-1 text-xs sm:text-sm text-gray-600 cursor-pointer hover:bg-gray-100/70 px-1 sm:px-2 py-1 rounded-lg transition-colors">
-                        <DollarSign size={14} />
-                        <span className="flex items-center space-x-1">
-                          <span>{currencyDisplay.flag}</span>
-                          <span className="hidden sm:inline">{currencyDisplay.symbol}</span>
-                        </span>
-                        <ChevronDown size={10} className="text-gray-400" />
-                      </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-40 sm:w-48 bg-white z-50">
-                      <DropdownMenuLabel>{t.defaultCurrency}</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleCurrencyChange('BRL')} className="cursor-pointer">
-                        <Globe size={16} className="mr-2" />
-                        🇧🇷 Real (BRL)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleCurrencyChange('USD')} className="cursor-pointer">
-                        <Globe size={16} className="mr-2" />
-                        🇺🇸 Dollar (USD)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleCurrencyChange('EUR')} className="cursor-pointer">
-                        <Globe size={16} className="mr-2" />
-                        🇪🇺 Euro (EUR)
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
+                <UserSettingsPanel />
               )}
 
               {/* Live Numbers Status */}
