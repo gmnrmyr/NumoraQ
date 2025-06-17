@@ -11,7 +11,7 @@ export const UnsavedChangesIndicator = () => {
   const { data, lastSync } = useFinancialData();
   const { t } = useTranslation();
   
-  // Check if data has been modified since last sync, excluding exchange rate updates
+  // Check if data has been modified since last sync, excluding automatic updates
   const hasUnsavedChanges = () => {
     if (!lastSync) return true; // No sync yet
     if (!data.lastModified) return false; // No modifications tracked
@@ -19,34 +19,34 @@ export const UnsavedChangesIndicator = () => {
     const lastSyncTime = new Date(lastSync).getTime();
     const lastModifiedTime = new Date(data.lastModified).getTime();
     
-    // Add buffer and check if the change was more than just exchange rates
-    const timeDiff = lastModifiedTime - lastSyncTime;
-    if (timeDiff < 2000) return false; // Changes within 2 seconds likely from auto-updates
-    
-    return timeDiff > 5000; // Only flag as unsaved if changed more than 5 seconds after sync
+    // Only consider as unsaved if modified more than 10 seconds after sync
+    // This filters out automatic exchange rate updates
+    return lastModifiedTime > (lastSyncTime + 10000);
   };
 
   const getChangeSummary = () => {
     const changes = [];
     
     if (!lastSync) {
-      changes.push("Initial data not synced");
+      changes.push(t.noDataYet);
       return changes;
     }
 
-    // More specific change detection
+    // More specific change detection based on actual user data
     const lastSyncTime = new Date(lastSync).getTime();
     const dataTime = new Date(data.lastModified || 0).getTime();
     
-    if (dataTime > lastSyncTime + 5000) { // 5 second buffer
-      changes.push("User data modified");
-      
-      // Add more specific change detection based on data content
-      if (data.liquidAssets.length > 0) changes.push(`${data.liquidAssets.length} liquid assets`);
-      if (data.expenses.length > 0) changes.push(`${data.expenses.length} expenses`);
-      if (data.passiveIncome.length > 0) changes.push(`${data.passiveIncome.length} income sources`);
-      if (data.debts.length > 0) changes.push(`${data.debts.length} debts`);
-      if (data.properties.length > 0) changes.push(`${data.properties.length} properties`);
+    if (dataTime > lastSyncTime + 10000) { // 10 second buffer for auto-updates
+      // Only show changes if there's actual user content
+      if (data.liquidAssets.length > 0 || 
+          data.expenses.length > 0 || 
+          data.passiveIncome.length > 0 || 
+          data.activeIncome.length > 0 ||
+          data.debts.length > 0 || 
+          data.properties.length > 0 ||
+          data.tasks.length > 0) {
+        changes.push("User data has been modified");
+      }
     }
     
     return changes;
@@ -55,7 +55,8 @@ export const UnsavedChangesIndicator = () => {
   const unsavedChanges = hasUnsavedChanges();
   const changeSummary = getChangeSummary();
 
-  if (!unsavedChanges) return null;
+  // Don't show indicator if no real changes detected
+  if (!unsavedChanges || changeSummary.length === 0) return null;
 
   return (
     <Popover>
@@ -71,7 +72,7 @@ export const UnsavedChangesIndicator = () => {
           <Eye size={10} className="ml-1 opacity-60" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80" align="end">
+      <PopoverContent className="w-80 bg-white z-50" align="end">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <AlertCircle size={16} className="text-orange-600" />
