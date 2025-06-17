@@ -1,0 +1,104 @@
+
+import { Translations } from '../types';
+
+export const es: Translations = {
+  appName: 'FinDash',
+  appTagline: 'Panel Financiero Inteligente',
+  appDescription: 'Panel completo de gestión financiera personal para rastrear activos, ingresos, gastos y proyecciones financieras.',
+  
+  portfolio: 'Portafolio',
+  income: 'Ingresos',
+  expenses: 'Gastos',
+  assets: 'Activos',
+  tasks: 'Tareas',
+  debt: 'Deudas',
+  
+  userProfile: 'Perfil de Usuario',
+  displayName: 'Nombre a Mostrar',
+  defaultCurrency: 'Moneda Predeterminada',
+  signIn: 'Iniciar Sesión',
+  signOut: 'Cerrar Sesión',
+  
+  availableNow: 'Disponible Ahora',
+  monthlyIncome: 'Ingresos Mensuales',
+  monthlyExpenses: 'Gastos Mensuales',
+  activeDebts: 'Deudas Activas',
+  monthlyBalance: 'Balance Mensual',
+  netWorth: 'Patrimonio Neto',
+  totalAssets: 'Total de Activos',
+  
+  dataManagement: 'Gestión de Datos',
+  saveToCloud: 'Guardar en la Nube',
+  loadFromCloud: 'Cargar de la Nube',
+  exportData: 'Exportar Datos',
+  importData: 'Importar Datos',
+  resetData: 'Resetear Datos',
+  
+  liveNumbers: 'datos en vivo',
+  lastUpdated: 'Última actualización',
+  updatedAgo: 'hace',
+  
+  add: 'Agregar',
+  edit: 'Editar',
+  delete: 'Eliminar',
+  save: 'Guardar',
+  cancel: 'Cancelar',
+  close: 'Cerrar',
+  search: 'Buscar',
+  filter: 'Filtrar',
+  sort: 'Ordenar',
+  
+  monthly: 'Mensual',
+  yearly: 'Anual',
+  projection: 'Proyección',
+  
+  active: 'Activo',
+  inactive: 'Inactivo',
+  completed: 'Completado',
+  pending: 'Pendiente',
+  
+  unsavedChanges: 'Cambios No Guardados',
+  unsavedChangesDesc: 'Haz clic en "Guardar en la Nube" para sincronizar tus cambios.',
+  lastSync: 'Última sincronización',
+  lastModified: 'Última modificación',
+  
+  liquidAssets: 'Activos Líquidos',
+  illiquidAssets: 'Activos Ilíquidos',
+  realEstate: 'Bienes Raíces',
+  investments: 'Inversiones',
+  
+  passiveIncome: 'Ingresos Pasivos',
+  activeIncome: 'Ingresos Activos',
+  salary: 'Salario',
+  freelance: 'Freelance',
+  dividends: 'Dividendos',
+  rental: 'Alquiler',
+  
+  recurringExpenses: 'Gastos Recurrentes',
+  variableExpenses: 'Gastos Variables',
+  housing: 'Vivienda',
+  transportation: 'Transporte',
+  food: 'Comida y Cena',
+  entertainment: 'Entretenimiento',
+  
+  amount: 'Cantidad',
+  category: 'Categoría',
+  description: 'Descrip.',
+  date: 'Fecha',
+  priority: 'Prioridad',
+  notes: 'Notas',
+  
+  noDataYet: 'Sin datos aún',
+  addFirstItem: 'Agrega tu primer elemento',
+  syncingData: 'Sincronizando datos...',
+  dataUpdated: 'Datos actualizados exitosamente',
+  errorOccurred: 'Ocurrió un error',
+  
+  sortBy: 'Ordenar por',
+  sortByDate: 'Fecha',
+  sortByAmount: 'Cantidad',
+  sortByPriority: 'Prioridad',
+  sortByName: 'Nombre',
+  ascending: 'Ascendente',
+  descending: 'Descendente',
+};

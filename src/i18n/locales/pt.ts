@@ -1,0 +1,104 @@
+
+import { Translations } from '../types';
+
+export const pt: Translations = {
+  appName: 'FinDash',
+  appTagline: 'Painel Financeiro Inteligente',
+  appDescription: 'Painel completo de gestão financeira pessoal para rastrear ativos, receitas, despesas e projeções financeiras.',
+  
+  portfolio: 'Portfólio',
+  income: 'Receitas',
+  expenses: 'Despesas',
+  assets: 'Ativos',
+  tasks: 'Tarefas',
+  debt: 'Dívidas',
+  
+  userProfile: 'Perfil do Usuário',
+  displayName: 'Nome de Exibição',
+  defaultCurrency: 'Moeda Padrão',
+  signIn: 'Entrar',
+  signOut: 'Sair',
+  
+  availableNow: 'Disponível Agora',
+  monthlyIncome: 'Receita Mensal',
+  monthlyExpenses: 'Despesas Mensais',
+  activeDebts: 'Dívidas Ativas',
+  monthlyBalance: 'Saldo Mensal',
+  netWorth: 'Patrimônio Líquido',
+  totalAssets: 'Total de Ativos',
+  
+  dataManagement: 'Gestão de Dados',
+  saveToCloud: 'Salvar na Nuvem',
+  loadFromCloud: 'Carregar da Nuvem',
+  exportData: 'Exportar Dados',
+  importData: 'Importar Dados',
+  resetData: 'Resetar Dados',
+  
+  liveNumbers: 'dados ao vivo',
+  lastUpdated: 'Última atualização',
+  updatedAgo: 'atrás',
+  
+  add: 'Adicionar',
+  edit: 'Editar',
+  delete: 'Excluir',
+  save: 'Salvar',
+  cancel: 'Cancelar',
+  close: 'Fechar',
+  search: 'Buscar',
+  filter: 'Filtrar',
+  sort: 'Ordenar',
+  
+  monthly: 'Mensal',
+  yearly: 'Anual',
+  projection: 'Projeção',
+  
+  active: 'Ativo',
+  inactive: 'Inativo',
+  completed: 'Concluído',
+  pending: 'Pendente',
+  
+  unsavedChanges: 'Alterações Não Salvas',
+  unsavedChangesDesc: 'Clique em "Salvar na Nuvem" para sincronizar suas alterações.',
+  lastSync: 'Última sincronização',
+  lastModified: 'Última modificação',
+  
+  liquidAssets: 'Ativos Líquidos',
+  illiquidAssets: 'Ativos Ilíquidos',
+  realEstate: 'Imóveis',
+  investments: 'Investimentos',
+  
+  passiveIncome: 'Renda Passiva',
+  activeIncome: 'Renda Ativa',
+  salary: 'Salário',
+  freelance: 'Freelance',
+  dividends: 'Dividendos',
+  rental: 'Aluguel',
+  
+  recurringExpenses: 'Despesas Recorrentes',
+  variableExpenses: 'Despesas Variáveis',
+  housing: 'Habitação',
+  transportation: 'Transporte',
+  food: 'Alimentação',
+  entertainment: 'Entretenimento',
+  
+  amount: 'Valor',
+  category: 'Categoria',
+  description: 'Descrição',
+  date: 'Data',
+  priority: 'Prioridade',
+  notes: 'Notas',
+  
+  noDataYet: 'Nenhum dado ainda',
+  addFirstItem: 'Adicione seu primeiro item',
+  syncingData: 'Sincronizando dados...',
+  dataUpdated: 'Dados atualizados com sucesso',
+  errorOccurred: 'Ocorreu um erro',
+  
+  sortBy: 'Ordenar por',
+  sortByDate: 'Data',
+  sortByAmount: 'Valor',
+  sortByPriority: 'Prioridade',
+  sortByName: 'Nome',
+  ascending: 'Crescente',
+  descending: 'Decrescente',
+};
