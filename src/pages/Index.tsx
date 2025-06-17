@@ -1,19 +1,14 @@
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { 
   DollarSign, 
   TrendingUp, 
   TrendingDown, 
-  Home, 
-  Briefcase, 
-  Target,
-  Calendar,
   AlertCircle,
   PieChart,
-  BarChart3,
-  User
+  BarChart3
 } from "lucide-react";
 import { PortfolioOverview } from "@/components/PortfolioOverview";
 import { IncomeTracking } from "@/components/IncomeTracking";
@@ -22,7 +17,9 @@ import { AssetManagementEditable } from "@/components/AssetManagementEditable";
 import { TaskManagementEditable } from "@/components/TaskManagementEditable";
 import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
 import { ProjectionChart } from "@/components/ProjectionChart";
-import { DataToolbar } from "@/components/DataToolbar";
+import { DataManagementSection } from "@/components/DataManagementSection";
+import { MobileNav } from "@/components/MobileNav";
+import { UserProfileSection } from "@/components/UserProfileSection";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { EditableValue } from "@/components/ui/editable-value";
 import { DevMenu } from "@/components/DevMenu";
@@ -30,7 +27,8 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
 const Index = () => {
-  const { data, updateExchangeRate, updateUserProfile, updateProjectionMonths } = useFinancialData();
+  const [activeTab, setActiveTab] = useState('portfolio');
+  const { data, updateExchangeRate, updateProjectionMonths } = useFinancialData();
 
   // Helper function to get currency symbol
   const getCurrencySymbol = (currency: string) => {
@@ -80,94 +78,73 @@ const Index = () => {
     <>
       <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-20 pb-4">
-        <div className="max-w-7xl mx-auto space-y-6 px-4">
-          {/* Header */}
+        <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
+          {/* Header - Mobile optimized */}
           <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold text-slate-800 flex items-center justify-center gap-3">
-              <DollarSign className="text-blue-600" size={32} />
-              Financial Dashboard
+            <h1 className="text-2xl sm:text-4xl font-bold text-slate-800 flex items-center justify-center gap-2 sm:gap-3">
+              <DollarSign className="text-blue-600" size={24} />
+              <span className="hidden sm:inline">Financial Dashboard</span>
+              <span className="sm:hidden">FinDash</span>
             </h1>
-            <p className="text-slate-600">Complete financial overview and management system</p>
+            <p className="text-slate-600 text-sm sm:text-base">Complete financial overview and management</p>
           </div>
 
-          {/* Data Management Toolbar */}
-          <DataToolbar />
+          {/* User Profile Section */}
+          <UserProfileSection />
 
-          {/* Exchange Rates Banner */}
+          {/* Data Management - Collapsible */}
+          <DataManagementSection />
+
+          {/* Exchange Rates Banner - Mobile optimized */}
           <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-            <CardContent className="p-4">
-              <div className="flex flex-wrap justify-around items-center gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <DollarSign size={16} />
-                  <span>BRL/USD: </span>
+            <CardContent className="p-3 sm:p-4">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-around items-center gap-2 sm:gap-4 text-xs sm:text-sm">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <DollarSign size={14} />
+                  <span className="text-xs">BRL/USD:</span>
                   <EditableValue
                     value={data.exchangeRates.brlToUsd}
                     onSave={(value) => updateExchangeRate('brlToUsd', Number(value))}
                     type="number"
-                    className="text-white bg-white/20 hover:bg-white/30"
+                    className="text-white bg-white/20 hover:bg-white/30 text-xs"
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <DollarSign size={16} />
-                  <span>USD/BRL: R$ </span>
-                  <EditableValue
-                    value={data.exchangeRates.usdToBrl}
-                    onSave={(value) => updateExchangeRate('usdToBrl', Number(value))}
-                    type="number"
-                    className="text-white bg-white/20 hover:bg-white/30"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <TrendingUp size={16} />
-                  <span>BTC: {currencySymbol} </span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <TrendingUp size={14} />
+                  <span className="text-xs">BTC:</span>
                   <EditableValue
                     value={data.exchangeRates.btcPrice}
                     onSave={(value) => updateExchangeRate('btcPrice', Number(value))}
                     type="number"
-                    className="text-white bg-white/20 hover:bg-white/30"
+                    className="text-white bg-white/20 hover:bg-white/30 text-xs"
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <TrendingUp size={16} />
-                  <span>ETH: {currencySymbol} </span>
-                  <EditableValue
-                    value={data.exchangeRates.ethPrice}
-                    onSave={(value) => updateExchangeRate('ethPrice', Number(value))}
-                    type="number"
-                    className="text-white bg-white/20 hover:bg-white/30"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar size={16} />
-                  <span>Projection: </span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <span className="text-xs">Proj:</span>
                   <EditableValue
                     value={data.projectionMonths}
                     onSave={(value) => updateProjectionMonths(Number(value))}
                     type="number"
-                    className="text-white bg-white/20 hover:bg-white/30"
+                    className="text-white bg-white/20 hover:bg-white/30 text-xs"
                   />
-                  <span> months</span>
+                  <span className="text-xs">m</span>
                 </div>
-                {data.exchangeRates.lastUpdated && (
-                  <div className="flex items-center gap-2 text-xs opacity-75">
-                    <span>Updated: {new Date(data.exchangeRates.lastUpdated).toLocaleDateString()}</span>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Key Metrics Overview - updated to use dynamic currency symbol */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* Key Metrics Overview - Mobile grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4">
             <Card className="bg-green-50 border-green-200">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-green-700 flex items-center gap-2">
-                  <DollarSign size={16} />
-                  Available Now
+                <CardTitle className="text-xs sm:text-sm font-medium text-green-700 flex items-center gap-1 sm:gap-2">
+                  <DollarSign size={14} />
+                  <span className="hidden sm:inline">Available Now</span>
+                  <span className="sm:hidden">Available</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-800">
+                <div className="text-lg sm:text-2xl font-bold text-green-800">
                   {currencySymbol} {totalAvailable.toLocaleString()}
                 </div>
               </CardContent>
@@ -175,104 +152,96 @@ const Index = () => {
 
             <Card className="bg-blue-50 border-blue-200">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-blue-700 flex items-center gap-2">
-                  <TrendingUp size={16} />
-                  Monthly Income
+                <CardTitle className="text-xs sm:text-sm font-medium text-blue-700 flex items-center gap-1 sm:gap-2">
+                  <TrendingUp size={14} />
+                  <span className="hidden sm:inline">Monthly Income</span>
+                  <span className="sm:hidden">Income</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-blue-800">
+                <div className="text-lg sm:text-2xl font-bold text-blue-800">
                   {currencySymbol} {(totalPassiveIncome + totalActiveIncome).toLocaleString()}
-                </div>
-                <div className="text-xs text-blue-600">
-                  Passive: {currencySymbol} {totalPassiveIncome.toLocaleString()} | Active: {currencySymbol} {totalActiveIncome.toLocaleString()}
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-red-50 border-red-200">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-red-700 flex items-center gap-2">
-                  <TrendingDown size={16} />
-                  Monthly Expenses
+                <CardTitle className="text-xs sm:text-sm font-medium text-red-700 flex items-center gap-1 sm:gap-2">
+                  <TrendingDown size={14} />
+                  <span className="hidden sm:inline">Monthly Expenses</span>
+                  <span className="sm:hidden">Expenses</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-800">
+                <div className="text-lg sm:text-2xl font-bold text-red-800">
                   {currencySymbol} {totalRecurringExpenses.toLocaleString()}
-                </div>
-                <div className="text-xs text-red-600">
-                  Recurring monthly expenses
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-orange-50 border-orange-200">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-orange-700 flex items-center gap-2">
-                  <AlertCircle size={16} />
-                  Active Debts
+                <CardTitle className="text-xs sm:text-sm font-medium text-orange-700 flex items-center gap-1 sm:gap-2">
+                  <AlertCircle size={14} />
+                  <span className="hidden sm:inline">Active Debts</span>
+                  <span className="sm:hidden">Debts</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-orange-800">
+                <div className="text-lg sm:text-2xl font-bold text-orange-800">
                   {currencySymbol} {totalActiveDebt.toLocaleString()}
-                </div>
-                <div className="text-xs text-orange-600">
-                  {activeDebts.length} active debts
                 </div>
               </CardContent>
             </Card>
 
-            <Card className={`${monthlyBalance >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+            <Card className={`col-span-2 lg:col-span-1 ${monthlyBalance >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
               <CardHeader className="pb-2">
-                <CardTitle className={`text-sm font-medium flex items-center gap-2 ${monthlyBalance >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                  <BarChart3 size={16} />
-                  Monthly Balance
+                <CardTitle className={`text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 ${monthlyBalance >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                  <BarChart3 size={14} />
+                  <span className="hidden sm:inline">Monthly Balance</span>
+                  <span className="sm:hidden">Balance</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${monthlyBalance >= 0 ? 'text-green-800' : 'text-red-800'}`}>
+                <div className={`text-lg sm:text-2xl font-bold ${monthlyBalance >= 0 ? 'text-green-800' : 'text-red-800'}`}>
                   {currencySymbol} {monthlyBalance.toLocaleString()}
-                </div>
-                <div className={`text-xs ${monthlyBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {monthlyBalance >= 0 ? 'Positive cash flow' : 'Negative cash flow'}
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* 12-Month Projection - updated currency symbols */}
+          {/* Projection Card - Mobile optimized */}
           <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
             <CardHeader>
-              <CardTitle className="text-purple-800 flex items-center gap-2">
-                <PieChart size={20} />
-                {data.projectionMonths}-Month Financial Projection
+              <CardTitle className="text-purple-800 flex items-center gap-2 text-sm sm:text-base">
+                <PieChart size={16} />
+                {data.projectionMonths}-Month Projection
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                 <div className="text-center">
-                  <div className="text-sm text-slate-600">Total Income ({data.projectionMonths}m)</div>
-                  <div className="text-xl font-bold text-green-600">
+                  <div className="text-xs text-slate-600">Income ({data.projectionMonths}m)</div>
+                  <div className="text-sm sm:text-xl font-bold text-green-600">
                     {currencySymbol} {((totalPassiveIncome + totalActiveIncome) * data.projectionMonths).toLocaleString()}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-slate-600">Total Expenses ({data.projectionMonths}m)</div>
-                  <div className="text-xl font-bold text-red-600">
+                  <div className="text-xs text-slate-600">Expenses ({data.projectionMonths}m)</div>
+                  <div className="text-sm sm:text-xl font-bold text-red-600">
                     {currencySymbol} {(totalRecurringExpenses * data.projectionMonths + totalVariableExpenses).toLocaleString()}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-slate-600">Active Debts</div>
-                  <div className="text-xl font-bold text-orange-600">
+                  <div className="text-xs text-slate-600">Debts</div>
+                  <div className="text-sm sm:text-xl font-bold text-orange-600">
                     {currencySymbol} {totalActiveDebt.toLocaleString()}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-slate-600">Net Projection</div>
-                  <div className={`text-2xl font-bold ${yearProjection >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
+                  <div className="text-xs text-slate-600">Net Result</div>
+                  <div className={`text-sm sm:text-xl font-bold ${yearProjection >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
                     {currencySymbol} {yearProjection.toLocaleString()}
                   </div>
                 </div>
@@ -280,34 +249,9 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          {/* Main Dashboard Tabs */}
-          <Tabs defaultValue="portfolio" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 h-auto p-1">
-              <TabsTrigger value="portfolio" className="flex items-center gap-2 px-3 py-2">
-                <Briefcase size={16} />
-                <span className="hidden sm:inline">Portfolio</span>
-              </TabsTrigger>
-              <TabsTrigger value="income" className="flex items-center gap-2 px-3 py-2">
-                <TrendingUp size={16} />
-                <span className="hidden sm:inline">Income</span>
-              </TabsTrigger>
-              <TabsTrigger value="expenses" className="flex items-center gap-2 px-3 py-2">
-                <TrendingDown size={16} />
-                <span className="hidden sm:inline">Expenses</span>
-              </TabsTrigger>
-              <TabsTrigger value="assets" className="flex items-center gap-2 px-3 py-2">
-                <Home size={16} />
-                <span className="hidden sm:inline">Assets</span>
-              </TabsTrigger>
-              <TabsTrigger value="tasks" className="flex items-center gap-2 px-3 py-2">
-                <Calendar size={16} />
-                <span className="hidden sm:inline">Tasks</span>
-              </TabsTrigger>
-              <TabsTrigger value="debt" className="flex items-center gap-2 px-3 py-2">
-                <AlertCircle size={16} />
-                <span className="hidden sm:inline">Debt</span>
-              </TabsTrigger>
-            </TabsList>
+          {/* Main Dashboard Tabs - Mobile optimized */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <MobileNav activeTab={activeTab} onTabChange={setActiveTab} />
 
             <TabsContent value="portfolio" className="space-y-6">
               <PortfolioOverview />
@@ -337,7 +281,6 @@ const Index = () => {
           <ProjectionChart />
         </div>
         
-        {/* Add DevMenu at the end */}
         <DevMenu />
       </div>
       <Footer />
