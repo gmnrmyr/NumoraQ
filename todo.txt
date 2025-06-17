@@ -1,0 +1,46 @@
+
+# FinDash Core Development TODO
+
+## COMPLETED ✅
+- ✅ Fixed ETH price display in exchange rates banner
+- ✅ Improved mobile optimization for expense cards
+- ✅ Added expense categories (housing, health, food, transportation, entertainment, utilities, personal, travel, other)
+- ✅ Enhanced mobile navigation with better section indication
+- ✅ Made data management section collapsible
+- ✅ Updated translations for expense categories
+
+## HIGH PRIORITY 🔴
+- 🔴 Fix expenses input field behavior (exits edit mode)
+- 🔴 Improve unsaved changes detection (avoid false positives from live currency updates)
+- 🔴 Better mobile optimization for task management (delete completed + add task in separate row)
+- 🔴 Unified import/export system (move away from JSON+CSV confusion)
+- 🔴 Make default user not "gui" - use logged in email
+- 🔴 Allow users to reorder tasks and other items
+- 🔴 Disable auto-load from cloud (currently loads after few seconds of inactivity)
+
+## MEDIUM PRIORITY 🟡
+- 🟡 Name change (FinDash already exists - consider OpenFinDash or similar)
+- 🟡 Add PWA capabilities for app-like experience
+- 🟡 Customize exchange rate display (let users choose BTC, ETH, etc.)
+- 🟡 Auto-sort and manual sort options for all panes
+- 🟡 Better copy and branding consistency check
+- 🟡 Add user feedback/research link
+
+## LOW PRIORITY 🟢
+- 🟢 Auto-fetch NFT prices integration
+- 🟢 SEO optimization for domain launch
+- 🟢 Google Play Store release preparation
+- 🟢 Landing page improvements with animations and AI-generated images
+- 🟢 Modern style enhancements (noise, gradients, depth, brutalism)
+
+## TECHNICAL DEBT 🔧
+- 🔧 ExpenseTrackingEditable.tsx is 401+ lines - needs refactoring
+- 🔧 Dashboard.tsx is 292+ lines - needs refactoring
+- 🔧 Clean up unused imports and dead code
+- 🔧 Improve TypeScript type safety across components
+
+## NOTES 📝
+- App is FREE and OPEN SOURCE (differentiate from paid alternatives)
+- Users can only pay for donations or ad removal
+- Focus on mobile-first design
+- Maintain brutalist/modern aesthetic with gradients and depth

@@ -33,19 +33,29 @@ export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange }) 
     { value: 'debt', label: t.debt, icon: AlertCircle },
   ];
 
+  const currentTab = tabs.find(tab => tab.value === activeTab);
+
   return (
     <>
       {/* Mobile hamburger menu for smaller screens */}
       <div className="md:hidden mb-4">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="w-full">
-              <Menu size={16} className="mr-2" />
-              {tabs.find(tab => tab.value === activeTab)?.label || 'Menu'}
+            <Button variant="outline" size="sm" className="w-full flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Menu size={16} />
+                {currentTab && (
+                  <>
+                    <currentTab.icon size={16} />
+                    <span>{currentTab.label}</span>
+                  </>
+                )}
+              </div>
+              <span className="text-xs text-gray-500">Tap to switch</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-auto">
-            <div className="grid grid-cols-2 gap-2 p-4">
+          <SheetContent side="bottom" className="h-auto max-h-[80vh]">
+            <div className="grid grid-cols-2 gap-3 p-4">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -56,10 +66,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange }) 
                       onTabChange(tab.value);
                       setIsOpen(false);
                     }}
-                    className="flex items-center gap-2 p-3"
+                    className="flex items-center gap-2 p-4 h-auto flex-col"
                   >
-                    <Icon size={16} />
-                    {tab.label}
+                    <Icon size={20} />
+                    <span className="text-sm font-medium">{tab.label}</span>
                   </Button>
                 );
               })}
@@ -77,7 +87,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange }) 
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="flex items-center gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm"
+                className="flex items-center gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-blue-600"
               >
                 <Icon size={14} />
                 <span className="hidden sm:inline">{tab.label}</span>

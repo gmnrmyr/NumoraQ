@@ -6,21 +6,23 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Home, Heart, Stethoscope, Wifi, Car, ShoppingCart, CreditCard, Plus, Trash2 } from "lucide-react";
+import { Home, Heart, Stethoscope, Wifi, Car, ShoppingCart, CreditCard, Plus, Trash2, Plane, User } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { EditableValue } from "@/components/ui/editable-value";
 import { StatusToggle } from "@/components/ui/status-toggle";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 const iconMap: { [key: string]: any } = {
-  Home, Heart, Stethoscope, Wifi, Car, ShoppingCart, CreditCard
+  Home, Heart, Stethoscope, Wifi, Car, ShoppingCart, CreditCard, Plane, User
 };
 
 export const ExpenseTrackingEditable = () => {
   const { data, updateExpense, addExpense, removeExpense } = useFinancialData();
+  const { t } = useTranslation();
   const [newExpense, setNewExpense] = useState({
     name: '',
     amount: 0,
-    category: 'Moradia',
+    category: 'housing',
     type: 'recurring' as 'recurring' | 'variable',
     status: 'active' as 'active' | 'inactive',
     day: '',
@@ -40,37 +42,45 @@ export const ExpenseTrackingEditable = () => {
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      "Moradia": "bg-blue-100 text-blue-800 border-blue-200",
-      "Saúde": "bg-green-100 text-green-800 border-green-200",
-      "Vícios": "bg-red-100 text-red-800 border-red-200",
-      "Serviços": "bg-purple-100 text-purple-800 border-purple-200",
-      "Imposto": "bg-orange-100 text-orange-800 border-orange-200",
-      "Alimentação": "bg-yellow-100 text-yellow-800 border-yellow-200",
-      "Higiene": "bg-teal-100 text-teal-800 border-teal-200",
-      "Storage": "bg-gray-100 text-gray-800 border-gray-200",
-      "Vacância": "bg-amber-100 text-amber-800 border-amber-200",
-      "Reforma": "bg-pink-100 text-pink-800 border-pink-200",
-      "Cartão": "bg-indigo-100 text-indigo-800 border-indigo-200"
+      "housing": "bg-blue-100 text-blue-800 border-blue-200",
+      "health": "bg-green-100 text-green-800 border-green-200",
+      "food": "bg-yellow-100 text-yellow-800 border-yellow-200",
+      "transportation": "bg-purple-100 text-purple-800 border-purple-200",
+      "entertainment": "bg-pink-100 text-pink-800 border-pink-200",
+      "utilities": "bg-orange-100 text-orange-800 border-orange-200",
+      "personal": "bg-teal-100 text-teal-800 border-teal-200",
+      "travel": "bg-indigo-100 text-indigo-800 border-indigo-200",
+      "other": "bg-gray-100 text-gray-800 border-gray-200"
     };
     return colors[category] || "bg-slate-100 text-slate-800 border-slate-200";
   };
 
   const getCategoryIcon = (category: string) => {
     const icons: Record<string, any> = {
-      "Moradia": Home,
-      "Saúde": Stethoscope,
-      "Vícios": Heart,
-      "Serviços": Wifi,
-      "Alimentação": ShoppingCart,
-      "Higiene": ShoppingCart,
-      "Storage": Home,
-      "Imposto": Car,
-      "Vacância": Home,
-      "Reforma": Home,
-      "Cartão": CreditCard
+      "housing": Home,
+      "health": Stethoscope,
+      "food": ShoppingCart,
+      "transportation": Car,
+      "entertainment": Heart,
+      "utilities": Wifi,
+      "personal": User,
+      "travel": Plane,
+      "other": CreditCard
     };
     return icons[category] || Home;
   };
+
+  const categoryOptions = [
+    { value: 'housing', label: t.housing },
+    { value: 'health', label: 'Health' },
+    { value: 'food', label: t.food },
+    { value: 'transportation', label: t.transportation },
+    { value: 'entertainment', label: t.entertainment },
+    { value: 'utilities', label: 'Utilities' },
+    { value: 'personal', label: 'Personal' },
+    { value: 'travel', label: 'Travel' },
+    { value: 'other', label: 'Other' }
+  ];
 
   const handleAddExpense = () => {
     if (newExpense.name.trim()) {
@@ -90,14 +100,13 @@ export const ExpenseTrackingEditable = () => {
             category: newExpense.category,
             type: newExpense.type,
             status: newExpense.status,
-            // don't include day in variable
           };
 
       addExpense(payload as any);
       setNewExpense({
         name: '',
         amount: 0,
-        category: 'Moradia',
+        category: 'housing',
         type: 'recurring',
         status: 'active',
         day: '',
@@ -110,107 +119,113 @@ export const ExpenseTrackingEditable = () => {
     const Icon = getCategoryIcon(expense.category);
     
     return (
-      <div className={`flex items-center justify-between p-3 bg-white rounded-lg shadow-sm ${!expense.status || expense.status === 'inactive' ? 'opacity-60' : ''}`}>
-        <div className="flex items-center gap-3 flex-1">
-          <Icon size={16} className="text-gray-600" />
-          <div className="flex-1">
-            <Input
-              value={expense.name}
-              onChange={(e) => updateExpense(expense.id, { name: e.target.value })}
-              className="border-none p-0 font-medium bg-transparent"
-            />
-            {showCategory && (
-              <Select value={expense.category} onValueChange={(value) => updateExpense(expense.id, { category: value })}>
-                <SelectTrigger className="w-32 h-6 text-xs border-none p-0 bg-transparent">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Moradia">Moradia</SelectItem>
-                  <SelectItem value="Saúde">Saúde</SelectItem>
-                  <SelectItem value="Vícios">Vícios</SelectItem>
-                  <SelectItem value="Serviços">Serviços</SelectItem>
-                  <SelectItem value="Imposto">Imposto</SelectItem>
-                  <SelectItem value="Alimentação">Alimentação</SelectItem>
-                  <SelectItem value="Higiene">Higiene</SelectItem>
-                  <SelectItem value="Storage">Storage</SelectItem>
-                  <SelectItem value="Vacância">Vacância</SelectItem>
-                  <SelectItem value="Reforma">Reforma</SelectItem>
-                  <SelectItem value="Cartão">Cartão</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-            {/* Only for recurring expenses */}
-            {expense.type === 'recurring' && (
-              <div className="mt-1 flex items-center text-xs gap-1">
-                <span>Day:</span>
-                <Input 
-                  type="number" 
-                  min={1} 
-                  max={31} 
-                  value={expense.day || ''} 
-                  onChange={(e) => updateExpense(expense.id, { day: e.target.value })} 
-                  className="w-14 bg-slate-50 px-1 py-0 h-6 text-xs border border-slate-200"
-                  placeholder="1-31"
-                />
-              </div>
-            )}
+      <div className={`p-3 bg-white rounded-lg shadow-sm border ${!expense.status || expense.status === 'inactive' ? 'opacity-60' : ''}`}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <Icon size={16} className="text-gray-600 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <Input
+                value={expense.name}
+                onChange={(e) => updateExpense(expense.id, { name: e.target.value })}
+                className="border-none p-0 font-medium bg-transparent text-sm"
+              />
+              {showCategory && (
+                <Select value={expense.category} onValueChange={(value) => updateExpense(expense.id, { category: value })}>
+                  <SelectTrigger className="w-full sm:w-32 h-6 text-xs border-none p-0 bg-transparent mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categoryOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {expense.type === 'recurring' && (
+                <div className="mt-1 flex items-center text-xs gap-1">
+                  <span>Day:</span>
+                  <Input 
+                    type="number" 
+                    min={1} 
+                    max={31} 
+                    value={expense.day || ''} 
+                    onChange={(e) => updateExpense(expense.id, { day: e.target.value })} 
+                    className="w-14 bg-slate-50 px-1 py-0 h-6 text-xs border border-slate-200"
+                    placeholder="1-31"
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {showCategory && (
-            <Badge className={getCategoryColor(expense.category)}>
-              {expense.category}
-            </Badge>
-          )}
-          <StatusToggle
-            status={expense.status || 'active'}
-            onToggle={(newStatus) => updateExpense(expense.id, { status: newStatus })}
-            options={['active', 'inactive']}
-          />
-          <span className="font-medium">
-            R$ <EditableValue
-              value={expense.amount}
-              onSave={(value) => updateExpense(expense.id, { amount: Number(value) })}
-              type="number"
-              className="inline"
+          
+          <div className="flex items-center justify-between sm:justify-end gap-2 flex-wrap">
+            {showCategory && (
+              <Badge className={`${getCategoryColor(expense.category)} text-xs`}>
+                {categoryOptions.find(opt => opt.value === expense.category)?.label || expense.category}
+              </Badge>
+            )}
+            <StatusToggle
+              status={expense.status || 'active'}
+              onToggle={(newStatus) => updateExpense(expense.id, { status: newStatus })}
+              options={['active', 'inactive']}
             />
-          </span>
-          <Button
-            onClick={() => removeExpense(expense.id)}
-            variant="outline"
-            size="sm"
-            className="text-red-600 hover:text-red-700"
-          >
-            <Trash2 size={14} />
-          </Button>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm whitespace-nowrap">
+                $ <EditableValue
+                  value={expense.amount}
+                  onSave={(value) => updateExpense(expense.id, { amount: Number(value) })}
+                  type="number"
+                  className="inline min-w-0"
+                />
+              </span>
+              <Button
+                onClick={() => removeExpense(expense.id)}
+                variant="outline"
+                size="sm"
+                className="text-red-600 hover:text-red-700 p-1 h-8 w-8"
+              >
+                <Trash2 size={14} />
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Tabs defaultValue="recurring" className="space-y-4">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="recurring">Recurring Expenses</TabsTrigger>
-          <TabsTrigger value="variable">Variable Expenses</TabsTrigger>
+          <TabsTrigger value="recurring" className="text-xs sm:text-sm">{t.recurringExpenses}</TabsTrigger>
+          <TabsTrigger value="variable" className="text-xs sm:text-sm">{t.variableExpenses}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="recurring" className="space-y-4">
           <Card className="bg-red-50 border-red-200">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-red-800">Monthly Recurring Expenses</CardTitle>
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <CardTitle className="text-red-800 text-sm sm:text-base">{t.recurringExpenses}</CardTitle>
+                  <div className="text-lg sm:text-2xl font-bold text-red-700">
+                    $ {totalRecurring.toLocaleString()}/month
+                  </div>
+                  <div className="text-xs text-red-600">
+                    {recurringExpenses.filter(e => e.status === 'inactive').length} expenses inactive
+                  </div>
+                </div>
                 <Dialog open={isAddingExpense} onOpenChange={setIsAddingExpense}>
                   <DialogTrigger asChild>
-                    <Button size="sm">
+                    <Button size="sm" className="w-full sm:w-auto">
                       <Plus size={16} className="mr-1" />
-                      Add Expense
+                      {t.add} Expense
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="w-[95vw] max-w-md">
                     <DialogHeader>
-                      <DialogTitle>Add New Expense</DialogTitle>
+                      <DialogTitle>{t.add} New Expense</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                       <Input
@@ -229,17 +244,11 @@ export const ExpenseTrackingEditable = () => {
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Moradia">Moradia</SelectItem>
-                          <SelectItem value="Saúde">Saúde</SelectItem>
-                          <SelectItem value="Vícios">Vícios</SelectItem>
-                          <SelectItem value="Serviços">Serviços</SelectItem>
-                          <SelectItem value="Imposto">Imposto</SelectItem>
-                          <SelectItem value="Alimentação">Alimentação</SelectItem>
-                          <SelectItem value="Higiene">Higiene</SelectItem>
-                          <SelectItem value="Storage">Storage</SelectItem>
-                          <SelectItem value="Vacância">Vacância</SelectItem>
-                          <SelectItem value="Reforma">Reforma</SelectItem>
-                          <SelectItem value="Cartão">Cartão</SelectItem>
+                          {categoryOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <Select value={newExpense.type} onValueChange={(value: 'recurring' | 'variable') => setNewExpense({ ...newExpense, type: value })}>
@@ -251,7 +260,6 @@ export const ExpenseTrackingEditable = () => {
                           <SelectItem value="variable">Variable</SelectItem>
                         </SelectContent>
                       </Select>
-                      {/* Only show due day when adding recurring expense */}
                       {newExpense.type === 'recurring' && (
                         <Input
                           type="number"
@@ -263,17 +271,11 @@ export const ExpenseTrackingEditable = () => {
                         />
                       )}
                       <Button onClick={handleAddExpense} className="w-full">
-                        Add Expense
+                        {t.add} Expense
                       </Button>
                     </div>
                   </DialogContent>
                 </Dialog>
-              </div>
-              <div className="text-2xl font-bold text-red-700">
-                R$ {totalRecurring.toLocaleString()}/month
-              </div>
-              <div className="text-xs text-red-600">
-                {recurringExpenses.filter(e => e.status === 'inactive').length} expenses inactive
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -286,20 +288,25 @@ export const ExpenseTrackingEditable = () => {
 
         <TabsContent value="variable" className="space-y-4">
           <Card className="bg-orange-50 border-orange-200">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-orange-800">Variable Expenses</CardTitle>
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <CardTitle className="text-orange-800 text-sm sm:text-base">{t.variableExpenses}</CardTitle>
+                  <div className="text-lg sm:text-2xl font-bold text-orange-700">
+                    $ {totalVariable.toLocaleString()} total
+                  </div>
+                  <div className="text-xs text-orange-600">
+                    {variableExpenses.filter(e => e.status === 'inactive').length} expenses inactive
+                  </div>
+                </div>
                 <Dialog open={isAddingExpense} onOpenChange={setIsAddingExpense}>
                   <DialogTrigger asChild>
-                    <Button size="sm">
+                    <Button size="sm" className="w-full sm:w-auto">
                       <Plus size={16} className="mr-1" />
-                      Add Expense
+                      {t.add} Expense
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add New Expense</DialogTitle>
-                    </DialogHeader>
+                  <DialogContent className="w-[95vw] max-w-md">
                     <div className="space-y-4">
                       <Input
                         placeholder="Expense name"
@@ -317,17 +324,11 @@ export const ExpenseTrackingEditable = () => {
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Moradia">Moradia</SelectItem>
-                          <SelectItem value="Saúde">Saúde</SelectItem>
-                          <SelectItem value="Vícios">Vícios</SelectItem>
-                          <SelectItem value="Serviços">Serviços</SelectItem>
-                          <SelectItem value="Imposto">Imposto</SelectItem>
-                          <SelectItem value="Alimentação">Alimentação</SelectItem>
-                          <SelectItem value="Higiene">Higiene</SelectItem>
-                          <SelectItem value="Storage">Storage</SelectItem>
-                          <SelectItem value="Vacância">Vacância</SelectItem>
-                          <SelectItem value="Reforma">Reforma</SelectItem>
-                          <SelectItem value="Cartão">Cartão</SelectItem>
+                          {categoryOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <Select value={newExpense.type} onValueChange={(value: 'recurring' | 'variable') => setNewExpense({ ...newExpense, type: value })}>
@@ -340,17 +341,11 @@ export const ExpenseTrackingEditable = () => {
                         </SelectContent>
                       </Select>
                       <Button onClick={handleAddExpense} className="w-full">
-                        Add Expense
+                        {t.add} Expense
                       </Button>
                     </div>
                   </DialogContent>
                 </Dialog>
-              </div>
-              <div className="text-2xl font-bold text-orange-700">
-                R$ {totalVariable.toLocaleString()} total
-              </div>
-              <div className="text-xs text-orange-600">
-                {variableExpenses.filter(e => e.status === 'inactive').length} expenses inactive
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -365,30 +360,30 @@ export const ExpenseTrackingEditable = () => {
       {/* Expense Summary */}
       <Card className="bg-gradient-to-r from-red-50 to-orange-50 border-red-200">
         <CardHeader>
-          <CardTitle className="text-slate-800">Expense Summary</CardTitle>
+          <CardTitle className="text-slate-800 text-sm sm:text-base">Expense Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-              <div className="text-sm text-slate-600">Monthly Recurring (Active)</div>
-              <div className="text-xl font-bold text-red-600">
-                R$ {totalRecurring.toLocaleString()}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="text-center p-3 sm:p-4 bg-white rounded-lg shadow-sm">
+              <div className="text-xs sm:text-sm text-slate-600">{t.monthly} Recurring ({t.active})</div>
+              <div className="text-lg sm:text-xl font-bold text-red-600">
+                $ {totalRecurring.toLocaleString()}
               </div>
               <div className="text-xs text-slate-500">
-                R$ {(totalRecurring * 12).toLocaleString()}/year
+                $ {(totalRecurring * 12).toLocaleString()}/year
               </div>
             </div>
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-              <div className="text-sm text-slate-600">Variable Expenses (Active)</div>
-              <div className="text-xl font-bold text-orange-600">
-                R$ {totalVariable.toLocaleString()}
+            <div className="text-center p-3 sm:p-4 bg-white rounded-lg shadow-sm">
+              <div className="text-xs sm:text-sm text-slate-600">Variable Expenses ({t.active})</div>
+              <div className="text-lg sm:text-xl font-bold text-orange-600">
+                $ {totalVariable.toLocaleString()}
               </div>
               <div className="text-xs text-slate-500">One-time expenses</div>
             </div>
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm border-2 border-red-200">
-              <div className="text-sm text-slate-600">Total Impact (Active)</div>
-              <div className="text-2xl font-bold text-red-600">
-                R$ {(totalRecurring + totalVariable).toLocaleString()}
+            <div className="text-center p-3 sm:p-4 bg-white rounded-lg shadow-sm border-2 border-red-200">
+              <div className="text-xs sm:text-sm text-slate-600">Total Impact ({t.active})</div>
+              <div className="text-xl sm:text-2xl font-bold text-red-600">
+                $ {(totalRecurring + totalVariable).toLocaleString()}
               </div>
               <div className="text-xs text-slate-500">Combined active expenses</div>
             </div>
