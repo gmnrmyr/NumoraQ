@@ -102,8 +102,7 @@ const Index = () => {
             <CardContent className="p-2 sm:p-3 md:p-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs sm:text-sm">
                 <div className="flex items-center gap-1 justify-center">
-                  <Dol
-larSign size={12} />
+                  <DollarSign size={12} />
                   <span>BRL/USD:</span>
                   <EditableValue
                     value={data.exchangeRates.brlToUsd}
