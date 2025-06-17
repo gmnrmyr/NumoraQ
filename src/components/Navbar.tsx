@@ -156,8 +156,8 @@ export const Navbar = () => {
                     {language.toUpperCase()}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Language</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="bg-white z-50">
+                  <DropdownMenuLabel>{t.defaultCurrency}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setLanguage('en')}>
                     🇺🇸 English
@@ -167,6 +167,12 @@ export const Navbar = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setLanguage('es')}>
                     🇪🇸 Español
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLanguage('fr')}>
+                    🇫🇷 Français
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLanguage('de')}>
+                    🇩🇪 Deutsch
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -196,7 +202,7 @@ export const Navbar = () => {
                         <ChevronDown size={12} className="text-gray-400" />
                       </div>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 sm:w-56">
+                    <DropdownMenuContent align="end" className="w-48 sm:w-56 bg-white z-50">
                       <DropdownMenuLabel>{t.userProfile}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => createNewUser('BRL')} className="cursor-pointer">
@@ -232,7 +238,7 @@ export const Navbar = () => {
                         <ChevronDown size={10} className="text-gray-400" />
                       </div>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-40 sm:w-48">
+                    <DropdownMenuContent align="end" className="w-40 sm:w-48 bg-white z-50">
                       <DropdownMenuLabel>{t.defaultCurrency}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => handleCurrencyChange('BRL')} className="cursor-pointer">

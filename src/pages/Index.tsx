@@ -84,7 +84,7 @@ const Index = () => {
           {/* Header - Mobile optimized */}
           <div className="text-center space-y-2">
             <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-slate-800 flex items-center justify-center gap-2 sm:gap-3">
-              <DollarSign className="text-blue-600" size={20} />
+              <BarChart3 className="text-blue-600" size={20} />
               <span className="hidden sm:inline">{t.appTagline}</span>
               <span className="sm:hidden">{t.appName}</span>
             </h1>

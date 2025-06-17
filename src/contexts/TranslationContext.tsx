@@ -22,12 +22,12 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('findash-language') as Language;
-    if (savedLanguage && ['en', 'pt', 'es'].includes(savedLanguage)) {
+    if (savedLanguage && ['en', 'pt', 'es', 'fr', 'de'].includes(savedLanguage)) {
       setLanguage(savedLanguage);
     } else {
       // Auto-detect browser language
       const browserLang = navigator.language.split('-')[0] as Language;
-      if (['en', 'pt', 'es'].includes(browserLang)) {
+      if (['en', 'pt', 'es', 'fr', 'de'].includes(browserLang)) {
         setLanguage(browserLang);
       }
     }
