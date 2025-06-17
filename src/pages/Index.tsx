@@ -21,6 +21,7 @@ import { DataManagementSection } from "@/components/DataManagementSection";
 import { MobileNav } from "@/components/MobileNav";
 import { UserProfileSection } from "@/components/UserProfileSection";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { EditableValue } from "@/components/ui/editable-value";
 import { DevMenu } from "@/components/DevMenu";
 import { Navbar } from "@/components/Navbar";
@@ -29,6 +30,7 @@ import { Footer } from "@/components/Footer";
 const Index = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
   const { data, updateExchangeRate, updateProjectionMonths } = useFinancialData();
+  const { t } = useTranslation();
 
   // Helper function to get currency symbol
   const getCurrencySymbol = (currency: string) => {
@@ -77,16 +79,16 @@ const Index = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-20 pb-4">
-        <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-16 sm:pt-20 pb-4">
+        <div className="max-w-7xl mx-auto space-y-3 sm:space-y-4 px-2 sm:px-4">
           {/* Header - Mobile optimized */}
           <div className="text-center space-y-2">
-            <h1 className="text-2xl sm:text-4xl font-bold text-slate-800 flex items-center justify-center gap-2 sm:gap-3">
-              <DollarSign className="text-blue-600" size={24} />
-              <span className="hidden sm:inline">Financial Dashboard</span>
-              <span className="sm:hidden">FinDash</span>
+            <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-slate-800 flex items-center justify-center gap-2 sm:gap-3">
+              <DollarSign className="text-blue-600" size={20} />
+              <span className="hidden sm:inline">{t.appTagline}</span>
+              <span className="sm:hidden">{t.appName}</span>
             </h1>
-            <p className="text-slate-600 text-sm sm:text-base">Complete financial overview and management</p>
+            <p className="text-slate-600 text-xs sm:text-sm md:text-base px-4">{t.appDescription}</p>
           </div>
 
           {/* User Profile Section */}
@@ -95,56 +97,67 @@ const Index = () => {
           {/* Data Management - Collapsible */}
           <DataManagementSection />
 
-          {/* Exchange Rates Banner - Mobile optimized */}
+          {/* Exchange Rates Banner - Mobile optimized with ETH */}
           <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-            <CardContent className="p-3 sm:p-4">
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-around items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <DollarSign size={14} />
-                  <span className="text-xs">BRL/USD:</span>
+            <CardContent className="p-2 sm:p-3 md:p-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs sm:text-sm">
+                <div className="flex items-center gap-1 justify-center">
+                  <Dol
+larSign size={12} />
+                  <span>BRL/USD:</span>
                   <EditableValue
                     value={data.exchangeRates.brlToUsd}
                     onSave={(value) => updateExchangeRate('brlToUsd', Number(value))}
                     type="number"
-                    className="text-white bg-white/20 hover:bg-white/30 text-xs"
+                    className="text-white bg-white/20 hover:bg-white/30 text-xs w-16"
                   />
                 </div>
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <TrendingUp size={14} />
-                  <span className="text-xs">BTC:</span>
+                <div className="flex items-center gap-1 justify-center">
+                  <TrendingUp size={12} />
+                  <span>BTC:</span>
                   <EditableValue
                     value={data.exchangeRates.btcPrice}
                     onSave={(value) => updateExchangeRate('btcPrice', Number(value))}
                     type="number"
-                    className="text-white bg-white/20 hover:bg-white/30 text-xs"
+                    className="text-white bg-white/20 hover:bg-white/30 text-xs w-20"
                   />
                 </div>
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <span className="text-xs">Proj:</span>
+                <div className="flex items-center gap-1 justify-center">
+                  <TrendingUp size={12} />
+                  <span>ETH:</span>
+                  <EditableValue
+                    value={data.exchangeRates.ethPrice}
+                    onSave={(value) => updateExchangeRate('ethPrice', Number(value))}
+                    type="number"
+                    className="text-white bg-white/20 hover:bg-white/30 text-xs w-16"
+                  />
+                </div>
+                <div className="flex items-center gap-1 justify-center">
+                  <span>{t.projection.substring(0, 4)}:</span>
                   <EditableValue
                     value={data.projectionMonths}
                     onSave={(value) => updateProjectionMonths(Number(value))}
                     type="number"
-                    className="text-white bg-white/20 hover:bg-white/30 text-xs"
+                    className="text-white bg-white/20 hover:bg-white/30 text-xs w-8"
                   />
-                  <span className="text-xs">m</span>
+                  <span>m</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Key Metrics Overview - Mobile grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
             <Card className="bg-green-50 border-green-200">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs sm:text-sm font-medium text-green-700 flex items-center gap-1 sm:gap-2">
-                  <DollarSign size={14} />
-                  <span className="hidden sm:inline">Available Now</span>
-                  <span className="sm:hidden">Available</span>
+                  <DollarSign size={12} />
+                  <span className="hidden sm:inline">{t.availableNow}</span>
+                  <span className="sm:hidden truncate">Available</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg sm:text-2xl font-bold text-green-800">
+                <div className="text-sm sm:text-lg md:text-2xl font-bold text-green-800 truncate">
                   {currencySymbol} {totalAvailable.toLocaleString()}
                 </div>
               </CardContent>
@@ -153,13 +166,13 @@ const Index = () => {
             <Card className="bg-blue-50 border-blue-200">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs sm:text-sm font-medium text-blue-700 flex items-center gap-1 sm:gap-2">
-                  <TrendingUp size={14} />
-                  <span className="hidden sm:inline">Monthly Income</span>
-                  <span className="sm:hidden">Income</span>
+                  <TrendingUp size={12} />
+                  <span className="hidden sm:inline">{t.monthlyIncome}</span>
+                  <span className="sm:hidden truncate">Income</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg sm:text-2xl font-bold text-blue-800">
+                <div className="text-sm sm:text-lg md:text-2xl font-bold text-blue-800 truncate">
                   {currencySymbol} {(totalPassiveIncome + totalActiveIncome).toLocaleString()}
                 </div>
               </CardContent>
@@ -168,13 +181,13 @@ const Index = () => {
             <Card className="bg-red-50 border-red-200">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs sm:text-sm font-medium text-red-700 flex items-center gap-1 sm:gap-2">
-                  <TrendingDown size={14} />
-                  <span className="hidden sm:inline">Monthly Expenses</span>
-                  <span className="sm:hidden">Expenses</span>
+                  <TrendingDown size={12} />
+                  <span className="hidden sm:inline">{t.monthlyExpenses}</span>
+                  <span className="sm:hidden truncate">Expenses</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg sm:text-2xl font-bold text-red-800">
+                <div className="text-sm sm:text-lg md:text-2xl font-bold text-red-800 truncate">
                   {currencySymbol} {totalRecurringExpenses.toLocaleString()}
                 </div>
               </CardContent>
@@ -183,13 +196,13 @@ const Index = () => {
             <Card className="bg-orange-50 border-orange-200">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs sm:text-sm font-medium text-orange-700 flex items-center gap-1 sm:gap-2">
-                  <AlertCircle size={14} />
-                  <span className="hidden sm:inline">Active Debts</span>
-                  <span className="sm:hidden">Debts</span>
+                  <AlertCircle size={12} />
+                  <span className="hidden sm:inline">{t.activeDebts}</span>
+                  <span className="sm:hidden truncate">Debts</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg sm:text-2xl font-bold text-orange-800">
+                <div className="text-sm sm:text-lg md:text-2xl font-bold text-orange-800 truncate">
                   {currencySymbol} {totalActiveDebt.toLocaleString()}
                 </div>
               </CardContent>
@@ -198,13 +211,13 @@ const Index = () => {
             <Card className={`col-span-2 lg:col-span-1 ${monthlyBalance >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
               <CardHeader className="pb-2">
                 <CardTitle className={`text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 ${monthlyBalance >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                  <BarChart3 size={14} />
-                  <span className="hidden sm:inline">Monthly Balance</span>
-                  <span className="sm:hidden">Balance</span>
+                  <BarChart3 size={12} />
+                  <span className="hidden sm:inline">{t.monthlyBalance}</span>
+                  <span className="sm:hidden truncate">Balance</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className={`text-lg sm:text-2xl font-bold ${monthlyBalance >= 0 ? 'text-green-800' : 'text-red-800'}`}>
+                <div className={`text-sm sm:text-lg md:text-2xl font-bold truncate ${monthlyBalance >= 0 ? 'text-green-800' : 'text-red-800'}`}>
                   {currencySymbol} {monthlyBalance.toLocaleString()}
                 </div>
               </CardContent>
@@ -216,32 +229,32 @@ const Index = () => {
             <CardHeader>
               <CardTitle className="text-purple-800 flex items-center gap-2 text-sm sm:text-base">
                 <PieChart size={16} />
-                {data.projectionMonths}-Month Projection
+                {data.projectionMonths}-{t.monthly.toLowerCase()} {t.projection}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                 <div className="text-center">
-                  <div className="text-xs text-slate-600">Income ({data.projectionMonths}m)</div>
-                  <div className="text-sm sm:text-xl font-bold text-green-600">
+                  <div className="text-xs text-slate-600">{t.income} ({data.projectionMonths}m)</div>
+                  <div className="text-xs sm:text-sm md:text-xl font-bold text-green-600 truncate">
                     {currencySymbol} {((totalPassiveIncome + totalActiveIncome) * data.projectionMonths).toLocaleString()}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xs text-slate-600">Expenses ({data.projectionMonths}m)</div>
-                  <div className="text-sm sm:text-xl font-bold text-red-600">
+                  <div className="text-xs text-slate-600">{t.expenses} ({data.projectionMonths}m)</div>
+                  <div className="text-xs sm:text-sm md:text-xl font-bold text-red-600 truncate">
                     {currencySymbol} {(totalRecurringExpenses * data.projectionMonths + totalVariableExpenses).toLocaleString()}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xs text-slate-600">Debts</div>
-                  <div className="text-sm sm:text-xl font-bold text-orange-600">
+                  <div className="text-xs text-slate-600">{t.debt}</div>
+                  <div className="text-xs sm:text-sm md:text-xl font-bold text-orange-600 truncate">
                     {currencySymbol} {totalActiveDebt.toLocaleString()}
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="text-xs text-slate-600">Net Result</div>
-                  <div className={`text-sm sm:text-xl font-bold ${yearProjection >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
+                  <div className={`text-xs sm:text-sm md:text-xl font-bold truncate ${yearProjection >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
                     {currencySymbol} {yearProjection.toLocaleString()}
                   </div>
                 </div>
@@ -250,30 +263,30 @@ const Index = () => {
           </Card>
 
           {/* Main Dashboard Tabs - Mobile optimized */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
             <MobileNav activeTab={activeTab} onTabChange={setActiveTab} />
 
-            <TabsContent value="portfolio" className="space-y-6">
+            <TabsContent value="portfolio" className="space-y-4 sm:space-y-6">
               <PortfolioOverview />
             </TabsContent>
 
-            <TabsContent value="income" className="space-y-6">
+            <TabsContent value="income" className="space-y-4 sm:space-y-6">
               <IncomeTracking />
             </TabsContent>
 
-            <TabsContent value="expenses" className="space-y-6">
+            <TabsContent value="expenses" className="space-y-4 sm:space-y-6">
               <ExpenseTrackingEditable />
             </TabsContent>
 
-            <TabsContent value="assets" className="space-y-6">
+            <TabsContent value="assets" className="space-y-4 sm:space-y-6">
               <AssetManagementEditable />
             </TabsContent>
 
-            <TabsContent value="tasks" className="space-y-6">
+            <TabsContent value="tasks" className="space-y-4 sm:space-y-6">
               <TaskManagementEditable />
             </TabsContent>
 
-            <TabsContent value="debt" className="space-y-6">
+            <TabsContent value="debt" className="space-y-4 sm:space-y-6">
               <DebtTrackingEditable />
             </TabsContent>
           </Tabs>

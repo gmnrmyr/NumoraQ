@@ -1,10 +1,11 @@
 
 import { useState, useEffect } from 'react';
-import { User, DollarSign, BarChart3, Home, Signal, ChevronDown, UserPlus, Trash2, LogOut, LogIn, Globe } from 'lucide-react';
+import { User, DollarSign, BarChart3, Home, Signal, ChevronDown, UserPlus, Trash2, LogOut, LogIn, Globe, Languages } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLivePrices } from '@/hooks/useLivePrices';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { EditableValue } from '@/components/ui/editable-value';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -17,6 +18,7 @@ export const Navbar = () => {
   const { data, updateUserProfile, resetData, importFromJSON } = useFinancialData();
   const { user, signOut } = useAuth();
   const { loading: pricesLoading, isLiveDataEnabled, timeSinceLastUpdate, fetchLivePrices } = useLivePrices();
+  const { language, t, setLanguage } = useTranslation();
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -50,7 +52,7 @@ export const Navbar = () => {
         userProfile: {
           name: "",
           defaultCurrency: 'BRL' as const,
-          language: 'en' as const
+          language: language
         },
         projectionMonths: 12,
         exchangeRates: {
@@ -76,7 +78,7 @@ export const Navbar = () => {
         userProfile: {
           name: "",
           defaultCurrency: 'USD' as const,
-          language: 'en' as const
+          language: language
         },
         projectionMonths: 12,
         exchangeRates: {
@@ -108,7 +110,6 @@ export const Navbar = () => {
     console.log('Currency changed to:', newCurrency);
     updateUserProfile({ defaultCurrency: newCurrency });
     
-    // Immediately fetch prices for the new currency if user is authenticated
     if (user && isLiveDataEnabled) {
       console.log('Fetching prices for new currency:', newCurrency);
       await fetchLivePrices(newCurrency);
@@ -134,25 +135,48 @@ export const Navbar = () => {
         }`}
         onMouseEnter={() => setIsVisible(true)}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo/Brand */}
             <div className="flex items-center space-x-2">
               <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                <BarChart3 className="text-blue-600" size={24} />
-                <span className="text-xl font-bold text-gray-800">FinanceTracker</span>
+                <BarChart3 className="text-blue-600" size={20} />
+                <span className="text-lg sm:text-xl font-bold text-gray-800">{t.appName}</span>
               </Link>
               <VersionBadge />
             </div>
 
             {/* User Profile and Status */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              {/* Language Selector */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="hidden sm:flex">
+                    <Languages size={16} className="mr-1" />
+                    {language.toUpperCase()}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Language</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setLanguage('en')}>
+                    🇺🇸 English
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLanguage('pt')}>
+                    🇧🇷 Português
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLanguage('es')}>
+                    🇪🇸 Español
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               {/* Authentication Status */}
               {!user ? (
                 <Link to="/auth">
                   <Button variant="outline" size="sm">
                     <LogIn size={16} className="mr-2" />
-                    Sign In
+                    <span className="hidden sm:inline">{t.signIn}</span>
                   </Button>
                 </Link>
               ) : (
@@ -160,20 +184,20 @@ export const Navbar = () => {
                   {/* User Management Dropdown */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <div className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100/70 px-2 py-1 rounded-lg transition-colors">
-                        <User className="text-gray-600" size={20} />
+                      <div className="flex items-center space-x-1 sm:space-x-2 cursor-pointer hover:bg-gray-100/70 px-1 sm:px-2 py-1 rounded-lg transition-colors">
+                        <User className="text-gray-600" size={18} />
                         <EditableValue
                           value={data.userProfile.name || user.email || "User"}
                           onSave={(value) => updateUserProfile({ name: String(value) })}
                           type="text"
-                          className="text-gray-800 font-medium"
+                          className="text-gray-800 font-medium text-sm"
                           placeholder="Enter your name"
                         />
-                        <ChevronDown size={14} className="text-gray-400" />
+                        <ChevronDown size={12} className="text-gray-400" />
                       </div>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg">
-                      <DropdownMenuLabel>Profile Management</DropdownMenuLabel>
+                    <DropdownMenuContent align="end" className="w-48 sm:w-56">
+                      <DropdownMenuLabel>{t.userProfile}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => createNewUser('BRL')} className="cursor-pointer">
                         <UserPlus size={16} className="mr-2" />
@@ -186,12 +210,12 @@ export const Navbar = () => {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={resetData} className="cursor-pointer text-red-600 hover:text-red-700">
                         <Trash2 size={16} className="mr-2" />
-                        Reset to Default Data
+                        {t.resetData}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={signOut} className="cursor-pointer text-red-600 hover:text-red-700">
                         <LogOut size={16} className="mr-2" />
-                        Sign Out
+                        {t.signOut}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -199,17 +223,17 @@ export const Navbar = () => {
                   {/* Currency Selector */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <div className="flex items-center space-x-1 text-sm text-gray-600 cursor-pointer hover:bg-gray-100/70 px-2 py-1 rounded-lg transition-colors">
-                        <DollarSign size={16} />
+                      <div className="flex items-center space-x-1 text-xs sm:text-sm text-gray-600 cursor-pointer hover:bg-gray-100/70 px-1 sm:px-2 py-1 rounded-lg transition-colors">
+                        <DollarSign size={14} />
                         <span className="flex items-center space-x-1">
                           <span>{currencyDisplay.flag}</span>
-                          <span>{currencyDisplay.symbol}</span>
+                          <span className="hidden sm:inline">{currencyDisplay.symbol}</span>
                         </span>
-                        <ChevronDown size={12} className="text-gray-400" />
+                        <ChevronDown size={10} className="text-gray-400" />
                       </div>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuLabel>Currency</DropdownMenuLabel>
+                    <DropdownMenuContent align="end" className="w-40 sm:w-48">
+                      <DropdownMenuLabel>{t.defaultCurrency}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => handleCurrencyChange('BRL')} className="cursor-pointer">
                         <Globe size={16} className="mr-2" />
@@ -229,20 +253,20 @@ export const Navbar = () => {
               )}
 
               {/* Live Numbers Status */}
-              <div className="flex items-center space-x-1 text-sm text-gray-600">
+              <div className="flex items-center space-x-1 text-xs text-gray-600">
                 <Signal 
-                  size={16} 
+                  size={14} 
                   className={`transition-colors duration-300 ${liveDataInfo.color}`} 
                 />
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="cursor-help">
+                    <div className="cursor-help hidden sm:block">
                       <span className={`text-xs font-medium transition-colors duration-300 ${liveDataInfo.color}`}>
-                        live numbers: {liveDataInfo.status}
+                        {t.liveNumbers}: {liveDataInfo.status}
                       </span>
                       {timeSinceLastUpdate && liveDataInfo.status === 'on' && (
                         <div className="text-xs text-gray-500">
-                          updated {timeSinceLastUpdate}
+                          {t.lastUpdated} {timeSinceLastUpdate}
                         </div>
                       )}
                     </div>
@@ -261,13 +285,13 @@ export const Navbar = () => {
               </div>
 
               {/* Quick Actions */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center">
                 <button 
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   className="p-2 rounded-lg hover:bg-gray-100/70 transition-colors"
                   title="Go to top"
                 >
-                  <Home size={18} className="text-gray-600" />
+                  <Home size={16} className="text-gray-600" />
                 </button>
               </div>
             </div>

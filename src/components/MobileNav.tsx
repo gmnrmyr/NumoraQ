@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { useTranslation } from '@/contexts/TranslationContext';
 
 interface MobileNavProps {
   activeTab: string;
@@ -21,14 +22,15 @@ interface MobileNavProps {
 
 export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
   
   const tabs = [
-    { value: 'portfolio', label: 'Portfolio', icon: Briefcase },
-    { value: 'income', label: 'Income', icon: TrendingUp },
-    { value: 'expenses', label: 'Expenses', icon: TrendingDown },
-    { value: 'assets', label: 'Assets', icon: Home },
-    { value: 'tasks', label: 'Tasks', icon: Calendar },
-    { value: 'debt', label: 'Debt', icon: AlertCircle },
+    { value: 'portfolio', label: t.portfolio, icon: Briefcase },
+    { value: 'income', label: t.income, icon: TrendingUp },
+    { value: 'expenses', label: t.expenses, icon: TrendingDown },
+    { value: 'assets', label: t.assets, icon: Home },
+    { value: 'tasks', label: t.tasks, icon: Calendar },
+    { value: 'debt', label: t.debt, icon: AlertCircle },
   ];
 
   return (
@@ -75,9 +77,9 @@ export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange }) 
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="flex items-center gap-2 px-3 py-2"
+                className="flex items-center gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm"
               >
-                <Icon size={16} />
+                <Icon size={14} />
                 <span className="hidden sm:inline">{tab.label}</span>
               </TabsTrigger>
             );

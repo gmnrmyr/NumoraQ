@@ -5,11 +5,13 @@ import { Button } from './ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Badge } from './ui/badge';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
+import { useTranslation } from '@/contexts/TranslationContext';
 
 export const UnsavedChangesIndicator = () => {
   const { data, lastSync } = useFinancialData();
+  const { t } = useTranslation();
   
-  // Check if data has been modified since last sync
+  // Check if data has been modified since last sync, excluding exchange rate updates
   const hasUnsavedChanges = () => {
     if (!lastSync) return true; // No sync yet
     if (!data.lastModified) return false; // No modifications tracked
@@ -17,8 +19,11 @@ export const UnsavedChangesIndicator = () => {
     const lastSyncTime = new Date(lastSync).getTime();
     const lastModifiedTime = new Date(data.lastModified).getTime();
     
-    // Add small buffer (1 second) to account for timestamp precision differences
-    return lastModifiedTime > lastSyncTime + 1000;
+    // Add buffer and check if the change was more than just exchange rates
+    const timeDiff = lastModifiedTime - lastSyncTime;
+    if (timeDiff < 2000) return false; // Changes within 2 seconds likely from auto-updates
+    
+    return timeDiff > 5000; // Only flag as unsaved if changed more than 5 seconds after sync
   };
 
   const getChangeSummary = () => {
@@ -29,12 +34,12 @@ export const UnsavedChangesIndicator = () => {
       return changes;
     }
 
-    // This is a simplified version - in a real app you'd track specific changes
+    // More specific change detection
     const lastSyncTime = new Date(lastSync).getTime();
     const dataTime = new Date(data.lastModified || 0).getTime();
     
-    if (dataTime > lastSyncTime + 1000) { // 1 second buffer
-      changes.push("Data modified locally");
+    if (dataTime > lastSyncTime + 5000) { // 5 second buffer
+      changes.push("User data modified");
       
       // Add more specific change detection based on data content
       if (data.liquidAssets.length > 0) changes.push(`${data.liquidAssets.length} liquid assets`);
@@ -61,15 +66,16 @@ export const UnsavedChangesIndicator = () => {
           className="bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
         >
           <AlertCircle size={14} className="mr-1" />
-          Unsaved Changes
-          <Eye size={12} className="ml-1 opacity-60" />
+          <span className="hidden sm:inline">{t.unsavedChanges}</span>
+          <span className="sm:hidden">Changes</span>
+          <Eye size={10} className="ml-1 opacity-60" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <AlertCircle size={16} className="text-orange-600" />
-            <h4 className="font-medium text-sm">Unsaved Changes</h4>
+            <h4 className="font-medium text-sm">{t.unsavedChanges}</h4>
           </div>
           
           <div className="space-y-2">
@@ -88,15 +94,15 @@ export const UnsavedChangesIndicator = () => {
           
           <div className="text-xs text-gray-500 space-y-1">
             {lastSync && (
-              <p>Last sync: {new Date(lastSync).toLocaleString()}</p>
+              <p>{t.lastSync}: {new Date(lastSync).toLocaleString()}</p>
             )}
             {data.lastModified && (
-              <p>Last modified: {new Date(data.lastModified).toLocaleString()}</p>
+              <p>{t.lastModified}: {new Date(data.lastModified).toLocaleString()}</p>
             )}
           </div>
           
           <p className="text-xs text-gray-600">
-            Click "Save to Cloud" to sync your changes.
+            {t.unsavedChangesDesc}
           </p>
         </div>
       </PopoverContent>
