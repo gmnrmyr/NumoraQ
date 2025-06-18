@@ -69,7 +69,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   return (
     <TooltipProvider>
       <nav 
-        className={`fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-sm border-b-2 border-border transition-transform duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b-2 border-border transition-transform duration-300 ${
           isVisible ? 'transform translate-y-0' : 'transform -translate-y-full'
         }`}
         onMouseEnter={() => setIsVisible(true)}
@@ -165,7 +165,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
 
           {/* Mobile Navigation - Integrated below main navbar */}
           {user && activeTab && onTabChange && (
-            <div className="md:hidden border-t-2 border-border bg-background">
+            <div className="md:hidden border-t-2 border-border bg-background/95 backdrop-blur-md">
               <div className="px-2 py-2">
                 <Sheet open={isNavOpen} onOpenChange={setIsNavOpen}>
                   <SheetTrigger asChild>
