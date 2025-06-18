@@ -21,7 +21,14 @@ import {
   Download,
   Bot,
   FileJson,
-  Github
+  Github,
+  Zap,
+  Brain,
+  Rocket,
+  Eye,
+  UserPlus,
+  LogIn,
+  Menu
 } from "lucide-react";
 
 const LandingPage = () => {
@@ -29,124 +36,171 @@ const LandingPage = () => {
 
   const features = [
     {
-      icon: <DollarSign className="text-green-600" size={24} />,
-      title: "Income Tracking",
-      description: "Track both active and passive income sources with detailed categorization and status management."
+      icon: <DollarSign className="text-accent" size={24} />,
+      title: "INCOME MATRIX",
+      description: "Track both active and passive income streams. From your 9-5 to that crypto yield farming - we see it all."
     },
     {
-      icon: <TrendingDown className="text-red-600" size={24} />,
-      title: "Expense Management", 
-      description: "Monitor recurring and variable expenses to understand your spending patterns and optimize your budget."
+      icon: <TrendingDown className="text-red-500" size={24} />,
+      title: "EXPENSE ANALYZER", 
+      description: "Monitor every satoshi spent. Recurring subscriptions, variable costs, those late-night DoorDash orders - track it all."
     },
     {
-      icon: <Home className="text-blue-600" size={24} />,
-      title: "Asset Portfolio",
-      description: "Manage liquid and illiquid assets including crypto, real estate, and investments with real-time valuations."
+      icon: <Home className="text-blue-400" size={24} />,
+      title: "ASSET PORTFOLIO",
+      description: "Liquid and illiquid assets, crypto, real estate, NFTs. Track your entire wealth empire with real-time valuations."
     },
     {
-      icon: <AlertCircle className="text-orange-600" size={24} />,
-      title: "Debt Tracking",
-      description: "Keep track of all debts with payment schedules and progress monitoring to achieve financial freedom."
+      icon: <AlertCircle className="text-orange-500" size={24} />,
+      title: "DEBT TERMINATOR",
+      description: "Kill your debts systematically. Payment schedules, progress tracking - achieve financial freedom like a machine."
     },
     {
-      icon: <Calendar className="text-purple-600" size={24} />,
-      title: "Financial Tasks",
-      description: "Set and track financial goals, deadlines, and important tasks to stay on top of your finances."
+      icon: <Calendar className="text-purple-400" size={24} />,
+      title: "FINANCIAL TASKS",
+      description: "Set goals, deadlines, and financial missions. Stay on top of your money game with military precision."
     },
     {
-      icon: <BarChart3 className="text-indigo-600" size={24} />,
-      title: "Projections & Analytics",
-      description: "View detailed financial projections and analytics to make informed decisions about your future."
+      icon: <BarChart3 className="text-accent" size={24} />,
+      title: "PROJECTIONS & ANALYTICS",
+      description: "Deep dive into your financial future. Projections, analytics, and insights that would make a hedge fund jealous."
     }
   ];
 
   const quickStartSteps = [
     {
       step: 1,
-      title: "Set Your Profile",
-      description: "Click on 'User' in the navbar to set your name and preferred currency (BRL/USD).",
+      title: "SET YOUR IDENTITY",
+      description: "Click 'User' in the navbar. Set your name and currency (BRL/USD/EUR). Basic but essential.",
       icon: <Users size={20} />
     },
     {
       step: 2,
-      title: "Add Your Income",
-      description: "Start by adding your active and passive income sources in the Income tab.",
+      title: "INPUT INCOME STREAMS",
+      description: "Add every income source. Salary, side hustles, crypto yields, whatever brings in the cash.",
       icon: <TrendingUp size={20} />
     },
     {
       step: 3,
-      title: "Track Expenses",
-      description: "Add your recurring monthly expenses and variable costs to understand your spending.",
+      title: "MAP YOUR EXPENSES",
+      description: "Track where your money bleeds. Fixed costs, variables, subscriptions - map it all out.",
       icon: <TrendingDown size={20} />
     },
     {
       step: 4,
-      title: "Manage Assets",
-      description: "Input your assets including savings, investments, and crypto holdings.",
+      title: "ASSET INVENTORY",
+      description: "Input your holdings. Savings, investments, crypto bags, real estate - the complete picture.",
       icon: <Home size={20} />
     },
     {
       step: 5,
-      title: "Monitor Progress",
-      description: "Use the dashboard overview to track your financial health and projections.",
+      title: "MONITOR & OPTIMIZE",
+      description: "Use the dashboard to track your financial health. Make data-driven decisions like a pro.",
       icon: <Target size={20} />
     }
   ];
 
+  const onboardingOptions = [
+    {
+      id: 'login',
+      title: 'SIGN IN',
+      description: 'Already have an account? Jump right back into your financial matrix.',
+      icon: <UserPlus className="text-accent" size={24} />,
+      action: '/auth'
+    },
+    {
+      id: 'browse',
+      title: "I'M JUST BROWSING",
+      description: 'Check out the features first. No commitment, just pure exploration.',
+      icon: <Eye className="text-blue-400" size={24} />,
+      action: '/dashboard'
+    },
+    {
+      id: 'first-time',
+      title: 'FIRST TIME HERE',
+      description: 'New to the game? Let me show you around this financial playground.',
+      icon: <Rocket className="text-purple-400" size={24} />,
+      action: '/dashboard'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-background text-foreground font-mono">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-background/95 backdrop-blur-md border-b-2 border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <BarChart3 className="text-blue-600" size={28} />
-              <span className="text-2xl font-bold text-gray-800">FinanceTracker</span>
+              <BarChart3 className="text-accent" size={28} />
+              <span className="text-2xl font-display font-bold uppercase tracking-wide">OPEN FINDASH</span>
             </div>
-            <Link to="/dashboard">
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                Go to Dashboard
-                <ArrowRight size={16} className="ml-2" />
-              </Button>
-            </Link>
+            <div className="flex items-center gap-4">
+              {onboardingOptions.map((option) => (
+                <Link key={option.id} to={option.action}>
+                  <Button className="brutalist-button">
+                    {option.icon}
+                    <span className="hidden sm:inline ml-2">{option.title}</span>
+                  </Button>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-12 space-y-16">
         {/* Hero Section */}
-        <div className="text-center space-y-6">
-          <div className="space-y-4">
-            <h1 className="text-5xl font-bold text-slate-800 leading-tight">
-              Take Control of Your
-              <span className="text-blue-600 block">Financial Future</span>
+        <div className="text-center space-y-8">
+          <div className="space-y-6">
+            <h1 className="text-6xl font-display font-bold text-foreground leading-tight brutalist-heading">
+              HEY HOMIE!
+              <span className="text-accent block">ARE YOU A FINANCE</span>
+              <span className="text-accent block">ANALYSIS FREAK?</span>
             </h1>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              A comprehensive, open-source personal finance management tool that helps you track income, 
-              expenses, assets, and financial goals with ease.
-            </p>
+            <div className="max-w-3xl mx-auto space-y-4">
+              <p className="text-xl text-muted-foreground font-mono">
+                This is your place to be! Here you don't just plan your next goal -
+                <span className="text-accent font-bold"> you get into the MATRIX of it!</span>
+              </p>
+              <p className="text-lg text-muted-foreground font-mono">
+                Well, I guess you also like to track your crypto. 
+                <span className="text-accent font-bold"> We're here for you, degen.</span>
+              </p>
+            </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link to="/dashboard">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-3">
-                Start Managing Your Finances
-                <ArrowRight size={20} className="ml-2" />
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <Shield size={16} />
-              <span>100% Open Source • Privacy Focused</span>
-            </div>
+          {/* Onboarding Choice Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {onboardingOptions.map((option) => (
+              <Link key={option.id} to={option.action}>
+                <Card className="brutalist-card hover:bg-accent/10 transition-all duration-200 cursor-pointer h-full">
+                  <CardHeader className="text-center">
+                    <div className="flex justify-center mb-3">
+                      {option.icon}
+                    </div>
+                    <CardTitle className="text-lg font-display brutalist-heading">
+                      {option.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground text-sm font-mono text-center">
+                      {option.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
         </div>
 
         {/* Key Features Grid */}
         <div className="space-y-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-slate-800 mb-4">Comprehensive Financial Management</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">
-              Everything you need to understand and improve your financial situation in one place.
+            <h2 className="text-4xl font-display font-bold text-foreground mb-4 brutalist-heading">
+              COMPREHENSIVE FINANCIAL DOMINATION
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto font-mono">
+              Everything you need to understand and <span className="text-accent">optimize</span> your financial situation in one brutal interface.
             </p>
           </div>
           
@@ -154,19 +208,19 @@ const LandingPage = () => {
             {features.map((feature, index) => (
               <Card 
                 key={index}
-                className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                  activeFeature === index ? 'ring-2 ring-blue-500 shadow-lg' : ''
+                className={`brutalist-card cursor-pointer transition-all duration-300 hover:bg-accent/10 ${
+                  activeFeature === index ? 'bg-accent/20 border-accent' : ''
                 }`}
                 onClick={() => setActiveFeature(index)}
               >
                 <CardHeader className="pb-4">
                   <div className="flex items-center space-x-3">
                     {feature.icon}
-                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                    <CardTitle className="text-lg font-display brutalist-heading">{feature.title}</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-slate-600 text-sm">{feature.description}</p>
+                  <p className="text-muted-foreground text-sm font-mono">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -176,30 +230,32 @@ const LandingPage = () => {
         {/* Quick Start Guide */}
         <div className="space-y-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-slate-800 mb-4">Quick Start Guide</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">
-              Get up and running in just a few minutes with these simple steps.
+            <h2 className="text-4xl font-display font-bold text-foreground mb-4 brutalist-heading">
+              QUICK START PROTOCOL
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto font-mono">
+              Get up and running in just a few minutes. <span className="text-accent">No bullshit, just pure efficiency.</span>
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {quickStartSteps.map((step, index) => (
-              <Card key={index} className="relative">
+              <Card key={index} className="brutalist-card relative">
                 <CardHeader className="pb-4">
                   <div className="flex items-center space-x-3">
-                    <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                    <div className="bg-accent text-background rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold font-mono">
                       {step.step}
                     </div>
                     {step.icon}
                   </div>
-                  <CardTitle className="text-base">{step.title}</CardTitle>
+                  <CardTitle className="text-base font-display brutalist-heading">{step.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-slate-600 text-sm">{step.description}</p>
+                  <p className="text-muted-foreground text-sm font-mono">{step.description}</p>
                 </CardContent>
                 {index < quickStartSteps.length - 1 && (
                   <div className="hidden lg:block absolute -right-2 top-1/2 transform -translate-y-1/2">
-                    <ArrowRight className="text-slate-300" size={20} />
+                    <ArrowRight className="text-border" size={20} />
                   </div>
                 )}
               </Card>
@@ -208,58 +264,58 @@ const LandingPage = () => {
         </div>
 
         {/* AI Integration & Import/Export Section */}
-        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-8">
+        <div className="bg-card border-2 border-border p-8 brutalist-card">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-slate-800 mb-4 flex items-center justify-center gap-3">
-              <Bot className="text-emerald-600" size={32} />
-              AI-Powered Data Management
+            <h2 className="text-4xl font-display font-bold text-foreground mb-4 flex items-center justify-center gap-3 brutalist-heading">
+              <Bot className="text-accent" size={32} />
+              AI-POWERED DATA MANIPULATION
             </h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">
-              Leverage AI to quickly set up and customize your financial data.
+            <p className="text-muted-foreground max-w-2xl mx-auto font-mono">
+              Leverage AI to quickly set up and <span className="text-accent">customize your financial data like a pro.</span>
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="border-emerald-200">
+            <Card className="brutalist-card border-accent/50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-emerald-800">
+                <CardTitle className="flex items-center gap-3 text-accent font-display brutalist-heading">
                   <FileJson size={24} />
-                  Smart JSON Import
+                  SMART JSON IMPORT
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-slate-600">
+                <p className="text-muted-foreground font-mono">
                   Use AI to generate your financial data in the correct format:
                 </p>
-                <div className="bg-white p-4 rounded-lg border space-y-2 text-sm">
-                  <p><strong>1.</strong> Export your current data from the dashboard</p>
-                  <p><strong>2.</strong> Ask ChatGPT, Claude, or Grok:</p>
-                  <div className="bg-gray-50 p-3 rounded italic text-xs">
+                <div className="bg-background p-4 border-2 border-border space-y-2 text-sm">
+                  <p className="font-mono"><strong className="text-accent">1.</strong> Export your current data from the dashboard</p>
+                  <p className="font-mono"><strong className="text-accent">2.</strong> Ask ChatGPT, Claude, or Grok:</p>
+                  <div className="bg-muted p-3 border border-border italic text-xs font-mono">
                     "Please modify this financial JSON data according to my needs: [paste your requirements]. 
                     Return only the JSON in the same format."
                   </div>
-                  <p><strong>3.</strong> Import the AI-generated JSON back into FinanceTracker</p>
+                  <p className="font-mono"><strong className="text-accent">3.</strong> Import the AI-generated JSON back into OPEN FINDASH</p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-teal-200">
+            <Card className="brutalist-card border-accent/50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-teal-800">
+                <CardTitle className="flex items-center gap-3 text-accent font-display brutalist-heading">
                   <Download size={24} />
-                  Offline Usage
+                  OFFLINE DOMINATION
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-slate-600">
-                  Download and run FinanceTracker on your own machine:
+                <p className="text-muted-foreground font-mono">
+                  Download and run OPEN FINDASH on your own machine:
                 </p>
-                <div className="bg-white p-4 rounded-lg border space-y-2 text-sm">
-                  <p><strong>1.</strong> Visit our GitHub repository</p>
-                  <p><strong>2.</strong> Clone or download the source code</p>
-                  <p><strong>3.</strong> Run <code className="bg-gray-100 px-1 rounded">npm install && npm run dev</code></p>
-                  <p><strong>4.</strong> Access at <code className="bg-gray-100 px-1 rounded">localhost:5173</code></p>
-                  <p className="text-xs text-gray-500 mt-2">
+                <div className="bg-background p-4 border-2 border-border space-y-2 text-sm">
+                  <p className="font-mono"><strong className="text-accent">1.</strong> Visit our GitHub repository</p>
+                  <p className="font-mono"><strong className="text-accent">2.</strong> Clone or download the source code</p>
+                  <p className="font-mono"><strong className="text-accent">3.</strong> Run <code className="bg-muted px-1 border border-border font-mono">npm install && npm run dev</code></p>
+                  <p className="font-mono"><strong className="text-accent">4.</strong> Access at <code className="bg-muted px-1 border border-border font-mono">localhost:5173</code></p>
+                  <p className="text-xs text-muted-foreground mt-2 font-mono">
                     Perfect for offline use or when the website is unavailable!
                   </p>
                 </div>
@@ -267,7 +323,7 @@ const LandingPage = () => {
                   href="https://github.com/gmnrmyr/wealth-dashboard-flow" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm"
+                  className="inline-flex items-center gap-2 text-accent hover:text-accent/80 text-sm font-mono"
                 >
                   <Github size={16} />
                   View on GitHub
@@ -278,39 +334,39 @@ const LandingPage = () => {
         </div>
 
         {/* Key Benefits */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8">
+        <div className="bg-card border-2 border-border p-8 brutalist-card">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-slate-800 mb-4">Why Choose FinanceTracker?</h2>
+            <h2 className="text-4xl font-display font-bold text-foreground mb-4 brutalist-heading">WHY CHOOSE OPEN FINDASH?</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center space-y-4">
-              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="text-green-600" size={32} />
+              <div className="bg-accent/20 border-2 border-accent w-16 h-16 flex items-center justify-center mx-auto">
+                <CheckCircle className="text-accent" size={32} />
               </div>
-              <h3 className="text-xl font-semibold text-slate-800">Complete Privacy</h3>
-              <p className="text-slate-600">
-                All your financial data stays with you. No cloud storage, no data mining, complete privacy control.
+              <h3 className="text-xl font-display font-bold text-foreground brutalist-heading">COMPLETE PRIVACY</h3>
+              <p className="text-muted-foreground font-mono">
+                All your financial data stays with you. No cloud storage, no data mining, <span className="text-accent">complete privacy control.</span>
               </p>
             </div>
             
             <div className="text-center space-y-4">
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                <Lightbulb className="text-blue-600" size={32} />
+              <div className="bg-accent/20 border-2 border-accent w-16 h-16 flex items-center justify-center mx-auto">
+                <Brain className="text-accent" size={32} />
               </div>
-              <h3 className="text-xl font-semibold text-slate-800">Smart Insights</h3>
-              <p className="text-slate-600">
-                Get intelligent projections and analytics to make informed financial decisions for your future.
+              <h3 className="text-xl font-display font-bold text-foreground brutalist-heading">SMART INSIGHTS</h3>
+              <p className="text-muted-foreground font-mono">
+                Get intelligent projections and analytics to make <span className="text-accent">informed financial decisions</span> for your future.
               </p>
             </div>
             
             <div className="text-center space-y-4">
-              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                <PieChart className="text-purple-600" size={32} />
+              <div className="bg-accent/20 border-2 border-accent w-16 h-16 flex items-center justify-center mx-auto">
+                <Zap className="text-accent" size={32} />
               </div>
-              <h3 className="text-xl font-semibold text-slate-800">Comprehensive Tracking</h3>
-              <p className="text-slate-600">
-                Track everything from daily expenses to long-term investments in one unified dashboard.
+              <h3 className="text-xl font-display font-bold text-foreground brutalist-heading">COMPREHENSIVE TRACKING</h3>
+              <p className="text-muted-foreground font-mono">
+                Track everything from daily expenses to long-term investments in <span className="text-accent">one unified dashboard.</span>
               </p>
             </div>
           </div>
@@ -318,13 +374,14 @@ const LandingPage = () => {
 
         {/* CTA Section */}
         <div className="text-center space-y-6 py-12">
-          <h2 className="text-3xl font-bold text-slate-800">Ready to Transform Your Finances?</h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Join thousands of users who have taken control of their financial future with FinanceTracker.
+          <h2 className="text-4xl font-display font-bold text-foreground brutalist-heading">READY TO DOMINATE YOUR FINANCES?</h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-mono">
+            Join the community of users who have taken <span className="text-accent">complete control</span> of their financial future.
           </p>
           <Link to="/dashboard">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-12 py-4">
-              Get Started Now - It's Free!
+            <Button size="lg" className="brutalist-button text-lg px-12 py-4">
+              <Rocket size={20} className="mr-2" />
+              GET STARTED NOW - IT'S FREE!
               <ArrowRight size={20} className="ml-2" />
             </Button>
           </Link>
