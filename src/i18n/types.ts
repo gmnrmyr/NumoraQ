@@ -66,6 +66,11 @@ export interface Translations {
   completed: string;
   pending: string;
   
+  // Priority levels
+  high: string;
+  medium: string;
+  low: string;
+  
   // Unsaved changes
   unsavedChanges: string;
   unsavedChangesDesc: string;
@@ -93,6 +98,12 @@ export interface Translations {
   transportation: string;
   food: string;
   entertainment: string;
+  health: string;
+  utilities: string;
+  personal: string;
+  travel: string;
+  trips: string;
+  other: string;
   
   // Financial terms
   amount: string;
@@ -117,4 +128,22 @@ export interface Translations {
   sortByName: string;
   ascending: string;
   descending: string;
+  
+  // Expense-specific terms
+  addExpense: string;
+  addNewExpense: string;
+  expenseName: string;
+  selectCategory: string;
+  selectType: string;
+  recurring: string;
+  variable: string;
+  day: string;
+  dueDayPlaceholder: string;
+  inactiveExpenses: string;
+  totalExpenses: string;
+  oneTimeExpenses: string;
+  combinedActiveExpenses: string;
+  totalImpact: string;
+  expenseSummary: string;
+  tapToSwitch: string;
 }
