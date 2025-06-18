@@ -54,7 +54,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
 
   const liveDataInfo = getLiveDataStatus();
 
-  // Navigation tabs for mobile
+  // Navigation tabs for all screen sizes
   const tabs = [
     { value: 'portfolio', label: t.portfolio, icon: BarChart3 },
     { value: 'income', label: t.income, icon: Signal },
@@ -163,9 +163,9 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
             </div>
           </div>
 
-          {/* Mobile Navigation - Integrated below main navbar */}
+          {/* Integrated Navigation - All screen sizes */}
           {user && activeTab && onTabChange && (
-            <div className="md:hidden border-t-2 border-border bg-background/95 backdrop-blur-md">
+            <div className="border-t-2 border-border bg-background/95 backdrop-blur-md">
               <div className="px-2 py-2">
                 <Sheet open={isNavOpen} onOpenChange={setIsNavOpen}>
                   <SheetTrigger asChild>
@@ -183,7 +183,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
                     </Button>
                   </SheetTrigger>
                   <SheetContent side="bottom" className="h-auto max-h-[80vh] bg-background border-t-2 border-border z-50">
-                    <div className="grid grid-cols-2 gap-3 p-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 p-4">
                       {tabs.map((tab) => {
                         const Icon = tab.icon;
                         return (
