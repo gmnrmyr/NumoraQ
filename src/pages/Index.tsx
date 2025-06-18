@@ -9,7 +9,6 @@ import { TaskManagementEditable } from "@/components/TaskManagementEditable";
 import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
 import { ProjectionChart } from "@/components/ProjectionChart";
 import { DataManagementSection } from "@/components/DataManagementSection";
-import { MobileNav } from "@/components/MobileNav";
 import { UserProfileSection } from "@/components/UserProfileSection";
 import { DevMenu } from "@/components/DevMenu";
 import { Navbar } from "@/components/Navbar";
@@ -25,7 +24,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground font-mono">
       <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="pt-20 sm:pt-28 pb-4">
+      <div className="pt-20 sm:pt-32 pb-4">
         <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
           <DashboardHeader />
           <UserProfileSection />
@@ -35,8 +34,6 @@ const Index = () => {
           <ProjectionCard />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <MobileNav activeTab={activeTab} onTabChange={setActiveTab} />
-
             <div>
               <TabsContent value="portfolio" className="space-y-6">
                 <PortfolioOverview />

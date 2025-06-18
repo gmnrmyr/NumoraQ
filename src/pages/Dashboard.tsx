@@ -1,15 +1,6 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { 
-  DollarSign, 
-  TrendingUp, 
-  TrendingDown, 
-  AlertCircle,
-  PieChart,
-  BarChart3
-} from "lucide-react";
 import { PortfolioOverview } from "@/components/PortfolioOverview";
 import { IncomeTracking } from "@/components/IncomeTracking";
 import { ExpenseTrackingEditable } from "@/components/ExpenseTrackingEditable";
@@ -18,10 +9,7 @@ import { TaskManagementEditable } from "@/components/TaskManagementEditable";
 import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
 import { ProjectionChart } from "@/components/ProjectionChart";
 import { DataManagementSection } from "@/components/DataManagementSection";
-import { MobileNav } from "@/components/MobileNav";
 import { UserProfileSection } from "@/components/UserProfileSection";
-import { useFinancialData } from "@/contexts/FinancialDataContext";
-import { EditableValue } from "@/components/ui/editable-value";
 import { DevMenu } from "@/components/DevMenu";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -36,7 +24,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background text-foreground font-mono">
       <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="pt-20 sm:pt-28 pb-4">
+      <div className="pt-20 sm:pt-32 pb-4">
         <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
           <DashboardHeader />
           <UserProfileSection />
@@ -46,8 +34,6 @@ const Dashboard = () => {
           <ProjectionCard />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <MobileNav activeTab={activeTab} onTabChange={setActiveTab} />
-
             <div>
               <TabsContent value="portfolio" className="space-y-6">
                 <PortfolioOverview />
