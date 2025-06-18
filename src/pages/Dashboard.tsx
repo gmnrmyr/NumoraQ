@@ -35,14 +35,17 @@ const Dashboard = () => {
         <div className="pt-20 sm:pt-32 pb-4">
           <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
             <DashboardHeader />
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            
+            {/* User Profile Section with integrated avatar */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
               <div className="lg:col-span-2">
                 <UserProfileSection />
               </div>
-              <div>
+              <div className="lg:col-span-2">
                 <UserAvatarSection />
               </div>
             </div>
+            
             <DataManagementSection />
             <ExchangeRatesBanner />
             <MetricsOverview />

@@ -50,6 +50,19 @@
     --sidebar-border: 0 0% 20%;
     --sidebar-ring: 120 100% 50%;
   }
+
+  /* Dual tone mode - True dual colors only */
+  [data-theme="dual-tone"] {
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 12%;
+    --accent: 280 100% 70%; /* Purple as second color */
+    --accent-foreground: 0 0% 8%;
+    --ring: 280 100% 70%;
+    --border: 280 30% 25%;
+    --muted: 280 15% 15%;
+    --input: 280 10% 12%;
+  }
 }
 
 @layer base {
@@ -70,18 +83,25 @@
     font-family: 'JetBrains Mono', 'Space Mono', monospace;
     line-height: 1.4;
     font-feature-settings: "liga" 0, "kern" 1;
+    overflow-x: hidden; /* Prevent horizontal scroll on mobile */
   }
 
-  /* Brutalist typography */
+  /* Mobile-first responsive typography */
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Mono', monospace;
     font-weight: 700;
     line-height: 1.1;
     letter-spacing: -0.02em;
     text-transform: uppercase;
+    word-wrap: break-word;
   }
 
-  /* High contrast geometric elements */
+  h1 { @apply text-lg sm:text-xl md:text-2xl lg:text-3xl; }
+  h2 { @apply text-base sm:text-lg md:text-xl lg:text-2xl; }
+  h3 { @apply text-sm sm:text-base md:text-lg; }
+  h4 { @apply text-xs sm:text-sm md:text-base; }
+
+  /* Mobile-optimized button styling */
   button, .btn {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 500;
@@ -91,6 +111,8 @@
     background: hsl(var(--background));
     color: hsl(var(--foreground));
     transition: all 0.1s ease;
+    min-height: 44px; /* Touch-friendly minimum */
+    @apply text-xs sm:text-sm;
   }
 
   button:hover, .btn:hover {
@@ -99,12 +121,14 @@
     border-color: hsl(var(--accent));
   }
 
-  /* Input styling */
+  /* Mobile-optimized input styling */
   input, textarea, select {
     font-family: 'JetBrains Mono', monospace;
     background: hsl(var(--input));
     border: 2px solid hsl(var(--border));
     color: hsl(var(--foreground));
+    min-height: 44px; /* Touch-friendly */
+    @apply text-sm;
   }
 
   input:focus, textarea:focus, select:focus {
@@ -113,43 +137,70 @@
     box-shadow: 0 0 0 2px hsl(var(--accent) / 0.2);
   }
 
-  /* Card styling */
+  /* Mobile-optimized card styling */
   .card {
     background: hsl(var(--card));
     border: 2px solid hsl(var(--border));
-    box-shadow: 4px 4px 0 hsl(var(--border));
+    box-shadow: 2px 2px 0 hsl(var(--border));
+  }
+  
+  @media (min-width: 640px) {
+    .card {
+      box-shadow: 4px 4px 0 hsl(var(--border));
+    }
   }
 
-  /* Geometric grid layouts */
+  /* Responsive grid layouts */
   .grid {
     display: grid;
-    gap: 1rem;
+    gap: 0.75rem;
+  }
+  
+  @media (min-width: 640px) {
+    .grid {
+      gap: 1rem;
+    }
   }
 
-  /* High contrast links */
+  /* Mobile-friendly links */
   a {
     color: hsl(var(--accent));
     text-decoration: none;
     border-bottom: 1px solid transparent;
     transition: border-color 0.1s ease;
+    min-height: 44px; /* Touch-friendly for navigation links */
+    display: inline-flex;
+    align-items: center;
   }
 
   a:hover {
     border-bottom-color: hsl(var(--accent));
   }
 
-  /* Brutalist table styling */
+  /* Mobile-optimized table styling */
   table {
     border-collapse: separate;
     border-spacing: 0;
     border: 2px solid hsl(var(--border));
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+    white-space: nowrap;
+  }
+  
+  @media (min-width: 768px) {
+    table {
+      display: table;
+      white-space: normal;
+    }
   }
 
   th, td {
     border-right: 2px solid hsl(var(--border));
     border-bottom: 2px solid hsl(var(--border));
-    padding: 0.75rem;
+    padding: 0.5rem;
     font-family: 'JetBrains Mono', monospace;
+    @apply text-xs sm:text-sm;
   }
 
   th:last-child, td:last-child {
@@ -168,32 +219,48 @@
   }
 }
 
-/* Custom brutalist utilities */
+/* Custom brutalist utilities with mobile optimization */
 @layer components {
   .brutalist-card {
     @apply bg-card border-2 border-border;
-    box-shadow: 6px 6px 0 hsl(var(--border));
+    box-shadow: 2px 2px 0 hsl(var(--border));
+  }
+  
+  @media (min-width: 640px) {
+    .brutalist-card {
+      box-shadow: 6px 6px 0 hsl(var(--border));
+    }
   }
 
   .brutalist-button {
-    @apply bg-background border-2 border-border px-6 py-3;
+    @apply bg-background border-2 border-border px-3 py-2 sm:px-6 sm:py-3;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     transition: all 0.1s ease;
-    box-shadow: 3px 3px 0 hsl(var(--border));
+    box-shadow: 2px 2px 0 hsl(var(--border));
+    min-height: 44px;
+    @apply text-xs sm:text-sm;
+  }
+  
+  @media (min-width: 640px) {
+    .brutalist-button {
+      box-shadow: 3px 3px 0 hsl(var(--border));
+    }
   }
 
   .brutalist-button:hover {
     @apply bg-accent text-accent-foreground border-accent;
     transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0 hsl(var(--accent) / 0.3);
+    box-shadow: 3px 3px 0 hsl(var(--accent) / 0.3);
   }
 
   .brutalist-input {
-    @apply bg-input border-2 border-border px-4 py-2;
+    @apply bg-input border-2 border-border px-3 py-2 sm:px-4 sm:py-2;
     font-family: 'JetBrains Mono', monospace;
+    min-height: 44px;
+    @apply text-sm;
   }
 
   .brutalist-input:focus {
@@ -203,8 +270,15 @@
 
   .geometric-grid {
     display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
+  }
+  
+  @media (min-width: 640px) {
+    .geometric-grid {
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
   }
 
   .monospace-text {
@@ -217,5 +291,41 @@
     text-transform: uppercase;
     letter-spacing: -0.02em;
     line-height: 1.1;
+  }
+
+  /* Mobile-specific utilities */
+  .mobile-padding {
+    @apply px-4 py-2 sm:px-6 sm:py-4;
+  }
+
+  .mobile-text {
+    @apply text-sm sm:text-base;
+  }
+
+  .touch-friendly {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Hide on mobile, show on desktop */
+  .hidden-mobile {
+    @apply hidden sm:block;
+  }
+
+  /* Show on mobile, hide on desktop */
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+}
+
+/* Mobile scroll optimization */
+@media (max-width: 767px) {
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Improve touch scrolling performance */
+  * {
+    -webkit-tap-highlight-color: transparent;
   }
 }
