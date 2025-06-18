@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,10 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Plus, Trash2, Coins } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { EditableValue } from "@/components/ui/editable-value";
 import { IconSelector } from './IconSelector';
 import { iconMap, groupedIcons } from './IconData';
+
 export const LiquidAssetsCard = () => {
+  const { t } = useTranslation();
   const {
     data,
     updateLiquidAsset,
@@ -45,7 +49,7 @@ export const LiquidAssetsCard = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-green-800 flex items-center gap-2">
             <Coins size={20} />
-            Liquid Assets
+            {t.liquidAssets}
           </CardTitle>
           <Dialog open={isAddingLiquid} onOpenChange={setIsAddingLiquid}>
             <DialogTrigger asChild>
@@ -55,14 +59,14 @@ export const LiquidAssetsCard = () => {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add Liquid Asset</DialogTitle>
+                <DialogTitle>{t.add} {t.liquidAssets}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <Input placeholder="Asset name" value={newLiquidAsset.name} onChange={e => setNewLiquidAsset({
+                <Input placeholder={t.description} value={newLiquidAsset.name} onChange={e => setNewLiquidAsset({
                 ...newLiquidAsset,
                 name: e.target.value
               })} />
-                <Input type="number" placeholder="Value" value={newLiquidAsset.value} onChange={e => setNewLiquidAsset({
+                <Input type="number" placeholder={t.amount} value={newLiquidAsset.value} onChange={e => setNewLiquidAsset({
                 ...newLiquidAsset,
                 value: parseFloat(e.target.value) || 0
               })} />
@@ -71,7 +75,7 @@ export const LiquidAssetsCard = () => {
                 icon: value
               })} placeholder="Choose an icon" />
                 <Button onClick={handleAddLiquidAsset} className="w-full">
-                  Add Asset
+                  {t.add}
                 </Button>
               </div>
             </DialogContent>
@@ -81,7 +85,7 @@ export const LiquidAssetsCard = () => {
           {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalLiquid.toLocaleString()}
         </div>
         <div className="text-xs text-green-600">
-          {data.liquidAssets.length - activeLiquidAssets.length} assets inactive
+          {data.liquidAssets.length - activeLiquidAssets.length} {t.inactive.toLowerCase()} {t.assets.toLowerCase()}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -120,7 +124,7 @@ export const LiquidAssetsCard = () => {
                   <Button onClick={() => updateLiquidAsset(asset.id, {
                 isActive: !asset.isActive
               })} variant="outline" size="sm" className={asset.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}>
-                    {asset.isActive ? "Active" : "Inactive"}
+                    {asset.isActive ? t.active : t.inactive}
                   </Button>
                 </div>
                 <div className="flex items-center gap-2">
