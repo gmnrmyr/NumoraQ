@@ -95,7 +95,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
                     value={data.userProfile.name || user.email || "User"}
                     onSave={(value) => updateUserProfile({ name: String(value) })}
                     type="text"
-                    className="text-foreground font-mono text-sm max-w-32 bg-input border border-border"
+                    className="text-foreground font-mono text-sm max-w-32 bg-input border-2 border-border"
                     placeholder="Enter your name"
                   />
                 </div>

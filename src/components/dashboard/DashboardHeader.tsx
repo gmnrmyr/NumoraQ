@@ -1,22 +1,41 @@
 
 import React from 'react';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, TrendingUp, Zap } from 'lucide-react';
 import { useTranslation } from '@/contexts/TranslationContext';
 
 export const DashboardHeader = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="text-center space-y-4 py-8">
-      <h1 className="text-2xl sm:text-3xl md:text-5xl font-display font-bold text-foreground flex items-center justify-center gap-3 brutalist-heading">
-        <BarChart3 className="text-accent" size={32} />
-        <span className="hidden sm:inline">OPEN FINDASH</span>
-        <span className="sm:hidden">OPEN FINDASH</span>
-      </h1>
-      <p className="text-muted-foreground text-sm sm:text-base font-mono uppercase tracking-wide px-4">
-        {t.appDescription}
-      </p>
-      <div className="w-24 h-1 bg-accent mx-auto"></div>
+    <div className="text-center space-y-6 py-8">
+      <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center gap-2">
+          <div className="p-3 border-2 border-accent bg-background">
+            <BarChart3 className="text-accent" size={28} />
+          </div>
+          <div className="p-3 border-2 border-border bg-card">
+            <TrendingUp className="text-foreground" size={28} />
+          </div>
+          <div className="p-3 border-2 border-accent bg-background">
+            <Zap className="text-accent" size={28} />
+          </div>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-foreground brutalist-heading">
+          FINANCIAL COMMAND CENTER
+        </h1>
+        <p className="text-muted-foreground text-sm sm:text-base font-mono uppercase tracking-wider px-4">
+          COMPLETE OVERSIGHT // DATA DRIVEN DECISIONS
+        </p>
+      </div>
+      
+      <div className="flex justify-center items-center gap-4">
+        <div className="w-8 h-1 bg-accent"></div>
+        <div className="w-4 h-4 border-2 border-accent"></div>
+        <div className="w-8 h-1 bg-accent"></div>
+      </div>
     </div>
   );
 };
