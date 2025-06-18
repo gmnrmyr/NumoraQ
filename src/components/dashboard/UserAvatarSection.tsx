@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { User, Refresh } from 'lucide-react';
+import { User, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 
@@ -87,7 +86,7 @@ export const UserAvatarSection: React.FC = () => {
             size="sm"
             className="brutalist-button"
           >
-            <Refresh size={16} />
+            <RefreshCw size={16} />
             <span className="hidden sm:inline ml-2">Random</span>
           </Button>
         </div>
