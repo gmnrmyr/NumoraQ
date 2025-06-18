@@ -61,6 +61,10 @@ const fr: Translations = {
   completed: 'Terminé',
   pending: 'En Attente',
   
+  high: 'Haute',
+  medium: 'Moyenne',
+  low: 'Basse',
+  
   unsavedChanges: 'Modifications Non Sauvegardées',
   unsavedChangesDesc: 'Cliquez sur "Sauvegarder dans le Cloud" pour synchroniser vos modifications.',
   lastSync: 'Dernière synchronisation',
@@ -84,6 +88,12 @@ const fr: Translations = {
   transportation: 'Transport',
   food: 'Nourriture et Restauration',
   entertainment: 'Divertissement',
+  health: 'Santé',
+  utilities: 'Services Publics',
+  personal: 'Personnel',
+  travel: 'Voyage',
+  trips: 'Voyages',
+  other: 'Autres',
   
   amount: 'Montant',
   category: 'Catégorie',
@@ -105,6 +115,23 @@ const fr: Translations = {
   sortByName: 'Nom',
   ascending: 'Croissant',
   descending: 'Décroissant',
+  
+  addExpense: 'Ajouter Dépense',
+  addNewExpense: 'Ajouter Nouvelle Dépense',
+  expenseName: 'Nom de la dépense',
+  selectCategory: 'Sélectionner catégorie',
+  selectType: 'Sélectionner type',
+  recurring: 'Récurrent',
+  variable: 'Variable',
+  day: 'Jour',
+  dueDayPlaceholder: 'Jour d\'échéance (1-31)',
+  inactiveExpenses: 'dépenses inactives',
+  totalExpenses: 'total',
+  oneTimeExpenses: 'Dépenses uniques',
+  combinedActiveExpenses: 'Dépenses actives combinées',
+  totalImpact: 'Impact Total',
+  expenseSummary: 'Résumé des Dépenses',
+  tapToSwitch: 'Appuyez pour changer',
 };
 
 const de: Translations = {
@@ -163,6 +190,10 @@ const de: Translations = {
   completed: 'Abgeschlossen',
   pending: 'Ausstehend',
   
+  high: 'Hoch',
+  medium: 'Mittel',
+  low: 'Niedrig',
+  
   unsavedChanges: 'Nicht Gespeicherte Änderungen',
   unsavedChangesDesc: 'Klicken Sie auf "In Cloud Speichern", um Ihre Änderungen zu synchronisieren.',
   lastSync: 'Letzte Synchronisation',
@@ -186,6 +217,12 @@ const de: Translations = {
   transportation: 'Transport',
   food: 'Essen und Trinken',
   entertainment: 'Unterhaltung',
+  health: 'Gesundheit',
+  utilities: 'Versorgungsunternehmen',
+  personal: 'Persönlich',
+  travel: 'Reisen',
+  trips: 'Reisen',
+  other: 'Andere',
   
   amount: 'Betrag',
   category: 'Kategorie',
@@ -207,6 +244,23 @@ const de: Translations = {
   sortByName: 'Name',
   ascending: 'Aufsteigend',
   descending: 'Absteigend',
+  
+  addExpense: 'Ausgabe Hinzufügen',
+  addNewExpense: 'Neue Ausgabe Hinzufügen',
+  expenseName: 'Name der Ausgabe',
+  selectCategory: 'Kategorie auswählen',
+  selectType: 'Typ auswählen',
+  recurring: 'Wiederkehrend',
+  variable: 'Variabel',
+  day: 'Tag',
+  dueDayPlaceholder: 'Fälligkeitstag (1-31)',
+  inactiveExpenses: 'inaktive Ausgaben',
+  totalExpenses: 'gesamt',
+  oneTimeExpenses: 'Einmalige Ausgaben',
+  combinedActiveExpenses: 'Kombinierte aktive Ausgaben',
+  totalImpact: 'Gesamtauswirkung',
+  expenseSummary: 'Ausgabenübersicht',
+  tapToSwitch: 'Tippen zum Wechseln',
 };
 
 export const translations: Record<Language, Translations> = {
