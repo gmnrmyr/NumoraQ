@@ -105,7 +105,7 @@ const LandingPage = () => {
       id: 'login',
       title: 'SIGN IN',
       description: 'Already have an account? Jump right back into your financial matrix.',
-      icon: <UserPlus className="text-accent" size={24} />,
+      icon: <LogIn className="text-accent" size={24} />,
       action: '/auth'
     },
     {
@@ -118,124 +118,125 @@ const LandingPage = () => {
     {
       id: 'first-time',
       title: 'FIRST TIME HERE',
-      description: 'New to the game? Let me show you around this financial playground.',
+      description: 'New to the game? Let us show you around this financial playground.',
       icon: <Rocket className="text-purple-400" size={24} />,
-      action: '/dashboard'
+      action: '/onboarding'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-mono">
-      {/* Header */}
-      <header className="bg-background/95 backdrop-blur-md border-b-2 border-border sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <BarChart3 className="text-accent" size={28} />
-              <span className="text-2xl font-display font-bold uppercase tracking-wide">OPEN FINDASH</span>
+    <>
+      {/* SEO Meta Tags */}
+      <title>OPEN FINDASH - Advanced Financial Analysis & Crypto Tracking</title>
+      <meta name="description" content="The ultimate financial analysis platform for crypto degens and finance freaks. Track income, expenses, assets, and debts with military precision. Complete privacy, AI-powered insights." />
+      <meta name="keywords" content="financial tracking, crypto portfolio, expense tracker, income analysis, wealth management, financial planning, investment tracking, debt management" />
+      <meta property="og:title" content="OPEN FINDASH - Financial Analysis Matrix" />
+      <meta property="og:description" content="Track your entire financial empire - from crypto yields to real estate. Complete privacy, brutal honesty, AI-powered insights." />
+      <meta property="og:type" content="website" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="OPEN FINDASH - Financial Domination" />
+      <meta name="twitter:description" content="The most comprehensive financial tracking system for crypto degens and finance analysis freaks." />
+
+      <div className="min-h-screen bg-background text-foreground font-mono">
+        {/* Header with transparency and backdrop blur */}
+        <header className="bg-background/80 backdrop-blur-md border-b-2 border-border sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-2">
+                <BarChart3 className="text-accent" size={28} />
+                <span className="text-2xl font-display font-bold uppercase tracking-wide">OPEN FINDASH</span>
+              </div>
+              <div className="flex items-center gap-4">
+                {onboardingOptions.map((option) => (
+                  <Link key={option.id} to={option.action}>
+                    <Button className="brutalist-button">
+                      {option.icon}
+                      <span className="hidden sm:inline ml-2">{option.title}</span>
+                    </Button>
+                  </Link>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-4">
+          </div>
+        </header>
+
+        <div className="max-w-7xl mx-auto px-4 py-12 space-y-16">
+          {/* Hero Section */}
+          <div className="text-center space-y-8">
+            <div className="space-y-6">
+              <h1 className="text-6xl font-display font-bold text-foreground leading-tight brutalist-heading">
+                HEY HOMIE!
+                <span className="text-accent block">ARE YOU A FINANCE</span>
+                <span className="text-accent block">ANALYSIS FREAK?</span>
+              </h1>
+              <div className="max-w-3xl mx-auto space-y-4">
+                <p className="text-xl text-muted-foreground font-mono">
+                  This is your place to be! Here you don't just plan your next goal -
+                  <span className="text-accent font-bold"> you get into the MATRIX of it!</span>
+                </p>
+                <p className="text-lg text-muted-foreground font-mono">
+                  Well, I guess you also like to track your crypto. 
+                  <span className="text-accent font-bold"> We're here for you, degen.</span>
+                </p>
+              </div>
+            </div>
+            
+            {/* Onboarding Choice Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {onboardingOptions.map((option) => (
                 <Link key={option.id} to={option.action}>
-                  <Button className="brutalist-button">
-                    {option.icon}
-                    <span className="hidden sm:inline ml-2">{option.title}</span>
-                  </Button>
+                  <Card className="brutalist-card hover:bg-accent/10 transition-all duration-200 cursor-pointer h-full">
+                    <CardHeader className="text-center">
+                      <div className="flex justify-center mb-3">
+                        {option.icon}
+                      </div>
+                      <CardTitle className="text-lg font-display brutalist-heading">
+                        {option.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground text-sm font-mono text-center">
+                        {option.description}
+                      </p>
+                    </CardContent>
+                  </Card>
                 </Link>
               ))}
             </div>
           </div>
-        </div>
-      </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-12 space-y-16">
-        {/* Hero Section */}
-        <div className="text-center space-y-8">
-          <div className="space-y-6">
-            <h1 className="text-6xl font-display font-bold text-foreground leading-tight brutalist-heading">
-              HEY HOMIE!
-              <span className="text-accent block">ARE YOU A FINANCE</span>
-              <span className="text-accent block">ANALYSIS FREAK?</span>
-            </h1>
-            <div className="max-w-3xl mx-auto space-y-4">
-              <p className="text-xl text-muted-foreground font-mono">
-                This is your place to be! Here you don't just plan your next goal -
-                <span className="text-accent font-bold"> you get into the MATRIX of it!</span>
-              </p>
-              <p className="text-lg text-muted-foreground font-mono">
-                Well, I guess you also like to track your crypto. 
-                <span className="text-accent font-bold"> We're here for you, degen.</span>
+          {/* Key Features Grid */}
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-4xl font-display font-bold text-foreground mb-4 brutalist-heading">
+                COMPREHENSIVE FINANCIAL DOMINATION
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto font-mono">
+                Everything you need to understand and <span className="text-accent">optimize</span> your financial situation in one brutal interface.
               </p>
             </div>
-          </div>
-          
-          {/* Onboarding Choice Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {onboardingOptions.map((option) => (
-              <Link key={option.id} to={option.action}>
-                <Card className="brutalist-card hover:bg-accent/10 transition-all duration-200 cursor-pointer h-full">
-                  <CardHeader className="text-center">
-                    <div className="flex justify-center mb-3">
-                      {option.icon}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {features.map((feature, index) => (
+                <Card 
+                  key={index}
+                  className={`brutalist-card cursor-pointer transition-all duration-300 hover:bg-accent/10 ${
+                    activeFeature === index ? 'bg-accent/20 border-accent' : ''
+                  }`}
+                  onClick={() => setActiveFeature(index)}
+                >
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center space-x-3">
+                      {feature.icon}
+                      <CardTitle className="text-lg font-display brutalist-heading">{feature.title}</CardTitle>
                     </div>
-                    <CardTitle className="text-lg font-display brutalist-heading">
-                      {option.title}
-                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground text-sm font-mono text-center">
-                      {option.description}
-                    </p>
+                    <p className="text-muted-foreground text-sm font-mono">{feature.description}</p>
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Key Features Grid */}
-        <div className="space-y-8">
-          <div className="text-center">
-            <h2 className="text-4xl font-display font-bold text-foreground mb-4 brutalist-heading">
-              COMPREHENSIVE FINANCIAL DOMINATION
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto font-mono">
-              Everything you need to understand and <span className="text-accent">optimize</span> your financial situation in one brutal interface.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
-              <Card 
-                key={index}
-                className={`brutalist-card cursor-pointer transition-all duration-300 hover:bg-accent/10 ${
-                  activeFeature === index ? 'bg-accent/20 border-accent' : ''
-                }`}
-                onClick={() => setActiveFeature(index)}
-              >
-                <CardHeader className="pb-4">
-                  <div className="flex items-center space-x-3">
-                    {feature.icon}
-                    <CardTitle className="text-lg font-display brutalist-heading">{feature.title}</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-sm font-mono">{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Start Guide */}
-        <div className="space-y-8">
-          <div className="text-center">
-            <h2 className="text-4xl font-display font-bold text-foreground mb-4 brutalist-heading">
-              QUICK START PROTOCOL
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto font-mono">
-              Get up and running in just a few minutes. <span className="text-accent">No bullshit, just pure efficiency.</span>
-            </p>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -387,7 +388,7 @@ const LandingPage = () => {
           </Link>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

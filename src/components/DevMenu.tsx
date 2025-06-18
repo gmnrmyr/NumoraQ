@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,78 +19,6 @@ import {
 } from 'lucide-react';
 
 const userProfiles = {
-  user1_gui: {
-    name: "Guilherme (GUI)",
-    description: "GUI's complete financial profile",
-    data: {
-      userProfile: {
-        name: "Gui",
-        defaultCurrency: "BRL" as const,
-        language: "en" as const
-      },
-      exchangeRates: {
-        brlToUsd: 0.18,
-        usdToBrl: 5.54,
-        btcPrice: 588300,
-        ethPrice: 14000
-      },
-      liquidAssets: [
-        { id: '1', name: 'BTC', value: 33500, icon: 'Bitcoin', color: 'text-orange-600', isActive: true },
-        { id: '2', name: 'Altcoins & NFT', value: 4500, icon: 'Coins', color: 'text-purple-600', isActive: true },
-        { id: '3', name: 'Banco', value: 100, icon: 'Banknote', color: 'text-green-600', isActive: true },
-        { id: '4', name: 'PXL DEX', value: 50000, icon: 'Coins', color: 'text-blue-600', isActive: false }
-      ],
-      illiquidAssets: [
-        { id: '1', name: 'Bens GUI', value: 50000, icon: 'Building', color: 'text-slate-600', isActive: true },
-        { id: '2', name: 'Bens Pais', value: 30000, icon: 'Building', color: 'text-slate-600', isActive: true }
-      ],
-      passiveIncome: [
-        { id: '1', source: 'Locação Macuco', amount: 6000, status: 'pending' as const, icon: 'Home', note: 'Não alugado ainda, simulado' },
-        { id: '2', source: 'Locação Laurindo', amount: 1600, status: 'active' as const, icon: 'Home' },
-        { id: '3', source: 'Aposentadoria Mãe', amount: 1518, status: 'active' as const, icon: 'User' },
-        { id: '4', source: 'Locação Ataliba', amount: 1300, status: 'active' as const, icon: 'Home' },
-        { id: '5', source: 'Apoio da IRA', amount: 1000, status: 'active' as const, icon: 'Heart' },
-        { id: '6', source: 'Aposentadoria Pai', amount: 0, status: 'pending' as const, icon: 'User' }
-      ],
-      activeIncome: [
-        { id: '1', source: 'Freelas Pai', amount: 600, status: 'active' as const, icon: 'Briefcase' },
-        { id: '2', source: 'CLT GUI (Gestor Seller)', amount: 1800, status: 'active' as const, icon: 'Briefcase' },
-        { id: '3', source: 'Freelas GUI', amount: 600, status: 'active' as const, icon: 'Briefcase' }
-      ],
-      expenses: [
-        { id: '1', name: 'Condomínio Macuco', amount: 1117, category: 'Vacância', type: 'recurring' as const, status: 'active' as const },
-        { id: '2', name: 'Locação Taubaté', amount: 2800, category: 'Moradia', type: 'recurring' as const, status: 'active' as const },
-        { id: '3', name: 'Convênio GUI', amount: 1163, category: 'Saúde', type: 'recurring' as const, status: 'active' as const },
-        { id: '4', name: 'Convênio Mãe', amount: 1295, category: 'Saúde', type: 'recurring' as const, status: 'active' as const },
-        { id: '5', name: 'Cannabis GUI', amount: 1000, category: 'Vícios', type: 'recurring' as const, status: 'active' as const },
-        { id: '6', name: 'Internet Vivo', amount: 90, category: 'Serviços', type: 'recurring' as const, status: 'active' as const },
-        { id: '7', name: 'Goró Pai', amount: 100, category: 'Vícios', type: 'recurring' as const, status: 'active' as const },
-        { id: '8', name: 'IPVA (2)', amount: 100, category: 'Imposto', type: 'recurring' as const, status: 'active' as const },
-        { id: '9', name: 'Mercado - Limpeza', amount: 200, category: 'Higiene', type: 'recurring' as const, status: 'active' as const },
-        { id: '10', name: 'IPTU (3)', amount: 200, category: 'Imposto', type: 'recurring' as const, status: 'active' as const },
-        { id: '11', name: 'Planos Celulares', amount: 270, category: 'Serviços', type: 'recurring' as const, status: 'active' as const },
-        { id: '12', name: 'Reforma Macuco', amount: 7100, category: 'Reforma', type: 'variable' as const, status: 'active' as const },
-        { id: '13', name: 'Cartão Inter GUI', amount: 4600, category: 'Cartão', type: 'variable' as const, status: 'active' as const }
-      ],
-      tasks: [
-        { id: '1', item: 'Exames', date: 'Domingo', priority: 1, icon: 'User', completed: false },
-        { id: '2', item: 'Encontrar carteira de trabalho', date: 'Segunda', priority: 2, icon: 'FileText', completed: false },
-        { id: '3', item: 'Consulta Psiquiatra', date: 'Julho', priority: 5, icon: 'User', completed: false },
-        { id: '4', item: 'Pagar contas pendentes', date: 'Urgente', priority: 7, icon: 'CreditCard', completed: false },
-        { id: '5', item: 'Fotografar móveis/scooter', date: 'Esta semana', priority: 8, icon: 'Camera', completed: false }
-      ],
-      debts: [
-        { id: '1', creditor: 'Goodstorage Avaria', amount: 1200, dueDate: 'INDEF', status: 'pending' as const, icon: 'Home', description: 'Storage damage compensation', isActive: true },
-        { id: '2', creditor: 'Devo Mãe', amount: 2000, dueDate: 'INDEF', status: 'pending' as const, icon: 'User', description: 'Condomínio, convênio, etc', isActive: true },
-        { id: '3', creditor: 'Devo Fernando', amount: 5000, dueDate: 'INDEF', status: 'pending' as const, icon: 'User', description: 'Personal loan', isActive: true }
-      ],
-      properties: [
-        { id: '1', name: 'Laurindo', value: 230400, status: 'rented' as const, currentRent: 1600, statusIcon: '✅', statusText: 'Alugado', prediction: 'Atual', rentRange: 'R$ 1.600' },
-        { id: '2', name: 'Macuco (Moema)', value: 1050000, status: 'renovating' as const, currentRent: 0, expectedRent: 6000, statusIcon: '🔄', statusText: 'Reformando', prediction: 'outubro/2025', rentRange: 'R$ 6.000' },
-        { id: '3', name: 'Ataliba (comercial)', value: 206220, minValue: 172440, maxValue: 240000, status: 'planned' as const, currentRent: 0, expectedRent: 1750, statusIcon: '📋', statusText: 'Planejado', prediction: '2027', rentRange: 'R$ 1.500-2.000' }
-      ]
-    }
-  },
   user2_fe: {
     name: "Fernanda (FE)",
     description: "Random test profile for development",
@@ -139,6 +68,31 @@ const userProfiles = {
         { id: '1', name: 'Apartamento Centro', value: 350000, status: 'rented' as const, currentRent: 2500, statusIcon: '✅', statusText: 'Alugado', prediction: 'Atual', rentRange: 'R$ 2.500' }
       ]
     }
+  },
+  starter: {
+    name: "Starter Profile",
+    description: "Clean starter profile for new users",
+    data: {
+      userProfile: {
+        name: "New User",
+        defaultCurrency: "USD" as const,
+        language: "en" as const
+      },
+      exchangeRates: {
+        brlToUsd: 0.18,
+        usdToBrl: 5.54,
+        btcPrice: 588300,
+        ethPrice: 14000
+      },
+      liquidAssets: [],
+      illiquidAssets: [],
+      passiveIncome: [],
+      activeIncome: [],
+      expenses: [],
+      tasks: [],
+      debts: [],
+      properties: []
+    }
   }
 };
 
@@ -165,12 +119,14 @@ export const DevMenu: React.FC = () => {
         toast({
           title: "Profile Loaded",
           description: `${profile.name} profile loaded successfully`,
+          duration: 2000,
         });
       } catch (error) {
         toast({
           title: "Profile Load Failed",
           description: "Could not load the selected profile",
           variant: "destructive",
+          duration: 2000,
         });
       }
     }
@@ -193,6 +149,7 @@ export const DevMenu: React.FC = () => {
     toast({
       title: "Test Data Generated",
       description: "Random test data has been loaded",
+      duration: 2000,
     });
   };
 
@@ -208,6 +165,7 @@ export const DevMenu: React.FC = () => {
     toast({
       title: "Data Exported",
       description: "Current data exported for development use",
+      duration: 2000,
     });
   };
 
@@ -232,13 +190,14 @@ export const DevMenu: React.FC = () => {
       toast({
         title: "Color Scheme Applied",
         description: `${colorScheme.name} filter applied`,
+        duration: 2000,
       });
     }
   };
 
   if (!isOpen) {
     return (
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed bottom-4 right-4 z-40">
         <Button
           onClick={() => setIsOpen(true)}
           variant="outline"
@@ -246,20 +205,20 @@ export const DevMenu: React.FC = () => {
           className="bg-slate-800 text-white hover:bg-slate-700 border-slate-600 shadow-lg"
         >
           <Settings size={16} />
-          <span className="ml-2">Dev Menu</span>
+          <span className="ml-2">Config</span>
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-80">
+    <div className="fixed bottom-4 right-4 z-40 w-80">
       <Card className="bg-slate-900 text-white border-slate-700 shadow-xl">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg text-white flex items-center gap-2">
               <TestTube size={18} />
-              Developer Menu
+              Configuration Panel
             </CardTitle>
             <Button
               onClick={() => setIsOpen(false)}
@@ -276,13 +235,13 @@ export const DevMenu: React.FC = () => {
           <div>
             <h4 className="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
               <User size={14} />
-              User Profiles
+              Test Profiles
             </h4>
             <Select value={selectedProfile} onValueChange={setSelectedProfile}>
               <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
-                <SelectValue placeholder="Select a user profile" />
+                <SelectValue placeholder="Select a test profile" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-600">
+              <SelectContent className="bg-slate-800 border-slate-600 z-50">
                 {Object.entries(userProfiles).map(([key, profile]) => (
                   <SelectItem key={key} value={key} className="text-white">
                     <div>
@@ -346,7 +305,7 @@ export const DevMenu: React.FC = () => {
               <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-600">
+              <SelectContent className="bg-slate-800 border-slate-600 z-50">
                 {Object.entries(colorSchemes).map(([key, scheme]) => (
                   <SelectItem key={key} value={key} className="text-white">
                     {scheme.name}

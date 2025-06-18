@@ -69,7 +69,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   return (
     <TooltipProvider>
       <nav 
-        className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b-2 border-border transition-transform duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b-2 border-border transition-transform duration-300 ${
           isVisible ? 'transform translate-y-0' : 'transform -translate-y-full'
         }`}
         onMouseEnter={() => setIsVisible(true)}
@@ -165,7 +165,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
 
           {/* Integrated Navigation - All screen sizes */}
           {user && activeTab && onTabChange && (
-            <div className="border-t-2 border-border bg-background/95 backdrop-blur-md">
+            <div className="border-t-2 border-border bg-background/80 backdrop-blur-md">
               <div className="px-2 py-2">
                 <Sheet open={isNavOpen} onOpenChange={setIsNavOpen}>
                   <SheetTrigger asChild>
@@ -182,7 +182,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
                       <span className="text-xs text-muted-foreground font-mono uppercase">{t.tapToSwitch}</span>
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="bottom" className="h-auto max-h-[80vh] bg-background border-t-2 border-border z-50">
+                  <SheetContent side="bottom" className="h-auto max-h-[80vh] bg-background/95 backdrop-blur-md border-t-2 border-border z-50">
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 p-4">
                       {tabs.map((tab) => {
                         const Icon = tab.icon;
