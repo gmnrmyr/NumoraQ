@@ -3,63 +3,64 @@ import { FinancialData } from './types';
 
 export const defaultData: FinancialData = {
   userProfile: {
-    name: "Gui",
-    defaultCurrency: "BRL",
+    name: "Starter",
+    defaultCurrency: "USD",
     language: "en"
   },
   projectionMonths: 12,
   exchangeRates: {
     brlToUsd: 0.18,
     usdToBrl: 5.54,
-    btcPrice: 588300,
-    ethPrice: 14000,
+    btcPrice: 100000,
+    ethPrice: 2500,
     lastUpdated: new Date().toISOString()
   },
   liquidAssets: [
-    { id: '1', name: 'BTC', value: 33500, icon: 'Bitcoin', color: 'text-orange-600', isActive: true },
-    { id: '2', name: 'Altcoins & NFT', value: 4500, icon: 'Coins', color: 'text-purple-600', isActive: true },
-    { id: '3', name: 'Banco', value: 100, icon: 'Banknote', color: 'text-green-600', isActive: true },
-    { id: '4', name: 'PXL DEX', value: 50000, icon: 'Coins', color: 'text-blue-600', isActive: false }
+    { id: '1', name: 'Checking Account', value: 3200, icon: 'Banknote', color: 'text-green-600', isActive: true },
+    { id: '2', name: 'Savings Account', value: 8500, icon: 'PiggyBank', color: 'text-blue-600', isActive: true },
+    { id: '3', name: 'Bitcoin', value: 2800, icon: 'Bitcoin', color: 'text-orange-600', isActive: true },
+    { id: '4', name: 'Emergency Fund', value: 12000, icon: 'Shield', color: 'text-purple-600', isActive: true }
   ],
   illiquidAssets: [
-    { id: '1', name: 'Bens GUI', value: 50000, icon: 'Building', color: 'text-slate-600', isActive: true },
-    { id: '2', name: 'Bens Pais', value: 30000, icon: 'Building', color: 'text-slate-600', isActive: true }
+    { id: '1', name: '401k Retirement', value: 45000, icon: 'TrendingUp', color: 'text-green-700', isActive: true },
+    { id: '2', name: 'Stock Portfolio', value: 18500, icon: 'BarChart3', color: 'text-blue-700', isActive: true },
+    { id: '3', name: 'Home Equity', value: 85000, icon: 'Home', color: 'text-slate-600', isActive: true }
   ],
   passiveIncome: [
-    { id: '1', source: 'Locação Macuco', amount: 6000, status: 'pending', icon: 'Home', note: 'Not rented yet, simulated' },
-    { id: '2', source: 'Locação Laurindo', amount: 1600, status: 'active', icon: 'Home' },
-    { id: '3', source: 'Aposentadoria Mãe', amount: 1518, status: 'active', icon: 'User' },
-    { id: '4', source: 'Locação Ataliba', amount: 1300, status: 'active', icon: 'Home' },
-    { id: '5', source: 'Apoio da IRA', amount: 1000, status: 'active', icon: 'Heart' },
-    { id: '6', source: 'Aposentadoria Pai', amount: 0, status: 'pending', icon: 'User' }
+    { id: '1', source: 'Dividend Income', amount: 120, status: 'active', icon: 'TrendingUp', note: 'From stock portfolio' },
+    { id: '2', source: 'Interest Savings', amount: 45, status: 'active', icon: 'DollarSign' },
+    { id: '3', source: 'Rental Property', amount: 800, status: 'pending', icon: 'Home', note: 'Property under renovation' }
   ],
   activeIncome: [
-    { id: '1', source: 'Freelas Pai', amount: 600, status: 'active', icon: 'Briefcase' },
-    { id: '2', source: 'CLT GUI (Gestor Seller)', amount: 1800, status: 'active', icon: 'Briefcase' },
-    { id: '3', source: 'Freelas GUI', amount: 600, status: 'active', icon: 'Briefcase' }
+    { id: '1', source: 'Software Engineer Salary', amount: 4500, status: 'active', icon: 'Briefcase' },
+    { id: '2', source: 'Freelance Projects', amount: 800, status: 'active', icon: 'Code' },
+    { id: '3', source: 'Part-time Consulting', amount: 1200, status: 'active', icon: 'Users' }
   ],
   expenses: [
-    { id: '1', name: 'Condomínio Macuco', amount: 1117, category: 'Vacância', type: 'recurring', status: 'active' },
-    { id: '2', name: 'Locação Taubaté', amount: 2800, category: 'Moradia', type: 'recurring', status: 'active' },
-    { id: '3', name: 'Convênio GUI', amount: 1163, category: 'Saúde', type: 'recurring', status: 'active' },
-    { id: '4', name: 'Cannabis GUI', amount: 1000, category: 'Vícios', type: 'recurring', status: 'active' },
-    { id: '5', name: 'Reforma Macuco', amount: 7100, category: 'Reforma', type: 'variable', status: 'active' },
-    { id: '6', name: 'Cartão Inter GUI', amount: 4600, category: 'Cartão', type: 'variable', status: 'active' }
+    { id: '1', name: 'Rent/Mortgage', amount: 1800, category: 'Housing', type: 'recurring', status: 'active' },
+    { id: '2', name: 'Groceries', amount: 450, category: 'Food', type: 'recurring', status: 'active' },
+    { id: '3', name: 'Car Payment', amount: 380, category: 'Transportation', type: 'recurring', status: 'active' },
+    { id: '4', name: 'Health Insurance', amount: 320, category: 'Healthcare', type: 'recurring', status: 'active' },
+    { id: '5', name: 'Utilities', amount: 180, category: 'Housing', type: 'recurring', status: 'active' },
+    { id: '6', name: 'Phone Bill', amount: 85, category: 'Utilities', type: 'recurring', status: 'active' },
+    { id: '7', name: 'Vacation Fund', amount: 2500, category: 'Travel', type: 'variable', status: 'active' },
+    { id: '8', name: 'Home Improvements', amount: 1800, category: 'Housing', type: 'variable', status: 'active' }
   ],
   tasks: [
-    { id: '1', item: 'Exames', date: 'Domingo', priority: 1, icon: 'User', completed: false },
-    { id: '2', item: 'Encontrar carteira de trabalho', date: 'Segunda', priority: 2, icon: 'FileText', completed: false },
-    { id: '3', item: 'Consulta Psiquiatra', date: 'Julho', priority: 5, icon: 'User', completed: false }
+    { id: '1', item: 'Review 401k contributions', date: 'This Week', priority: 1, icon: 'TrendingUp', completed: false },
+    { id: '2', item: 'Set up emergency fund auto-transfer', date: 'Next Week', priority: 2, icon: 'Shield', completed: false },
+    { id: '3', item: 'Research high-yield savings accounts', date: 'This Month', priority: 3, icon: 'Search', completed: false },
+    { id: '4', item: 'Update insurance beneficiaries', date: 'This Quarter', priority: 4, icon: 'FileText', completed: false }
   ],
   debts: [
-    { id: '1', creditor: 'Goodstorage Avaria', amount: 1200, dueDate: 'INDEF', status: 'pending', icon: 'Home', description: 'Storage damage compensation', isActive: true },
-    { id: '2', creditor: 'Devo Mãe', amount: 2000, dueDate: 'INDEF', status: 'pending', icon: 'User', description: 'Family loan - various expenses', isActive: true },
-    { id: '3', creditor: 'Devo Fernando', amount: 5000, dueDate: 'INDEF', status: 'pending', icon: 'User', description: 'Personal loan', isActive: true }
+    { id: '1', creditor: 'Student Loan Federal', amount: 15200, dueDate: '2029-05-15', status: 'active', icon: 'GraduationCap', description: 'Federal student loan at 4.2% APR', isActive: true },
+    { id: '2', creditor: 'Credit Card Visa', amount: 2800, dueDate: '2024-07-15', status: 'active', icon: 'CreditCard', description: 'Chase Visa - 18.9% APR', isActive: true },
+    { id: '3', creditor: 'Car Loan', amount: 18500, dueDate: '2027-03-20', status: 'active', icon: 'Car', description: 'Auto loan at 5.8% APR', isActive: true }
   ],
   properties: [
-    { id: '1', name: 'Laurindo', value: 230400, status: 'rented', currentRent: 1600, statusIcon: '✅', statusText: 'Alugado', prediction: 'Atual', rentRange: 'R$ 1.600' },
-    { id: '2', name: 'Macuco (Moema)', value: 1050000, status: 'renovating', currentRent: 0, expectedRent: 6000, statusIcon: '🔄', statusText: 'Reformando', prediction: 'outubro/2025', rentRange: 'R$ 6.000' },
-    { id: '3', name: 'Ataliba (comercial)', value: 206220, minValue: 172440, maxValue: 240000, status: 'planned', currentRent: 0, expectedRent: 1750, statusIcon: '📋', statusText: 'Planejado', prediction: '2027', rentRange: 'R$ 1.500-2.000' }
+    { id: '1', name: 'Primary Residence', value: 385000, status: 'owned', currentRent: 0, statusIcon: '🏠', statusText: 'Owned', prediction: 'Current', rentRange: 'N/A' },
+    { id: '2', name: 'Rental Property (Downtown)', value: 220000, status: 'renovating', currentRent: 0, expectedRent: 1800, statusIcon: '🔄', statusText: 'Renovating', prediction: 'Spring 2025', rentRange: '$1,600-2,000' },
+    { id: '3', name: 'Vacation Rental (Mountains)', value: 180000, minValue: 165000, maxValue: 195000, status: 'planned', currentRent: 0, expectedRent: 150, statusIcon: '📋', statusText: 'Planned', prediction: '2026', rentRange: '$120-180/night' }
   ],
   version: '1.0.0',
   createdAt: new Date().toISOString(),
