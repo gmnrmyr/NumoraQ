@@ -68,6 +68,8 @@ export const es: Translations = {
   
   liquidAssets: 'Activos Líquidos',
   illiquidAssets: 'Activos Ilíquidos',
+  liquid: 'Líquido',
+  illiquid: 'Ilíquido',
   realEstate: 'Bienes Raíces',
   investments: 'Inversiones',
   
@@ -97,6 +99,7 @@ export const es: Translations = {
   date: 'Fecha',
   priority: 'Prioridad',
   notes: 'Notas',
+  name: 'Nombre',
   
   noDataYet: 'Sin datos aún',
   addFirstItem: 'Agrega tu primer elemento',
@@ -128,4 +131,12 @@ export const es: Translations = {
   totalImpact: 'Impacto Total',
   expenseSummary: 'Resumen de Gastos',
   tapToSwitch: 'Toca para cambiar',
+  
+  // Debt-specific terms
+  creditor: 'Acreedor',
+  dueDate: 'Fecha de Vencimiento',
+  status: 'Estado',
+  partial: 'Parcial',
+  paid: 'Pagado',
+  due: 'Vencimiento',
 };

@@ -68,6 +68,8 @@ export const pt: Translations = {
   
   liquidAssets: 'Ativos Líquidos',
   illiquidAssets: 'Ativos Ilíquidos',
+  liquid: 'Líquido',
+  illiquid: 'Ilíquido',
   realEstate: 'Imóveis',
   investments: 'Investimentos',
   
@@ -97,6 +99,7 @@ export const pt: Translations = {
   date: 'Data',
   priority: 'Prioridade',
   notes: 'Notas',
+  name: 'Nome',
   
   noDataYet: 'Nenhum dado ainda',
   addFirstItem: 'Adicione seu primeiro item',
@@ -127,5 +130,13 @@ export const pt: Translations = {
   combinedActiveExpenses: 'Despesas ativas combinadas',
   totalImpact: 'Impacto Total',
   expenseSummary: 'Resumo de Despesas',
-  tapToSwitch: 'Toque para alternar'
+  tapToSwitch: 'Toque para alternar',
+  
+  // Debt-specific terms
+  creditor: 'Credor',
+  dueDate: 'Data de Vencimento',
+  status: 'Status',
+  partial: 'Parcial',
+  paid: 'Pago',
+  due: 'Vencimento',
 };

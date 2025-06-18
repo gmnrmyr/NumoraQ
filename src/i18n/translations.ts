@@ -72,6 +72,8 @@ const fr: Translations = {
   
   liquidAssets: 'Actifs Liquides',
   illiquidAssets: 'Actifs Illiquides',
+  liquid: 'Liquide',
+  illiquid: 'Illiquide',
   realEstate: 'Immobilier',
   investments: 'Investissements',
   
@@ -101,6 +103,7 @@ const fr: Translations = {
   date: 'Date',
   priority: 'Priorité',
   notes: 'Notes',
+  name: 'Nom',
   
   noDataYet: 'Aucune donnée pour le moment',
   addFirstItem: 'Ajoutez votre premier élément',
@@ -132,6 +135,14 @@ const fr: Translations = {
   totalImpact: 'Impact Total',
   expenseSummary: 'Résumé des Dépenses',
   tapToSwitch: 'Appuyez pour changer',
+  
+  // Debt-specific terms
+  creditor: 'Créancier',
+  dueDate: 'Date d\'Échéance',
+  status: 'Statut',
+  partial: 'Partiel',
+  paid: 'Payé',
+  due: 'Échéance',
 };
 
 const de: Translations = {
@@ -201,6 +212,8 @@ const de: Translations = {
   
   liquidAssets: 'Liquide Vermögenswerte',
   illiquidAssets: 'Illiquide Vermögenswerte',
+  liquid: 'Liquide',
+  illiquid: 'Illiquide',
   realEstate: 'Immobilien',
   investments: 'Investitionen',
   
@@ -230,6 +243,7 @@ const de: Translations = {
   date: 'Datum',
   priority: 'Priorität',
   notes: 'Notizen',
+  name: 'Name',
   
   noDataYet: 'Noch keine Daten',
   addFirstItem: 'Fügen Sie Ihr erstes Element hinzu',
@@ -261,6 +275,14 @@ const de: Translations = {
   totalImpact: 'Gesamtauswirkung',
   expenseSummary: 'Ausgabenübersicht',
   tapToSwitch: 'Tippen zum Wechseln',
+  
+  // Debt-specific terms
+  creditor: 'Gläubiger',
+  dueDate: 'Fälligkeitsdatum',
+  status: 'Status',
+  partial: 'Teilweise',
+  paid: 'Bezahlt',
+  due: 'Fällig',
 };
 
 export const translations: Record<Language, Translations> = {
