@@ -73,7 +73,7 @@ export const DebtTrackingEditable = () => {
             <div>
               <CardTitle className="text-red-400 text-sm sm:text-base font-mono uppercase flex items-center gap-2">
                 <AlertTriangle size={20} />
-                {t.debts || "DEBT TRACKING"}
+                {t.debt || "DEBT TRACKING"}
               </CardTitle>
               <div className="text-lg sm:text-2xl font-bold text-red-400 font-mono">
                 $ {totalDebt.toLocaleString()}
