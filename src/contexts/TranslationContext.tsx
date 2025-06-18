@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Language, Translations, getTranslation } from '@/i18n/translations';
 
@@ -11,7 +10,7 @@ interface TranslationContextType {
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
 
 export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>('en'); // Default to English
   const [t, setT] = useState<Translations>(getTranslation('en'));
 
   const setLanguage = (newLanguage: Language) => {
@@ -25,10 +24,13 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     if (savedLanguage && ['en', 'pt', 'es', 'fr', 'de'].includes(savedLanguage)) {
       setLanguage(savedLanguage);
     } else {
-      // Auto-detect browser language
+      // Auto-detect browser language but default to English
       const browserLang = navigator.language.split('-')[0] as Language;
-      if (['en', 'pt', 'es', 'fr', 'de'].includes(browserLang)) {
+      if (['pt', 'es', 'fr', 'de'].includes(browserLang)) {
         setLanguage(browserLang);
+      } else {
+        // Keep English as default for any other language
+        setLanguage('en');
       }
     }
   }, []);
