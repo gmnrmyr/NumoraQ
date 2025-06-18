@@ -34,9 +34,9 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
 
   return (
-    <>
+    <div className="min-h-screen bg-background text-foreground font-mono">
       <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="min-h-screen bg-background text-foreground font-mono pt-20 sm:pt-28 pb-4">
+      <div className="pt-20 sm:pt-28 pb-4">
         <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
           <DashboardHeader />
           <UserProfileSection />
@@ -81,7 +81,7 @@ const Dashboard = () => {
         <DevMenu />
       </div>
       <Footer />
-    </>
+    </div>
   );
 };
 
