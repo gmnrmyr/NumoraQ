@@ -80,6 +80,8 @@ export interface Translations {
   // Asset types
   liquidAssets: string;
   illiquidAssets: string;
+  liquid: string;
+  illiquid: string;
   realEstate: string;
   investments: string;
   
@@ -112,6 +114,7 @@ export interface Translations {
   date: string;
   priority: string;
   notes: string;
+  name: string;
   
   // Messages
   noDataYet: string;
@@ -146,4 +149,12 @@ export interface Translations {
   totalImpact: string;
   expenseSummary: string;
   tapToSwitch: string;
+  
+  // Debt-specific terms
+  creditor: string;
+  dueDate: string;
+  status: string;
+  partial: string;
+  paid: string;
+  due: string;
 }

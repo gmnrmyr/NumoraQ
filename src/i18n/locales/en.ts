@@ -68,6 +68,8 @@ export const en: Translations = {
   
   liquidAssets: 'Liquid Assets',
   illiquidAssets: 'Illiquid Assets',
+  liquid: 'Liquid',
+  illiquid: 'Illiquid',
   realEstate: 'Real Estate',
   investments: 'Investments',
   
@@ -97,6 +99,7 @@ export const en: Translations = {
   date: 'Date',
   priority: 'Priority',
   notes: 'Notes',
+  name: 'Name',
   
   noDataYet: 'No data yet',
   addFirstItem: 'Add your first item',
@@ -128,4 +131,12 @@ export const en: Translations = {
   totalImpact: 'Total Impact',
   expenseSummary: 'Expense Summary',
   tapToSwitch: 'Tap to switch',
+  
+  // Debt-specific terms
+  creditor: 'Creditor',
+  dueDate: 'Due Date',
+  status: 'Status',
+  partial: 'Partial',
+  paid: 'Paid',
+  due: 'Due',
 };
