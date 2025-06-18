@@ -34,5 +34,6 @@
       "type": "image/svg+xml",
       "form_factor": "wide"
     }
-  ]
+  ],
+  "prefer_related_applications": false
 }
