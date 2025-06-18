@@ -25,12 +25,13 @@ export const LiquidAssetsCard = () => {
     name: '',
     value: 0,
     icon: 'Coins',
-    color: 'text-blue-600',
+    color: 'text-accent',
     isActive: true
   });
   const [isAddingLiquid, setIsAddingLiquid] = useState(false);
   const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
   const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  
   const handleAddLiquidAsset = () => {
     if (newLiquidAsset.name.trim()) {
       addLiquidAsset(newLiquidAsset);
@@ -38,112 +39,155 @@ export const LiquidAssetsCard = () => {
         name: '',
         value: 0,
         icon: 'Coins',
-        color: 'text-blue-600',
+        color: 'text-accent',
         isActive: true
       });
       setIsAddingLiquid(false);
     }
   };
-  return <Card className="bg-green-50 border-green-200 py-0 px-0 rounded-none">
+
+  return (
+    <Card className="bg-card/80 backdrop-blur-sm border-accent border-2">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-green-800 flex items-center gap-2">
+          <CardTitle className="text-accent flex items-center gap-2 font-mono uppercase">
             <Coins size={20} />
             {t.liquidAssets}
           </CardTitle>
           <Dialog open={isAddingLiquid} onOpenChange={setIsAddingLiquid}>
             <DialogTrigger asChild>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
                 <Plus size={16} />
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="bg-card border-accent border-2">
               <DialogHeader>
-                <DialogTitle>{t.add} {t.liquidAssets}</DialogTitle>
+                <DialogTitle className="font-mono uppercase text-foreground">{t.add} {t.liquidAssets}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <Input placeholder={t.description} value={newLiquidAsset.name} onChange={e => setNewLiquidAsset({
-                ...newLiquidAsset,
-                name: e.target.value
-              })} />
-                <Input type="number" placeholder={t.amount} value={newLiquidAsset.value} onChange={e => setNewLiquidAsset({
-                ...newLiquidAsset,
-                value: parseFloat(e.target.value) || 0
-              })} />
-                <IconSelector value={newLiquidAsset.icon} onChange={value => setNewLiquidAsset({
-                ...newLiquidAsset,
-                icon: value
-              })} placeholder="Choose an icon" />
-                <Button onClick={handleAddLiquidAsset} className="w-full">
+                <Input 
+                  placeholder={t.description} 
+                  value={newLiquidAsset.name} 
+                  onChange={e => setNewLiquidAsset({
+                    ...newLiquidAsset,
+                    name: e.target.value
+                  })} 
+                  className="bg-input border-border border-2 text-foreground font-mono"
+                />
+                <Input 
+                  type="number" 
+                  placeholder={t.amount} 
+                  value={newLiquidAsset.value} 
+                  onChange={e => setNewLiquidAsset({
+                    ...newLiquidAsset,
+                    value: parseFloat(e.target.value) || 0
+                  })} 
+                  className="bg-input border-border border-2 text-foreground font-mono"
+                />
+                <IconSelector 
+                  value={newLiquidAsset.icon} 
+                  onChange={value => setNewLiquidAsset({
+                    ...newLiquidAsset,
+                    icon: value
+                  })} 
+                  placeholder="Choose an icon" 
+                />
+                <Button onClick={handleAddLiquidAsset} className="w-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono uppercase">
                   {t.add}
                 </Button>
               </div>
             </DialogContent>
           </Dialog>
         </div>
-        <div className="text-2xl font-bold text-green-700">
+        <div className="text-2xl font-bold text-accent font-mono">
           {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalLiquid.toLocaleString()}
         </div>
-        <div className="text-xs text-green-600">
+        <div className="text-xs text-muted-foreground font-mono">
           {data.liquidAssets.length - activeLiquidAssets.length} {t.inactive.toLowerCase()} {t.assets.toLowerCase()}
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 overflow-x-auto">
         {data.liquidAssets.map(asset => {
-        const Icon = iconMap[asset.icon] || Coins;
-        const percentage = totalLiquid > 0 ? asset.value / totalLiquid * 100 : 0;
-        return <div key={asset.id} className={`space-y-2 ${!asset.isActive ? 'opacity-50' : ''}`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Select value={asset.icon} onValueChange={value => updateLiquidAsset(asset.id, {
-                icon: value
-              })}>
-                    <SelectTrigger className="w-12 h-8 p-1 border-none">
+          const Icon = iconMap[asset.icon] || Coins;
+          const percentage = totalLiquid > 0 ? asset.value / totalLiquid * 100 : 0;
+          
+          return (
+            <div key={asset.id} className={`space-y-2 min-w-0 ${!asset.isActive ? 'opacity-50' : ''}`}>
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <Select value={asset.icon} onValueChange={value => updateLiquidAsset(asset.id, { icon: value })}>
+                    <SelectTrigger className="w-12 h-8 p-1 border-border bg-input">
                       <Icon size={16} className={asset.color} />
                     </SelectTrigger>
-                    <SelectContent className="max-h-80">
-                      {Object.entries(groupedIcons).map(([category, icons]) => <div key={category}>
-                          <div className="px-2 py-1.5 text-sm font-semibold text-slate-600 bg-slate-50">
+                    <SelectContent className="max-h-80 bg-card border-border border-2">
+                      {Object.entries(groupedIcons).map(([category, icons]) => (
+                        <div key={category}>
+                          <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground bg-muted font-mono uppercase">
                             {category}
                           </div>
                           {icons.map(iconOption => {
-                      const IconComponent = iconMap[iconOption.value];
-                      return <SelectItem key={iconOption.value} value={iconOption.value}>
+                            const IconComponent = iconMap[iconOption.value];
+                            return (
+                              <SelectItem key={iconOption.value} value={iconOption.value} className="font-mono">
                                 <div className="flex items-center gap-2">
                                   <IconComponent size={16} />
                                   <span>{iconOption.label}</span>
                                 </div>
-                              </SelectItem>;
-                    })}
-                        </div>)}
+                              </SelectItem>
+                            );
+                          })}
+                        </div>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <Input value={asset.name} onChange={e => updateLiquidAsset(asset.id, {
-                name: e.target.value
-              })} className="border-none p-0 font-medium bg-transparent w-32" />
-                  <Button onClick={() => updateLiquidAsset(asset.id, {
-                isActive: !asset.isActive
-              })} variant="outline" size="sm" className={asset.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}>
+                  <Input
+                    value={asset.name}
+                    onChange={e => updateLiquidAsset(asset.id, { name: e.target.value })}
+                    className="border-none p-0 font-medium bg-transparent flex-1 min-w-0 font-mono text-foreground"
+                  />
+                  <Button
+                    onClick={() => updateLiquidAsset(asset.id, { isActive: !asset.isActive })}
+                    variant="outline"
+                    size="sm"
+                    className={`whitespace-nowrap font-mono uppercase text-xs ${
+                      asset.isActive 
+                        ? "bg-accent/20 text-accent border-accent" 
+                        : "bg-muted text-muted-foreground border-muted-foreground"
+                    }`}
+                  >
                     {asset.isActive ? t.active : t.inactive}
                   </Button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-right">
-                    <div className="font-bold">
-                      {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} <EditableValue value={asset.value} onSave={value => updateLiquidAsset(asset.id, {
-                    value: Number(value)
-                  })} type="number" className="inline" />
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="text-right min-w-0">
+                    <div className="font-bold font-mono text-foreground text-sm">
+                      {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} 
+                      <EditableValue
+                        value={asset.value}
+                        onSave={value => updateLiquidAsset(asset.id, { value: Number(value) })}
+                        type="number"
+                        className="inline font-mono"
+                      />
                     </div>
-                    {asset.isActive && <div className="text-xs text-slate-600">{percentage.toFixed(1)}%</div>}
+                    {asset.isActive && (
+                      <div className="text-xs text-muted-foreground font-mono">{percentage.toFixed(1)}%</div>
+                    )}
                   </div>
-                  <Button onClick={() => removeLiquidAsset(asset.id)} variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                  <Button
+                    onClick={() => removeLiquidAsset(asset.id)}
+                    variant="outline"
+                    size="sm"
+                    className="text-red-400 hover:text-red-300 border-red-400 hover:border-red-300 bg-transparent flex-shrink-0"
+                  >
                     <Trash2 size={14} />
                   </Button>
                 </div>
               </div>
-              {asset.isActive && <Progress value={percentage} className="h-2" />}
-            </div>;
-      })}
+              {asset.isActive && <Progress value={percentage} className="h-2 bg-muted" />}
+            </div>
+          );
+        })}
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
