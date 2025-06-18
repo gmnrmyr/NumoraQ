@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,6 +19,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				mono: ['JetBrains Mono', 'Space Mono', 'monospace'],
+				display: ['Space Mono', 'monospace'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -64,9 +69,13 @@ export default {
 				}
 			},
 			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				lg: '0rem', // No border radius for brutalist design
+				md: '0rem',
+				sm: '0rem'
+			},
+			boxShadow: {
+				'brutalist': '6px 6px 0 hsl(var(--border))',
+				'brutalist-hover': '4px 4px 0 hsl(var(--accent) / 0.3)',
 			},
 			keyframes: {
 				'accordion-down': {
