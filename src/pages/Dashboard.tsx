@@ -253,29 +253,32 @@ const Dashboard = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <MobileNav activeTab={activeTab} onTabChange={setActiveTab} />
 
-            <TabsContent value="portfolio" className="space-y-6">
-              <PortfolioOverview />
-            </TabsContent>
+            {/* Add padding top on mobile to account for fixed nav */}
+            <div className="pt-16 md:pt-0">
+              <TabsContent value="portfolio" className="space-y-6">
+                <PortfolioOverview />
+              </TabsContent>
 
-            <TabsContent value="income" className="space-y-6">
-              <IncomeTracking />
-            </TabsContent>
+              <TabsContent value="income" className="space-y-6">
+                <IncomeTracking />
+              </TabsContent>
 
-            <TabsContent value="expenses" className="space-y-6">
-              <ExpenseTrackingEditable />
-            </TabsContent>
+              <TabsContent value="expenses" className="space-y-6">
+                <ExpenseTrackingEditable />
+              </TabsContent>
 
-            <TabsContent value="assets" className="space-y-6">
-              <AssetManagementEditable />
-            </TabsContent>
+              <TabsContent value="assets" className="space-y-6">
+                <AssetManagementEditable />
+              </TabsContent>
 
-            <TabsContent value="tasks" className="space-y-6">
-              <TaskManagementEditable />
-            </TabsContent>
+              <TabsContent value="tasks" className="space-y-6">
+                <TaskManagementEditable />
+              </TabsContent>
 
-            <TabsContent value="debt" className="space-y-6">
-              <DebtTrackingEditable />
-            </TabsContent>
+              <TabsContent value="debt" className="space-y-6">
+                <DebtTrackingEditable />
+              </TabsContent>
+            </div>
           </Tabs>
 
           <ProjectionChart />
