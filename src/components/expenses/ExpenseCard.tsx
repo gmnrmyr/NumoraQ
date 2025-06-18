@@ -28,16 +28,16 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
   const Icon = getCategoryIcon(expense.category);
   
   return (
-    <div className={`p-2 sm:p-3 bg-white rounded-lg shadow-sm border ${!expense.status || expense.status === 'inactive' ? 'opacity-60' : ''}`}>
+    <div className={`p-2 sm:p-3 bg-card border-2 border-border brutalist-card font-mono ${!expense.status || expense.status === 'inactive' ? 'opacity-60' : ''}`}>
       <div className="flex flex-col gap-2">
         {/* Top row - Icon, Name, Amount */}
         <div className="flex items-center gap-2">
-          <Icon size={16} className="text-gray-600 flex-shrink-0" />
+          <Icon size={16} className="text-muted-foreground flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <Input
               value={expense.name}
               onChange={(e) => onUpdate(expense.id, { name: e.target.value })}
-              className="border-none p-0 font-medium bg-transparent text-sm h-auto"
+              className="border-none p-0 font-medium bg-transparent text-sm h-auto font-mono bg-input border-2 border-border"
             />
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
@@ -46,7 +46,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
               value={expense.amount}
               onSave={(value) => onUpdate(expense.id, { amount: Number(value) })}
               type="number"
-              className="inline w-16 text-sm"
+              className="inline w-16 text-sm bg-input border-2 border-border font-mono"
             />
           </div>
         </div>
@@ -56,12 +56,12 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
           <div className="flex items-center gap-2 flex-1">
             {showCategory && (
               <Select value={expense.category} onValueChange={(value) => onUpdate(expense.id, { category: value })}>
-                <SelectTrigger className="w-20 h-6 text-xs border-slate-200">
+                <SelectTrigger className="w-20 h-6 text-xs bg-input border-2 border-border font-mono">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white z-50">
+                <SelectContent className="bg-card border-2 border-border z-50">
                   {categoryOptions.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
+                    <SelectItem key={option.value} value={option.value} className="font-mono hover:bg-accent hover:text-accent-foreground">
                       {option.label}
                     </SelectItem>
                   ))}
@@ -70,14 +70,14 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
             )}
             {expense.type === 'recurring' && (
               <div className="flex items-center gap-1">
-                <span>{t.day}:</span>
+                <span className="font-mono">{t.day}:</span>
                 <Input 
                   type="number" 
                   min={1} 
                   max={31} 
                   value={expense.day || ''} 
                   onChange={(e) => onUpdate(expense.id, { day: e.target.value })} 
-                  className="w-12 h-6 text-xs border-slate-200 px-1"
+                  className="w-12 h-6 text-xs bg-input border-2 border-border px-1 font-mono"
                   placeholder="1-31"
                 />
               </div>
@@ -93,7 +93,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
               onClick={() => onRemove(expense.id)}
               variant="outline"
               size="sm"
-              className="text-red-600 hover:text-red-700 p-1 h-6 w-6"
+              className="text-destructive hover:text-destructive-foreground hover:bg-destructive p-1 h-6 w-6 border-2 border-border font-mono"
             >
               <Trash2 size={12} />
             </Button>
