@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { BarChart3, Home, Signal, LogIn } from 'lucide-react';
+import { BarChart3, Home, Signal, LogIn, Menu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,13 +9,20 @@ import { useTranslation } from '@/contexts/TranslationContext';
 import { EditableValue } from '@/components/ui/editable-value';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { VersionBadge } from '@/components/VersionBadge';
 import { UserSettingsPanel } from '@/components/navbar/UserSettingsPanel';
 import { LanguageSelector } from '@/components/LanguageSelector';
 
-export const Navbar = () => {
+interface NavbarProps {
+  activeTab?: string;
+  onTabChange?: (value: string) => void;
+}
+
+export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isNavOpen, setIsNavOpen] = useState(false);
   const { data, updateUserProfile } = useFinancialData();
   const { user } = useAuth();
   const { loading: pricesLoading, isLiveDataEnabled, timeSinceLastUpdate } = useLivePrices();
@@ -47,6 +54,18 @@ export const Navbar = () => {
 
   const liveDataInfo = getLiveDataStatus();
 
+  // Navigation tabs for mobile
+  const tabs = [
+    { value: 'portfolio', label: t.portfolio, icon: BarChart3 },
+    { value: 'income', label: t.income, icon: Signal },
+    { value: 'expenses', label: t.expenses, icon: BarChart3 },
+    { value: 'assets', label: t.assets, icon: Home },
+    { value: 'tasks', label: t.tasks, icon: BarChart3 },
+    { value: 'debt', label: t.debt, icon: BarChart3 },
+  ];
+
+  const currentTab = tabs.find(tab => tab.value === activeTab);
+
   return (
     <TooltipProvider>
       <nav 
@@ -56,6 +75,7 @@ export const Navbar = () => {
         onMouseEnter={() => setIsVisible(true)}
       >
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          {/* Main Navbar */}
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo/Brand */}
             <div className="flex items-center space-x-2">
@@ -142,6 +162,51 @@ export const Navbar = () => {
               </div>
             </div>
           </div>
+
+          {/* Mobile Navigation - Integrated below main navbar */}
+          {user && activeTab && onTabChange && (
+            <div className="md:hidden border-t border-gray-200/50 bg-white/90">
+              <div className="px-2 py-2">
+                <Sheet open={isNavOpen} onOpenChange={setIsNavOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm" className="w-full flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Menu size={16} />
+                        {currentTab && (
+                          <>
+                            <currentTab.icon size={16} />
+                            <span className="truncate">{currentTab.label}</span>
+                          </>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-500">{t.tapToSwitch}</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="h-auto max-h-[80vh] bg-white z-50">
+                    <div className="grid grid-cols-2 gap-3 p-4">
+                      {tabs.map((tab) => {
+                        const Icon = tab.icon;
+                        return (
+                          <Button
+                            key={tab.value}
+                            variant={activeTab === tab.value ? "default" : "outline"}
+                            onClick={() => {
+                              onTabChange(tab.value);
+                              setIsNavOpen(false);
+                            }}
+                            className="flex items-center gap-2 p-4 h-auto flex-col"
+                          >
+                            <Icon size={20} />
+                            <span className="text-sm font-medium">{tab.label}</span>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
     </TooltipProvider>

@@ -24,8 +24,8 @@ const Index = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-16 sm:pt-20 pb-4">
+      <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-20 sm:pt-28 pb-4">
         <div className="max-w-7xl mx-auto space-y-3 sm:space-y-4 px-2 sm:px-4">
           <DashboardHeader />
           <UserProfileSection />
@@ -37,8 +37,7 @@ const Index = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
             <MobileNav activeTab={activeTab} onTabChange={setActiveTab} />
 
-            {/* Add padding top on mobile to account for fixed nav */}
-            <div className="pt-16 md:pt-0">
+            <div>
               <TabsContent value="portfolio" className="space-y-4 sm:space-y-6">
                 <PortfolioOverview />
               </TabsContent>
