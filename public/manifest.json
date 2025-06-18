@@ -1,12 +1,12 @@
 
 {
-  "name": "FinDash - Smart Financial Dashboard",
-  "short_name": "FinDash",
+  "name": "Open Findash - Smart Financial Dashboard",
+  "short_name": "Open Findash",
   "description": "Complete personal financial management dashboard for tracking assets, income, expenses, and financial projections.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
+  "background_color": "#141414",
+  "theme_color": "#00ff00",
   "orientation": "portrait-primary",
   "icons": [
     {

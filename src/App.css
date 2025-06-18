@@ -1,21 +1,27 @@
+
+/* Brutalist dark-only design - minimal overrides */
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'JetBrains Mono', monospace;
 }
 
+/* Remove any default styling that conflicts with brutalist design */
 .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
+  filter: none;
 }
+
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: brightness(1.2);
 }
 
 @keyframes logo-spin {
@@ -29,14 +35,21 @@
 
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+    animation: none; /* Remove spinning animation for brutalist aesthetic */
   }
 }
 
 .card {
-  padding: 2em;
+  padding: 0; /* Remove default padding, let components handle it */
+  background: hsl(var(--card));
+  border: 2px solid hsl(var(--border));
 }
 
 .read-the-docs {
-  color: #888;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Ensure all text uses monospace */
+* {
+  font-family: 'JetBrains Mono', 'Space Mono', monospace;
 }

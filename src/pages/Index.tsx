@@ -23,10 +23,10 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
 
   return (
-    <>
+    <div className="min-h-screen bg-background text-foreground font-mono">
       <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-20 sm:pt-28 pb-4">
-        <div className="max-w-7xl mx-auto space-y-3 sm:space-y-4 px-2 sm:px-4">
+      <div className="pt-20 sm:pt-28 pb-4">
+        <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
           <DashboardHeader />
           <UserProfileSection />
           <DataManagementSection />
@@ -34,31 +34,31 @@ const Index = () => {
           <MetricsOverview />
           <ProjectionCard />
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <MobileNav activeTab={activeTab} onTabChange={setActiveTab} />
 
             <div>
-              <TabsContent value="portfolio" className="space-y-4 sm:space-y-6">
+              <TabsContent value="portfolio" className="space-y-6">
                 <PortfolioOverview />
               </TabsContent>
 
-              <TabsContent value="income" className="space-y-4 sm:space-y-6">
+              <TabsContent value="income" className="space-y-6">
                 <IncomeTracking />
               </TabsContent>
 
-              <TabsContent value="expenses" className="space-y-4 sm:space-y-6">
+              <TabsContent value="expenses" className="space-y-6">
                 <ExpenseTrackingEditable />
               </TabsContent>
 
-              <TabsContent value="assets" className="space-y-4 sm:space-y-6">
+              <TabsContent value="assets" className="space-y-6">
                 <AssetManagementEditable />
               </TabsContent>
 
-              <TabsContent value="tasks" className="space-y-4 sm:space-y-6">
+              <TabsContent value="tasks" className="space-y-6">
                 <TaskManagementEditable />
               </TabsContent>
 
-              <TabsContent value="debt" className="space-y-4 sm:space-y-6">
+              <TabsContent value="debt" className="space-y-6">
                 <DebtTrackingEditable />
               </TabsContent>
             </div>
@@ -70,7 +70,7 @@ const Index = () => {
         <DevMenu />
       </div>
       <Footer />
-    </>
+    </div>
   );
 };
 
