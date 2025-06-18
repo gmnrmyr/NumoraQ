@@ -47,14 +47,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange }) 
                 {currentTab && (
                   <>
                     <currentTab.icon size={16} />
-                    <span>{currentTab.label}</span>
+                    <span className="truncate">{currentTab.label}</span>
                   </>
                 )}
               </div>
-              <span className="text-xs text-gray-500">Tap to switch</span>
+              <span className="text-xs text-gray-500">{t.tapToSwitch}</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-auto max-h-[80vh]">
+          <SheetContent side="bottom" className="h-auto max-h-[80vh] bg-white z-50">
             <div className="grid grid-cols-2 gap-3 p-4">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
@@ -90,7 +90,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange }) 
                 className="flex items-center gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-blue-600"
               >
                 <Icon size={14} />
-                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="hidden sm:inline truncate">{tab.label}</span>
               </TabsTrigger>
             );
           })}

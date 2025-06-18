@@ -4,17 +4,20 @@
 ## COMPLETED ✅
 - ✅ Fixed ETH price display in exchange rates banner
 - ✅ Improved mobile optimization for expense cards
-- ✅ Added expense categories (housing, health, food, transportation, entertainment, utilities, personal, travel, other)
+- ✅ Added expense categories (housing, health, food, transportation, entertainment, utilities, personal, travel, trips, other)
 - ✅ Enhanced mobile navigation with better section indication
 - ✅ Made data management section collapsible
 - ✅ Updated translations for expense categories
+- ✅ Implemented comprehensive Portuguese translations
+- ✅ Improved expense card mobile layout to prevent overflow
+- ✅ Enhanced user settings panel with email as default user
+- ✅ Updated PWA manifest for app-like experience
 
 ## HIGH PRIORITY 🔴
 - 🔴 Fix expenses input field behavior (exits edit mode)
 - 🔴 Improve unsaved changes detection (avoid false positives from live currency updates)
 - 🔴 Better mobile optimization for task management (delete completed + add task in separate row)
 - 🔴 Unified import/export system (move away from JSON+CSV confusion)
-- 🔴 Make default user not "gui" - use logged in email
 - 🔴 Allow users to reorder tasks and other items
 - 🔴 Disable auto-load from cloud (currently loads after few seconds of inactivity)
 

@@ -15,10 +15,11 @@ export const UserSettingsPanel = () => {
   const { fetchLivePrices, isLiveDataEnabled } = useLivePrices();
 
   const createNewUser = (currency: 'BRL' | 'USD') => {
+    const userEmail = user?.email || '';
     const templates = {
       BRL: {
         userProfile: {
-          name: "",
+          name: userEmail,
           defaultCurrency: 'BRL' as const,
           language: language
         },
@@ -44,7 +45,7 @@ export const UserSettingsPanel = () => {
       },
       USD: {
         userProfile: {
-          name: "",
+          name: userEmail,
           defaultCurrency: 'USD' as const,
           language: language
         },
@@ -94,6 +95,7 @@ export const UserSettingsPanel = () => {
   };
 
   const currencyDisplay = getCurrencyDisplay(data.userProfile.defaultCurrency);
+  const displayName = data.userProfile.name || user?.email || "User";
 
   if (!user) return null;
 
@@ -109,14 +111,14 @@ export const UserSettingsPanel = () => {
         {/* User Info */}
         <DropdownMenuLabel className="flex items-center gap-2">
           <User size={16} />
-          {data.userProfile.name || user.email || "User"}
+          <span className="truncate">{displayName}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         
         {/* Language Selection */}
         <DropdownMenuLabel className="text-xs text-gray-500 flex items-center gap-2">
           <Globe size={12} />
-          {t.defaultCurrency}
+          Idioma/Language
         </DropdownMenuLabel>
         <DropdownMenuItem onClick={() => setLanguage('en')}>
           🇺🇸 English
@@ -139,7 +141,7 @@ export const UserSettingsPanel = () => {
         {/* Currency Selection */}
         <DropdownMenuLabel className="text-xs text-gray-500 flex items-center gap-2">
           <DollarSign size={12} />
-          Currency: {currencyDisplay.flag} {currencyDisplay.symbol}
+          {t.defaultCurrency}: {currencyDisplay.flag} {currencyDisplay.symbol}
         </DropdownMenuLabel>
         <DropdownMenuItem onClick={() => handleCurrencyChange('BRL')}>
           🇧🇷 Real (BRL)
@@ -156,7 +158,7 @@ export const UserSettingsPanel = () => {
         {/* User Management */}
         <DropdownMenuItem onClick={() => createNewUser('BRL')}>
           <UserPlus size={16} className="mr-2" />
-          New User (BRL 🇧🇷)
+          Novo Usuário (BRL 🇧🇷)
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => createNewUser('USD')}>
           <UserPlus size={16} className="mr-2" />
