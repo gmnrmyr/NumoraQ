@@ -101,6 +101,7 @@ const colorSchemes = {
   high_contrast: { name: "High Contrast", class: "contrast-125 saturate-150" },
   warm: { name: "Warm Tones", class: "sepia-[0.15] hue-rotate-15" },
   cool: { name: "Cool Tones", class: "hue-rotate-180 saturate-125" },
+  dual_tone: { name: "Dual Tone", class: "contrast-150 saturate-200 hue-rotate-90" },
   monochrome: { name: "Monochrome", class: "grayscale saturate-0" }
 };
 
@@ -187,11 +188,14 @@ export const DevMenu: React.FC = () => {
       }
       
       setSelectedColorScheme(scheme);
-      toast({
-        title: "Color Scheme Applied",
-        description: `${colorScheme.name} filter applied`,
-        duration: 2000,
-      });
+      // Position toast away from menu
+      setTimeout(() => {
+        toast({
+          title: "Color Filter Applied",
+          description: `${colorScheme.name} filter applied`,
+          duration: 2000,
+        });
+      }, 100);
     }
   };
 

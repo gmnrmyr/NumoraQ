@@ -1,3 +1,9 @@
+export interface UserProfile {
+  name: string;
+  defaultCurrency: 'USD' | 'BRL' | 'EUR';
+  language: 'en' | 'pt' | 'es' | 'fr' | 'de';
+  avatar?: string;
+}
 
 export interface LiquidAsset {
   id: string;

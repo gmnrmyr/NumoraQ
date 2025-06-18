@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { 
   DollarSign, 
   TrendingUp, 
@@ -33,6 +35,7 @@ import {
 
 const LandingPage = () => {
   const [activeFeature, setActiveFeature] = useState(0);
+  const { t } = useTranslation();
 
   const features = [
     {
@@ -103,7 +106,7 @@ const LandingPage = () => {
   const onboardingOptions = [
     {
       id: 'login',
-      title: 'SIGN IN',
+      title: t.signIn,
       description: 'Already have an account? Jump right back into your financial matrix.',
       icon: <LogIn className="text-accent" size={24} />,
       action: '/auth'
@@ -136,6 +139,9 @@ const LandingPage = () => {
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content="OPEN FINDASH - Financial Domination" />
       <meta name="twitter:description" content="The most comprehensive financial tracking system for crypto degens and finance analysis freaks." />
+      <meta name="robots" content="index, follow" />
+      <meta name="author" content="OPEN FINDASH" />
+      <link rel="canonical" href="https://openfindash.com" />
 
       <div className="min-h-screen bg-background text-foreground font-mono">
         {/* Header with transparency and backdrop blur */}
@@ -147,9 +153,10 @@ const LandingPage = () => {
                 <span className="text-2xl font-display font-bold uppercase tracking-wide">OPEN FINDASH</span>
               </div>
               <div className="flex items-center gap-4">
+                <LanguageSelector variant="default" size="sm" showLabel={false} />
                 {onboardingOptions.map((option) => (
                   <Link key={option.id} to={option.action}>
-                    <Button className="brutalist-button">
+                    <Button variant="default" className="brutalist-button bg-accent hover:bg-accent/80 text-accent-foreground">
                       {option.icon}
                       <span className="hidden sm:inline ml-2">{option.title}</span>
                     </Button>
@@ -373,6 +380,51 @@ const LandingPage = () => {
           </div>
         </div>
 
+        {/* Legal Footer for SEO */}
+        <footer className="bg-muted border-t-2 border-border mt-16">
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div>
+                <h4 className="font-display font-bold text-foreground mb-4 brutalist-heading">LEGAL</h4>
+                <ul className="space-y-2 text-sm font-mono text-muted-foreground">
+                  <li><a href="/privacy" className="hover:text-accent">Privacy Policy</a></li>
+                  <li><a href="/terms" className="hover:text-accent">Terms of Service</a></li>
+                  <li><a href="/cookies" className="hover:text-accent">Cookie Policy</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-display font-bold text-foreground mb-4 brutalist-heading">SUPPORT</h4>
+                <ul className="space-y-2 text-sm font-mono text-muted-foreground">
+                  <li><a href="/help" className="hover:text-accent">Help Center</a></li>
+                  <li><a href="/contact" className="hover:text-accent">Contact Us</a></li>
+                  <li><a href="/faq" className="hover:text-accent">FAQ</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-display font-bold text-foreground mb-4 brutalist-heading">RESOURCES</h4>
+                <ul className="space-y-2 text-sm font-mono text-muted-foreground">
+                  <li><a href="/docs" className="hover:text-accent">Documentation</a></li>
+                  <li><a href="/api" className="hover:text-accent">API Reference</a></li>
+                  <li><a href="/blog" className="hover:text-accent">Blog</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-display font-bold text-foreground mb-4 brutalist-heading">CONNECT</h4>
+                <ul className="space-y-2 text-sm font-mono text-muted-foreground">
+                  <li><a href="https://github.com/gmnrmyr/wealth-dashboard-flow" className="hover:text-accent">GitHub</a></li>
+                  <li><a href="/discord" className="hover:text-accent">Discord</a></li>
+                  <li><a href="/twitter" className="hover:text-accent">Twitter</a></li>
+                </ul>
+              </div>
+            </div>
+            <div className="border-t-2 border-border mt-8 pt-8 text-center">
+              <p className="text-muted-foreground font-mono text-sm">
+                © 2024 OPEN FINDASH. All rights reserved. Built for degens, by degens.
+              </p>
+            </div>
+          </div>
+        </footer>
+
         {/* CTA Section */}
         <div className="text-center space-y-6 py-12">
           <h2 className="text-4xl font-display font-bold text-foreground brutalist-heading">READY TO DOMINATE YOUR FINANCES?</h2>
@@ -380,7 +432,7 @@ const LandingPage = () => {
             Join the community of users who have taken <span className="text-accent">complete control</span> of their financial future.
           </p>
           <Link to="/dashboard">
-            <Button size="lg" className="brutalist-button text-lg px-12 py-4">
+            <Button size="lg" className="brutalist-button bg-accent hover:bg-accent/80 text-accent-foreground text-lg px-12 py-4">
               <Rocket size={20} className="mr-2" />
               GET STARTED NOW - IT'S FREE!
               <ArrowRight size={20} className="ml-2" />
