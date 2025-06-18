@@ -37,45 +37,47 @@ export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange }) 
 
   return (
     <>
-      {/* Mobile hamburger menu for smaller screens */}
-      <div className="md:hidden mb-4">
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="w-full flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Menu size={16} />
-                {currentTab && (
-                  <>
-                    <currentTab.icon size={16} />
-                    <span className="truncate">{currentTab.label}</span>
-                  </>
-                )}
+      {/* Mobile hamburger menu for smaller screens - Fixed positioning */}
+      <div className="md:hidden fixed top-16 sm:top-20 left-0 right-0 z-40 bg-white border-b shadow-sm">
+        <div className="px-2 sm:px-4 py-2">
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="w-full flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Menu size={16} />
+                  {currentTab && (
+                    <>
+                      <currentTab.icon size={16} />
+                      <span className="truncate">{currentTab.label}</span>
+                    </>
+                  )}
+                </div>
+                <span className="text-xs text-gray-500">{t.tapToSwitch}</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-auto max-h-[80vh] bg-white z-50">
+              <div className="grid grid-cols-2 gap-3 p-4">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <Button
+                      key={tab.value}
+                      variant={activeTab === tab.value ? "default" : "outline"}
+                      onClick={() => {
+                        onTabChange(tab.value);
+                        setIsOpen(false);
+                      }}
+                      className="flex items-center gap-2 p-4 h-auto flex-col"
+                    >
+                      <Icon size={20} />
+                      <span className="text-sm font-medium">{tab.label}</span>
+                    </Button>
+                  );
+                })}
               </div>
-              <span className="text-xs text-gray-500">{t.tapToSwitch}</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="bottom" className="h-auto max-h-[80vh] bg-white z-50">
-            <div className="grid grid-cols-2 gap-3 p-4">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <Button
-                    key={tab.value}
-                    variant={activeTab === tab.value ? "default" : "outline"}
-                    onClick={() => {
-                      onTabChange(tab.value);
-                      setIsOpen(false);
-                    }}
-                    className="flex items-center gap-2 p-4 h-auto flex-col"
-                  >
-                    <Icon size={20} />
-                    <span className="text-sm font-medium">{tab.label}</span>
-                  </Button>
-                );
-              })}
-            </div>
-          </SheetContent>
-        </Sheet>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
       {/* Regular tabs for larger screens */}
