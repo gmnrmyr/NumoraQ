@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,32 +66,32 @@ export const TaskManagementEditable = () => {
   const lowPriorityTasks = sortedTasks.filter(task => task.priority > 15);
 
   const TaskSection = ({ title, tasks, bgColor, borderColor }: any) => (
-    <Card className={`${bgColor} ${borderColor}`}>
+    <Card className={`bg-card/95 backdrop-blur-md border-2 ${borderColor} brutalist-card`}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 font-mono uppercase text-foreground">
           <Calendar size={20} />
           {title}
-          <Badge variant="outline">{tasks.length} tasks</Badge>
+          <Badge variant="outline" className="font-mono">{tasks.length} tasks</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {tasks.map((task: any) => {
           const Icon = iconMap[task.icon] || User;
           return (
-            <div key={task.id} className={`flex items-center justify-between p-3 bg-white rounded-lg shadow-sm ${task.completed ? 'opacity-75' : ''}`}>
+            <div key={task.id} className={`flex items-center justify-between p-3 bg-background/50 border-2 border-border brutalist-card ${task.completed ? 'opacity-75' : ''}`}>
               <div className="flex items-center gap-3 flex-1">
-                <Icon size={16} className="text-slate-600" />
+                <Icon size={16} className="text-muted-foreground" />
                 <div className="flex-1">
                   <Input
                     value={task.item}
                     onChange={(e) => updateTask(task.id, { item: e.target.value })}
-                    className={`border-none p-0 font-medium bg-transparent ${task.completed ? 'line-through text-slate-500' : ''}`}
+                    className={`border-2 border-border bg-input p-2 font-medium font-mono ${task.completed ? 'line-through text-muted-foreground' : ''}`}
                   />
                   <Input
                     value={task.date}
                     onChange={(e) => updateTask(task.id, { date: e.target.value })}
                     placeholder="Date"
-                    className={`border-none p-0 text-xs text-slate-500 bg-transparent mt-1 ${task.completed ? 'line-through' : ''}`}
+                    className={`border-2 border-border bg-input p-2 text-xs text-muted-foreground mt-1 font-mono ${task.completed ? 'line-through' : ''}`}
                   />
                 </div>
               </div>
@@ -99,19 +100,19 @@ export const TaskManagementEditable = () => {
                   {getPriorityLabel(task.priority)}
                 </Badge>
                 <div className="flex items-center gap-1">
-                  <span className="text-xs">#</span>
+                  <span className="text-xs font-mono">#</span>
                   <EditableValue
                     value={task.priority}
                     onSave={(value) => updateTask(task.id, { priority: Number(value) })}
                     type="number"
-                    className="w-12"
+                    className="w-12 bg-input border-2 border-border font-mono"
                   />
                 </div>
                 <Button
                   onClick={() => updateTask(task.id, { completed: !task.completed })}
                   variant={task.completed ? "default" : "outline"}
                   size="sm"
-                  className={task.completed ? "bg-green-600 hover:bg-green-700" : ""}
+                  className={`border-2 border-border font-mono ${task.completed ? "bg-green-600 hover:bg-green-700" : ""}`}
                 >
                   ✓
                 </Button>
@@ -119,7 +120,7 @@ export const TaskManagementEditable = () => {
                   onClick={() => removeTask(task.id)}
                   variant="outline"
                   size="sm"
-                  className="text-red-600 hover:text-red-700"
+                  className="text-red-600 hover:text-red-700 border-2 border-border"
                 >
                   <Trash2 size={14} />
                 </Button>
@@ -134,9 +135,9 @@ export const TaskManagementEditable = () => {
   return (
     <div className="space-y-6">
       {/* Task Overview */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+      <Card className="bg-card/95 backdrop-blur-md border-2 border-accent brutalist-card">
         <CardHeader>
-          <CardTitle className="text-blue-800 flex items-center justify-between gap-2">
+          <CardTitle className="text-accent flex items-center justify-between gap-2 font-mono uppercase">
             <span>Task Overview</span>
             <div className="flex items-center gap-4">
               <div className="flex items-center space-x-2">
@@ -145,13 +146,13 @@ export const TaskManagementEditable = () => {
                   checked={showCompleted}
                   onCheckedChange={setShowCompleted}
                 />
-                <Label htmlFor="show-completed" className="text-sm font-medium">Show Completed</Label>
+                <Label htmlFor="show-completed" className="text-sm font-medium font-mono">Show Completed</Label>
               </div>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={handleRemoveCompleted}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-2 border-border font-mono"
                 disabled={data.tasks.filter(t => t.completed).length === 0}
               >
                 <Trash2 size={16} className="mr-1" />
@@ -159,33 +160,36 @@ export const TaskManagementEditable = () => {
               </Button>
               <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
                 <DialogTrigger asChild>
-                  <Button size="sm">
+                  <Button size="sm" className="brutalist-button">
                     <Plus size={16} className="mr-1" />
                     Add Task
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="bg-card border-2 border-border">
                   <DialogHeader>
-                    <DialogTitle>Add New Task</DialogTitle>
+                    <DialogTitle className="font-mono uppercase">Add New Task</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <Input
                       placeholder="Task description"
                       value={newTask.item}
                       onChange={(e) => setNewTask({ ...newTask, item: e.target.value })}
+                      className="brutalist-input"
                     />
                     <Input
                       placeholder="Date (optional)"
                       value={newTask.date}
                       onChange={(e) => setNewTask({ ...newTask, date: e.target.value })}
+                      className="brutalist-input"
                     />
                     <Input
                       type="number"
                       placeholder="Priority (1-30)"
                       value={newTask.priority}
                       onChange={(e) => setNewTask({ ...newTask, priority: parseInt(e.target.value) || 1 })}
+                      className="brutalist-input"
                     />
-                    <Button onClick={handleAddTask} className="w-full">
+                    <Button onClick={handleAddTask} className="w-full brutalist-button">
                       Add Task
                     </Button>
                   </div>
@@ -196,20 +200,20 @@ export const TaskManagementEditable = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-              <div className="text-sm text-slate-600">High Priority</div>
-              <div className="text-2xl font-bold text-red-600">{highPriorityTasks.length}</div>
-              <div className="text-xs text-slate-500">Urgent tasks</div>
+            <div className="text-center p-4 bg-background/50 border-2 border-border brutalist-card">
+              <div className="text-sm text-muted-foreground font-mono uppercase">High Priority</div>
+              <div className="text-2xl font-bold text-red-400 font-mono">{highPriorityTasks.length}</div>
+              <div className="text-xs text-muted-foreground font-mono">Urgent tasks</div>
             </div>
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-              <div className="text-sm text-slate-600">Medium Priority</div>
-              <div className="text-2xl font-bold text-yellow-600">{mediumPriorityTasks.length}</div>
-              <div className="text-xs text-slate-500">Important tasks</div>
+            <div className="text-center p-4 bg-background/50 border-2 border-border brutalist-card">
+              <div className="text-sm text-muted-foreground font-mono uppercase">Medium Priority</div>
+              <div className="text-2xl font-bold text-yellow-400 font-mono">{mediumPriorityTasks.length}</div>
+              <div className="text-xs text-muted-foreground font-mono">Important tasks</div>
             </div>
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-              <div className="text-sm text-slate-600">Low Priority</div>
-              <div className="text-2xl font-bold text-green-600">{lowPriorityTasks.length}</div>
-              <div className="text-xs text-slate-500">Future tasks</div>
+            <div className="text-center p-4 bg-background/50 border-2 border-border brutalist-card">
+              <div className="text-sm text-muted-foreground font-mono uppercase">Low Priority</div>
+              <div className="text-2xl font-bold text-green-400 font-mono">{lowPriorityTasks.length}</div>
+              <div className="text-xs text-muted-foreground font-mono">Future tasks</div>
             </div>
           </div>
         </CardContent>
@@ -221,19 +225,19 @@ export const TaskManagementEditable = () => {
           title="High Priority Tasks" 
           tasks={highPriorityTasks} 
           bgColor="bg-red-50" 
-          borderColor="border-red-200"
+          borderColor="border-red-600"
         />
         <TaskSection 
           title="Medium Priority Tasks" 
           tasks={mediumPriorityTasks} 
           bgColor="bg-yellow-50" 
-          borderColor="border-yellow-200"
+          borderColor="border-yellow-600"
         />
         <TaskSection 
           title="Low Priority Tasks" 
           tasks={lowPriorityTasks} 
           bgColor="bg-green-50" 
-          borderColor="border-green-200"
+          borderColor="border-green-600"
         />
       </div>
     </div>

@@ -51,24 +51,24 @@ export const IncomeTracking = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Passive Income */}
-      <Card className="bg-green-50 border-green-200">
+      <Card className="bg-card/95 backdrop-blur-md border-2 border-green-600 brutalist-card">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-green-800 flex items-center gap-2">
+            <CardTitle className="text-green-400 flex items-center gap-2 font-mono uppercase">
               <TrendingUp size={20} />
               Passive Income
             </CardTitle>
             <Button
               onClick={handleAddPassiveIncome}
               size="sm"
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 brutalist-button"
             >
               <Plus size={16} className="mr-1" />
               Add
             </Button>
           </div>
-          <div className="text-2xl font-bold text-green-700">
-            R$ {totalPassive.toLocaleString()}/month
+          <div className="text-2xl font-bold text-green-400 font-mono">
+            $ {totalPassive.toLocaleString()}/month
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -77,15 +77,15 @@ export const IncomeTracking = () => {
             const percentage = totalPassive > 0 ? (income.amount / totalPassive) * 100 : 0;
             
             return (
-              <div key={income.id} className="space-y-2 p-3 bg-white rounded-lg shadow-sm">
+              <div key={income.id} className="space-y-2 p-3 bg-background/50 border-2 border-border brutalist-card">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Icon size={16} className="text-green-600" />
+                    <Icon size={16} className="text-green-400" />
                     <EditableValue
                       value={income.source}
                       onSave={(value) => updatePassiveIncome(income.id, { source: String(value) })}
                       type="text"
-                      className="font-medium"
+                      className="font-medium bg-input border-2 border-border font-mono"
                     />
                   </div>
                   <div className="flex items-center gap-2">
@@ -102,19 +102,19 @@ export const IncomeTracking = () => {
                       onToggle={(newStatus) => updatePassiveIncome(income.id, { status: newStatus })}
                     />
                     <div className="text-right">
-                      <div className="font-bold">
-                        R$ <EditableValue
+                      <div className="font-bold text-green-400 font-mono">
+                        $ <EditableValue
                           value={income.amount}
                           onSave={(value) => updatePassiveIncome(income.id, { amount: Number(value) })}
                           type="number"
-                          className="inline"
+                          className="inline bg-input border-2 border-border"
                         />
                       </div>
                     </div>
                   </div>
                 </div>
                 {income.amount > 0 && (
-                  <Progress value={percentage} className="h-2" />
+                  <Progress value={percentage} className="h-2 bg-muted" />
                 )}
                 <div className="mt-2">
                   <EditableValue
@@ -122,7 +122,7 @@ export const IncomeTracking = () => {
                     onSave={(value) => updatePassiveIncome(income.id, { note: String(value) || undefined })}
                     type="text"
                     placeholder="Add note..."
-                    className="text-xs text-amber-600 bg-amber-50 p-2 rounded w-full"
+                    className="text-xs text-accent bg-background border-2 border-border p-2 rounded w-full font-mono"
                   />
                 </div>
               </div>
@@ -132,24 +132,24 @@ export const IncomeTracking = () => {
       </Card>
 
       {/* Active Income */}
-      <Card className="bg-blue-50 border-blue-200">
+      <Card className="bg-card/95 backdrop-blur-md border-2 border-blue-600 brutalist-card">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-blue-800 flex items-center gap-2">
+            <CardTitle className="text-blue-400 flex items-center gap-2 font-mono uppercase">
               <Briefcase size={20} />
               Active Income
             </CardTitle>
             <Button
               onClick={handleAddActiveIncome}
               size="sm"
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 brutalist-button"
             >
               <Plus size={16} className="mr-1" />
               Add
             </Button>
           </div>
-          <div className="text-2xl font-bold text-blue-700">
-            R$ {totalActive.toLocaleString()}/month
+          <div className="text-2xl font-bold text-blue-400 font-mono">
+            $ {totalActive.toLocaleString()}/month
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -158,15 +158,15 @@ export const IncomeTracking = () => {
             const percentage = totalActive > 0 ? (income.amount / totalActive) * 100 : 0;
             
             return (
-              <div key={income.id} className="space-y-2 p-3 bg-white rounded-lg shadow-sm">
+              <div key={income.id} className="space-y-2 p-3 bg-background/50 border-2 border-border brutalist-card">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Icon size={16} className="text-blue-600" />
+                    <Icon size={16} className="text-blue-400" />
                     <EditableValue
                       value={income.source}
                       onSave={(value) => updateActiveIncome(income.id, { source: String(value) })}
                       type="text"
-                      className="font-medium"
+                      className="font-medium bg-input border-2 border-border font-mono"
                     />
                   </div>
                   <div className="flex items-center gap-2">
@@ -183,25 +183,25 @@ export const IncomeTracking = () => {
                       onToggle={(newStatus) => updateActiveIncome(income.id, { status: newStatus })}
                     />
                     <div className="text-right">
-                      <div className="font-bold">
-                        R$ <EditableValue
+                      <div className="font-bold text-blue-400 font-mono">
+                        $ <EditableValue
                           value={income.amount}
                           onSave={(value) => updateActiveIncome(income.id, { amount: Number(value) })}
                           type="number"
-                          className="inline"
+                          className="inline bg-input border-2 border-border"
                         />
                       </div>
                     </div>
                   </div>
                 </div>
-                <Progress value={percentage} className="h-2" />
+                <Progress value={percentage} className="h-2 bg-muted" />
                 <div className="mt-2">
                   <EditableValue
                     value={(income as any).note || ""}
                     onSave={(value) => updateActiveIncome(income.id, { note: String(value) || undefined } as any)}
                     type="text"
                     placeholder="Add note..."
-                    className="text-xs text-amber-600 bg-amber-50 p-2 rounded w-full"
+                    className="text-xs text-accent bg-background border-2 border-border p-2 rounded w-full font-mono"
                   />
                 </div>
               </div>
@@ -211,37 +211,37 @@ export const IncomeTracking = () => {
       </Card>
 
       {/* Income Summary */}
-      <Card className="lg:col-span-2 bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+      <Card className="lg:col-span-2 bg-card/95 backdrop-blur-md border-2 border-accent brutalist-card">
         <CardHeader>
-          <CardTitle className="text-slate-800">Income Summary</CardTitle>
+          <CardTitle className="text-accent font-mono uppercase">Income Summary</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-              <div className="text-sm text-slate-600">Passive Income</div>
-              <div className="text-xl font-bold text-green-600">
-                R$ {totalPassive.toLocaleString()}
+            <div className="text-center p-4 bg-background/50 border-2 border-border brutalist-card">
+              <div className="text-sm text-muted-foreground font-mono uppercase">Passive Income</div>
+              <div className="text-xl font-bold text-green-400 font-mono">
+                $ {totalPassive.toLocaleString()}
               </div>
-              <div className="text-xs text-slate-500">
+              <div className="text-xs text-muted-foreground font-mono">
                 {totalIncome > 0 ? ((totalPassive / totalIncome) * 100).toFixed(1) : 0}% of total
               </div>
             </div>
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-              <div className="text-sm text-slate-600">Active Income</div>
-              <div className="text-xl font-bold text-blue-600">
-                R$ {totalActive.toLocaleString()}
+            <div className="text-center p-4 bg-background/50 border-2 border-border brutalist-card">
+              <div className="text-sm text-muted-foreground font-mono uppercase">Active Income</div>
+              <div className="text-xl font-bold text-blue-400 font-mono">
+                $ {totalActive.toLocaleString()}
               </div>
-              <div className="text-xs text-slate-500">
+              <div className="text-xs text-muted-foreground font-mono">
                 {totalIncome > 0 ? ((totalActive / totalIncome) * 100).toFixed(1) : 0}% of total
               </div>
             </div>
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm border-2 border-purple-200">
-              <div className="text-sm text-slate-600">Total Monthly Income</div>
-              <div className="text-2xl font-bold text-purple-600">
-                R$ {totalIncome.toLocaleString()}
+            <div className="text-center p-4 bg-background/50 border-2 border-accent brutalist-card">
+              <div className="text-sm text-muted-foreground font-mono uppercase">Total Monthly Income</div>
+              <div className="text-2xl font-bold text-accent font-mono">
+                $ {totalIncome.toLocaleString()}
               </div>
-              <div className="text-xs text-slate-500">
-                R$ {(totalIncome * data.projectionMonths).toLocaleString()}/{data.projectionMonths}-month
+              <div className="text-xs text-muted-foreground font-mono">
+                $ {(totalIncome * data.projectionMonths).toLocaleString()}/{data.projectionMonths}-month
               </div>
             </div>
           </div>
