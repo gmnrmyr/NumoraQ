@@ -1,13 +1,22 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { PieChart, ChevronDown, ChevronUp } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 export const ProjectionCard = () => {
   const { data } = useFinancialData();
   const { t } = useTranslation();
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const saved = localStorage.getItem('projectionCardCollapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('projectionCardCollapsed', JSON.stringify(isCollapsed));
+  }, [isCollapsed]);
 
   const getCurrencySymbol = (currency: string) => {
     switch (currency) {
@@ -48,40 +57,52 @@ export const ProjectionCard = () => {
 
   return (
     <Card className="bg-card border-accent border-2 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="text-foreground flex items-center gap-2 text-sm sm:text-base font-mono uppercase">
-          <PieChart size={16} className="text-accent" />
-          {data.projectionMonths}-{t.monthly.toLowerCase()} {t.projection}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground font-mono uppercase">{t.income} ({data.projectionMonths}m)</div>
-            <div className="text-xs sm:text-sm md:text-xl font-bold text-accent truncate font-mono">
-              {currencySymbol} {((totalPassiveIncome + totalActiveIncome) * data.projectionMonths).toLocaleString()}
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground font-mono uppercase">{t.expenses} ({data.projectionMonths}m)</div>
-            <div className="text-xs sm:text-sm md:text-xl font-bold text-red-400 truncate font-mono">
-              {currencySymbol} {(totalRecurringExpenses * data.projectionMonths + totalVariableExpenses).toLocaleString()}
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground font-mono uppercase">{t.debt}</div>
-            <div className="text-xs sm:text-sm md:text-xl font-bold text-orange-400 truncate font-mono">
-              {currencySymbol} {totalActiveDebt.toLocaleString()}
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground font-mono uppercase">Net Result</div>
-            <div className={`text-xs sm:text-sm md:text-xl font-bold truncate font-mono ${yearProjection >= 0 ? 'text-accent' : 'text-red-400'}`}>
-              {currencySymbol} {yearProjection.toLocaleString()}
-            </div>
-          </div>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-foreground flex items-center gap-2 text-sm sm:text-base font-mono uppercase">
+            <PieChart size={16} className="text-accent" />
+            {data.projectionMonths}-{t.monthly?.toLowerCase() || 'month'} {t.projection || 'projection'}
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="text-accent hover:text-accent/80 p-1"
+          >
+            {isCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+          </Button>
         </div>
-      </CardContent>
+      </CardHeader>
+      {!isCollapsed && (
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+            <div className="text-center">
+              <div className="text-xs text-muted-foreground font-mono uppercase">{t.income || 'Income'} ({data.projectionMonths}m)</div>
+              <div className="text-xs sm:text-sm md:text-xl font-bold text-accent truncate font-mono">
+                {currencySymbol} {((totalPassiveIncome + totalActiveIncome) * data.projectionMonths).toLocaleString()}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-muted-foreground font-mono uppercase">{t.expenses || 'Expenses'} ({data.projectionMonths}m)</div>
+              <div className="text-xs sm:text-sm md:text-xl font-bold text-red-400 truncate font-mono">
+                {currencySymbol} {(totalRecurringExpenses * data.projectionMonths + totalVariableExpenses).toLocaleString()}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-muted-foreground font-mono uppercase">{t.debt || 'Debt'}</div>
+              <div className="text-xs sm:text-sm md:text-xl font-bold text-orange-400 truncate font-mono">
+                {currencySymbol} {totalActiveDebt.toLocaleString()}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-muted-foreground font-mono uppercase">Net Result</div>
+              <div className={`text-xs sm:text-sm md:text-xl font-bold truncate font-mono ${yearProjection >= 0 ? 'text-accent' : 'text-red-400'}`}>
+                {currencySymbol} {yearProjection.toLocaleString()}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      )}
     </Card>
   );
 };
