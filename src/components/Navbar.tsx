@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Button } from '@/components/ui/button';
 import { VersionBadge } from '@/components/VersionBadge';
 import { UserSettingsPanel } from '@/components/navbar/UserSettingsPanel';
+import { LanguageSelector } from '@/components/LanguageSelector';
 
 export const Navbar = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -82,47 +83,52 @@ export const Navbar = () => {
 
               {/* Authentication Status */}
               {!user ? (
-                <Link to="/auth">
-                  <Button variant="outline" size="sm">
-                    <LogIn size={16} className="mr-2" />
-                    <span className="hidden sm:inline">{t.signIn}</span>
-                  </Button>
-                </Link>
+                <div className="flex items-center gap-2">
+                  <LanguageSelector variant="outline" size="sm" />
+                  <Link to="/auth">
+                    <Button variant="outline" size="sm">
+                      <LogIn size={16} className="mr-2" />
+                      <span className="hidden sm:inline">{t.signIn}</span>
+                    </Button>
+                  </Link>
+                </div>
               ) : (
                 <UserSettingsPanel />
               )}
 
               {/* Live Numbers Status */}
-              <div className="flex items-center space-x-1 text-xs text-gray-600">
-                <Signal 
-                  size={14} 
-                  className={`transition-colors duration-300 ${liveDataInfo.color}`} 
-                />
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="cursor-help hidden sm:block">
-                      <span className={`text-xs font-medium transition-colors duration-300 ${liveDataInfo.color}`}>
-                        {t.liveNumbers}: {liveDataInfo.status}
-                      </span>
-                      {timeSinceLastUpdate && liveDataInfo.status === 'on' && (
-                        <div className="text-xs text-gray-500">
-                          {t.lastUpdated} {timeSinceLastUpdate}
-                        </div>
-                      )}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      {liveDataInfo.status === 'off' 
-                        ? 'Sign in to enable live price updates from real markets.'
-                        : liveDataInfo.status === 'updating'
-                          ? 'Live data is currently being updated...'
-                          : `Live data fetching is enabled. Prices update automatically every 5 minutes.${timeSinceLastUpdate ? ` Last updated ${timeSinceLastUpdate}.` : ''}`
-                      }
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
+              {user && (
+                <div className="flex items-center space-x-1 text-xs text-gray-600">
+                  <Signal 
+                    size={14} 
+                    className={`transition-colors duration-300 ${liveDataInfo.color}`} 
+                  />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-help hidden sm:block">
+                        <span className={`text-xs font-medium transition-colors duration-300 ${liveDataInfo.color}`}>
+                          {t.liveNumbers}: {liveDataInfo.status}
+                        </span>
+                        {timeSinceLastUpdate && liveDataInfo.status === 'on' && (
+                          <div className="text-xs text-gray-500">
+                            {t.lastUpdated} {timeSinceLastUpdate}
+                          </div>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        {liveDataInfo.status === 'off' 
+                          ? 'Sign in to enable live price updates from real markets.'
+                          : liveDataInfo.status === 'updating'
+                            ? 'Live data is currently being updated...'
+                            : `Live data fetching is enabled. Prices update automatically every 5 minutes.${timeSinceLastUpdate ? ` Last updated ${timeSinceLastUpdate}.` : ''}`
+                        }
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              )}
 
               {/* Quick Actions */}
               <div className="flex items-center">
