@@ -106,53 +106,53 @@ export const UserSettingsPanel = () => {
       
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="flex items-center gap-2 brutalist-button">
             <Settings size={16} />
-            <span className="hidden sm:inline">{t.userProfile}</span>
+            <span className="hidden sm:inline font-mono uppercase">{t.userProfile}</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 bg-white z-50">
+        <DropdownMenuContent align="end" className="w-56 bg-card border-2 border-border z-50">
           {/* User Info */}
-          <DropdownMenuLabel className="flex items-center gap-2">
+          <DropdownMenuLabel className="flex items-center gap-2 font-mono">
             <User size={16} />
             <span className="truncate">{displayName}</span>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="bg-border" />
           
           {/* Currency Selection */}
-          <DropdownMenuLabel className="text-xs text-gray-500 flex items-center gap-2">
+          <DropdownMenuLabel className="text-xs text-muted-foreground flex items-center gap-2 font-mono uppercase">
             <DollarSign size={12} />
             {t.defaultCurrency}: {currencyDisplay.flag} {currencyDisplay.symbol}
           </DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => handleCurrencyChange('BRL')}>
+          <DropdownMenuItem onClick={() => handleCurrencyChange('BRL')} className="hover:bg-accent hover:text-accent-foreground font-mono">
             🇧🇷 Real (BRL)
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleCurrencyChange('USD')}>
+          <DropdownMenuItem onClick={() => handleCurrencyChange('USD')} className="hover:bg-accent hover:text-accent-foreground font-mono">
             🇺🇸 Dollar (USD)
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleCurrencyChange('EUR')}>
+          <DropdownMenuItem onClick={() => handleCurrencyChange('EUR')} className="hover:bg-accent hover:text-accent-foreground font-mono">
             🇪🇺 Euro (EUR)
           </DropdownMenuItem>
           
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="bg-border" />
           
           {/* User Management */}
-          <DropdownMenuItem onClick={() => createNewUser('BRL')}>
+          <DropdownMenuItem onClick={() => createNewUser('BRL')} className="hover:bg-accent hover:text-accent-foreground font-mono">
             <UserPlus size={16} className="mr-2" />
             Novo Usuário (BRL 🇧🇷)
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => createNewUser('USD')}>
+          <DropdownMenuItem onClick={() => createNewUser('USD')} className="hover:bg-accent hover:text-accent-foreground font-mono">
             <UserPlus size={16} className="mr-2" />
             New User (USD 🇺🇸)
           </DropdownMenuItem>
           
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="bg-border" />
           
-          <DropdownMenuItem onClick={resetData} className="text-red-600 hover:text-red-700">
+          <DropdownMenuItem onClick={resetData} className="text-destructive hover:text-destructive-foreground hover:bg-destructive font-mono">
             <Trash2 size={16} className="mr-2" />
             {t.resetData}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={signOut} className="text-red-600 hover:text-red-700">
+          <DropdownMenuItem onClick={signOut} className="text-destructive hover:text-destructive-foreground hover:bg-destructive font-mono">
             <LogOut size={16} className="mr-2" />
             {t.signOut}
           </DropdownMenuItem>

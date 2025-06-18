@@ -31,34 +31,34 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={variant} size={size} className="flex items-center gap-2">
+        <Button variant={variant} size={size} className="flex items-center gap-2 brutalist-button">
           <Globe size={16} />
-          {showLabel && <span className="hidden sm:inline">Language</span>}
+          {showLabel && <span className="hidden sm:inline font-mono uppercase">Language</span>}
           {currentLanguage && (
-            <span className="text-sm">
+            <span className="text-sm font-mono">
               {currentLanguage.flag} {showLabel ? '' : currentLanguage.code.toUpperCase()}
             </span>
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 bg-white z-50">
-        <DropdownMenuLabel className="text-xs text-gray-500 flex items-center gap-2">
+      <DropdownMenuContent align="end" className="w-48 bg-card border-2 border-border z-50">
+        <DropdownMenuLabel className="text-xs text-muted-foreground flex items-center gap-2 font-mono uppercase">
           <Globe size={12} />
           Language / Idioma
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-border" />
         {languages.map((lang) => (
           <DropdownMenuItem 
             key={lang.code}
             onClick={() => setLanguage(lang.code)}
-            className="flex items-center justify-between cursor-pointer"
+            className="flex items-center justify-between cursor-pointer hover:bg-accent hover:text-accent-foreground font-mono"
           >
             <div className="flex items-center gap-2">
               <span>{lang.flag}</span>
               <span>{lang.name}</span>
             </div>
             {language === lang.code && (
-              <Check size={16} className="text-blue-600" />
+              <Check size={16} className="text-accent" />
             )}
           </DropdownMenuItem>
         ))}
