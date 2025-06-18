@@ -15,36 +15,36 @@ export const PortfolioSummary = () => {
   const totalPortfolio = totalLiquid + totalIlliquid;
 
   return (
-    <Card className="lg:col-span-2 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+    <Card className="lg:col-span-2 bg-card border-accent border-2 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle className="text-blue-800">Portfolio Summary</CardTitle>
+        <CardTitle className="text-foreground font-mono uppercase">Portfolio Summary</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-            <div className="text-sm text-slate-600">Total Liquid (Active)</div>
-            <div className="text-xl font-bold text-green-600">
+          <div className="text-center p-4 bg-background border-2 border-border brutalist-card">
+            <div className="text-sm text-muted-foreground font-mono uppercase">Total Liquid (Active)</div>
+            <div className="text-xl font-bold text-accent font-mono">
               {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalLiquid.toLocaleString()}
             </div>
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-muted-foreground font-mono">
               {totalPortfolio > 0 ? ((totalLiquid / totalPortfolio) * 100).toFixed(1) : 0}% of portfolio
             </div>
           </div>
-          <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-            <div className="text-sm text-slate-600">Total Illiquid (Active)</div>
-            <div className="text-xl font-bold text-slate-600">
+          <div className="text-center p-4 bg-background border-2 border-border brutalist-card">
+            <div className="text-sm text-muted-foreground font-mono uppercase">Total Illiquid (Active)</div>
+            <div className="text-xl font-bold text-foreground font-mono">
               {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalIlliquid.toLocaleString()}
             </div>
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-muted-foreground font-mono">
               {totalPortfolio > 0 ? ((totalIlliquid / totalPortfolio) * 100).toFixed(1) : 0}% of portfolio
             </div>
           </div>
-          <div className="text-center p-4 bg-white rounded-lg shadow-sm border-2 border-blue-200">
-            <div className="text-sm text-slate-600">Total Portfolio (Active)</div>
-            <div className="text-2xl font-bold text-blue-600">
+          <div className="text-center p-4 bg-background border-2 border-accent brutalist-card">
+            <div className="text-sm text-muted-foreground font-mono uppercase">Total Portfolio (Active)</div>
+            <div className="text-2xl font-bold text-accent font-mono">
               {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalPortfolio.toLocaleString()}
             </div>
-            <Badge variant="outline" className="mt-1">Active Assets Only</Badge>
+            <Badge variant="outline" className="mt-1 border-accent text-accent font-mono">Active Assets Only</Badge>
           </div>
         </div>
       </CardContent>

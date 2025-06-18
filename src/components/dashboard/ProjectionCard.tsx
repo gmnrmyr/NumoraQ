@@ -47,36 +47,36 @@ export const ProjectionCard = () => {
   const yearProjection = (monthlyBalance * data.projectionMonths) - totalVariableExpenses + totalAvailable - totalActiveDebt;
 
   return (
-    <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+    <Card className="bg-card border-accent border-2 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle className="text-purple-800 flex items-center gap-2 text-sm sm:text-base">
-          <PieChart size={16} />
+        <CardTitle className="text-foreground flex items-center gap-2 text-sm sm:text-base font-mono uppercase">
+          <PieChart size={16} className="text-accent" />
           {data.projectionMonths}-{t.monthly.toLowerCase()} {t.projection}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
           <div className="text-center">
-            <div className="text-xs text-slate-600">{t.income} ({data.projectionMonths}m)</div>
-            <div className="text-xs sm:text-sm md:text-xl font-bold text-green-600 truncate">
+            <div className="text-xs text-muted-foreground font-mono uppercase">{t.income} ({data.projectionMonths}m)</div>
+            <div className="text-xs sm:text-sm md:text-xl font-bold text-accent truncate font-mono">
               {currencySymbol} {((totalPassiveIncome + totalActiveIncome) * data.projectionMonths).toLocaleString()}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-slate-600">{t.expenses} ({data.projectionMonths}m)</div>
-            <div className="text-xs sm:text-sm md:text-xl font-bold text-red-600 truncate">
+            <div className="text-xs text-muted-foreground font-mono uppercase">{t.expenses} ({data.projectionMonths}m)</div>
+            <div className="text-xs sm:text-sm md:text-xl font-bold text-red-400 truncate font-mono">
               {currencySymbol} {(totalRecurringExpenses * data.projectionMonths + totalVariableExpenses).toLocaleString()}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-slate-600">{t.debt}</div>
-            <div className="text-xs sm:text-sm md:text-xl font-bold text-orange-600 truncate">
+            <div className="text-xs text-muted-foreground font-mono uppercase">{t.debt}</div>
+            <div className="text-xs sm:text-sm md:text-xl font-bold text-orange-400 truncate font-mono">
               {currencySymbol} {totalActiveDebt.toLocaleString()}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-slate-600">Net Result</div>
-            <div className={`text-xs sm:text-sm md:text-xl font-bold truncate ${yearProjection >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
+            <div className="text-xs text-muted-foreground font-mono uppercase">Net Result</div>
+            <div className={`text-xs sm:text-sm md:text-xl font-bold truncate font-mono ${yearProjection >= 0 ? 'text-accent' : 'text-red-400'}`}>
               {currencySymbol} {yearProjection.toLocaleString()}
             </div>
           </div>

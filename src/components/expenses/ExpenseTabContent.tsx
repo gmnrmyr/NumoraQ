@@ -30,23 +30,23 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
 }) => {
   const { t } = useTranslation();
   
-  const cardClass = type === 'recurring' ? "bg-red-50 border-red-200" : "bg-orange-50 border-orange-200";
-  const titleClass = type === 'recurring' ? "text-red-800" : "text-orange-800";
-  const totalClass = type === 'recurring' ? "text-red-700" : "text-orange-700";
-  const inactiveClass = type === 'recurring' ? "text-red-600" : "text-orange-600";
+  const cardClass = type === 'recurring' ? "bg-card border-red-600" : "bg-card border-orange-500";
+  const titleClass = type === 'recurring' ? "text-red-400" : "text-orange-400";
+  const totalClass = type === 'recurring' ? "text-red-400" : "text-orange-400";
+  const inactiveClass = type === 'recurring' ? "text-red-400/70" : "text-orange-400/70";
 
   return (
-    <Card className={cardClass}>
+    <Card className={`${cardClass} border-2 backdrop-blur-sm`}>
       <CardHeader className="pb-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <CardTitle className={`${titleClass} text-sm sm:text-base`}>
+            <CardTitle className={`${titleClass} text-sm sm:text-base font-mono uppercase`}>
               {type === 'recurring' ? t.recurringExpenses : t.variableExpenses}
             </CardTitle>
-            <div className={`text-lg sm:text-2xl font-bold ${totalClass}`}>
+            <div className={`text-lg sm:text-2xl font-bold ${totalClass} font-mono`}>
               $ {total.toLocaleString()}{type === 'recurring' ? `/${t.monthly.toLowerCase()}` : ` ${t.totalExpenses}`}
             </div>
-            <div className={`text-xs ${inactiveClass}`}>
+            <div className={`text-xs ${inactiveClass} font-mono`}>
               {expenses.filter(e => e.status === 'inactive').length} {t.inactiveExpenses}
             </div>
           </div>
