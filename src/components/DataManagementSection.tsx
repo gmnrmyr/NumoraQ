@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Upload, RotateCcw, Save, Cloud, CloudOff, ChevronDown, ChevronUp, Settings } from "lucide-react";
+import { Download, Upload, RotateCcw, Save, Cloud, CloudOff, ChevronDown, ChevronUp, Settings, FileText } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -79,11 +79,11 @@ export const DataManagementSection = () => {
           </CollapsibleTrigger>
         </CardHeader>
         <CollapsibleContent>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             {/* Local Data Management */}
             <div>
               <h3 className="text-sm font-mono text-muted-foreground mb-2 uppercase">Local Operations</h3>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                 <Button 
                   onClick={exportToCSV}
                   variant="outline"
@@ -93,8 +93,6 @@ export const DataManagementSection = () => {
                   <Download size={16} className="mr-1" />
                   CSV
                 </Button>
-                
-                <PDFExport />
                 
                 <Button
                   variant="outline"
@@ -123,6 +121,20 @@ export const DataManagementSection = () => {
                   Reset
                 </Button>
               </div>
+            </div>
+
+            {/* Export & Visualization */}
+            <div>
+              <h3 className="text-sm font-mono text-muted-foreground mb-2 uppercase flex items-center gap-2">
+                <FileText size={14} />
+                Export & Visualization
+              </h3>
+              <div className="flex justify-center">
+                <PDFExport />
+              </div>
+              <p className="text-xs text-muted-foreground font-mono text-center mt-2">
+                Generate a comprehensive financial report for printing or sharing
+              </p>
             </div>
 
             {/* Cloud Data Management */}
