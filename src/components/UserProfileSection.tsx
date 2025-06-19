@@ -69,7 +69,7 @@ export const UserProfileSection = () => {
               <DollarSign size={14} className="text-muted-foreground" />
               <EditableValue
                 value={data.userProfile.defaultCurrency}
-                onSave={(value) => updateUserProfile({ defaultCurrency: String(value) })}
+                onSave={(value) => updateUserProfile({ defaultCurrency: String(value) as "BRL" | "USD" | "EUR" })}
                 type="text"
                 className="font-mono bg-input border-2 border-border"
               />
@@ -78,7 +78,7 @@ export const UserProfileSection = () => {
               <Globe size={14} className="text-muted-foreground" />
               <EditableValue
                 value={data.userProfile.language}
-                onSave={(value) => updateUserProfile({ language: String(value) })}
+                onSave={(value) => updateUserProfile({ language: String(value) as "en" | "pt" | "es" })}
                 type="text"
                 className="font-mono bg-input border-2 border-border"
               />
