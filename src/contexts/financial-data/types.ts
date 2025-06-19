@@ -1,4 +1,3 @@
-
 export interface LiquidAsset {
   id: string;
   name: string;
@@ -49,7 +48,6 @@ export interface Expense {
   type: 'recurring' | 'variable';
   status: 'active' | 'inactive';
   specificDate?: string; // Added for variable expenses with specific dates
-  day?: number; // For recurring expenses
 }
 
 // Alias for backward compatibility
@@ -100,12 +98,6 @@ export interface Property {
   statusText: string;
   prediction: string;
   rentRange: string;
-  // New properties for wallet/crypto assets
-  walletAddress?: string;
-  lastFetched?: string;
-  cryptoSymbol?: string;
-  cryptoAmount?: number;
-  nftCount?: number;
 }
 
 // Alias for backward compatibility
