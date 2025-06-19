@@ -1,11 +1,11 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Key, X, Copy, Gift, Wallet, DollarSign, Crown, Settings, Globe } from 'lucide-react';
+import { Shield, Key, X, Copy, Gift, Wallet, DollarSign, Crown, Settings, Globe, Github, Twitter, Link } from 'lucide-react';
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useDonorWallet } from '@/hooks/useDonorWallet';
@@ -22,16 +22,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   const { addFakeDonation } = useDonorWallet();
   const [password, setPassword] = useState('');
   const [generatedCodes, setGeneratedCodes] = useState<string[]>([]);
-  const [projectWallet, setProjectWallet] = useState('');
+  const [projectWallet, setProjectWallet] = useState(localStorage.getItem('projectWallet') || '');
   const [testDonationAmount, setTestDonationAmount] = useState(0);
   const [testWalletAddress, setTestWalletAddress] = useState('');
-  const [websiteName, setWebsiteName] = useState('Open Findash');
+  
+  // CMS Configuration
+  const [websiteName, setWebsiteName] = useState(localStorage.getItem('websiteName') || 'Open Findash');
+  const [websiteVersion, setWebsiteVersion] = useState(localStorage.getItem('websiteVersion') || '1.0.0');
+  const [githubLink, setGithubLink] = useState(localStorage.getItem('githubLink') || '');
+  const [twitterLink, setTwitterLink] = useState(localStorage.getItem('twitterLink') || '');
+  const [websiteDescription, setWebsiteDescription] = useState(localStorage.getItem('websiteDescription') || 'Open source personal finance dashboard');
+  const [supportEmail, setSupportEmail] = useState(localStorage.getItem('supportEmail') || '');
 
   const handleLogin = () => {
     if (enterAdminMode(password)) {
       toast({
-        title: "Admin Mode Activated",
-        description: "You now have admin privileges."
+        title: "CMS/Admin Mode Activated",
+        description: "You now have full administrative privileges."
       });
       setPassword('');
     } else {
@@ -124,29 +131,47 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     });
   };
 
-  const handleUpdateWebsiteName = () => {
-    // Store website name in localStorage for now
+  const handleUpdateSiteConfig = () => {
+    // Store all configuration in localStorage
     localStorage.setItem('websiteName', websiteName);
+    localStorage.setItem('websiteVersion', websiteVersion);
+    localStorage.setItem('githubLink', githubLink);
+    localStorage.setItem('twitterLink', twitterLink);
+    localStorage.setItem('websiteDescription', websiteDescription);
+    localStorage.setItem('supportEmail', supportEmail);
+    localStorage.setItem('projectWallet', projectWallet);
+    
     toast({
-      title: "Website Name Updated",
-      description: `Website name changed to: ${websiteName}`,
+      title: "Site Configuration Updated",
+      description: "All website settings have been saved successfully.",
     });
   };
 
+  const getCurrentConfig = () => ({
+    name: localStorage.getItem('websiteName') || 'Open Findash',
+    version: localStorage.getItem('websiteVersion') || '1.0.0',
+    theme: data.userProfile.theme || 'default',
+    github: localStorage.getItem('githubLink') || 'Not set',
+    twitter: localStorage.getItem('twitterLink') || 'Not set',
+    description: localStorage.getItem('websiteDescription') || 'Open source personal finance dashboard',
+    supportEmail: localStorage.getItem('supportEmail') || 'Not set',
+    projectWallet: localStorage.getItem('projectWallet') || 'Not set'
+  });
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-card border-2 border-border max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="bg-card border-3 border-border max-w-4xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-mono uppercase">
-            <Shield size={16} className="text-accent" />
-            Admin Control Panel
+          <DialogTitle className="flex items-center gap-2 font-mono uppercase brutalist-heading">
+            <Shield size={20} className="text-accent" />
+            CMS / Admin Control Panel
           </DialogTitle>
         </DialogHeader>
 
         {!isAdminMode ? (
           <div className="space-y-4">
             <div className="text-sm text-muted-foreground font-mono">
-              Enter admin password to access admin features:
+              Enter admin password to access CMS and administrative features:
             </div>
             <Input
               type="password"
@@ -154,11 +179,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-              className="font-mono"
+              className="font-mono brutalist-input"
             />
             <div className="flex gap-2">
               <Button onClick={handleLogin} className="brutalist-button flex-1">
-                Login
+                Login to CMS
               </Button>
               <Button onClick={onClose} variant="outline" className="brutalist-button">
                 <X size={16} />
@@ -166,18 +191,122 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
         ) : (
-          <Tabs defaultValue="codes" className="w-full">
+          <Tabs defaultValue="site" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="site">CMS</TabsTrigger>
               <TabsTrigger value="codes">Codes</TabsTrigger>
               <TabsTrigger value="donors">Donors</TabsTrigger>
-              <TabsTrigger value="site">Site</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="codes" className="space-y-4">
-              <Card className="bg-background/50 border-2 border-green-600">
+            <TabsContent value="site" className="space-y-4">
+              <Card className="bg-background/50 border-3 border-accent brutalist-card">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-green-400 flex items-center gap-2 text-sm font-mono uppercase">
+                  <CardTitle className="text-accent flex items-center gap-2 text-sm font-mono uppercase brutalist-heading">
+                    <Globe size={16} />
+                    Website CMS Configuration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs text-muted-foreground font-mono uppercase">Website Name:</label>
+                      <Input
+                        value={websiteName}
+                        onChange={(e) => setWebsiteName(e.target.value)}
+                        placeholder="Enter website name"
+                        className="font-mono brutalist-input"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-xs text-muted-foreground font-mono uppercase">Version:</label>
+                      <Input
+                        value={websiteVersion}
+                        onChange={(e) => setWebsiteVersion(e.target.value)}
+                        placeholder="1.0.0"
+                        className="font-mono brutalist-input"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-xs text-muted-foreground font-mono uppercase">GitHub Repository:</label>
+                      <Input
+                        value={githubLink}
+                        onChange={(e) => setGithubLink(e.target.value)}
+                        placeholder="https://github.com/username/repo"
+                        className="font-mono brutalist-input"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-xs text-muted-foreground font-mono uppercase">Twitter/X Link:</label>
+                      <Input
+                        value={twitterLink}
+                        onChange={(e) => setTwitterLink(e.target.value)}
+                        placeholder="https://twitter.com/username"
+                        className="font-mono brutalist-input"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-xs text-muted-foreground font-mono uppercase">Support Email:</label>
+                      <Input
+                        value={supportEmail}
+                        onChange={(e) => setSupportEmail(e.target.value)}
+                        placeholder="support@example.com"
+                        className="font-mono brutalist-input"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-xs text-muted-foreground font-mono uppercase">Project Wallet:</label>
+                      <Input
+                        value={projectWallet}
+                        onChange={(e) => setProjectWallet(e.target.value)}
+                        placeholder="Project donation wallet address"
+                        className="font-mono brutalist-input"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-xs text-muted-foreground font-mono uppercase">Website Description:</label>
+                    <Textarea
+                      value={websiteDescription}
+                      onChange={(e) => setWebsiteDescription(e.target.value)}
+                      placeholder="Describe your application..."
+                      className="font-mono brutalist-input"
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <Button onClick={handleUpdateSiteConfig} className="brutalist-button w-full">
+                    <Settings size={16} className="mr-2" />
+                    Update Website Configuration
+                  </Button>
+                  
+                  <div className="bg-muted p-4 border-3 border-border brutalist-card">
+                    <h4 className="font-mono font-bold text-xs mb-2 uppercase brutalist-heading">Current Live Configuration:</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono">
+                      <div>• Name: {getCurrentConfig().name}</div>
+                      <div>• Version: {getCurrentConfig().version}</div>
+                      <div>• Theme: {getCurrentConfig().theme}</div>
+                      <div>• GitHub: {getCurrentConfig().github !== 'Not set' ? '✓ Set' : '✗ Not set'}</div>
+                      <div>• Twitter: {getCurrentConfig().twitter !== 'Not set' ? '✓ Set' : '✗ Not set'}</div>
+                      <div>• Support: {getCurrentConfig().supportEmail !== 'Not set' ? '✓ Set' : '✗ Not set'}</div>
+                      <div>• Wallet: {getCurrentConfig().projectWallet !== 'Not set' ? '✓ Set' : '✗ Not set'}</div>
+                      <div className="md:col-span-2">• Description: {getCurrentConfig().description}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="codes" className="space-y-4">
+              <Card className="bg-background/50 border-3 border-green-600 brutalist-card">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-green-400 flex items-center gap-2 text-sm font-mono uppercase brutalist-heading">
                     <Key size={16} />
                     Degen Code Generator
                   </CardTitle>
@@ -209,7 +338,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                       <div className="text-xs text-muted-foreground font-mono uppercase">Recent Codes:</div>
                       <div className="max-h-32 overflow-y-auto space-y-1">
                         {generatedCodes.map((code, index) => (
-                          <div key={index} className="flex items-center justify-between bg-muted p-2 rounded font-mono text-xs">
+                          <div key={index} className="flex items-center justify-between bg-muted p-2 border-2 border-border font-mono text-xs brutalist-card">
                             <span>{code}</span>
                             <Button
                               size="sm"
@@ -229,9 +358,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
             </TabsContent>
 
             <TabsContent value="donors" className="space-y-4">
-              <Card className="bg-background/50 border-2 border-yellow-600">
+              <Card className="bg-background/50 border-3 border-yellow-600 brutalist-card">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-yellow-400 flex items-center gap-2 text-sm font-mono uppercase">
+                  <CardTitle className="text-yellow-400 flex items-center gap-2 text-sm font-mono uppercase brutalist-heading">
                     <Gift size={16} />
                     Donor Management & Testing
                   </CardTitle>
@@ -243,7 +372,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                       value={projectWallet}
                       onChange={(e) => setProjectWallet(e.target.value)}
                       placeholder="Enter project wallet address for donations"
-                      className="font-mono text-xs"
+                      className="font-mono text-xs brutalist-input"
                     />
                   </div>
                   
@@ -255,7 +384,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                         value={testWalletAddress}
                         onChange={(e) => setTestWalletAddress(e.target.value)}
                         placeholder="Wallet address to add donation to"
-                        className="font-mono text-xs"
+                        className="font-mono text-xs brutalist-input"
                       />
                       <div className="flex gap-2">
                         <Input
@@ -263,7 +392,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                           value={testDonationAmount}
                           onChange={(e) => setTestDonationAmount(Number(e.target.value))}
                           placeholder="Amount"
-                          className="font-mono text-xs"
+                          className="font-mono text-xs brutalist-input"
                         />
                         <Button onClick={handleAddFakeDonation} size="sm" className="brutalist-button bg-green-600">
                           <DollarSign size={12} className="mr-1" />
@@ -287,7 +416,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                         value={testDonationAmount}
                         onChange={(e) => setTestDonationAmount(Number(e.target.value))}
                         placeholder="Amount"
-                        className="font-mono text-xs"
+                        className="font-mono text-xs brutalist-input"
                       />
                       <Button onClick={handleTestDonation} size="sm" className="brutalist-button bg-green-600">
                         <DollarSign size={12} className="mr-1" />
@@ -300,48 +429,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                     </Button>
                   </div>
                   
-                  <div className="bg-muted p-3 border-2 border-border">
-                    <h4 className="font-mono font-bold text-xs mb-2 uppercase">Title Hierarchy:</h4>
+                  <div className="bg-muted p-3 border-3 border-border brutalist-card">
+                    <h4 className="font-mono font-bold text-xs mb-2 uppercase brutalist-heading">Title Hierarchy:</h4>
                     <div className="space-y-1 text-xs font-mono">
                       <div className="text-yellow-400">• PATRON ($1000+) - All features + NFT airdrops</div>
                       <div className="text-purple-400">• SUPPORTER ($500+) - Premium themes + early access</div>
                       <div className="text-blue-400">• BACKER ($100+) - Advanced features unlocked</div>
                       <div className="text-green-400">• DONOR ($10+) - Supporter badge + thanks</div>
                       <div className="text-muted-foreground">• USER ($0) - Basic features</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="site" className="space-y-4">
-              <Card className="bg-background/50 border-2 border-blue-600">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-blue-400 flex items-center gap-2 text-sm font-mono uppercase">
-                    <Globe size={16} />
-                    Website Configuration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-xs text-muted-foreground font-mono uppercase">Website Name:</label>
-                    <Input
-                      value={websiteName}
-                      onChange={(e) => setWebsiteName(e.target.value)}
-                      placeholder="Enter website name"
-                      className="font-mono text-xs"
-                    />
-                    <Button onClick={handleUpdateWebsiteName} className="brutalist-button bg-blue-600 hover:bg-blue-700">
-                      Update Website Name
-                    </Button>
-                  </div>
-                  
-                  <div className="bg-muted p-3 border-2 border-border">
-                    <div className="text-xs font-mono">
-                      <div className="font-bold mb-1">Current Configuration:</div>
-                      <div>• Name: {localStorage.getItem('websiteName') || 'Open Findash'}</div>
-                      <div>• Version: 1.0.0</div>
-                      <div>• Theme: {data.userProfile.theme || 'default'}</div>
                     </div>
                   </div>
                 </CardContent>
@@ -355,7 +450,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                   variant="outline" 
                   className="brutalist-button flex-1"
                 >
-                  Exit Admin Mode
+                  Exit CMS/Admin Mode
                 </Button>
                 <Button onClick={onClose} variant="outline" className="brutalist-button">
                   <X size={16} />
