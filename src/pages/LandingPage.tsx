@@ -18,6 +18,20 @@ const LandingPage = () => {
       });
     }, 2000);
 
+    // Initialize Unicorn Studio
+    if (!window.UnicornStudio) {
+      window.UnicornStudio = { isInitialized: false };
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
+      script.onload = function() {
+        if (!window.UnicornStudio.isInitialized) {
+          window.UnicornStudio.init();
+          window.UnicornStudio.isInitialized = true;
+        }
+      };
+      (document.head || document.body).appendChild(script);
+    }
+
     return () => clearInterval(timer);
   }, []);
 
@@ -110,9 +124,27 @@ const LandingPage = () => {
         </nav>
 
         {/* Hero Section - Added top padding for fixed navbar */}
-        <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <Badge variant="outline" className="mb-6 text-accent border-accent font-mono">
+        <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+          {/* Unicorn Studio Background with bleed effect and bottom fade */}
+          <div 
+            className="absolute inset-0 -mx-8 -mt-8 overflow-hidden z-0"
+            style={{
+              background: 'linear-gradient(to bottom, transparent 0%, transparent 80%, rgba(var(--background)) 100%)'
+            }}
+          >
+            <div 
+              data-us-project="PZSV1Zb8lHQjhdLRBsQN" 
+              className="w-full h-full min-w-[120vw] min-h-[120vh] -ml-[10vw] -mt-[10vh]"
+              style={{
+                width: 'max(1440px, 120vw)', 
+                height: 'max(900px, 120vh)',
+                transform: 'scale(1.1)'
+              }}
+            />
+          </div>
+          
+          <div className="max-w-7xl mx-auto text-center relative z-10">
+            <Badge variant="outline" className="mb-6 text-accent border-accent font-mono bg-background/80 backdrop-blur-sm">
               100% Free & Open Source
             </Badge>
             
@@ -145,7 +177,7 @@ const LandingPage = () => {
             </div>
 
             {/* ASCII Art Dashboard Preview */}
-            <div className="bg-card border-2 border-border p-4 sm:p-6 rounded-lg max-w-4xl mx-auto font-mono text-xs sm:text-sm overflow-hidden">
+            <div className="bg-card/90 border-2 border-border p-4 sm:p-6 rounded-lg max-w-4xl mx-auto font-mono text-xs sm:text-sm overflow-hidden backdrop-blur-sm">
               <div className="ascii-animation space-y-2">
                 <div className="text-accent">┌─ PORTFOLIO OVERVIEW ─────────────────────┐</div>
                 <div>│ ₿ Bitcoin        $45,230   📈 +12.5%    │</div>
