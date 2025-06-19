@@ -1,58 +1,69 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Toaster } from '@/components/ui/toaster';
+import { PWASetup } from './PWASetup';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { TranslationProvider } from '@/contexts/TranslationContext';
+import { FinancialDataProvider } from '@/contexts/FinancialDataContext';
+import DashboardPage from '@/pages/DashboardPage';
+import SettingsPage from '@/pages/SettingsPage';
+import ProfilePage from '@/pages/ProfilePage';
+import HomePage from '@/pages/HomePage';
+import LoginPage from '@/pages/LoginPage';
+import SignupPage from '@/pages/SignupPage';
+import AboutPage from '@/pages/AboutPage';
+import ContactPage from '@/pages/ContactPage';
+import NotFoundPage from '@/pages/NotFoundPage';
+import PremiumPage from '@/pages/PremiumPage';
+import BlogPage from '@/pages/BlogPage';
+import PricingPage from '@/pages/PricingPage';
+import DonatePage from '@/pages/DonatePage';
+import ComingSoonPage from '@/pages/ComingSoonPage';
+import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
+import TermsOfServicePage from '@/pages/TermsOfServicePage';
+import CookiePolicyPage from '@/pages/CookiePolicyPage';
+import LegalNoticePage from '@/pages/LegalNoticePage';
+import AccessibilityStatementPage from '@/pages/AccessibilityStatementPage';
+import { DonationProvider } from '@/contexts/DonationContext';
 
-import React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { FinancialDataProvider } from "@/contexts/FinancialDataContext";
-import { TranslationProvider } from "@/contexts/TranslationContext";
-import LandingPage from "./pages/LandingPage";
-import Dashboard from "./pages/Dashboard";
-import AuthPage from "./pages/AuthPage";
-import OnboardingPage from "./pages/OnboardingPage";
-import LeaderboardPage from "./pages/LeaderboardPage";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import NotFound from "./pages/NotFound";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-const App: React.FC = () => {
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <FinancialDataProvider>
-          <TranslationProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
+    <div className="min-h-screen bg-background">
+      <TranslationProvider>
+        <AuthProvider>
+          <FinancialDataProvider>
+            <DonationProvider>
+              <Router>
                 <Routes>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/onboarding" element={<OnboardingPage />} />
-                  <Route path="/leaderboard" element={<LeaderboardPage />} />
-                  <Route path="/terms" element={<TermsOfService />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="*" element={<NotFound />} />
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/signup" element={<SignupPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/premium" element={<PremiumPage />} />
+                  <Route path="/blog" element={<BlogPage />} />
+                  <Route path="/pricing" element={<PricingPage />} />
+                  <Route path="/donate" element={<DonatePage />} />
+                  <Route path="/coming-soon" element={<ComingSoonPage />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                  <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+                  <Route path="/cookie-policy" element={<CookiePolicyPage />} />
+                  <Route path="/legal-notice" element={<LegalNoticePage />} />
+                  <Route path="/accessibility-statement" element={<AccessibilityStatementPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
                 </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </TranslationProvider>
-        </FinancialDataProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+              </Router>
+              <Toaster />
+              <PWASetup />
+            </DonationProvider>
+          </FinancialDataProvider>
+        </AuthProvider>
+      </TranslationProvider>
+    </div>
   );
-};
+}
 
 export default App;
