@@ -32,6 +32,7 @@ export interface UserProfile {
   defaultCurrency: 'USD' | 'BRL' | 'EUR';
   language: 'en' | 'pt' | 'es' | 'fr' | 'de';
   liveDataEnabled?: boolean;
+  avatarIcon?: string;
 }
 
 export type IncomeStatus = 'active' | 'inactive';
