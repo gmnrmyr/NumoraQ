@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
+import { TrendingUp, ChevronDown, ChevronUp, DollarSign, Calendar, Target, AlertTriangle } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 
@@ -52,7 +52,10 @@ export const ProjectionChart = () => {
         monthlyIncome: totalPassiveIncome + totalActiveIncome,
         monthlyExpenses: totalRecurringExpenses,
         netChange: monthlyBalance,
-        liquidAssets: totalLiquid
+        liquidAssets: totalLiquid,
+        passiveIncome: totalPassiveIncome,
+        activeIncome: totalActiveIncome,
+        cumulativeGrowth: currentBalance - totalLiquid
       });
       
       currentBalance += monthlyBalance;
@@ -65,6 +68,8 @@ export const ProjectionChart = () => {
   const initialBalance = projectionData[0]?.balance || 0;
   const finalBalance = projectionData[projectionData.length - 1]?.balance || 0;
   const isPositiveProjection = finalBalance >= initialBalance;
+  const totalGrowth = finalBalance - initialBalance;
+  const monthlyAverage = totalGrowth / data.projectionMonths;
 
   const getCurrencySymbol = (currency: string) => {
     switch (currency) {
@@ -77,13 +82,27 @@ export const ProjectionChart = () => {
 
   const currencySymbol = getCurrencySymbol(data.userProfile.defaultCurrency);
 
+  // Financial Independence calculations
+  const monthlyExpenses = data.expenses
+    .filter(expense => expense.type === 'recurring' && expense.status === 'active')
+    .reduce((sum, expense) => sum + expense.amount, 0);
+  
+  const passiveIncome = data.passiveIncome
+    .filter(income => income.status === 'active')
+    .reduce((sum, income) => sum + income.amount, 0);
+
+  const fiRatio = monthlyExpenses > 0 ? (passiveIncome / monthlyExpenses) * 100 : 0;
+  const monthsToFI = passiveIncome < monthlyExpenses && monthlyAverage > 0 
+    ? Math.ceil((monthlyExpenses * 25 - initialBalance) / monthlyAverage) 
+    : 0;
+
   return (
     <Card className="bg-card border-accent border-2 backdrop-blur-sm">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-foreground flex items-center gap-2 text-sm sm:text-base font-mono uppercase">
             <TrendingUp size={16} className="text-accent" />
-            {t.projection || 'Financial Projection Chart'} - {data.projectionMonths} Months
+            {t.projection || 'Financial Projection'} - {data.projectionMonths} Months
           </CardTitle>
           <Button
             variant="ghost"
@@ -97,6 +116,111 @@ export const ProjectionChart = () => {
       </CardHeader>
       {!isCollapsed && (
         <CardContent>
+          {/* Key Metrics Overview */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="text-center p-3 bg-background/50 border-2 border-border">
+              <div className="text-xs text-muted-foreground font-mono uppercase">Current Balance</div>
+              <div className="text-lg font-bold font-mono text-accent">
+                {currencySymbol} {initialBalance.toLocaleString()}
+              </div>
+            </div>
+            <div className="text-center p-3 bg-background/50 border-2 border-border">
+              <div className="text-xs text-muted-foreground font-mono uppercase">Projected ({data.projectionMonths}m)</div>
+              <div className={`text-lg font-bold font-mono ${isPositiveProjection ? 'text-green-400' : 'text-red-400'}`}>
+                {currencySymbol} {finalBalance.toLocaleString()}
+              </div>
+            </div>
+            <div className="text-center p-3 bg-background/50 border-2 border-border">
+              <div className="text-xs text-muted-foreground font-mono uppercase">Total Growth</div>
+              <div className={`text-lg font-bold font-mono ${totalGrowth >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {totalGrowth >= 0 ? '+' : ''}{currencySymbol} {totalGrowth.toLocaleString()}
+              </div>
+            </div>
+            <div className="text-center p-3 bg-background/50 border-2 border-border">
+              <div className="text-xs text-muted-foreground font-mono uppercase">Monthly Avg</div>
+              <div className={`text-lg font-bold font-mono ${monthlyAverage >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {monthlyAverage >= 0 ? '+' : ''}{currencySymbol} {monthlyAverage.toFixed(0)}
+              </div>
+            </div>
+          </div>
+
+          {/* Financial Independence Panel */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <Card className="bg-background/30 border-2 border-purple-600">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-purple-400 flex items-center gap-2 text-sm font-mono uppercase">
+                  <Target size={16} />
+                  Financial Independence
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-mono text-muted-foreground">FI Ratio</span>
+                    <span className={`font-mono font-bold ${fiRatio >= 100 ? 'text-green-400' : 'text-yellow-400'}`}>
+                      {fiRatio.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-muted h-2 rounded">
+                    <div 
+                      className={`h-2 rounded transition-all ${fiRatio >= 100 ? 'bg-green-400' : 'bg-yellow-400'}`}
+                      style={{ width: `${Math.min(fiRatio, 100)}%` }}
+                    />
+                  </div>
+                  <div className="text-xs font-mono text-muted-foreground">
+                    {fiRatio >= 100 ? '🎉 Financially Independent!' : 
+                     fiRatio >= 75 ? '🚀 Almost there!' :
+                     fiRatio >= 50 ? '📈 Good progress!' :
+                     fiRatio >= 25 ? '🌱 Building momentum!' : '🎯 Starting journey'}
+                  </div>
+                  {monthsToFI > 0 && monthsToFI < 1200 && (
+                    <div className="text-xs font-mono text-accent">
+                      Est. {monthsToFI} months to FI ({Math.ceil(monthsToFI/12)} years)
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-background/30 border-2 border-blue-600">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-blue-400 flex items-center gap-2 text-sm font-mono uppercase">
+                  <DollarSign size={16} />
+                  Income Breakdown
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-xs font-mono text-green-400">Passive Income</span>
+                    <span className="text-xs font-mono font-bold text-green-400">
+                      {currencySymbol} {projectionData[0]?.passiveIncome.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-xs font-mono text-blue-400">Active Income</span>
+                    <span className="text-xs font-mono font-bold text-blue-400">
+                      {currencySymbol} {projectionData[0]?.activeIncome.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-xs font-mono text-red-400">Expenses</span>
+                    <span className="text-xs font-mono font-bold text-red-400">
+                      {currencySymbol} {projectionData[0]?.monthlyExpenses.toLocaleString()}
+                    </span>
+                  </div>
+                  <hr className="border-border" />
+                  <div className="flex justify-between">
+                    <span className="text-xs font-mono font-bold">Net Monthly</span>
+                    <span className={`text-xs font-mono font-bold ${projectionData[0]?.netChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {projectionData[0]?.netChange >= 0 ? '+' : ''}{currencySymbol} {projectionData[0]?.netChange.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Chart Section */}
           <div className="h-64 w-full mb-6">
             <ResponsiveContainer width="100%" height="100%">
@@ -157,24 +281,8 @@ export const ProjectionChart = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* Summary Cards */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="text-center p-2 bg-background/50 border-2 border-border">
-              <div className="text-xs text-muted-foreground font-mono uppercase">Initial</div>
-              <div className="text-sm font-bold font-mono">
-                {currencySymbol} {initialBalance.toLocaleString()}
-              </div>
-            </div>
-            <div className="text-center p-2 bg-background/50 border-2 border-border">
-              <div className="text-xs text-muted-foreground font-mono uppercase">Projected</div>
-              <div className={`text-sm font-bold font-mono ${isPositiveProjection ? 'text-green-400' : 'text-red-400'}`}>
-                {currencySymbol} {finalBalance.toLocaleString()}
-              </div>
-            </div>
-          </div>
-
           {/* Detailed Monthly Projection Table */}
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto mb-6">
             <table className="w-full text-xs font-mono">
               <thead>
                 <tr className="border-b border-border">
@@ -182,6 +290,7 @@ export const ProjectionChart = () => {
                   <th className="text-right p-2 text-green-400">Income</th>
                   <th className="text-right p-2 text-red-400">Expenses</th>
                   <th className="text-right p-2 text-blue-400">Net</th>
+                  <th className="text-right p-2 text-purple-400">Growth</th>
                   <th className="text-right p-2 text-accent">Balance</th>
                 </tr>
               </thead>
@@ -198,6 +307,9 @@ export const ProjectionChart = () => {
                     <td className={`text-right p-2 ${month.netChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                       {month.netChange >= 0 ? '+' : ''}{currencySymbol}{month.netChange.toLocaleString()}
                     </td>
+                    <td className={`text-right p-2 text-purple-400`}>
+                      {month.cumulativeGrowth >= 0 ? '+' : ''}{currencySymbol}{month.cumulativeGrowth.toLocaleString()}
+                    </td>
                     <td className="text-right p-2 text-accent font-bold">
                       {currencySymbol}{month.balance.toLocaleString()}
                     </td>
@@ -207,16 +319,63 @@ export const ProjectionChart = () => {
             </table>
           </div>
 
+          {/* Risk Assessment Panel */}
+          <Card className="bg-background/30 border-2 border-yellow-600 mb-6">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-yellow-400 flex items-center gap-2 text-sm font-mono uppercase">
+                <AlertTriangle size={16} />
+                Risk Assessment
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground font-mono uppercase">Emergency Fund</div>
+                  <div className={`font-mono font-bold ${initialBalance >= (monthlyExpenses * 6) ? 'text-green-400' : 'text-yellow-400'}`}>
+                    {monthlyExpenses > 0 ? `${(initialBalance / monthlyExpenses).toFixed(1)} months` : 'N/A'}
+                  </div>
+                  <div className="text-xs text-muted-foreground font-mono">
+                    {initialBalance >= (monthlyExpenses * 6) ? '✅ Well covered' : '⚠️ Consider building'}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground font-mono uppercase">Income Stability</div>
+                  <div className={`font-mono font-bold ${fiRatio >= 50 ? 'text-green-400' : 'text-yellow-400'}`}>
+                    {fiRatio >= 75 ? 'High' : fiRatio >= 50 ? 'Medium' : fiRatio >= 25 ? 'Low' : 'Very Low'}
+                  </div>
+                  <div className="text-xs text-muted-foreground font-mono">
+                    Passive income ratio
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground font-mono uppercase">Growth Trend</div>
+                  <div className={`font-mono font-bold ${isPositiveProjection ? 'text-green-400' : 'text-red-400'}`}>
+                    {isPositiveProjection ? 'Positive' : 'Negative'}
+                  </div>
+                  <div className="text-xs text-muted-foreground font-mono">
+                    {Math.abs((totalGrowth / initialBalance) * 100).toFixed(1)}% over {data.projectionMonths}m
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Insights Section */}
-          <div className="mt-4 p-3 bg-muted/20 border-l-4 border-accent">
+          <div className="p-4 bg-muted/20 border-l-4 border-accent">
             <div className="text-xs font-mono text-muted-foreground">
-              💡 <strong>Projection Insights:</strong>
+              💡 <strong>AI Insights:</strong>
               <br />
-              • {isPositiveProjection ? 'Positive' : 'Negative'} growth trend over {data.projectionMonths} months
+              • {isPositiveProjection ? 'Positive' : 'Negative'} growth trajectory over {data.projectionMonths} months
               <br />
               • Monthly net flow: {currencySymbol}{(projectionData[1]?.netChange || 0).toLocaleString()}
               <br />
-              • Total projected change: {currencySymbol}{(finalBalance - initialBalance).toLocaleString()}
+              • Total projected change: {currencySymbol}{totalGrowth.toLocaleString()}
+              <br />
+              • {fiRatio >= 100 ? 'Congratulations! You\'ve achieved financial independence!' :
+                 fiRatio >= 75 ? 'You\'re very close to financial independence!' :
+                 fiRatio >= 50 ? 'You\'re making good progress towards financial independence.' :
+                 fiRatio >= 25 ? 'Consider increasing passive income or reducing expenses.' :
+                 'Focus on building passive income streams for long-term stability.'}
             </div>
           </div>
         </CardContent>
