@@ -8,7 +8,7 @@ import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { Badge } from "@/components/ui/badge";
 import { UserSettingsPanel } from "@/components/navbar/UserSettingsPanel";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface NavbarProps {
   activeTab: string;
@@ -21,6 +21,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   const { user } = useAuth();
   const { data, syncState, lastSync } = useFinancialData();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const navItems = [
     { id: 'portfolio', label: 'Portfolio', icon: Briefcase },
@@ -44,6 +45,11 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
       navigate('/leaderboard');
       setIsOpen(false);
       return;
+    }
+    
+    // Only navigate to dashboard if we're not already there
+    if (location.pathname !== '/dashboard') {
+      navigate('/dashboard');
     }
     
     onTabChange(tab);
@@ -91,6 +97,8 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
     return date.toLocaleDateString();
   };
 
+  const isLeaderboardActive = location.pathname === '/leaderboard';
+
   return (
     <div className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
       isScrolled 
@@ -120,7 +128,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
         
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-4">
-          {/* Pages Section */}
+          {/* Dashboard Pages Section */}
           <div className="flex items-center gap-2 px-3 py-2 bg-accent/10 border border-accent/20 rounded-lg">
             {navItems.map(item => {
               const Icon = item.icon;
@@ -143,10 +151,11 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
           {user && (
             <div className="flex items-center gap-2 px-3 py-2 bg-accent/10 border border-accent/20 rounded-lg">
               <Button
-                variant={activeTab === 'leaderboard' ? "default" : "ghost"}
+                variant={isLeaderboardActive ? "default" : "ghost"}
                 onClick={() => handleTabChange('leaderboard')}
                 size="sm"
                 className="font-mono brutalist-button text-slate-100"
+                title="Community Leaderboard"
               >
                 <Trophy size={16} className="mr-1" />
                 Leaderboard
@@ -203,7 +212,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
                     <div className="border-t border-border pt-4 mt-2">
                       <h3 className="font-bold text-sm font-mono uppercase text-accent mb-2">Community</h3>
                       <Button
-                        variant={activeTab === 'leaderboard' ? "default" : "ghost"}
+                        variant={isLeaderboardActive ? "default" : "ghost"}
                         onClick={() => handleTabChange('leaderboard')}
                         className="justify-start font-mono brutalist-button w-full"
                       >
