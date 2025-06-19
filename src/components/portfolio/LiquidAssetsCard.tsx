@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import { Plus, Trash2, Coins } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Trash2, Coins, Settings, Wallet, TrendingUp } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { EditableValue } from "@/components/ui/editable-value";
@@ -26,9 +26,12 @@ export const LiquidAssetsCard = () => {
     value: 0,
     icon: 'Coins',
     color: 'text-accent',
-    isActive: true
+    isActive: true,
+    trackingMode: 'manual' as 'manual' | 'wallet' | 'price'
   });
   const [isAddingLiquid, setIsAddingLiquid] = useState(false);
+  const [showAdvancedFor, setShowAdvancedFor] = useState<string | null>(null);
+  
   const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
   const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
   
@@ -40,11 +43,14 @@ export const LiquidAssetsCard = () => {
         value: 0,
         icon: 'Coins',
         color: 'text-accent',
-        isActive: true
+        isActive: true,
+        trackingMode: 'manual'
       });
       setIsAddingLiquid(false);
     }
   };
+
+  const cryptoAssets = ['BTC', 'ETH', 'USDT', 'BNB', 'ADA', 'SOL', 'DOT', 'MATIC'];
 
   return (
     <Card className="bg-card/80 backdrop-blur-sm border-accent border-2">
@@ -92,6 +98,19 @@ export const LiquidAssetsCard = () => {
                   })} 
                   placeholder="Choose an icon" 
                 />
+                <Select value={newLiquidAsset.trackingMode} onValueChange={(value: any) => setNewLiquidAsset({
+                  ...newLiquidAsset,
+                  trackingMode: value
+                })}>
+                  <SelectTrigger className="bg-input border-border border-2">
+                    <SelectValue placeholder="Tracking mode" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border border-2">
+                    <SelectItem value="manual">📝 Manual Entry</SelectItem>
+                    <SelectItem value="price">📊 Price Tracking</SelectItem>
+                    <SelectItem value="wallet">🔗 Wallet Connection</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button onClick={handleAddLiquidAsset} className="w-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono uppercase">
                   {t.add}
                 </Button>
@@ -110,6 +129,7 @@ export const LiquidAssetsCard = () => {
         {data.liquidAssets.map(asset => {
           const Icon = iconMap[asset.icon] || Coins;
           const percentage = totalLiquid > 0 ? asset.value / totalLiquid * 100 : 0;
+          const isCrypto = cryptoAssets.some(crypto => asset.name.toUpperCase().includes(crypto));
           
           return (
             <div key={asset.id} className={`space-y-2 min-w-0 ${!asset.isActive ? 'opacity-50' : ''}`}>
@@ -145,6 +165,92 @@ export const LiquidAssetsCard = () => {
                     onChange={e => updateLiquidAsset(asset.id, { name: e.target.value })}
                     className="border-none p-0 font-medium bg-transparent flex-1 min-w-0 font-mono text-foreground"
                   />
+                  {(isCrypto || asset.trackingMode !== 'manual') && (
+                    <Dialog open={showAdvancedFor === asset.id} onOpenChange={(open) => setShowAdvancedFor(open ? asset.id : null)}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-blue-400 border-blue-400 hover:bg-blue-400/20 p-1"
+                        >
+                          <Settings size={12} />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-card border-2 border-border max-w-md">
+                        <DialogHeader>
+                          <DialogTitle className="font-mono">Advanced Tracking: {asset.name}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-mono text-muted-foreground">Tracking Mode</label>
+                            <Select 
+                              value={asset.trackingMode || 'manual'} 
+                              onValueChange={(value: any) => updateLiquidAsset(asset.id, { trackingMode: value })}
+                            >
+                              <SelectTrigger className="bg-input border-border">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-card border-border">
+                                <SelectItem value="manual">
+                                  <div className="flex items-center gap-2">
+                                    <Coins size={16} />
+                                    <span>Manual Entry</span>
+                                  </div>
+                                </SelectItem>
+                                {isCrypto && (
+                                  <>
+                                    <SelectItem value="price">
+                                      <div className="flex items-center gap-2">
+                                        <TrendingUp size={16} />
+                                        <span>Price Tracking</span>
+                                      </div>
+                                    </SelectItem>
+                                    <SelectItem value="wallet">
+                                      <div className="flex items-center gap-2">
+                                        <Wallet size={16} />
+                                        <span>Wallet Connection</span>
+                                      </div>
+                                    </SelectItem>
+                                  </>
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          {asset.trackingMode === 'price' && (
+                            <div className="space-y-2">
+                              <label className="text-sm font-mono text-muted-foreground">Amount Held</label>
+                              <Input 
+                                type="number" 
+                                placeholder="0.00" 
+                                className="bg-input border-border font-mono"
+                              />
+                              <div className="text-xs text-blue-400 font-mono">
+                                📊 Value will update automatically based on current price
+                              </div>
+                            </div>
+                          )}
+                          
+                          {asset.trackingMode === 'wallet' && (
+                            <div className="space-y-2">
+                              <label className="text-sm font-mono text-muted-foreground">Wallet Address</label>
+                              <Input 
+                                placeholder="0x..." 
+                                className="bg-input border-border font-mono text-xs"
+                              />
+                              <div className="text-xs text-blue-400 font-mono">
+                                🔗 Connect via DeBank API (Coming Soon)
+                              </div>
+                            </div>
+                          )}
+                          
+                          <div className="text-xs text-muted-foreground font-mono bg-muted p-2 border border-border">
+                            💡 Manual mode remains default and most reliable for precise tracking
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  )}
                   <Button
                     onClick={() => updateLiquidAsset(asset.id, { isActive: !asset.isActive })}
                     variant="outline"
