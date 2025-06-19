@@ -132,11 +132,17 @@ export const es: Translations = {
   expenseSummary: 'Resumen de Gastos',
   tapToSwitch: 'Toca para cambiar',
   
-  // Debt-specific terms
   creditor: 'Acreedor',
   dueDate: 'Fecha de Vencimiento',
   status: 'Estado',
   partial: 'Parcial',
   paid: 'Pagado',
   due: 'Vencimiento',
+
+  // New properties for expenses
+  specificDate: 'Fecha Específica',
+  optional: 'Opcional',
+  dateHelp: 'Deja vacío para gasto variable mensual recurrente',
+  expense: 'Gasto',
+  noExpenses: 'No hay gastos rastreados aún. ¡Agrega uno para comenzar!'
 };
