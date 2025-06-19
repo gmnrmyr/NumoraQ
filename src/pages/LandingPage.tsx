@@ -1,14 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, TrendingUp, Shield, Zap, Menu, X, Github, Twitter, Linkedin } from "lucide-react";
+import { ArrowRight, TrendingUp, Shield, Zap, Menu, X, Github, Twitter, Linkedin, Play, Pause } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { useAnimationToggle } from '@/hooks/useAnimationToggle';
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAnimationEnabled, toggleAnimation, showToggle } = useAnimationToggle();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -128,35 +129,52 @@ const LandingPage = () => {
 
         {/* Hero Section - Added top padding for fixed navbar */}
         <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+          {/* Animation Toggle for Mobile/Tablet */}
+          {showToggle && (
+            <div className="fixed top-20 right-4 z-40">
+              <Button
+                onClick={toggleAnimation}
+                variant="outline"
+                size="sm"
+                className="bg-card/80 backdrop-blur-sm border-accent/50 hover:bg-accent/10"
+              >
+                {isAnimationEnabled ? <Pause size={16} /> : <Play size={16} />}
+                <span className="ml-1 text-xs">Animation</span>
+              </Button>
+            </div>
+          )}
+
           {/* Responsive Unicorn Studio Background with bleed effect and bottom fade */}
-          <div 
-            className="absolute inset-0 -mx-8 -mt-8 overflow-hidden z-0"
-            style={{
-              background: 'linear-gradient(to bottom, transparent 0%, transparent 80%, rgba(var(--background)) 100%)'
-            }}
-          >
-            {/* Desktop Animation */}
+          {isAnimationEnabled && (
             <div 
-              data-us-project="PZSV1Zb8lHQjhdLRBsQN" 
-              className="hidden lg:block w-full h-full min-w-[120vw] min-h-[120vh] -ml-[10vw] -mt-[10vh]"
+              className="absolute inset-0 -mx-8 -mt-8 overflow-hidden z-0"
               style={{
-                width: 'max(1440px, 120vw)', 
-                height: 'max(900px, 120vh)',
-                transform: 'scale(1.1)'
+                background: 'linear-gradient(to bottom, transparent 0%, transparent 80%, rgba(var(--background)) 100%)'
               }}
-            />
-            
-            {/* Mobile & Tablet Animation */}
-            <div 
-              data-us-project="Jmp7i20rUQsDyxKJ0OWM" 
-              className="lg:hidden w-full h-full min-w-[120vw] min-h-[120vh] -ml-[10vw] -mt-[10vh]"
-              style={{
-                width: 'max(768px, 120vw)', 
-                height: 'max(1024px, 120vh)',
-                transform: 'scale(1.1)'
-              }}
-            />
-          </div>
+            >
+              {/* Desktop Animation */}
+              <div 
+                data-us-project="PZSV1Zb8lHQjhdLRBsQN" 
+                className="hidden lg:block w-full h-full min-w-[120vw] min-h-[120vh] -ml-[10vw] -mt-[10vh]"
+                style={{
+                  width: 'max(1440px, 120vw)', 
+                  height: 'max(900px, 120vh)',
+                  transform: 'scale(1.1)'
+                }}
+              />
+              
+              {/* Mobile & Tablet Animation */}
+              <div 
+                data-us-project="Jmp7i20rUQsDyxKJ0OWM" 
+                className="lg:hidden w-full h-full min-w-[120vw] min-h-[120vh] -ml-[10vw] -mt-[10vh]"
+                style={{
+                  width: 'max(768px, 120vw)', 
+                  height: 'max(1024px, 120vh)',
+                  transform: 'scale(1.1)'
+                }}
+              />
+            </div>
+          )}
           
           <div className="max-w-7xl mx-auto text-center relative z-10">
             <Badge variant="outline" className="mb-6 text-accent border-accent font-mono bg-background/80 backdrop-blur-sm">
