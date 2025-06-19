@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -8,17 +9,22 @@ import { AssetManagementEditable } from "@/components/AssetManagementEditable";
 import { ExpenseTrackingEditable } from "@/components/ExpenseTrackingEditable";
 import { TaskManagementEditable } from "@/components/TaskManagementEditable";
 import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
-import { DataManagementSection } from "@/components/dashboard/DataManagementSection";
+import { DataManagementSection } from "@/components/DataManagementSection";
 import { ExchangeRatesBanner } from "@/components/dashboard/ExchangeRatesBanner";
-import { AIAdvisor } from "@/components/ai/AIAdvisor";
+import { AIAdvisor } from "@/components/AIAdvisor";
 import { DevMenu } from "@/components/DevMenu";
 import { DegenModeActivation } from "@/components/DegenModeActivation";
 
-export const Dashboard = () => {
+const Dashboard = () => {
+  const [activeTab, setActiveTab] = useState('portfolio');
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar activeTab={activeTab} onTabChange={handleTabChange} />
       <div className="container mx-auto px-4 py-8 space-y-6 sm:space-y-8">
         <DashboardHeader />
         
@@ -57,3 +63,5 @@ export const Dashboard = () => {
     </div>
   );
 };
+
+export default Dashboard;
