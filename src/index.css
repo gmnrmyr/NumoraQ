@@ -1,35 +1,33 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
 :root {
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-display: 'Orbitron', monospace;
+  --font-mono: 'JetBrains Mono', 'Space Mono', monospace;
+  --font-display: 'Space Mono', monospace;
   
-  /* Default Dark Theme */
-  --background: 20 14.3% 4.1%;
-  --foreground: 0 0% 95%;
-  --card: 20 14.3% 4.1%;
-  --card-foreground: 0 0% 95%;
-  --popover: 20 14.3% 4.1%;
-  --popover-foreground: 0 0% 95%;
+  /* Brutalist Dark Theme - Restored Original */
+  --background: 0 0% 8%;
+  --foreground: 0 0% 98%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 98%;
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 98%;
   --primary: 0 0% 98%;
-  --primary-foreground: 240 5.9% 10%;
-  --secondary: 240 3.7% 15.9%;
+  --primary-foreground: 0 0% 8%;
+  --secondary: 0 0% 15%;
   --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 142 76% 36%;
-  --accent-foreground: 355 7% 97%;
-  --destructive: 0 62.8% 30.6%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 65%;
+  --accent: 120 100% 50%;
+  --accent-foreground: 0 0% 8%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 142 76% 36%;
+  --border: 0 0% 20%;
+  --input: 0 0% 15%;
+  --ring: 120 100% 50%;
   --chart-1: 220 70% 50%;
   --chart-2: 160 60% 45%;
   --chart-3: 30 80% 55%;
@@ -70,16 +68,16 @@
   --popover-foreground: 0 0% 100%;
   --primary: 0 0% 100%;
   --primary-foreground: 0 0% 0%;
-  --secondary: 0 0% 10%;
+  --secondary: 0 0% 15%;
   --secondary-foreground: 0 0% 100%;
-  --muted: 0 0% 10%;
-  --muted-foreground: 0 0% 70%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 80%;
   --accent: 0 0% 100%;
   --accent-foreground: 0 0% 0%;
   --destructive: 0 0% 30%;
   --destructive-foreground: 0 0% 100%;
   --border: 0 0% 20%;
-  --input: 0 0% 10%;
+  --input: 0 0% 15%;
   --ring: 0 0% 100%;
   --chart-1: 0 0% 80%;
   --chart-2: 0 0% 60%;
@@ -208,50 +206,79 @@
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font-mono);
+  font-weight: 400;
 }
 
-/* Brutalist Design System */
+/* Enhanced Brutalist Design System */
 .brutalist-card {
-  border: 2px solid hsl(var(--border));
+  border: 3px solid hsl(var(--border));
   background: hsl(var(--card));
-  box-shadow: 4px 4px 0px hsl(var(--border));
+  box-shadow: 6px 6px 0px hsl(var(--border));
 }
 
 .brutalist-button {
-  border: 2px solid hsl(var(--border));
+  border: 3px solid hsl(var(--border));
   background: hsl(var(--accent));
   color: hsl(var(--accent-foreground));
   font-family: var(--font-mono);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   transition: all 0.1s ease;
-  box-shadow: 2px 2px 0px hsl(var(--border));
+  box-shadow: 3px 3px 0px hsl(var(--border));
+  letter-spacing: 0.05em;
 }
 
 .brutalist-button:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px hsl(var(--border));
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px hsl(var(--border));
 }
 
 .brutalist-heading {
   font-family: var(--font-display);
-  font-weight: 900;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
 }
 
-/* Navbar blur enhancement */
+/* Restore minimalistic inputs */
+.brutalist-input {
+  border: 3px solid hsl(var(--border));
+  background: hsl(var(--input));
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+/* Enhanced navbar with pixel-perfect styling */
 .navbar-blur {
-  backdrop-filter: blur(12px) saturate(180%);
-  background-color: hsla(var(--background), 0.8);
-  border-bottom: 2px solid hsl(var(--border));
+  backdrop-filter: none;
+  background-color: hsl(var(--background));
+  border-bottom: 3px solid hsl(var(--border));
 }
 
-/* Ensure consistent font loading */
+/* Pixel-perfect scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border: 2px solid hsl(var(--border));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--accent));
+  border: 2px solid hsl(var(--border));
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}
+
+/* Font loading and consistency */
 @layer base {
   html {
-    font-family: Inter, system-ui, sans-serif;
+    font-family: var(--font-mono);
   }
   
   .font-mono {
@@ -263,33 +290,9 @@ body {
   }
 }
 
-/* Enhanced backdrop blur for cards */
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px) saturate(150%);
-}
-
-.backdrop-blur-md {
-  backdrop-filter: blur(8px) saturate(150%);
-}
-
+/* Remove backdrop blur for brutalist aesthetic */
+.backdrop-blur-sm,
+.backdrop-blur-md,
 .backdrop-blur-lg {
-  backdrop-filter: blur(16px) saturate(180%);
-}
-
-/* Scrollbar styling for dark theme */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: hsl(var(--muted));
-}
-
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--border));
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--accent));
+  backdrop-filter: none;
 }
