@@ -41,7 +41,16 @@ export const useCMSSettings = () => {
 
       const settingsMap: Partial<CMSSettings> = {};
       data?.forEach(({ setting_key, setting_value }) => {
-        settingsMap[setting_key as keyof CMSSettings] = setting_value;
+        // Parse JSON values properly
+        let parsedValue = setting_value;
+        if (typeof setting_value === 'string') {
+          try {
+            parsedValue = JSON.parse(setting_value);
+          } catch {
+            parsedValue = setting_value;
+          }
+        }
+        (settingsMap as any)[setting_key] = parsedValue;
       });
 
       setSettings(prev => ({ ...prev, ...settingsMap }));

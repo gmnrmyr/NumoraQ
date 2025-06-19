@@ -48,9 +48,7 @@ export const UserProfileSection = () => {
     signOut
   } = useAuth();
   const {
-    isDegenMode,
-    getDegenTimeRemaining,
-    activateDegenCode
+    activatePremiumCode
   } = useAdminMode();
   const [showDegenDialog, setShowDegenDialog] = useState(false);
   const [showAvatarDialog, setShowAvatarDialog] = useState(false);
@@ -65,8 +63,9 @@ export const UserProfileSection = () => {
     }
   };
   
-  const handleActivateDegenCode = () => {
-    if (activateDegenCode(degenCode, user?.email)) {
+  const handleActivateDegenCode = async () => {
+    const success = await activatePremiumCode(degenCode, user?.email);
+    if (success) {
       setDegenCode('');
       setShowDegenDialog(false);
     } else {
@@ -85,6 +84,10 @@ export const UserProfileSection = () => {
   };
 
   const selectedAvatar = avatarOptions.find(avatar => avatar.icon === data.userProfile.avatarIcon);
+
+  // Simple premium status check - we'll enhance this later with the backend
+  const isDegenMode = false; // Placeholder until backend integration
+  const getDegenTimeRemaining = () => "No active premium"; // Placeholder
 
   return (
     <Card className="bg-card border-2 border-border brutalist-card">
