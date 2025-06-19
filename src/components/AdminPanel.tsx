@@ -34,12 +34,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleGenerateCode = () => {
-    const code = generateDegenCode();
+  const handleGenerateCode = (duration: '1year' | '5years' | 'lifetime') => {
+    const code = generateDegenCode(duration);
     setGeneratedCodes(prev => [code, ...prev.slice(0, 9)]);
     toast({
       title: "Degen Code Generated",
-      description: `Code: ${code}`
+      description: `Code: ${code} (${duration})`
     });
   };
 
@@ -93,12 +93,26 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button 
-                  onClick={handleGenerateCode}
-                  className="w-full brutalist-button bg-green-600 hover:bg-green-700"
-                >
-                  Generate Degen Code
-                </Button>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button 
+                    onClick={() => handleGenerateCode('1year')}
+                    className="brutalist-button bg-blue-600 hover:bg-blue-700 text-xs"
+                  >
+                    1 Year
+                  </Button>
+                  <Button 
+                    onClick={() => handleGenerateCode('5years')}
+                    className="brutalist-button bg-purple-600 hover:bg-purple-700 text-xs"
+                  >
+                    5 Years
+                  </Button>
+                  <Button 
+                    onClick={() => handleGenerateCode('lifetime')}
+                    className="brutalist-button bg-yellow-600 hover:bg-yellow-700 text-xs"
+                  >
+                    Lifetime
+                  </Button>
+                </div>
                 
                 {generatedCodes.length > 0 && (
                   <div className="space-y-2">
