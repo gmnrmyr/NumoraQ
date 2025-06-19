@@ -29,7 +29,21 @@ export const TaskManagementEditable = () => {
 
   const handleAddTask = () => {
     if (newTask.title.trim()) {
-      addTask(newTask);
+      const taskToAdd = {
+        // New enhanced fields
+        title: newTask.title,
+        description: newTask.description,
+        category: newTask.category,
+        dueDate: newTask.dueDate,
+        completed: newTask.completed,
+        // Legacy fields for compatibility
+        item: newTask.title,
+        date: newTask.dueDate,
+        priority: newTask.priority === 'high' ? 3 : newTask.priority === 'medium' ? 2 : 1,
+        icon: '📝'
+      };
+      
+      addTask(taskToAdd);
       setNewTask({
         title: '',
         description: '',
@@ -61,23 +75,36 @@ export const TaskManagementEditable = () => {
     let filtered = data.tasks;
     
     if (filterCategory !== 'all') {
-      filtered = filtered.filter(task => task.category === filterCategory);
+      filtered = filtered.filter(task => {
+        const category = task.category || 'personal';
+        return category === filterCategory;
+      });
     }
     
     return filtered.sort((a, b) => {
       switch (sortBy) {
         case 'priority':
-          const priorityOrder = { high: 3, medium: 2, low: 1 };
-          return (priorityOrder[b.priority || 'medium'] || 0) - (priorityOrder[a.priority || 'medium'] || 0);
+          const getPriorityValue = (task: Task) => {
+            if (typeof task.priority === 'number') return task.priority;
+            const priority = task.priority || 'medium';
+            return priority === 'high' ? 3 : priority === 'medium' ? 2 : 1;
+          };
+          return getPriorityValue(b) - getPriorityValue(a);
         case 'dueDate':
-          if (!a.dueDate && !b.dueDate) return 0;
-          if (!a.dueDate) return 1;
-          if (!b.dueDate) return -1;
-          return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+          const aDate = task.dueDate || task.date;
+          const bDate = task.dueDate || task.date;
+          if (!aDate && !bDate) return 0;
+          if (!aDate) return 1;
+          if (!bDate) return -1;
+          return new Date(aDate).getTime() - new Date(bDate).getTime();
         case 'category':
-          return (a.category || '').localeCompare(b.category || '');
+          const aCategory = a.category || 'personal';
+          const bCategory = b.category || 'personal';
+          return aCategory.localeCompare(bCategory);
         case 'title':
-          return a.title.localeCompare(b.title);
+          const aTitle = a.title || a.item;
+          const bTitle = b.title || b.item;
+          return aTitle.localeCompare(bTitle);
         default:
           return 0;
       }

@@ -56,13 +56,29 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onReorder }) => {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
+  const getPriorityColor = (priority: string | number) => {
+    const priorityStr = typeof priority === 'number' ? 
+      (priority >= 3 ? 'high' : priority >= 2 ? 'medium' : 'low') : 
+      priority;
+    
+    switch (priorityStr) {
       case 'high': return 'bg-red-100 text-red-800 border-red-200';
       case 'medium': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'low': return 'bg-green-100 text-green-800 border-green-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
+  };
+
+  // Helper functions to get task properties (supporting both old and new formats)
+  const getTaskTitle = () => task.title || task.item;
+  const getTaskDescription = () => task.description;
+  const getTaskCategory = () => task.category || 'personal';
+  const getTaskDueDate = () => task.dueDate || task.date;
+  const getTaskPriority = () => {
+    if (typeof task.priority === 'number') {
+      return task.priority >= 3 ? 'high' : task.priority >= 2 ? 'medium' : 'low';
+    }
+    return task.priority || 'medium';
   };
 
   return (
@@ -92,17 +108,20 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onReorder }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <EditableValue
-              value={task.title}
-              onSave={(value) => updateTask(task.id, { title: String(value) })}
+              value={getTaskTitle()}
+              onSave={(value) => updateTask(task.id, { 
+                title: String(value),
+                item: String(value) // Update both for compatibility
+              })}
               type="text"
               className={`font-medium text-sm font-mono ${task.completed ? 'line-through' : ''}`}
             />
           </div>
           
-          {task.description && (
+          {getTaskDescription() && (
             <div className="mb-2">
               <EditableValue
-                value={task.description}
+                value={getTaskDescription() || ''}
                 onSave={(value) => updateTask(task.id, { description: String(value) })}
                 type="text"
                 className="text-xs text-muted-foreground font-mono"
@@ -112,20 +131,23 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onReorder }) => {
           )}
           
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge className={getCategoryColor(task.category || 'personal')}>
-              {task.category || 'personal'}
+            <Badge className={getCategoryColor(getTaskCategory())}>
+              {getTaskCategory()}
             </Badge>
             
-            <Badge className={getPriorityColor(task.priority || 'medium')}>
-              {task.priority || 'medium'}
+            <Badge className={getPriorityColor(getTaskPriority())}>
+              {getTaskPriority()}
             </Badge>
             
-            {task.dueDate && (
+            {getTaskDueDate() && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Calendar size={12} />
                 <EditableValue
-                  value={task.dueDate}
-                  onSave={(value) => updateTask(task.id, { dueDate: String(value) })}
+                  value={getTaskDueDate() || ''}
+                  onSave={(value) => updateTask(task.id, { 
+                    dueDate: String(value),
+                    date: String(value) // Update both for compatibility
+                  })}
                   type="text"
                   className="text-xs font-mono"
                 />
