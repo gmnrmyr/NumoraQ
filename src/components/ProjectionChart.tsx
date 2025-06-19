@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ChevronDown, ChevronUp } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 
@@ -65,8 +67,8 @@ export const ProjectionChart = () => {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-foreground flex items-center gap-2 text-sm sm:text-base font-mono uppercase">
-            <LineChart size={16} className="text-accent" />
-            {t.projectionChart || 'Financial Projection Chart'}
+            <TrendingUp size={16} className="text-accent" />
+            {t.projection || 'Financial Projection Chart'}
           </CardTitle>
           <Button
             variant="ghost"
