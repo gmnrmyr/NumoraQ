@@ -1,201 +1,219 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Code, X, Palette, User, Download } from "lucide-react";
-import { UserFeedbackDialog } from "./UserFeedbackDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Settings, Palette, Zap, Crown, Lock } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { useAdminMode } from '@/hooks/useAdminMode';
+import { toast } from "@/hooks/use-toast";
 
 export const DevMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { updateUserProfile, exportToCSV, resetData } = useFinancialData();
+  const { data, updateUserProfile } = useFinancialData();
+  const { activateDegenCode } = useAdminMode();
+  const [degenCode, setDegenCode] = useState('');
 
-  const handleColorChange = (theme: string) => {
-    // Remove all theme classes first
-    document.documentElement.classList.remove('dark', 'dual-tone', 'monochrome', 'warm', 'ultra-contrast');
+  const applyTheme = (theme: string) => {
+    const root = document.documentElement;
     
-    // Add the new theme class
-    if (theme !== 'dark') {
-      document.documentElement.classList.add(theme);
+    // Reset all themes first
+    root.classList.remove('theme-neon', 'theme-monochrome', 'theme-dual-tone', 'theme-high-contrast', 'theme-cyberpunk', 'theme-matrix', 'theme-gold');
+    
+    switch (theme) {
+      case 'neon':
+        root.classList.add('theme-neon');
+        break;
+      case 'monochrome':
+        root.classList.add('theme-monochrome');
+        break;
+      case 'dual-tone':
+        root.classList.add('theme-dual-tone');
+        break;
+      case 'high-contrast':
+        root.classList.add('theme-high-contrast');
+        break;
+      case 'cyberpunk':
+        root.classList.add('theme-cyberpunk');
+        break;
+      case 'matrix':
+        root.classList.add('theme-matrix');
+        break;
+      case 'gold':
+        root.classList.add('theme-gold');
+        break;
+      default:
+        // Keep default theme
+        break;
     }
     
-    // Store the theme preference
-    localStorage.setItem('theme', theme);
-  };
-
-  const loadStarterProfile = () => {
-    updateUserProfile({
-      name: 'Crypto Chad',
-      defaultCurrency: 'USD',
-      language: 'en'
-    });
-    resetData();
-  };
-
-  const loadFernandaProfile = () => {
-    updateUserProfile({
-      name: 'Fernanda',
-      defaultCurrency: 'BRL',
-      language: 'pt'
+    // Save theme preference
+    updateUserProfile({ theme });
+    localStorage.setItem('selectedTheme', theme);
+    
+    toast({
+      title: "Theme Applied",
+      description: `${theme.charAt(0).toUpperCase() + theme.slice(1)} theme activated.`
     });
   };
 
-  const exportToJSON = () => {
-    const data = localStorage.getItem('financialData');
-    if (data) {
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'financial-data.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+  const handleActivateDegenCode = () => {
+    if (activateDegenCode(degenCode, data.userProfile.name)) {
+      toast({
+        title: "Degen Mode Activated!",
+        description: "You now have access to premium features."
+      });
+      setDegenCode('');
+    } else {
+      toast({
+        title: "Invalid Code",
+        description: "The code you entered is invalid or already used.",
+        variant: "destructive"
+      });
     }
   };
 
-  if (!isOpen) {
+  const getDonationAmount = () => data.userProfile.totalDonated || 0;
+  const isThemeLocked = (requiredAmount: number) => getDonationAmount() < requiredAmount;
+
+  const ThemeButton = ({ theme, label, requiredAmount = 0, icon: Icon = Palette }: { 
+    theme: string; 
+    label: string; 
+    requiredAmount?: number;
+    icon?: any;
+  }) => {
+    const locked = isThemeLocked(requiredAmount);
+    
     return (
-      <div className="fixed bottom-4 right-4 z-50">
-        <Button
-          onClick={() => setIsOpen(true)}
-          variant="outline"
-          size="sm"
-          className="brutalist-button shadow-lg"
-        >
-          <Code size={16} />
-        </Button>
-      </div>
+      <Button
+        onClick={() => locked ? null : applyTheme(theme)}
+        disabled={locked}
+        className={`brutalist-button text-xs h-8 ${locked ? 'opacity-50 cursor-not-allowed' : ''}`}
+        variant="outline"
+      >
+        <Icon size={12} className="mr-1" />
+        {label}
+        {locked && <Lock size={10} className="ml-1" />}
+      </Button>
     );
-  }
+  };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-[calc(100vw-2rem)] w-full sm:w-96">
-      <Card className="brutalist-card shadow-xl">
-        <CardContent className="p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-mono font-bold text-sm uppercase">Dev Tools</h3>
-            <div className="flex gap-2">
-              <UserFeedbackDialog />
-              <Button
-                onClick={() => setIsOpen(false)}
-                variant="outline"
-                size="sm"
-                className="brutalist-button"
-              >
-                <X size={14} />
-              </Button>
-            </div>
-          </div>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="fixed bottom-4 left-4 z-50 brutalist-button bg-card border-2 border-border"
+        >
+          <Settings size={16} className="mr-1" />
+          DEV
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-card border-2 border-border max-w-md">
+        <DialogHeader>
+          <DialogTitle className="font-mono uppercase flex items-center gap-2">
+            <Settings size={16} />
+            Developer Menu
+          </DialogTitle>
+        </DialogHeader>
 
-          {/* Color Options */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-mono font-bold uppercase flex items-center gap-2">
-              <Palette size={12} />
-              Themes
-            </h4>
+        <Tabs defaultValue="themes" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="themes">Themes</TabsTrigger>
+            <TabsTrigger value="degen">Degen Mode</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="themes" className="space-y-4">
+            <div className="text-sm text-muted-foreground font-mono">
+              Customize your dashboard appearance:
+            </div>
+            
             <div className="grid grid-cols-2 gap-2">
-              <Button
-                onClick={() => handleColorChange('dark')}
-                size="sm"
-                variant="outline"
-                className="text-xs font-mono bg-zinc-900 text-white hover:bg-zinc-800"
-              >
-                Default
-              </Button>
-              <Button
-                onClick={() => handleColorChange('dual-tone')}
-                size="sm"
-                variant="outline"
-                className="text-xs font-mono bg-gradient-to-r from-green-400 to-purple-600 text-white"
-              >
-                Dual Tone
-              </Button>
-              <Button
-                onClick={() => handleColorChange('monochrome')}
-                size="sm"
-                variant="outline"
-                className="text-xs font-mono bg-gray-800 text-gray-100 hover:bg-gray-700"
-              >
-                Monochrome
-              </Button>
-              <Button
-                onClick={() => handleColorChange('warm')}
-                size="sm"
-                variant="outline"
-                className="text-xs font-mono bg-gradient-to-r from-orange-600 to-red-600 text-white"
-              >
-                Warm
-              </Button>
-              <Button
-                onClick={() => handleColorChange('ultra-contrast')}
-                size="sm"
-                variant="outline"
-                className="text-xs font-mono bg-black text-white border-white hover:bg-white hover:text-black"
-              >
-                Ultra Contrast
-              </Button>
+              <ThemeButton theme="default" label="Default" />
+              <ThemeButton theme="neon" label="Neon" />
+              <ThemeButton theme="monochrome" label="Monochrome" />
+              <ThemeButton theme="dual-tone" label="Dual Tone" />
+              <ThemeButton theme="high-contrast" label="High Contrast" />
+              <ThemeButton 
+                theme="cyberpunk" 
+                label="Cyberpunk" 
+                requiredAmount={100}
+                icon={Crown}
+              />
+              <ThemeButton 
+                theme="matrix" 
+                label="Matrix" 
+                requiredAmount={500}
+                icon={Crown}
+              />
+              <ThemeButton 
+                theme="gold" 
+                label="Gold Rush" 
+                requiredAmount={1000}
+                icon={Crown}
+              />
             </div>
-          </div>
-
-          {/* Load Profiles */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-mono font-bold uppercase flex items-center gap-2">
-              <User size={12} />
-              Load Profile
-            </h4>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                onClick={loadStarterProfile}
-                size="sm"
-                variant="outline"
-                className="text-xs font-mono"
-              >
-                Starter
-              </Button>
-              <Button
-                onClick={loadFernandaProfile}
-                size="sm"
-                variant="outline"
-                className="text-xs font-mono"
-              >
-                Fernanda
-              </Button>
+            
+            <div className="bg-muted p-3 border-2 border-border">
+              <div className="text-xs font-mono">
+                <div className="flex items-center gap-2 mb-1">
+                  <Crown size={12} className="text-yellow-400" />
+                  <span className="font-bold">Premium Themes</span>
+                </div>
+                <div>• Cyberpunk ($100+ donated)</div>
+                <div>• Matrix ($500+ donated)</div>
+                <div>• Gold Rush ($1000+ donated)</div>
+              </div>
             </div>
-          </div>
+          </TabsContent>
 
-          {/* Export Options */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-mono font-bold uppercase flex items-center gap-2">
-              <Download size={12} />
-              Export
-            </h4>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                onClick={exportToCSV}
-                size="sm"
-                variant="outline"
-                className="text-xs font-mono"
-              >
-                CSV
-              </Button>
-              <Button
-                onClick={exportToJSON}
-                size="sm"
-                variant="outline"
-                className="text-xs font-mono"
-              >
-                JSON
-              </Button>
+          <TabsContent value="degen" className="space-y-4">
+            <div className="text-sm text-muted-foreground font-mono">
+              Activate premium features:
             </div>
-          </div>
-
-          <div className="text-xs text-muted-foreground font-mono bg-muted p-2 border-2 border-border rounded">
-            🛠️ <strong>Dev mode:</strong> Quick tools for testing and exporting data.
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            
+            <div className="space-y-3">
+              <input
+                type="text"
+                placeholder="Enter degen code"
+                value={degenCode}
+                onChange={(e) => setDegenCode(e.target.value)}
+                className="w-full p-2 bg-input border-2 border-border font-mono text-sm"
+              />
+              
+              <Button 
+                onClick={handleActivateDegenCode}
+                className="w-full brutalist-button"
+                disabled={!degenCode.trim()}
+              >
+                <Zap size={16} className="mr-2" />
+                Activate Code
+              </Button>
+              
+              <div className="text-center text-xs text-muted-foreground font-mono">
+                OR
+              </div>
+              
+              <div className="space-y-2">
+                <Button 
+                  onClick={() => toast({ title: "Coming Soon", description: "Crypto payment integration in development." })}
+                  className="w-full brutalist-button bg-orange-600 hover:bg-orange-700"
+                >
+                  Pay with Crypto
+                </Button>
+                
+                <Button 
+                  onClick={() => toast({ title: "Coming Soon", description: "PayPal integration in development." })}
+                  className="w-full brutalist-button bg-blue-600 hover:bg-blue-700"
+                >
+                  Pay with PayPal
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
 };

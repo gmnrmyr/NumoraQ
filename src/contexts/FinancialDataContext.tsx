@@ -38,7 +38,12 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
           userProfile: {
             name: parsedData.profileName || parsedData.userProfile?.name || "User",
             defaultCurrency: parsedData.userProfile?.defaultCurrency || 'BRL',
-            language: parsedData.userProfile?.language || 'en'
+            language: parsedData.userProfile?.language || 'en',
+            avatarIcon: parsedData.userProfile?.avatarIcon || undefined,
+            liveDataEnabled: parsedData.userProfile?.liveDataEnabled || false,
+            donorWallet: parsedData.userProfile?.donorWallet || undefined,
+            totalDonated: parsedData.userProfile?.totalDonated || 0,
+            theme: parsedData.userProfile?.theme || 'default'
           },
           projectionMonths: parsedData.projectionMonths || 12,
           exchangeRates: {
@@ -58,6 +63,15 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
           createdAt: parsedData.createdAt || new Date().toISOString(),
           lastModified: new Date().toISOString()
         };
+        
+        // Apply saved theme if exists
+        if (migratedData.userProfile.theme) {
+          const root = document.documentElement;
+          root.classList.remove('theme-neon', 'theme-monochrome', 'theme-dual-tone', 'theme-high-contrast', 'theme-cyberpunk', 'theme-matrix', 'theme-gold');
+          if (migratedData.userProfile.theme !== 'default') {
+            root.classList.add(`theme-${migratedData.userProfile.theme}`);
+          }
+        }
         
         return migratedData;
       } catch (error) {
@@ -368,7 +382,12 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
         userProfile: {
           name: parsedData.userProfile?.name || parsedData.profileName || "User",
           defaultCurrency: parsedData.userProfile?.defaultCurrency || 'BRL',
-          language: parsedData.userProfile?.language || 'en'
+          language: parsedData.userProfile?.language || 'en',
+          avatarIcon: parsedData.userProfile?.avatarIcon || undefined,
+          liveDataEnabled: parsedData.userProfile?.liveDataEnabled || false,
+          donorWallet: parsedData.userProfile?.donorWallet || undefined,
+          totalDonated: parsedData.userProfile?.totalDonated || 0,
+          theme: parsedData.userProfile?.theme || 'default'
         },
         projectionMonths: parsedData.projectionMonths || 12,
         exchangeRates: {

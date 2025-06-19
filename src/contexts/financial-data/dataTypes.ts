@@ -1,4 +1,3 @@
-
 export interface LiquidAsset {
   id: string;
   name: string;
@@ -99,4 +98,15 @@ export interface ExchangeRates {
   btcPrice: number;
   ethPrice: number;
   lastUpdated: string;
+}
+
+export interface UserProfile {
+  name: string;
+  defaultCurrency: string;
+  language: string;
+  avatarIcon?: string;
+  liveDataEnabled?: boolean;
+  donorWallet?: string;
+  totalDonated?: number;
+  theme?: string;
 }
