@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { PortfolioOverview } from "@/components/PortfolioOverview";
 import { IncomeTracking } from "@/components/IncomeTracking";
@@ -20,10 +19,19 @@ import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
 import { AIAdvisor } from "@/components/ai/AIAdvisor";
 import { useAdminMode } from "@/hooks/useAdminMode";
+import { Leaderboard } from "@/components/Leaderboard";
+import { PWASetup } from "@/components/PWASetup";
+import { useLeaderboard } from "@/hooks/useLeaderboard";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
   const { showAdminPanel, setShowAdminPanel } = useAdminMode();
+  const { checkDailyLogin } = useLeaderboard();
+
+  // Check daily login on dashboard load
+  useEffect(() => {
+    checkDailyLogin();
+  }, []);
 
   const getSectionTitle = (tab: string) => {
     switch (tab) {
@@ -55,6 +63,7 @@ const Dashboard = () => {
             <UserProfileSection />
             
             <DataManagementSection />
+            <Leaderboard />
             <ExchangeRatesBanner />
             <MetricsOverview />
             <ProjectionCard />
@@ -128,6 +137,7 @@ const Dashboard = () => {
           
           <DevMenu />
           <AIAdvisor />
+          <PWASetup />
           <AdminPanel 
             isOpen={showAdminPanel} 
             onClose={() => setShowAdminPanel(false)} 
