@@ -23,7 +23,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const navItems = [
+  const dashboardItems = [
     { id: 'portfolio', label: 'Portfolio', icon: Briefcase },
     { id: 'income', label: 'Income', icon: TrendingUp },
     { id: 'expenses', label: 'Expenses', icon: DollarSign },
@@ -47,7 +47,6 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
       return;
     }
     
-    // Only navigate to dashboard if we're not already there
     if (location.pathname !== '/dashboard') {
       navigate('/dashboard');
     }
@@ -55,7 +54,6 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
     onTabChange(tab);
     setIsOpen(false);
 
-    // Scroll to section with smooth behavior
     setTimeout(() => {
       const element = document.querySelector(`[data-section="${tab}"]`);
       if (element) {
@@ -105,8 +103,8 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
         ? 'bg-background/70 backdrop-blur-xl border-b-2 border-border/50' 
         : 'bg-background/80 backdrop-blur-lg border-b-2 border-border'
     }`}>
-      {/* Main Navbar */}
-      <div className="flex items-center justify-between p-4">
+      {/* Top Row - Brand & User Info */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
         <div className="flex items-center gap-4">
           <h1 
             className="text-xl font-bold font-mono text-accent cursor-pointer hover:text-accent/80 transition-colors" 
@@ -115,70 +113,30 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
             OPEN FINDASH
           </h1>
           {user?.email && (
-            <Badge variant="outline" className="hidden sm:flex font-mono items-center gap-2">
+            <Badge variant="outline" className="hidden sm:flex font-mono items-center gap-2 bg-muted/20">
+              <User size={12} />
               {user.email}
-              {user && (
-                <div className="flex items-center gap-1" title={`Last sync: ${formatLastSync(lastSync)}`}>
-                  {getSyncIcon()}
-                </div>
-              )}
+              <div className="flex items-center gap-1" title={`Last sync: ${formatLastSync(lastSync)}`}>
+                {getSyncIcon()}
+              </div>
             </Badge>
           )}
         </div>
-        
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-4">
-          {/* Dashboard Pages Section */}
-          <div className="flex items-center gap-2 px-3 py-2 bg-accent/10 border border-accent/20 rounded-lg">
-            {navItems.map(item => {
-              const Icon = item.icon;
-              return (
-                <Button
-                  key={item.id}
-                  variant={activeTab === item.id ? "default" : "ghost"}
-                  onClick={() => handleTabChange(item.id)}
-                  size="sm"
-                  className="font-mono brutalist-button text-slate-100"
-                >
-                  <Icon size={16} className="mr-1" />
-                  {item.label}
-                </Button>
-              );
-            })}
-          </div>
-          
-          {/* Leaderboard Section - Only for logged users */}
-          {user && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-accent/10 border border-accent/20 rounded-lg">
-              <Button
-                variant={isLeaderboardActive ? "default" : "ghost"}
-                onClick={() => handleTabChange('leaderboard')}
-                size="sm"
-                className="font-mono brutalist-button text-slate-100"
-                title="Community Leaderboard"
-              >
-                <Trophy size={16} className="mr-1" />
-                Leaderboard
-              </Button>
-            </div>
-          )}
-          
-          {/* Settings Section */}
-          <div className="flex items-center gap-2 px-3 py-2 bg-muted/20 border border-muted/30 rounded-lg">
-            {!user && <LanguageSelector variant="outline" size="sm" />}
-            
-            {user ? (
-              <UserSettingsPanel />
-            ) : (
-              <Button onClick={handleGetStarted} className="font-mono brutalist-button" size="sm">
-                <LogIn size={16} className="mr-1" />
-                Get Started
-              </Button>
-            )}
-          </div>
-        </nav>
 
-        {/* Mobile Navigation */}
+        {/* Desktop User Actions */}
+        <div className="hidden lg:flex items-center gap-3">
+          {!user && <LanguageSelector variant="outline" size="sm" />}
+          {user ? (
+            <UserSettingsPanel />
+          ) : (
+            <Button onClick={handleGetStarted} className="font-mono brutalist-button" size="sm">
+              <LogIn size={16} className="mr-1" />
+              Get Started
+            </Button>
+          )}
+        </div>
+
+        {/* Mobile User Actions */}
         <div className="flex items-center gap-2 lg:hidden">
           {!user && <LanguageSelector variant="outline" size="sm" />}
           {user && <UserSettingsPanel />}
@@ -190,8 +148,8 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
             </SheetTrigger>
             <SheetContent className="bg-card/95 backdrop-blur-md border-l-2 border-border">
               <div className="flex flex-col gap-4 mt-8">
-                <h2 className="font-bold text-lg font-mono uppercase text-accent">Navigation</h2>
-                {navItems.map(item => {
+                <h2 className="font-bold text-lg font-mono uppercase text-accent">Dashboard</h2>
+                {dashboardItems.map(item => {
                   const Icon = item.icon;
                   return (
                     <Button
@@ -206,7 +164,6 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
                   );
                 })}
 
-                {/* Mobile Leaderboard - Only for logged users */}
                 {user && (
                   <>
                     <div className="border-t border-border pt-4 mt-2">
@@ -239,6 +196,47 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
           </Sheet>
         </div>
       </div>
+
+      {/* Bottom Row - Navigation (Desktop Only) */}
+      {user && (
+        <div className="hidden lg:flex items-center justify-center px-4 py-2 bg-accent/5">
+          <nav className="flex items-center gap-2">
+            {/* Dashboard Navigation */}
+            <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
+              <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Dashboard:</span>
+              {dashboardItems.map(item => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.id}
+                    variant={activeTab === item.id ? "default" : "ghost"}
+                    onClick={() => handleTabChange(item.id)}
+                    size="sm"
+                    className="font-mono brutalist-button text-xs px-2 py-1 h-8"
+                  >
+                    <Icon size={14} className="mr-1" />
+                    {item.label}
+                  </Button>
+                );
+              })}
+            </div>
+            
+            {/* Leaderboard */}
+            <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
+              <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Community:</span>
+              <Button
+                variant={isLeaderboardActive ? "default" : "ghost"}
+                onClick={() => handleTabChange('leaderboard')}
+                size="sm"
+                className="font-mono brutalist-button text-xs px-2 py-1 h-8"
+              >
+                <Trophy size={14} className="mr-1" />
+                Leaderboard
+              </Button>
+            </div>
+          </nav>
+        </div>
+      )}
     </div>
   );
 };
