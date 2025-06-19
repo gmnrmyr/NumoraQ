@@ -1,4 +1,3 @@
-
 import { 
   LiquidAsset, 
   IlliquidAsset, 
@@ -30,9 +29,9 @@ export interface FinancialData {
 
 export interface UserProfile {
   name: string;
-  defaultCurrency: 'USD' | 'EUR' | 'BRL';
+  defaultCurrency: 'BRL' | 'USD' | 'EUR';
   language: 'en' | 'pt' | 'es';
-  avatar?: string;
+  avatarIcon?: string;
 }
 
 export type IncomeStatus = 'active' | 'inactive';

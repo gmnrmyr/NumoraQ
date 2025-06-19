@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, BarChart3 } from "lucide-react";
+import { Skull, Robot, Zap } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 
@@ -8,112 +9,97 @@ export const MetricsOverview = () => {
   const { data } = useFinancialData();
   const { t } = useTranslation();
 
-  const getCurrencySymbol = (currency: string) => {
-    switch (currency) {
-      case 'BRL': return 'R$';
-      case 'USD': return '$';
-      case 'EUR': return '€';
-      default: return currency;
-    }
-  };
-
-  const currencySymbol = getCurrencySymbol(data.userProfile.defaultCurrency);
-
+  // Calculate metrics
   const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
   const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
-  const totalAvailable = totalLiquid;
   
-  const totalPassiveIncome = data.passiveIncome
-    .filter(income => income.status === 'active')
-    .reduce((sum, income) => sum + income.amount, 0);
+  const activeIlliquidAssets = data.illiquidAssets.filter(asset => asset.isActive);
+  const totalIlliquid = activeIlliquidAssets.reduce((sum, asset) => sum + asset.value, 0);
   
-  const totalActiveIncome = data.activeIncome
-    .filter(income => income.status === 'active')
-    .reduce((sum, income) => sum + income.amount, 0);
+  const activePassiveIncome = data.passiveIncome.filter(income => income.status === 'active');
+  const totalPassiveIncome = activePassiveIncome.reduce((sum, income) => sum + income.amount, 0);
   
-  const totalRecurringExpenses = data.expenses
-    .filter(expense => expense.type === 'recurring' && expense.status === 'active')
-    .reduce((sum, expense) => sum + expense.amount, 0);
+  const activeActiveIncome = data.activeIncome.filter(income => income.status === 'active');
+  const totalActiveIncome = activeActiveIncome.reduce((sum, income) => sum + income.amount, 0);
+  
+  const activeExpenses = data.expenses.filter(expense => expense.status === 'active');
+  const totalExpenses = activeExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+  
+  const totalIncome = totalPassiveIncome + totalActiveIncome;
+  const netWorth = totalLiquid + totalIlliquid;
+  const monthlyCashFlow = totalIncome - totalExpenses;
 
-  const activeDebts = data.debts.filter(debt => debt.isActive);
-  const totalActiveDebt = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
-
-  const monthlyBalance = totalPassiveIncome + totalActiveIncome - totalRecurringExpenses;
+  const formatCurrency = (amount: number) => {
+    const currency = data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$';
+    return `${currency} ${Math.abs(amount).toLocaleString()}`;
+  };
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-      <Card className="bg-card/80 backdrop-blur-sm border-green-500 border-2">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xs sm:text-sm font-medium text-green-400 flex items-center gap-1 sm:gap-2 font-mono uppercase">
-            <DollarSign size={12} />
-            <span className="hidden sm:inline">{t.availableNow}</span>
-            <span className="sm:hidden truncate">Available</span>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+      {/* Net Worth */}
+      <Card className="bg-card/80 backdrop-blur-sm border-accent border-2 hover:shadow-lg transition-all duration-300">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium font-mono uppercase text-accent">
+            {t.netWorth || 'Net Worth'}
           </CardTitle>
+          <Robot className="h-6 w-6 text-accent animate-pulse" />
         </CardHeader>
         <CardContent>
-          <div className="text-sm sm:text-lg md:text-2xl font-bold text-green-400 truncate font-mono">
-            {currencySymbol} {totalAvailable.toLocaleString()}
+          <div className="text-2xl font-bold font-mono text-accent">
+            {formatCurrency(netWorth)}
           </div>
+          <p className="text-xs text-muted-foreground font-mono mt-1">
+            {activeLiquidAssets.length + activeIlliquidAssets.length} active assets
+          </p>
         </CardContent>
       </Card>
 
-      <Card className="bg-card/80 backdrop-blur-sm border-blue-500 border-2">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xs sm:text-sm font-medium text-blue-400 flex items-center gap-1 sm:gap-2 font-mono uppercase">
-            <TrendingUp size={12} />
-            <span className="hidden sm:inline">{t.monthlyIncome}</span>
-            <span className="sm:hidden truncate">Income</span>
+      {/* Monthly Cash Flow */}
+      <Card className="bg-card/80 backdrop-blur-sm border-2 hover:shadow-lg transition-all duration-300"
+            style={{ 
+              borderColor: monthlyCashFlow >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)' 
+            }}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium font-mono uppercase"
+                     style={{ 
+                       color: monthlyCashFlow >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)' 
+                     }}>
+            Monthly Flow
           </CardTitle>
+          {monthlyCashFlow >= 0 ? (
+            <Zap className="h-6 w-6 text-green-500 animate-bounce" />
+          ) : (
+            <Skull className="h-6 w-6 text-red-500 animate-pulse" />
+          )}
         </CardHeader>
         <CardContent>
-          <div className="text-sm sm:text-lg md:text-2xl font-bold text-blue-400 truncate font-mono">
-            {currencySymbol} {(totalPassiveIncome + totalActiveIncome).toLocaleString()}
+          <div className="text-2xl font-bold font-mono"
+               style={{ 
+                 color: monthlyCashFlow >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)' 
+               }}>
+            {monthlyCashFlow >= 0 ? '+' : '-'}{formatCurrency(monthlyCashFlow)}
           </div>
+          <p className="text-xs text-muted-foreground font-mono mt-1">
+            {formatCurrency(totalIncome)} in - {formatCurrency(totalExpenses)} out
+          </p>
         </CardContent>
       </Card>
 
-      <Card className="bg-card/80 backdrop-blur-sm border-red-500 border-2">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xs sm:text-sm font-medium text-red-400 flex items-center gap-1 sm:gap-2 font-mono uppercase">
-            <TrendingDown size={12} />
-            <span className="hidden sm:inline">{t.monthlyExpenses}</span>
-            <span className="sm:hidden truncate">Expenses</span>
+      {/* Total Income */}
+      <Card className="bg-card/80 backdrop-blur-sm border-green-500 border-2 hover:shadow-lg transition-all duration-300">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium font-mono uppercase text-green-500">
+            Monthly Income
           </CardTitle>
+          <Robot className="h-6 w-6 text-green-500" style={{ filter: 'hue-rotate(120deg)' }} />
         </CardHeader>
         <CardContent>
-          <div className="text-sm sm:text-lg md:text-2xl font-bold text-red-400 truncate font-mono">
-            {currencySymbol} {totalRecurringExpenses.toLocaleString()}
+          <div className="text-2xl font-bold font-mono text-green-500">
+            {formatCurrency(totalIncome)}
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-card/80 backdrop-blur-sm border-orange-500 border-2">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xs sm:text-sm font-medium text-orange-400 flex items-center gap-1 sm:gap-2 font-mono uppercase">
-            <AlertCircle size={12} />
-            <span className="hidden sm:inline">{t.activeDebts}</span>
-            <span className="sm:hidden truncate">Debts</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-sm sm:text-lg md:text-2xl font-bold text-orange-400 truncate font-mono">
-            {currencySymbol} {totalActiveDebt.toLocaleString()}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className={`col-span-2 lg:col-span-1 bg-card/80 backdrop-blur-sm border-2 ${monthlyBalance >= 0 ? 'border-accent' : 'border-red-500'}`}>
-        <CardHeader className="pb-2">
-          <CardTitle className={`text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 font-mono uppercase ${monthlyBalance >= 0 ? 'text-accent' : 'text-red-400'}`}>
-            <BarChart3 size={12} />
-            <span className="hidden sm:inline">{t.monthlyBalance}</span>
-            <span className="sm:hidden truncate">Balance</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className={`text-sm sm:text-lg md:text-2xl font-bold truncate font-mono ${monthlyBalance >= 0 ? 'text-accent' : 'text-red-400'}`}>
-            {currencySymbol} {monthlyBalance.toLocaleString()}
-          </div>
+          <p className="text-xs text-muted-foreground font-mono mt-1">
+            {formatCurrency(totalPassiveIncome)} passive + {formatCurrency(totalActiveIncome)} active
+          </p>
         </CardContent>
       </Card>
     </div>
