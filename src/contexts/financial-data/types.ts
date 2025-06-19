@@ -1,4 +1,3 @@
-
 export interface LiquidAsset {
   id: string;
   name: string;
@@ -133,6 +132,7 @@ export interface UserProfile {
   liveDataEnabled?: boolean;
   donorWallet?: string; // Added for donor wallet address
   totalDonated?: number; // Added for total donation amount
+  theme?: string; // Added for theme preference
 }
 
 export interface FinancialData {
