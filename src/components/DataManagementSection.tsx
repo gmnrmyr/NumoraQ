@@ -138,8 +138,10 @@ export const DataManagementSection = () => {
                           {syncState === 'saving' && <CloudOff size={12} className="animate-spin text-blue-500" />}
                           {syncState === 'loading' && <CloudOff size={12} className="animate-spin text-blue-500" />}
                           {syncState === 'error' && <CloudOff size={12} className="text-red-500" />}
-                          {syncState === 'idle' && lastSync && <Cloud size={12} className="text-green-500" />}
                         </div>
+                      )}
+                      {syncState === 'idle' && lastSync && (
+                        <Cloud size={12} className="text-green-500" />
                       )}
                     </h3>
                     {isCloudOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
