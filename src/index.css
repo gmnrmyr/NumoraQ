@@ -51,7 +51,7 @@
     --sidebar-ring: 120 100% 50%;
   }
 
-  /* Dual tone mode - Green and Purple dual colors */
+  /* Dual tone mode - Only Green and Purple (two colors) */
   .dual-tone {
     --background: 0 0% 8%;
     --foreground: 0 0% 95%;
@@ -62,21 +62,27 @@
     --border: 280 30% 25%;
     --muted: 280 15% 15%;
     --input: 280 10% 12%;
+    --primary: 120 100% 50%; /* Green as first color */
+    --primary-foreground: 0 0% 8%;
+    --secondary: 280 50% 20%;
+    --secondary-foreground: 0 0% 95%;
   }
 
-  /* Monochrome mode - Pure grayscale */
+  /* Monochrome mode - Pure black and white only */
   .monochrome {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 10%;
-    --accent: 0 0% 85%;
-    --accent-foreground: 0 0% 10%;
-    --ring: 0 0% 85%;
-    --border: 0 0% 25%;
-    --muted: 0 0% 15%;
-    --input: 0 0% 12%;
-    --primary: 0 0% 90%;
-    --primary-foreground: 0 0% 10%;
+    --background: 0 0% 0%; /* Pure black */
+    --foreground: 0 0% 100%; /* Pure white */
+    --card: 0 0% 5%;
+    --accent: 0 0% 100%; /* Pure white */
+    --accent-foreground: 0 0% 0%; /* Pure black */
+    --ring: 0 0% 100%;
+    --border: 0 0% 40%;
+    --muted: 0 0% 10%;
+    --input: 0 0% 8%;
+    --primary: 0 0% 100%; /* Pure white */
+    --primary-foreground: 0 0% 0%; /* Pure black */
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 100%;
   }
 
   /* Warm mode - Orange and red tones */

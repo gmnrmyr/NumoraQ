@@ -25,8 +25,15 @@ export const IncomeTracking = () => {
     removeActiveIncome
   } = useFinancialData();
 
-  const totalPassive = data.passiveIncome.reduce((sum, income) => sum + income.amount, 0);
-  const totalActive = data.activeIncome.reduce((sum, income) => sum + income.amount, 0);
+  // Fix: Calculate totals based on active status
+  const totalPassive = data.passiveIncome
+    .filter(income => income.status === 'active')
+    .reduce((sum, income) => sum + income.amount, 0);
+  
+  const totalActive = data.activeIncome
+    .filter(income => income.status === 'active')
+    .reduce((sum, income) => sum + income.amount, 0);
+  
   const totalIncome = totalPassive + totalActive;
 
   const handleAddPassiveIncome = () => {
