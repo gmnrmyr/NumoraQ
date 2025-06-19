@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, Settings, User, Cloud, CloudOff, LogIn } from "lucide-react";
@@ -17,6 +17,7 @@ interface NavbarProps {
 
 export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useAuth();
   const { data, syncState, lastSync } = useFinancialData();
   const navigate = useNavigate();
@@ -29,6 +30,15 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
     { id: 'tasks', label: 'Tasks', icon: CheckSquare },
     { id: 'debt', label: 'Debt', icon: CreditCard },
   ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleTabChange = (tab: string) => {
     onTabChange(tab);
@@ -75,7 +85,11 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b-2 border-border">
+    <div className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+      isScrolled 
+        ? 'bg-background/80 backdrop-blur-lg border-b-2 border-border/50' 
+        : 'bg-background/95 backdrop-blur-md border-b-2 border-border'
+    }`}>
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-4">
           <h1 
@@ -114,8 +128,8 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
             );
           })}
           
-          {/* Language selector for all users */}
-          <LanguageSelector variant="outline" size="sm" />
+          {/* Language selector only if user is NOT logged in, or no UserSettingsPanel */}
+          {!user && <LanguageSelector variant="outline" size="sm" />}
           
           {/* User Settings for logged in users OR Login for logged out users */}
           {user ? (
@@ -132,9 +146,10 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
           )}
         </nav>
 
-        {/* Mobile Navigation - Show for ALL users */}
+        {/* Mobile Navigation */}
         <div className="flex items-center gap-2 lg:hidden">
-          <LanguageSelector variant="outline" size="sm" />
+          {/* Language selector for mobile - only show if user is not logged in */}
+          {!user && <LanguageSelector variant="outline" size="sm" />}
           {user && <UserSettingsPanel />}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
@@ -142,7 +157,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
                 <Menu size={20} />
               </Button>
             </SheetTrigger>
-            <SheetContent className="bg-card border-l-2 border-border">
+            <SheetContent className="bg-card/95 backdrop-blur-md border-l-2 border-border">
               <div className="flex flex-col gap-4 mt-8">
                 <h2 className="font-bold text-lg font-mono uppercase text-accent">Navigation</h2>
                 {navItems.map((item) => {
