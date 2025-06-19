@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BarChart3, TrendingUp, Zap } from 'lucide-react';
+import { Skull, Bot, Zap } from 'lucide-react';
 import { useTranslation } from '@/contexts/TranslationContext';
 
 export const DashboardHeader = () => {
@@ -11,10 +11,10 @@ export const DashboardHeader = () => {
       <div className="flex items-center justify-center gap-4">
         <div className="flex items-center gap-2">
           <div className="p-3 border-2 border-accent bg-background">
-            <BarChart3 className="text-accent" size={28} />
+            <Skull className="text-accent" size={28} />
           </div>
           <div className="p-3 border-2 border-border bg-card">
-            <TrendingUp className="text-foreground" size={28} />
+            <Bot className="text-foreground" size={28} />
           </div>
           <div className="p-3 border-2 border-accent bg-background">
             <Zap className="text-accent" size={28} />

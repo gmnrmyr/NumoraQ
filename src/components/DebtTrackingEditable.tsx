@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { CreditCard, Plus, Trash2, AlertTriangle, TrendingDown } from "lucide-react";
+import { CreditCard, Plus, Trash2, AlertTriangle } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { EditableValue } from "@/components/ui/editable-value";
 import { StatusToggle } from "@/components/ui/status-toggle";
@@ -43,13 +42,14 @@ export const DebtTrackingEditable = () => {
     }
   };
 
-  const totalDebt = data.debts.filter(debt => debt.isActive).reduce((sum, debt) => sum + debt.amount, 0);
-  const pendingDebt = data.debts.filter(debt => debt.isActive && debt.status === 'pending').reduce((sum, debt) => sum + debt.amount, 0);
+  // Fixed debt calculations - filter by isActive and status
+  const activeDebts = data.debts.filter(debt => debt.isActive);
+  const totalDebt = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
+  const pendingDebt = activeDebts.filter(debt => debt.status === 'pending').reduce((sum, debt) => sum + debt.amount, 0);
 
   const getDebtIcon = (iconName: string) => {
     switch (iconName) {
       case 'CreditCard': return CreditCard;
-      case 'TrendingDown': return TrendingDown;
       case 'AlertTriangle': return AlertTriangle;
       default: return CreditCard;
     }
@@ -64,6 +64,11 @@ export const DebtTrackingEditable = () => {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    const currency = data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$';
+    return `${currency} ${amount.toLocaleString()}`;
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Debt Summary */}
@@ -76,10 +81,10 @@ export const DebtTrackingEditable = () => {
                 {t.debt || "DEBT TRACKING"}
               </CardTitle>
               <div className="text-lg sm:text-2xl font-bold text-red-400 font-mono">
-                $ {totalDebt.toLocaleString()}
+                {formatCurrency(totalDebt)}
               </div>
               <div className="text-xs text-red-400/70 font-mono">
-                $ {pendingDebt.toLocaleString()}/{t.monthly?.toLowerCase() || "monthly"} {t.pending?.toLowerCase() || "pending"}
+                {formatCurrency(pendingDebt)} pending
               </div>
             </div>
             <Dialog open={isAddingDebt} onOpenChange={setIsAddingDebt}>
@@ -155,7 +160,7 @@ export const DebtTrackingEditable = () => {
                       />
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <span className="font-medium text-sm text-red-400">$</span>
+                      <span className="font-medium text-sm text-red-400">{data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'}</span>
                       <EditableValue
                         value={debt.amount}
                         onSave={(value) => updateDebt(debt.id, { amount: Number(value) })}
@@ -200,6 +205,12 @@ export const DebtTrackingEditable = () => {
               </div>
             );
           })}
+          
+          {data.debts.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground font-mono">
+              No debts tracked yet. Add one to get started!
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
