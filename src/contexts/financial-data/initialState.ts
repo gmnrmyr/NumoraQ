@@ -2,9 +2,10 @@ import { FinancialData } from './types';
 
 export const defaultData: FinancialData = {
   userProfile: {
-    name: "Starter",
-    defaultCurrency: "USD",
-    language: "en"
+    name: "User",
+    defaultCurrency: 'BRL',
+    language: 'en',
+    avatarIcon: '🤖'
   },
   projectionMonths: 12,
   exchangeRates: {

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -5,11 +6,27 @@ import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Input } from './ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { User, Mail, DollarSign, Globe, LogOut, Crown, Gift } from 'lucide-react';
+import { User, Mail, DollarSign, Globe, LogOut, Crown, Gift, Skull, Robot, Zap } from 'lucide-react';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { EditableValue } from './ui/editable-value';
+
+const avatarOptions = [
+  { id: '1', icon: '🤖', name: 'Robot' },
+  { id: '2', icon: '💀', name: 'Skull' },
+  { id: '3', icon: '⚡', name: 'Lightning' },
+  { id: '4', icon: '🔥', name: 'Fire' },
+  { id: '5', icon: '💎', name: 'Diamond' },
+  { id: '6', icon: '🚀', name: 'Rocket' },
+  { id: '7', icon: '👾', name: 'Alien' },
+  { id: '8', icon: '🎯', name: 'Target' },
+  { id: '9', icon: '⚔️', name: 'Swords' },
+  { id: '10', icon: '🛡️', name: 'Shield' },
+  { id: '11', icon: '🎮', name: 'Gaming' },
+  { id: '12', icon: '🔮', name: 'Crystal' }
+];
+
 export const UserProfileSection = () => {
   const {
     data,
@@ -25,7 +42,9 @@ export const UserProfileSection = () => {
     activateDegenCode
   } = useAdminMode();
   const [showDegenDialog, setShowDegenDialog] = useState(false);
+  const [showAvatarDialog, setShowAvatarDialog] = useState(false);
   const [degenCode, setDegenCode] = useState('');
+  
   const handleLogout = async () => {
     try {
       await signOut();
@@ -33,6 +52,7 @@ export const UserProfileSection = () => {
       console.error('Logout error:', error);
     }
   };
+  
   const handleActivateDegenCode = () => {
     if (activateDegenCode(degenCode, user?.email)) {
       setDegenCode('');
@@ -41,16 +61,52 @@ export const UserProfileSection = () => {
       alert('Invalid or already used code');
     }
   };
+
+  const handleAvatarSelect = (avatarIcon: string) => {
+    updateUserProfile({ avatarIcon });
+    setShowAvatarDialog(false);
+  };
+
+  const selectedAvatar = avatarOptions.find(avatar => avatar.icon === data.userProfile.avatarIcon);
+
   return <Card className="bg-card border-2 border-border brutalist-card">
-      
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16 border-2 border-border">
-            <AvatarImage src={user?.user_metadata?.avatar_url} />
-            <AvatarFallback className="bg-muted text-muted-foreground font-mono text-xl">
-              {data.userProfile.name ? data.userProfile.name.charAt(0).toUpperCase() : 'U'}
-            </AvatarFallback>
-          </Avatar>
+          <Dialog open={showAvatarDialog} onOpenChange={setShowAvatarDialog}>
+            <DialogTrigger asChild>
+              <Avatar className="h-16 w-16 border-2 border-border cursor-pointer hover:border-accent transition-colors">
+                <AvatarImage src={user?.user_metadata?.avatar_url} />
+                <AvatarFallback className="bg-muted text-muted-foreground font-mono text-xl hover:bg-accent/20">
+                  {data.userProfile.avatarIcon || (data.userProfile.name ? data.userProfile.name.charAt(0).toUpperCase() : 'U')}
+                </AvatarFallback>
+              </Avatar>
+            </DialogTrigger>
+            <DialogContent className="bg-card border-2 border-border max-w-md">
+              <DialogHeader>
+                <DialogTitle className="font-mono uppercase">Choose Avatar</DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-4 gap-3 p-4">
+                {avatarOptions.map((avatar) => (
+                  <Button
+                    key={avatar.id}
+                    variant="outline"
+                    className={`h-16 w-16 text-2xl border-2 ${
+                      selectedAvatar?.id === avatar.id 
+                        ? 'border-accent bg-accent/20' 
+                        : 'border-border hover:border-accent/50'
+                    }`}
+                    onClick={() => handleAvatarSelect(avatar.icon)}
+                  >
+                    {avatar.icon}
+                  </Button>
+                ))}
+              </div>
+              <div className="text-xs text-muted-foreground font-mono text-center">
+                Choose your degen avatar. NFT avatars coming soon! 🚀
+              </div>
+            </DialogContent>
+          </Dialog>
+          
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
               <User size={14} className="text-muted-foreground" />
