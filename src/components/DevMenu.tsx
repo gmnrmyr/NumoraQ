@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { useFinancialData } from "@/contexts/FinancialDataContext";
 
 export const DevMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { updateUserProfile, exportToCSV, resetData } = useFinancialData();
+  const { updateUserProfile, exportToCSV, resetData, data } = useFinancialData();
 
   const handleColorChange = (theme: string) => {
     // Remove all theme classes first
@@ -21,6 +20,11 @@ export const DevMenu = () => {
     
     // Store the theme preference
     localStorage.setItem('theme', theme);
+    
+    // Save theme to user profile for cloud sync
+    updateUserProfile({
+      theme: theme
+    });
   };
 
   const loadStarterProfile = () => {
@@ -93,7 +97,7 @@ export const DevMenu = () => {
           <div className="space-y-2">
             <h4 className="text-xs font-mono font-bold uppercase flex items-center gap-2">
               <Palette size={12} />
-              Themes
+              Themes {data.userProfile?.theme && <span className="text-green-400">({data.userProfile.theme})</span>}
             </h4>
             <div className="grid grid-cols-2 gap-2">
               <Button
@@ -116,7 +120,7 @@ export const DevMenu = () => {
                 onClick={() => handleColorChange('monochrome')}
                 size="sm"
                 variant="outline"
-                className="text-xs font-mono bg-gray-800 text-gray-100 hover:bg-gray-700"
+                className="text-xs font-mono bg-white text-black border-black hover:bg-black hover:text-white"
               >
                 Monochrome
               </Button>
@@ -136,6 +140,9 @@ export const DevMenu = () => {
               >
                 Ultra Contrast
               </Button>
+            </div>
+            <div className="text-xs text-muted-foreground font-mono">
+              💎 More premium themes coming for supporters!
             </div>
           </div>
 
