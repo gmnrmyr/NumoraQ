@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ export const LiquidAssetsCard = () => {
   const { data, updateLiquidAsset, addLiquidAsset, removeLiquidAsset } = useFinancialData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<any>(null);
-  const [showInactive, setShowInactive] = useState(false);
+  const [showInactive, setShowInactive] = useState(true); // Default to ON
   
   const [formData, setFormData] = useState({
     name: '',
