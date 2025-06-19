@@ -42,10 +42,11 @@ export const DebtTrackingEditable = () => {
     }
   };
 
-  // Fixed debt calculations - filter by isActive and status
-  const activeDebts = data.debts.filter(debt => debt.isActive);
+  // Fixed debt calculations - filter by isActive status
+  const activeDebts = data.debts.filter(debt => debt.isActive !== false);
   const totalDebt = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
   const pendingDebt = activeDebts.filter(debt => debt.status === 'pending').reduce((sum, debt) => sum + debt.amount, 0);
+  const paidDebt = activeDebts.filter(debt => debt.status === 'paid').reduce((sum, debt) => sum + debt.amount, 0);
 
   const getDebtIcon = (iconName: string) => {
     switch (iconName) {
@@ -78,13 +79,17 @@ export const DebtTrackingEditable = () => {
             <div>
               <CardTitle className="text-red-400 text-sm sm:text-base font-mono uppercase flex items-center gap-2">
                 <AlertTriangle size={20} />
-                {t.debt || "DEBT TRACKING"}
+                {t.debt || "DEBT TRACKING"} - {formatCurrency(totalDebt)}
               </CardTitle>
-              <div className="text-lg sm:text-2xl font-bold text-red-400 font-mono">
-                {formatCurrency(totalDebt)}
-              </div>
-              <div className="text-xs text-red-400/70 font-mono">
-                {formatCurrency(pendingDebt)} pending
+              <div className="grid grid-cols-2 gap-4 mt-2 text-xs font-mono">
+                <div>
+                  <span className="text-red-400/70">Pending: </span>
+                  <span className="text-red-400 font-bold">{formatCurrency(pendingDebt)}</span>
+                </div>
+                <div>
+                  <span className="text-green-400/70">Paid: </span>
+                  <span className="text-green-400 font-bold">{formatCurrency(paidDebt)}</span>
+                </div>
               </div>
             </div>
             <Dialog open={isAddingDebt} onOpenChange={setIsAddingDebt}>
