@@ -6,6 +6,7 @@ import { toast } from '@/hooks/use-toast';
 interface LeaderboardEntry {
   user_id: string;
   user_name: string;
+  user_uid: string;
   total_points: number;
   rank: number;
   donation_count: number;
@@ -85,7 +86,7 @@ export const useLeaderboard = () => {
         userPointsMap.set(userId, existing);
       });
 
-      // Get user profiles for names
+      // Get user profiles for names and UIDs
       const userIds = Array.from(userPointsMap.keys());
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
@@ -99,9 +100,13 @@ export const useLeaderboard = () => {
       
       userPointsMap.forEach((stats, userId) => {
         const profile = profilesData?.find(p => p.id === userId);
+        // Generate a readable UID from the user ID (first 8 characters)
+        const userUID = userId.substring(0, 8).toUpperCase();
+        
         leaderboardEntries.push({
           user_id: userId,
-          user_name: profile?.name || 'Anonymous User',
+          user_name: profile?.name || `User-${userUID}`,
+          user_uid: userUID,
           total_points: stats.total_points,
           rank: 0, // Will be calculated after sorting
           donation_count: stats.donation_count,
