@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, DollarSign, Percent } from 'lucide-react';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
-import { formatCurrency } from '@/contexts/financial-data/dataTypes';
+import { WalletTracker } from './WalletTracker';
 
 interface PortfolioSummaryProps {
   showWalletTracker?: boolean;
