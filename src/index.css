@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -69,24 +70,27 @@
     --destructive-foreground: 0 0% 95%;
   }
 
-  /* Monochrome mode - Pure black and white only */
+  /* Monochrome mode - Pure black and white ONLY */
   .monochrome {
     --background: 0 0% 0%; /* Pure black */
     --foreground: 0 0% 100%; /* Pure white */
-    --card: 0 0% 5%; /* Very dark gray */
+    --card: 0 0% 0%; /* Pure black */
+    --card-foreground: 0 0% 100%; /* Pure white */
     --accent: 0 0% 100%; /* Pure white */
     --accent-foreground: 0 0% 0%; /* Pure black */
     --ring: 0 0% 100%;
-    --border: 0 0% 50%; /* Medium gray for visibility */
-    --muted: 0 0% 10%; /* Dark gray */
-    --input: 0 0% 8%; /* Dark gray */
+    --border: 0 0% 100%; /* Pure white borders */
+    --muted: 0 0% 0%; /* Pure black */
+    --muted-foreground: 0 0% 100%; /* Pure white */
+    --input: 0 0% 0%; /* Pure black */
     --primary: 0 0% 100%; /* Pure white */
     --primary-foreground: 0 0% 0%; /* Pure black */
-    --secondary: 0 0% 20%; /* Dark gray */
+    --secondary: 0 0% 0%; /* Pure black */
     --secondary-foreground: 0 0% 100%; /* Pure white */
     --destructive: 0 0% 100%; /* Pure white */
     --destructive-foreground: 0 0% 0%; /* Pure black */
-    --muted-foreground: 0 0% 80%; /* Light gray */
+    --popover: 0 0% 0%;
+    --popover-foreground: 0 0% 100%;
   }
 
   /* Warm mode - Orange and red tones */

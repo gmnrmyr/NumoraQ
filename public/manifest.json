@@ -1,39 +1,46 @@
 
 {
-  "name": "Open Findash - Smart Financial Dashboard",
+  "name": "Open Findash - Financial Command Center",
   "short_name": "Open Findash",
-  "description": "Complete personal financial management dashboard for tracking assets, income, expenses, and financial projections.",
-  "start_url": "/",
+  "description": "Complete personal financial dashboard for tracking crypto portfolios, income, expenses, assets, and financial projections with AI insights.",
+  "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#141414",
   "theme_color": "#00ff00",
   "orientation": "portrait-primary",
+  "scope": "/",
   "icons": [
     {
       "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
-      "sizes": "any",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["finance", "productivity", "business"],
+  "categories": ["finance", "productivity", "business", "lifestyle"],
   "screenshots": [
     {
       "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
       "sizes": "1280x720",
       "type": "image/png",
-      "form_factor": "wide"
+      "form_factor": "wide",
+      "label": "Financial Dashboard Overview"
     }
   ],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "lang": "en-US",
+  "dir": "ltr"
 }

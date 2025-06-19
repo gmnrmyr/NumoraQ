@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Calendar } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 interface AddExpenseDialogProps {
@@ -28,27 +28,24 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
     type: 'recurring' as 'recurring' | 'variable',
     status: 'active' as 'active' | 'inactive',
     day: '',
+    specificDate: '',
   });
 
   const handleAddExpense = () => {
     if (newExpense.name.trim()) {
-      const payload =
-        newExpense.type === 'recurring'
-        ? {
-            name: newExpense.name,
-            amount: newExpense.amount,
-            category: newExpense.category,
-            type: newExpense.type,
-            status: newExpense.status,
-            day: newExpense.day,
-          }
-        : {
-            name: newExpense.name,
-            amount: newExpense.amount,
-            category: newExpense.category,
-            type: newExpense.type,
-            status: newExpense.status,
-          };
+      const payload: any = {
+        name: newExpense.name,
+        amount: newExpense.amount,
+        category: newExpense.category,
+        type: newExpense.type,
+        status: newExpense.status,
+      };
+
+      if (newExpense.type === 'recurring') {
+        payload.day = newExpense.day;
+      } else if (newExpense.type === 'variable' && newExpense.specificDate) {
+        payload.specificDate = newExpense.specificDate;
+      }
 
       onAddExpense(payload);
       setNewExpense({
@@ -58,6 +55,7 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
         type: 'recurring',
         status: 'active',
         day: '',
+        specificDate: '',
       });
       onOpenChange(false);
     }
@@ -120,6 +118,20 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
               onChange={(e) => setNewExpense({ ...newExpense, day: e.target.value })}
               className="bg-input border-2 border-border font-mono"
             />
+          )}
+          {newExpense.type === 'variable' && (
+            <div className="space-y-2">
+              <Input
+                type="date"
+                placeholder="Specific date (optional)"
+                value={newExpense.specificDate}
+                onChange={(e) => setNewExpense({ ...newExpense, specificDate: e.target.value })}
+                className="bg-input border-2 border-border font-mono"
+              />
+              <div className="text-xs text-muted-foreground font-mono">
+                Leave empty for monthly recurring expense
+              </div>
+            </div>
           )}
           <Button onClick={handleAddExpense} className="w-full brutalist-button">
             {t.addExpense}

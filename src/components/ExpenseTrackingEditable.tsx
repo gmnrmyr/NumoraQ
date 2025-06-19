@@ -14,13 +14,19 @@ export const ExpenseTrackingEditable = () => {
   const recurringExpenses = data.expenses.filter(expense => expense.type === 'recurring');
   const variableExpenses = data.expenses.filter(expense => expense.type === 'variable');
 
+  // Calculate monthly recurring expenses
   const totalRecurring = recurringExpenses
     .filter(expense => expense.status === 'active')
     .reduce((sum, expense) => sum + expense.amount, 0);
     
+  // Calculate variable expenses (only those without specific dates count as monthly)
   const totalVariable = variableExpenses
-    .filter(expense => expense.status === 'active')
+    .filter(expense => expense.status === 'active' && !expense.specificDate)
     .reduce((sum, expense) => sum + expense.amount, 0);
+
+  // Calculate one-time/dated variable expenses separately
+  const datedVariableExpenses = variableExpenses
+    .filter(expense => expense.status === 'active' && expense.specificDate);
 
   const categoryOptions = [
     { value: 'housing', label: t.housing },
@@ -69,6 +75,23 @@ export const ExpenseTrackingEditable = () => {
             isAddingExpense={isAddingExpense}
             setIsAddingExpense={setIsAddingExpense}
           />
+          
+          {/* Show dated expenses separately if any exist */}
+          {datedVariableExpenses.length > 0 && (
+            <div className="mt-4 p-3 bg-muted border-2 border-border">
+              <h4 className="font-mono font-bold text-sm mb-2 text-muted-foreground">
+                Scheduled One-Time Expenses:
+              </h4>
+              <div className="space-y-1 text-xs font-mono">
+                {datedVariableExpenses.map(expense => (
+                  <div key={expense.id} className="flex justify-between">
+                    <span>{expense.name}</span>
+                    <span>${expense.amount} on {expense.specificDate}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 
