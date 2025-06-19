@@ -1,87 +1,70 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const PrivacyPolicy = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen bg-background text-foreground font-mono py-12">
-      <div className="max-w-4xl mx-auto">
-        <Card className="bg-card border-2 border-border brutalist-card">
-          <CardHeader>
-            <CardTitle className="text-3xl font-mono font-bold text-accent uppercase">
-              Privacy Policy
-            </CardTitle>
-            <p className="text-muted-foreground font-mono">
-              Last updated: {new Date().toLocaleDateString()}
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="mb-6">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="outline"
+            className="mb-4 brutalist-button"
+          >
+            <ArrowLeft size={16} className="mr-2" />
+            Back
+          </Button>
+          <h1 className="text-3xl font-bold font-mono text-accent mb-2">PRIVACY POLICY</h1>
+          <p className="text-muted-foreground font-mono">Open Findash - Financial Dashboard Platform</p>
+        </div>
+
+        <div className="space-y-6 text-sm font-mono">
+          <section>
+            <h2 className="text-xl font-bold text-accent mb-3">1. INFORMATION WE COLLECT</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Open Findash collects information you provide directly to us, such as when you create an account, update your profile, or use our services.
             </p>
-          </CardHeader>
-          <CardContent className="space-y-6 font-mono text-sm">
-            <section>
-              <h2 className="text-xl font-bold text-accent mb-3 uppercase">1. Information We Collect</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                OPEN FINDASH collects information you provide directly to us, such as when you create an account, use our services, or contact us for support.
-              </p>
-            </section>
+          </section>
 
-            <section>
-              <h2 className="text-xl font-bold text-accent mb-3 uppercase">2. How We Use Your Information</h2>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                <li>To provide and maintain OPEN FINDASH services</li>
-                <li>To process transactions and send related information</li>
-                <li>To send technical notices and support messages</li>
-                <li>To respond to your comments and questions</li>
-              </ul>
-            </section>
+          <section>
+            <h2 className="text-xl font-bold text-accent mb-3">2. HOW WE USE YOUR INFORMATION</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              We use the information we collect to operate, maintain, and improve our Services. We also use your information to communicate with you, provide support, and personalize your experience.
+            </p>
+          </section>
 
-            <section>
-              <h2 className="text-xl font-bold text-accent mb-3 uppercase">3. Data Security</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                We implement reasonable security measures to protect your information from unauthorized access, alteration, or disclosure.
-              </p>
-            </section>
+          <section>
+            <h2 className="text-xl font-bold text-accent mb-3">3. DATA SECURITY</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              We take reasonable measures to protect your information from unauthorized access, use, or disclosure. However, no method of transmission over the internet or method of electronic storage is completely secure.
+            </p>
+          </section>
 
-            <section>
-              <h2 className="text-xl font-bold text-accent mb-3 uppercase">4. Data Retention</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                We retain your personal information for as long as necessary to provide you with our services and as otherwise necessary to comply with our legal obligations, resolve disputes, and enforce our agreements.
-              </p>
-            </section>
+          <section>
+            <h2 className="text-xl font-bold text-accent mb-3">4. SHARING YOUR INFORMATION</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              We do not share your personal information with third parties except as necessary to provide our Services or as required by law.
+            </p>
+          </section>
 
-            <section>
-              <h2 className="text-xl font-bold text-accent mb-3 uppercase">5. Sharing Your Information</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                We do not share your personal information with third parties except as described in this policy or with your consent.
-              </p>
-            </section>
+          <section>
+            <h2 className="text-xl font-bold text-accent mb-3">5. CHANGES TO THIS POLICY</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new Privacy Policy on our website.
+            </p>
+          </section>
 
-            <section>
-              <h2 className="text-xl font-bold text-accent mb-3 uppercase">6. Cookies and Tracking Technologies</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                We use cookies and other tracking technologies to improve your experience and analyze how our services are used.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-bold text-accent mb-3 uppercase">7. Your Rights</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                You have the right to access, correct, or delete your personal information. Contact us to exercise these rights.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-bold text-accent mb-3 uppercase">8. Changes to This Policy</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                We may update this privacy policy from time to time. We will notify you of any significant changes.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-bold text-accent mb-3 uppercase">9. Contact Us</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                If you have any questions about this privacy policy, please contact us.
-              </p>
-            </section>
-          </CardContent>
-        </Card>
+          <section>
+            <h2 className="text-xl font-bold text-accent mb-3">6. CONTACT US</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              If you have any questions about this Privacy Policy, please contact us at support@openfindash.com.
+            </p>
+          </section>
+        </div>
       </div>
     </div>
   );
