@@ -1,13 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skull, Bot, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DollarSign, TrendingUp, TrendingDown, CreditCard, BarChart3, Eye, EyeOff } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 export const MetricsOverview = () => {
   const { data } = useFinancialData();
   const { t } = useTranslation();
+  const [isExpanded, setIsExpanded] = useState(true);
 
   // Calculate metrics
   const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
@@ -25,83 +27,109 @@ export const MetricsOverview = () => {
   const activeExpenses = data.expenses.filter(expense => expense.status === 'active');
   const totalExpenses = activeExpenses.reduce((sum, expense) => sum + expense.amount, 0);
   
+  const activeDebts = data.debts.filter(debt => debt.isActive && debt.status !== 'paid');
+  const totalActiveDebts = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
+  
   const totalIncome = totalPassiveIncome + totalActiveIncome;
-  const netWorth = totalLiquid + totalIlliquid;
-  const monthlyCashFlow = totalIncome - totalExpenses;
+  const availableNow = totalLiquid; // Available liquid assets
+  const monthlyBalance = totalIncome - totalExpenses;
 
   const formatCurrency = (amount: number) => {
     const currency = data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$';
     return `${currency} ${Math.abs(amount).toLocaleString()}`;
   };
 
+  const metrics = [
+    {
+      title: "Available Now",
+      value: availableNow,
+      icon: DollarSign,
+      description: `${activeLiquidAssets.length} liquid assets`,
+      color: "text-blue-500",
+      borderColor: "border-blue-500"
+    },
+    {
+      title: "Monthly Income",
+      value: totalIncome,
+      icon: TrendingUp,
+      description: `${formatCurrency(totalPassiveIncome)} passive + ${formatCurrency(totalActiveIncome)} active`,
+      color: "text-green-500",
+      borderColor: "border-green-500"
+    },
+    {
+      title: "Monthly Expenses",
+      value: totalExpenses,
+      icon: TrendingDown,
+      description: `${activeExpenses.length} active expenses`,
+      color: "text-red-500",
+      borderColor: "border-red-500"
+    },
+    {
+      title: "Active Debts",
+      value: totalActiveDebts,
+      icon: CreditCard,
+      description: `${activeDebts.length} pending debts`,
+      color: "text-orange-500",
+      borderColor: "border-orange-500"
+    },
+    {
+      title: "Monthly Balance",
+      value: monthlyBalance,
+      icon: BarChart3,
+      description: `${formatCurrency(totalIncome)} in - ${formatCurrency(totalExpenses)} out`,
+      color: monthlyBalance >= 0 ? "text-green-500" : "text-red-500",
+      borderColor: monthlyBalance >= 0 ? "border-green-500" : "border-red-500"
+    }
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-      {/* Net Worth */}
-      <Card className="bg-card/80 backdrop-blur-sm border-accent border-2 hover:shadow-lg transition-all duration-300">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium font-mono uppercase text-accent">
-            {t.netWorth || 'Net Worth'}
-          </CardTitle>
-          <Bot className="h-6 w-6 text-accent animate-pulse" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold font-mono text-accent">
-            {formatCurrency(netWorth)}
-          </div>
-          <p className="text-xs text-muted-foreground font-mono mt-1">
-            {activeLiquidAssets.length + activeIlliquidAssets.length} active assets
-          </p>
-        </CardContent>
-      </Card>
+    <div className="space-y-4">
+      {/* Header with toggle */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold font-mono uppercase text-foreground">
+          OVERVIEW
+        </h2>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="border-2 border-border hover:bg-accent"
+        >
+          {isExpanded ? <EyeOff size={16} /> : <Eye size={16} />}
+          <span className="ml-2 font-mono text-xs">
+            {isExpanded ? 'HIDE' : 'SHOW'}
+          </span>
+        </Button>
+      </div>
 
-      {/* Monthly Cash Flow */}
-      <Card className="bg-card/80 backdrop-blur-sm border-2 hover:shadow-lg transition-all duration-300"
-            style={{ 
-              borderColor: monthlyCashFlow >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)' 
-            }}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium font-mono uppercase"
-                     style={{ 
-                       color: monthlyCashFlow >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)' 
-                     }}>
-            Monthly Flow
-          </CardTitle>
-          {monthlyCashFlow >= 0 ? (
-            <Zap className="h-6 w-6 text-green-500 animate-bounce" />
-          ) : (
-            <Skull className="h-6 w-6 text-red-500 animate-pulse" />
-          )}
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold font-mono"
-               style={{ 
-                 color: monthlyCashFlow >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)' 
-               }}>
-            {monthlyCashFlow >= 0 ? '+' : '-'}{formatCurrency(monthlyCashFlow)}
-          </div>
-          <p className="text-xs text-muted-foreground font-mono mt-1">
-            {formatCurrency(totalIncome)} in - {formatCurrency(totalExpenses)} out
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Total Income */}
-      <Card className="bg-card/80 backdrop-blur-sm border-green-500 border-2 hover:shadow-lg transition-all duration-300">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium font-mono uppercase text-green-500">
-            Monthly Income
-          </CardTitle>
-          <Bot className="h-6 w-6 text-green-500" style={{ filter: 'hue-rotate(120deg)' }} />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold font-mono text-green-500">
-            {formatCurrency(totalIncome)}
-          </div>
-          <p className="text-xs text-muted-foreground font-mono mt-1">
-            {formatCurrency(totalPassiveIncome)} passive + {formatCurrency(totalActiveIncome)} active
-          </p>
-        </CardContent>
-      </Card>
+      {/* Metrics Grid */}
+      {isExpanded && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {metrics.map((metric, index) => {
+            const Icon = metric.icon;
+            return (
+              <Card key={index} className={`bg-card/80 backdrop-blur-sm border-2 ${metric.borderColor} hover:shadow-lg transition-all duration-300`}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className={`text-sm font-medium font-mono uppercase ${metric.color}`}>
+                    {metric.title}
+                  </CardTitle>
+                  <Icon className={`h-5 w-5 ${metric.color}`} />
+                </CardHeader>
+                <CardContent>
+                  <div className={`text-xl sm:text-2xl font-bold font-mono ${metric.color}`}>
+                    {metric.value >= 0 && metric.title === "Monthly Balance" ? '+' : ''}
+                    {metric.value < 0 && metric.title === "Monthly Balance" ? '-' : ''}
+                    {formatCurrency(metric.value)}
+                  </div>
+                  <p className="text-xs text-muted-foreground font-mono mt-1">
+                    {metric.description}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
