@@ -18,7 +18,11 @@ export const AssetManagementEditable = () => {
     value: 0,
     status: 'rented' as 'rented' | 'renovating' | 'planned',
     currentRent: 0,
-    expectedRent: 0
+    expectedRent: 0,
+    statusIcon: '🏠',
+    statusText: 'Rented',
+    prediction: 'Current',
+    rentRange: 'N/A'
   });
   const [isAddingProperty, setIsAddingProperty] = useState(false);
 
@@ -58,7 +62,19 @@ export const AssetManagementEditable = () => {
     const statuses = ['rented', 'renovating', 'planned'];
     const currentIndex = statuses.indexOf(currentStatus);
     const nextStatus = statuses[(currentIndex + 1) % statuses.length] as 'rented' | 'renovating' | 'planned';
-    updateProperty(propertyId, { status: nextStatus });
+    
+    const statusIcon = getStatusIcon(nextStatus);
+    const statusText = getStatusText(nextStatus);
+    const prediction = nextStatus === 'rented' ? 'Current' : nextStatus === 'renovating' ? 'Spring 2025' : '2026';
+    const rentRange = nextStatus === 'rented' ? 'N/A' : nextStatus === 'renovating' ? '$2,000-2,400' : '$180-220/night';
+    
+    updateProperty(propertyId, { 
+      status: nextStatus, 
+      statusIcon, 
+      statusText, 
+      prediction, 
+      rentRange 
+    });
   };
 
   const handleAddProperty = () => {
@@ -69,7 +85,11 @@ export const AssetManagementEditable = () => {
         value: 0,
         status: 'rented',
         currentRent: 0,
-        expectedRent: 0
+        expectedRent: 0,
+        statusIcon: '🏠',
+        statusText: 'Rented',
+        prediction: 'Current',
+        rentRange: 'N/A'
       });
       setIsAddingProperty(false);
     }

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skull, Robot, Zap } from "lucide-react";
+import { Skull, Bot, Zap } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 
@@ -42,7 +42,7 @@ export const MetricsOverview = () => {
           <CardTitle className="text-sm font-medium font-mono uppercase text-accent">
             {t.netWorth || 'Net Worth'}
           </CardTitle>
-          <Robot className="h-6 w-6 text-accent animate-pulse" />
+          <Bot className="h-6 w-6 text-accent animate-pulse" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold font-mono text-accent">
@@ -91,7 +91,7 @@ export const MetricsOverview = () => {
           <CardTitle className="text-sm font-medium font-mono uppercase text-green-500">
             Monthly Income
           </CardTitle>
-          <Robot className="h-6 w-6 text-green-500" style={{ filter: 'hue-rotate(120deg)' }} />
+          <Bot className="h-6 w-6 text-green-500" style={{ filter: 'hue-rotate(120deg)' }} />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold font-mono text-green-500">
