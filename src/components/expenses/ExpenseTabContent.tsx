@@ -40,21 +40,17 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
       {!hideTotal && (
         <div className="flex items-center justify-between">
           <div className="text-lg font-bold text-accent font-mono brutalist-heading">
-            {t.monthlyTotal}: ${total.toFixed(2)}
+            Monthly Total: ${total.toFixed(2)}
           </div>
           {!hideAddButton && (
-            <AddExpenseDialog
-              type={type}
-              onAddExpense={onAddExpense}
-              categoryOptions={categoryOptions}
-              isOpen={isAddingExpense}
-              onOpenChange={setIsAddingExpense}
+            <Button 
+              onClick={() => setIsAddingExpense(true)}
+              size="sm" 
+              className="brutalist-button"
             >
-              <Button size="sm" className="brutalist-button">
-                <Plus size={16} className="mr-1" />
-                {type === 'recurring' ? t.addRecurring : t.addVariable}
-              </Button>
-            </AddExpenseDialog>
+              <Plus size={16} className="mr-1" />
+              {type === 'recurring' ? `Add ${t.recurring}` : `Add ${t.variable}`}
+            </Button>
           )}
         </div>
       )}
@@ -77,6 +73,17 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
           </div>
         )}
       </div>
+
+      {/* Add Expense Dialog */}
+      {isAddingExpense && (
+        <AddExpenseDialog
+          type={type}
+          onAddExpense={onAddExpense}
+          categoryOptions={categoryOptions}
+          isOpen={isAddingExpense}
+          onOpenChange={setIsAddingExpense}
+        />
+      )}
     </div>
   );
 };

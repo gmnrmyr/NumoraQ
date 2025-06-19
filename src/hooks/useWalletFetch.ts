@@ -39,13 +39,13 @@ export const useWalletFetch = () => {
 
       console.log(`Fetching wallet balance for ${walletAddress} (type: ${type})`);
 
-      // For now, return enhanced mock data
+      // For now, return enhanced mock data with better simulation
       const mockBalance: WalletBalance = {
-        eth: type === 'eth' || type === 'auto' ? Math.random() * 10 : undefined,
-        btc: type === 'btc' || type === 'auto' ? Math.random() * 0.5 : undefined,
-        totalUsd: Math.random() * 50000,
+        eth: type === 'eth' || type === 'auto' ? Math.random() * 10 + 0.1 : undefined,
+        btc: type === 'btc' || type === 'auto' ? Math.random() * 0.5 + 0.001 : undefined,
+        totalUsd: Math.random() * 45000 + 5000, // More realistic range
         lastUpdated: new Date().toISOString(),
-        nftCount: Math.floor(Math.random() * 20),
+        nftCount: Math.floor(Math.random() * 15),
         nfts: [
           {
             name: 'Bored Ape #1234',
@@ -61,66 +61,52 @@ export const useWalletFetch = () => {
       };
 
       // TODO: Implement real API calls
-      // Priority APIs to implement:
-      // 1. DeBank API (free tier) - https://docs.cloud.debank.com/
-      // 2. Moralis API (free tier) - https://moralis.io/
-      // 3. Alchemy API (free tier) - https://www.alchemy.com/
-      // 4. BlockCypher for Bitcoin - https://www.blockcypher.com/
-      // 5. OpenSea API for NFTs - https://docs.opensea.io/
+      // Priority APIs to implement (all have free tiers):
+      // 1. DeBank API - https://docs.cloud.debank.com/
+      // 2. Moralis API - https://moralis.io/
+      // 3. Alchemy API - https://www.alchemy.com/
+      // 4. Covalent API - https://www.covalenthq.com/
+      // 5. Etherscan API - https://etherscan.io/apis
       
       /*
-      Example implementation:
+      Example implementation for DeBank API (supports 60+ chains):
       
-      if (type === 'auto' || type === 'eth') {
-        // Try DeBank first (supports multiple chains)
-        try {
-          const debankResponse = await fetch(`https://openapi.debank.com/v1/user/total_balance?id=${walletAddress}`, {
-            headers: { 'AccessKey': 'YOUR_DEBANK_KEY' }
-          });
-          const debankData = await debankResponse.json();
-          
-          if (debankData.total_usd_value) {
-            mockBalance.totalUsd = debankData.total_usd_value;
+      try {
+        const response = await fetch(`https://openapi.debank.com/v1/user/total_balance?id=${walletAddress}`, {
+          headers: { 
+            'AccessKey': 'YOUR_DEBANK_ACCESS_KEY' // Free tier available
           }
-        } catch (err) {
-          console.warn('DeBank API failed, using fallback');
-        }
+        });
         
-        // Fallback to Alchemy for Ethereum
-        try {
-          const alchemyResponse = await fetch(`https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY/getBalance`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              jsonrpc: '2.0',
-              id: 1,
-              method: 'eth_getBalance',
-              params: [walletAddress, 'latest']
-            })
-          });
-          const alchemyData = await alchemyResponse.json();
+        if (response.ok) {
+          const data = await response.json();
+          mockBalance.totalUsd = data.total_usd_value || mockBalance.totalUsd;
           
-          if (alchemyData.result) {
-            const ethBalance = parseInt(alchemyData.result, 16) / Math.pow(10, 18);
-            mockBalance.eth = ethBalance;
+          // Get specific chain balances
+          const chains = await fetch(`https://openapi.debank.com/v1/user/chain_balance?id=${walletAddress}&chain_id=eth`);
+          if (chains.ok) {
+            const chainData = await chains.json();
+            mockBalance.eth = chainData.usd_value / 2500; // Approximate ETH from USD
           }
-        } catch (err) {
-          console.warn('Alchemy API failed');
         }
+      } catch (apiError) {
+        console.warn('DeBank API unavailable, using mock data');
       }
       
-      if (type === 'auto' || type === 'btc') {
-        // Bitcoin balance via BlockCypher or similar
-        try {
-          const btcResponse = await fetch(`https://api.blockcypher.com/v1/btc/main/addrs/${walletAddress}/balance`);
-          const btcData = await btcResponse.json();
-          
-          if (btcData.balance) {
-            mockBalance.btc = btcData.balance / 100000000; // Convert satoshis to BTC
+      // Alternative: Moralis API
+      try {
+        const response = await fetch(`https://deep-index.moralis.io/api/v2/${walletAddress}/balance`, {
+          headers: { 
+            'X-API-Key': 'YOUR_MORALIS_API_KEY'
           }
-        } catch (err) {
-          console.warn('Bitcoin API failed');
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          mockBalance.eth = parseFloat(data.balance) / Math.pow(10, 18);
         }
+      } catch (apiError) {
+        console.warn('Moralis API unavailable, using mock data');
       }
       */
 
@@ -135,71 +121,101 @@ export const useWalletFetch = () => {
   };
 
   const fetchNFTCollection = async (walletAddress: string): Promise<WalletBalance['nfts']> => {
+    setIsLoading(true);
+    
     try {
-      // Mock NFT data for now
-      const mockNFTs = [
-        {
-          name: 'Bored Ape #1234',
-          collection: 'Bored Ape Yacht Club',
-          estimatedValue: 50000
-        },
-        {
-          name: 'CryptoPunk #5678',
-          collection: 'CryptoPunks',
-          estimatedValue: 75000
-        },
-        {
-          name: 'Azuki #9012',
-          collection: 'Azuki',
-          estimatedValue: 15000
-        }
+      // Enhanced mock NFT data
+      const collections = [
+        'Bored Ape Yacht Club',
+        'CryptoPunks',
+        'Azuki',
+        'Doodles',
+        'Art Blocks',
+        'World of Women'
       ];
-
-      // TODO: Implement OpenSea API or similar
-      /*
-      const openSeaResponse = await fetch(`https://api.opensea.io/api/v1/assets?owner=${walletAddress}&limit=50`, {
-        headers: { 'X-API-KEY': 'YOUR_OPENSEA_KEY' }
-      });
-      const openSeaData = await openSeaResponse.json();
       
-      return openSeaData.assets.map(asset => ({
-        name: asset.name || `${asset.collection.name} #${asset.token_id}`,
-        collection: asset.collection.name,
-        image: asset.image_url,
-        estimatedValue: asset.last_sale?.total_price ? 
-          parseInt(asset.last_sale.total_price) / Math.pow(10, 18) * ethPrice : 
-          undefined
+      const mockNFTs = Array.from({ length: Math.floor(Math.random() * 8) + 1 }, (_, i) => ({
+        name: `${collections[Math.floor(Math.random() * collections.length)]} #${Math.floor(Math.random() * 9999)}`,
+        collection: collections[Math.floor(Math.random() * collections.length)],
+        estimatedValue: Math.floor(Math.random() * 100000) + 1000
       }));
+
+      // TODO: Implement OpenSea API or Moralis NFT API
+      /*
+      try {
+        const response = await fetch(`https://api.opensea.io/api/v1/assets?owner=${walletAddress}&limit=50`, {
+          headers: { 'X-API-KEY': 'YOUR_OPENSEA_KEY' }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return data.assets.map(asset => ({
+            name: asset.name || `${asset.collection.name} #${asset.token_id}`,
+            collection: asset.collection.name,
+            image: asset.image_url,
+            estimatedValue: asset.last_sale?.total_price ? 
+              parseInt(asset.last_sale.total_price) / Math.pow(10, 18) * 2500 : // ETH price approximation
+              Math.floor(Math.random() * 50000) + 1000
+          }));
+        }
+      } catch (apiError) {
+        console.warn('OpenSea API unavailable, using mock data');
+      }
+      
+      // Alternative: Moralis NFT API
+      try {
+        const response = await fetch(`https://deep-index.moralis.io/api/v2/${walletAddress}/nft`, {
+          headers: { 'X-API-Key': 'YOUR_MORALIS_API_KEY' }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return data.result.map(nft => ({
+            name: nft.name || `${nft.token_address} #${nft.token_id}`,
+            collection: nft.name || 'Unknown Collection',
+            estimatedValue: Math.floor(Math.random() * 50000) + 1000
+          }));
+        }
+      } catch (apiError) {
+        console.warn('Moralis NFT API unavailable, using mock data');
+      }
       */
 
+      setIsLoading(false);
       return mockNFTs;
     } catch (err) {
       console.error('Failed to fetch NFT collection:', err);
+      setIsLoading(false);
       return [];
     }
   };
 
   const fetchCryptoPrice = async (symbol: string): Promise<number> => {
     try {
-      // For now, use mock prices but TODO: implement CoinGecko API
-      const mockPrices: Record<string, number> = {
-        'eth': 2500,
-        'ethereum': 2500,
-        'btc': 45000,
-        'bitcoin': 45000,
-        'bnb': 300,
-        'sol': 100,
-        'matic': 0.8,
-        'usdc': 1,
-        'usdt': 1
-      };
-      
+      // TODO: Implement CoinGecko API (free tier available)
       /*
-      // Real implementation with CoinGecko (free API)
       const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${symbol}&vs_currencies=usd`);
-      const data = await response.json();
-      return data[symbol]?.usd || 0;
+      if (response.ok) {
+        const data = await response.json();
+        return data[symbol]?.usd || 0;
+      }
       */
+      
+      // Mock prices for now (should be replaced with real API)
+      const mockPrices: Record<string, number> = {
+        'eth': 2450 + Math.random() * 200,
+        'ethereum': 2450 + Math.random() * 200,
+        'btc': 43000 + Math.random() * 4000,
+        'bitcoin': 43000 + Math.random() * 4000,
+        'bnb': 280 + Math.random() * 40,
+        'sol': 95 + Math.random() * 20,
+        'matic': 0.7 + Math.random() * 0.2,
+        'usdc': 1,
+        'usdt': 1,
+        'ada': 0.35 + Math.random() * 0.1,
+        'dot': 4.5 + Math.random() * 1,
+        'link': 12 + Math.random() * 3
+      };
       
       return mockPrices[symbol.toLowerCase()] || 0;
     } catch (err) {
@@ -213,11 +229,23 @@ export const useWalletFetch = () => {
     return price * amount;
   };
 
+  // Helper function to detect wallet type from address
+  const detectWalletType = (address: string): 'eth' | 'btc' | 'auto' => {
+    if (address.startsWith('0x') && address.length === 42) {
+      return 'eth';
+    } else if ((address.startsWith('1') || address.startsWith('3') || address.startsWith('bc1')) && 
+               (address.length >= 26 && address.length <= 62)) {
+      return 'btc';
+    }
+    return 'auto';
+  };
+
   return {
     fetchWalletBalance,
     fetchNFTCollection,
     fetchCryptoPrice,
     calculateCryptoValue,
+    detectWalletType,
     isLoading,
     error
   };
