@@ -3,32 +3,16 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Award, Star, TrendingUp, Calendar, Gift, Users } from "lucide-react";
+import { Trophy, Medal, Award, Star, TrendingUp, Calendar, Gift, Users, RefreshCw } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
-import { useFinancialData } from '@/contexts/FinancialDataContext';
+import { useLeaderboard } from '@/hooks/useLeaderboard';
+import { DailyLoginButton } from '@/components/DailyLoginButton';
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
 const LeaderboardPage = () => {
   const { user } = useAuth();
-  const { data } = useFinancialData();
-
-  // Mock leaderboard data - this will be replaced with real data later
-  const mockLeaderboard = [
-    { rank: 1, name: "CryptoKing", points: 2840, streak: 45, donations: 12 },
-    { rank: 2, name: "DeFiMaster", points: 2650, streak: 38, donations: 8 },
-    { rank: 3, name: "HODLer_Pro", points: 2420, streak: 32, donations: 15 },
-    { rank: 4, name: "YieldFarmer", points: 2180, streak: 28, donations: 6 },
-    { rank: 5, name: "NFTCollector", points: 1950, streak: 25, donations: 10 },
-  ];
-
-  const userStats = {
-    points: 1250,
-    rank: 12,
-    streak: 18,
-    donations: 3,
-    referrals: 2
-  };
+  const { leaderboard, userStats, loading, refresh } = useLeaderboard();
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -62,6 +46,18 @@ const LeaderboardPage = () => {
               <p className="text-muted-foreground font-mono uppercase tracking-wide">
                 FIDELITY POINTS // COMMUNITY ENGAGEMENT // PLATFORM GROWTH
               </p>
+              <div className="flex justify-center gap-2">
+                <DailyLoginButton />
+                <Button 
+                  onClick={refresh}
+                  variant="outline" 
+                  size="sm"
+                  className="brutalist-button"
+                >
+                  <RefreshCw size={16} className="mr-2" />
+                  Refresh
+                </Button>
+              </div>
             </div>
 
             {/* User Stats Card */}
@@ -85,7 +81,7 @@ const LeaderboardPage = () => {
                     </div>
                     <div className="text-center space-y-1">
                       <div className="text-2xl font-bold text-accent">{userStats.streak}</div>
-                      <div className="text-xs text-muted-foreground font-mono">DAY STREAK</div>
+                      <div className="text-xs text-muted-foreground font-mono">LOGINS</div>
                     </div>
                     <div className="text-center space-y-1">
                       <div className="text-2xl font-bold text-accent">{userStats.donations}</div>
@@ -156,27 +152,37 @@ const LeaderboardPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {mockLeaderboard.map((user) => (
-                    <div key={user.rank} className="flex items-center justify-between p-3 bg-muted/20 border border-border rounded">
-                      <div className="flex items-center gap-3">
-                        {getRankIcon(user.rank)}
-                        <div>
-                          <div className="font-mono font-bold text-sm">{user.name}</div>
+                {loading ? (
+                  <div className="text-center py-8 text-muted-foreground font-mono">
+                    Loading leaderboard...
+                  </div>
+                ) : leaderboard.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground font-mono">
+                    No data available. Be the first to earn points!
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {leaderboard.map((entry) => (
+                      <div key={entry.user_id} className="flex items-center justify-between p-3 bg-muted/20 border border-border rounded">
+                        <div className="flex items-center gap-3">
+                          {getRankIcon(entry.rank)}
+                          <div>
+                            <div className="font-mono font-bold text-sm">{entry.user_name}</div>
+                            <div className="text-xs text-muted-foreground font-mono">
+                              Rank #{entry.rank}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right space-y-1">
+                          <div className="font-bold text-accent font-mono">{entry.total_points.toLocaleString()} pts</div>
                           <div className="text-xs text-muted-foreground font-mono">
-                            Rank #{user.rank}
+                            {entry.login_streak} logins • {entry.donation_count} donations
                           </div>
                         </div>
                       </div>
-                      <div className="text-right space-y-1">
-                        <div className="font-bold text-accent font-mono">{user.points.toLocaleString()} pts</div>
-                        <div className="text-xs text-muted-foreground font-mono">
-                          {user.streak}d streak • {user.donations} donations
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
