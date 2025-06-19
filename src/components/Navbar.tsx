@@ -6,7 +6,7 @@ import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard,
 import { useAuth } from "@/contexts/AuthContext";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { Badge } from "@/components/ui/badge";
-import { UserSettingsPanel } from "@/components/navbar/UserSettingsPanel";
+import { NavbarUserProfile } from "@/components/navbar/NavbarUserProfile";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useNavigate } from "react-router-dom";
 
@@ -46,6 +46,11 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
       return;
     }
     
+    // Navigate to dashboard first if not already there
+    if (window.location.pathname !== '/dashboard') {
+      navigate('/dashboard');
+    }
+    
     onTabChange(tab);
     setIsOpen(false);
 
@@ -73,24 +78,6 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
     }
   };
 
-  const getSyncIcon = () => {
-    if (syncState === 'saving') return <CloudOff className="animate-spin" size={14} />;
-    if (syncState === 'loading') return <CloudOff className="animate-spin" size={14} />;
-    if (syncState === 'error') return <CloudOff size={14} className="text-red-500" />;
-    return <Cloud size={14} className="text-green-500" />;
-  };
-
-  const formatLastSync = (timestamp: string | null) => {
-    if (!timestamp) return 'Never synced';
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    if (diffMinutes < 1) return 'Just now';
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
-    return date.toLocaleDateString();
-  };
-
   return (
     <div className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
       isScrolled 
@@ -110,8 +97,14 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
             <Badge variant="outline" className="hidden sm:flex font-mono items-center gap-2">
               {user.email}
               {user && (
-                <div className="flex items-center gap-1" title={`Last sync: ${formatLastSync(lastSync)}`}>
-                  {getSyncIcon()}
+                <div className="flex items-center gap-1" title={`Last sync: ${lastSync ? new Date(lastSync).toLocaleDateString() : 'Never synced'}`}>
+                  {syncState === 'saving' || syncState === 'loading' ? (
+                    <CloudOff className="animate-spin" size={14} />
+                  ) : syncState === 'error' ? (
+                    <CloudOff size={14} className="text-red-500" />
+                  ) : (
+                    <Cloud size={14} className="text-green-500" />
+                  )}
                 </div>
               )}
             </Badge>
@@ -143,23 +136,23 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
           {user && (
             <div className="flex items-center gap-2 px-3 py-2 bg-accent/10 border border-accent/20 rounded-lg">
               <Button
-                variant={activeTab === 'leaderboard' ? "default" : "ghost"}
+                variant={window.location.pathname === '/leaderboard' ? "default" : "ghost"}
                 onClick={() => handleTabChange('leaderboard')}
                 size="sm"
                 className="font-mono brutalist-button text-slate-100"
+                title="Leaderboard"
               >
-                <Trophy size={16} className="mr-1" />
-                Leaderboard
+                <Trophy size={16} />
               </Button>
             </div>
           )}
           
-          {/* Settings Section */}
+          {/* User Profile Section */}
           <div className="flex items-center gap-2 px-3 py-2 bg-muted/20 border border-muted/30 rounded-lg">
             {!user && <LanguageSelector variant="outline" size="sm" />}
             
             {user ? (
-              <UserSettingsPanel />
+              <NavbarUserProfile />
             ) : (
               <Button onClick={handleGetStarted} className="font-mono brutalist-button" size="sm">
                 <LogIn size={16} className="mr-1" />
@@ -172,7 +165,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
         {/* Mobile Navigation */}
         <div className="flex items-center gap-2 lg:hidden">
           {!user && <LanguageSelector variant="outline" size="sm" />}
-          {user && <UserSettingsPanel />}
+          {user && <NavbarUserProfile />}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="sm" className="brutalist-button">
@@ -203,7 +196,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
                     <div className="border-t border-border pt-4 mt-2">
                       <h3 className="font-bold text-sm font-mono uppercase text-accent mb-2">Community</h3>
                       <Button
-                        variant={activeTab === 'leaderboard' ? "default" : "ghost"}
+                        variant={window.location.pathname === '/leaderboard' ? "default" : "ghost"}
                         onClick={() => handleTabChange('leaderboard')}
                         className="justify-start font-mono brutalist-button w-full"
                       >
