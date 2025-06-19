@@ -47,8 +47,8 @@ const LandingPage = () => {
       <meta name="keywords" content="financial dashboard, crypto tracker, portfolio management, open source, privacy-first, wealth tracking, free finance app" />
       
       <div className="min-h-screen bg-background text-foreground font-mono overflow-x-hidden">
-        {/* Navigation */}
-        <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        {/* Navigation - Made sticky with backdrop blur */}
+        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-card/80 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center gap-2">
@@ -81,7 +81,7 @@ const LandingPage = () => {
 
             {/* Mobile Navigation */}
             {isMenuOpen && (
-              <div className="md:hidden border-t border-border bg-card/90 backdrop-blur-sm absolute left-0 right-0 top-16 z-50">
+              <div className="md:hidden border-t border-border bg-card/90 backdrop-blur-sm">
                 <div className="px-4 py-4 space-y-3">
                   <a 
                     href="#features" 
@@ -109,8 +109,8 @@ const LandingPage = () => {
           </div>
         </nav>
 
-        {/* Hero Section */}
-        <section className="pt-12 pb-16 px-4 sm:px-6 lg:px-8">
+        {/* Hero Section - Added top padding for fixed navbar */}
+        <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
             <Badge variant="outline" className="mb-6 text-accent border-accent font-mono">
               100% Free & Open Source

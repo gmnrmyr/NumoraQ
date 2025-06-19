@@ -48,7 +48,11 @@ export const ProjectionChart = () => {
     for (let i = 0; i <= months; i++) {
       projectionData.push({
         month: i,
-        balance: currentBalance,
+        balance: Math.round(currentBalance),
+        monthlyIncome: totalPassiveIncome + totalActiveIncome,
+        monthlyExpenses: totalRecurringExpenses,
+        netChange: monthlyBalance,
+        liquidAssets: totalLiquid
       });
       
       currentBalance += monthlyBalance;
@@ -62,13 +66,24 @@ export const ProjectionChart = () => {
   const finalBalance = projectionData[projectionData.length - 1]?.balance || 0;
   const isPositiveProjection = finalBalance >= initialBalance;
 
+  const getCurrencySymbol = (currency: string) => {
+    switch (currency) {
+      case 'BRL': return 'R$';
+      case 'USD': return '$';
+      case 'EUR': return '€';
+      default: return currency;
+    }
+  };
+
+  const currencySymbol = getCurrencySymbol(data.userProfile.defaultCurrency);
+
   return (
     <Card className="bg-card border-accent border-2 backdrop-blur-sm">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-foreground flex items-center gap-2 text-sm sm:text-base font-mono uppercase">
             <TrendingUp size={16} className="text-accent" />
-            {t.projection || 'Financial Projection Chart'}
+            {t.projection || 'Financial Projection Chart'} - {data.projectionMonths} Months
           </CardTitle>
           <Button
             variant="ghost"
@@ -82,7 +97,8 @@ export const ProjectionChart = () => {
       </CardHeader>
       {!isCollapsed && (
         <CardContent>
-          <div className="h-64 w-full">
+          {/* Chart Section */}
+          <div className="h-64 w-full mb-6">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={projectionData}
@@ -126,7 +142,7 @@ export const ProjectionChart = () => {
                     fontFamily: 'JetBrains Mono, monospace',
                     fontSize: 12
                   }}
-                  formatter={(value) => [`$${value.toLocaleString()}`, 'Balance']}
+                  formatter={(value) => [`${currencySymbol}${value.toLocaleString()}`, 'Balance']}
                   labelFormatter={(label) => `Month ${label}`}
                 />
                 <Line 
@@ -140,18 +156,67 @@ export const ProjectionChart = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-4">
+
+          {/* Summary Cards */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="text-center p-2 bg-background/50 border-2 border-border">
               <div className="text-xs text-muted-foreground font-mono uppercase">Initial</div>
               <div className="text-sm font-bold font-mono">
-                $ {initialBalance.toLocaleString()}
+                {currencySymbol} {initialBalance.toLocaleString()}
               </div>
             </div>
             <div className="text-center p-2 bg-background/50 border-2 border-border">
               <div className="text-xs text-muted-foreground font-mono uppercase">Projected</div>
               <div className={`text-sm font-bold font-mono ${isPositiveProjection ? 'text-green-400' : 'text-red-400'}`}>
-                $ {finalBalance.toLocaleString()}
+                {currencySymbol} {finalBalance.toLocaleString()}
               </div>
+            </div>
+          </div>
+
+          {/* Detailed Monthly Projection Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs font-mono">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left p-2 text-accent">Month</th>
+                  <th className="text-right p-2 text-green-400">Income</th>
+                  <th className="text-right p-2 text-red-400">Expenses</th>
+                  <th className="text-right p-2 text-blue-400">Net</th>
+                  <th className="text-right p-2 text-accent">Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectionData.map((month, index) => (
+                  <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
+                    <td className="p-2">{index === 0 ? 'Current' : `Month ${index}`}</td>
+                    <td className="text-right p-2 text-green-400">
+                      {currencySymbol}{month.monthlyIncome.toLocaleString()}
+                    </td>
+                    <td className="text-right p-2 text-red-400">
+                      -{currencySymbol}{month.monthlyExpenses.toLocaleString()}
+                    </td>
+                    <td className={`text-right p-2 ${month.netChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {month.netChange >= 0 ? '+' : ''}{currencySymbol}{month.netChange.toLocaleString()}
+                    </td>
+                    <td className="text-right p-2 text-accent font-bold">
+                      {currencySymbol}{month.balance.toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Insights Section */}
+          <div className="mt-4 p-3 bg-muted/20 border-l-4 border-accent">
+            <div className="text-xs font-mono text-muted-foreground">
+              💡 <strong>Projection Insights:</strong>
+              <br />
+              • {isPositiveProjection ? 'Positive' : 'Negative'} growth trend over {data.projectionMonths} months
+              <br />
+              • Monthly net flow: {currencySymbol}{(projectionData[1]?.netChange || 0).toLocaleString()}
+              <br />
+              • Total projected change: {currencySymbol}{(finalBalance - initialBalance).toLocaleString()}
             </div>
           </div>
         </CardContent>
