@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, CheckSquare, Square, Calendar, CleaningServices } from "lucide-react";
+import { Plus, Trash2, CheckSquare, Square, Calendar } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 
@@ -58,7 +58,7 @@ export const TaskManagementEditable = () => {
               </DialogTrigger>
               <DialogContent className="bg-card border-orange-400 border-2 mx-2 max-w-[95vw] sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle className="font-mono uppercase text-foreground text-sm">{t.add} {t.task}</DialogTitle>
+                  <DialogTitle className="font-mono uppercase text-foreground text-sm">{t.add} {t.tasks}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3">
                   <Input 
@@ -134,7 +134,7 @@ export const TaskManagementEditable = () => {
                 variant="outline" 
                 className="border-red-400 text-red-400 hover:bg-red-400 hover:text-red-900 text-xs sm:text-sm"
               >
-                <CleaningServices size={14} />
+                <Trash2 size={14} />
                 <span className="hidden sm:inline ml-1">Clear</span>
               </Button>
             )}
