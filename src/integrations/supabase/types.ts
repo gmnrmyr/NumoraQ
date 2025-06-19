@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cms_settings: {
+        Row: {
+          created_at: string
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       financial_data: {
         Row: {
           created_at: string | null
@@ -30,6 +54,45 @@ export type Database = {
           id?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      premium_codes: {
+        Row: {
+          code: string
+          code_type: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          used_at: string | null
+          used_by: string | null
+          user_email: string | null
+        }
+        Insert: {
+          code: string
+          code_type: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          used_at?: string | null
+          used_by?: string | null
+          user_email?: string | null
+        }
+        Update: {
+          code?: string
+          code_type?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          used_at?: string | null
+          used_by?: string | null
+          user_email?: string | null
         }
         Relationships: []
       }
@@ -62,6 +125,77 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      user_points: {
+        Row: {
+          activity_date: string
+          activity_type: string
+          created_at: string
+          id: string
+          points: number
+          user_id: string
+        }
+        Insert: {
+          activity_date?: string
+          activity_type: string
+          created_at?: string
+          id?: string
+          points?: number
+          user_id: string
+        }
+        Update: {
+          activity_date?: string
+          activity_type?: string
+          created_at?: string
+          id?: string
+          points?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_premium_status: {
+        Row: {
+          activated_at: string | null
+          activated_code: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_premium: boolean
+          premium_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_code?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_premium?: boolean
+          premium_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          activated_code?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_premium?: boolean
+          premium_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_premium_status_activated_code_fkey"
+            columns: ["activated_code"]
+            isOneToOne: false
+            referencedRelation: "premium_codes"
+            referencedColumns: ["code"]
+          },
+        ]
       }
     }
     Views: {
