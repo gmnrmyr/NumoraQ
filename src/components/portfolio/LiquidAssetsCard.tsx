@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, TrendingUp, Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { IconSelector } from './IconSelector';
+import { iconMap, groupedIcons } from './IconData';
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { toast } from "@/hooks/use-toast";
 
@@ -193,59 +195,87 @@ export const LiquidAssetsCard = () => {
             <span className="text-xs">Add your first asset to get started!</span>
           </div>
         ) : (
-          displayAssets.map((asset: any) => (
-            <div 
-              key={asset.id} 
-              className={`flex items-center justify-between p-3 bg-muted border-2 border-border ${
-                !asset.isActive ? 'opacity-50' : ''
-              }`}
-            >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="text-accent text-lg flex-shrink-0">
-                  {asset.icon === 'TrendingUp' && <TrendingUp size={20} />}
-                  {asset.icon === 'Wallet' && '💰'}
-                  {asset.icon !== 'TrendingUp' && asset.icon !== 'Wallet' && '💰'}
+          displayAssets.map((asset: any) => {
+            // Get the proper icon component from the stored icon value, same as IlliquidAssetsCard
+            const Icon = iconMap[asset.icon] || iconMap['Wallet'];
+            
+            return (
+              <div 
+                key={asset.id} 
+                className={`flex items-center justify-between p-3 bg-muted border-2 border-border ${
+                  !asset.isActive ? 'opacity-50' : ''
+                }`}
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex-shrink-0">
+                    {/* Icon selector for editing, same pattern as IlliquidAssetsCard */}
+                    <Select value={asset.icon} onValueChange={(value) => updateLiquidAsset(asset.id, { icon: value })}>
+                      <SelectTrigger className="w-12 h-8 p-1 border-border bg-input">
+                        <Icon size={16} className={asset.color || 'text-foreground'} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-80 bg-card border-border border-2">
+                        {Object.entries(groupedIcons).map(([category, icons]) => (
+                          <div key={category}>
+                            <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground bg-muted font-mono uppercase">
+                              {category}
+                            </div>
+                            {icons.map((iconOption) => {
+                              const IconComponent = iconMap[iconOption.value];
+                              return (
+                                <SelectItem key={iconOption.value} value={iconOption.value} className="font-mono">
+                                  <div className="flex items-center gap-2">
+                                    <IconComponent size={16} />
+                                    <span>{iconOption.label}</span>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-mono font-bold text-sm truncate" title={asset.name}>
+                      {asset.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground font-mono">
+                      {currency} {asset.value.toLocaleString()}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-mono font-bold text-sm truncate" title={asset.name}>
-                    {asset.name}
-                  </div>
-                  <div className="text-xs text-muted-foreground font-mono">
-                    {currency} {asset.value.toLocaleString()}
-                  </div>
+                <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleToggleActive(asset.id)}
+                    className="brutalist-button p-1 h-8 w-8"
+                    title={asset.isActive ? 'Deactivate' : 'Activate'}
+                  >
+                    {asset.isActive ? <Eye size={12} /> : <EyeOff size={12} />}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(asset)}
+                    className="brutalist-button p-1 h-8 w-8"
+                    title="Edit"
+                  >
+                    <Edit size={12} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDelete(asset.id)}
+                    className="brutalist-button p-1 h-8 w-8 hover:bg-red-50 hover:border-red-200"
+                    title="Delete"
+                  >
+                    <Trash2 size={12} />
+                  </Button>
                 </div>
               </div>
-              <div className="flex items-center gap-1 ml-2 flex-shrink-0">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleToggleActive(asset.id)}
-                  className="brutalist-button p-1 h-8 w-8"
-                  title={asset.isActive ? 'Deactivate' : 'Activate'}
-                >
-                  {asset.isActive ? <Eye size={12} /> : <EyeOff size={12} />}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleEdit(asset)}
-                  className="brutalist-button p-1 h-8 w-8"
-                  title="Edit"
-                >
-                  <Edit size={12} />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDelete(asset.id)}
-                  className="brutalist-button p-1 h-8 w-8 hover:bg-red-50 hover:border-red-200"
-                  title="Delete"
-                >
-                  <Trash2 size={12} />
-                </Button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
         
         {inactiveAssets.length > 0 && !showInactive && (
