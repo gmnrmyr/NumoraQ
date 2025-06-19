@@ -129,6 +129,7 @@ export interface UserProfile {
   defaultCurrency: string;
   language: string;
   avatarIcon?: string;
+  liveDataEnabled?: boolean;
 }
 
 export interface FinancialData {
