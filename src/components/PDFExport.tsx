@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { FileText, Printer } from "lucide-react";
@@ -19,14 +20,7 @@ export const PDFExport = () => {
     const totalIlliquid = activeIlliquidAssets.reduce((sum, asset) => sum + asset.value, 0);
     const totalActiveIncome = activeIncome.reduce((sum, income) => sum + income.amount, 0);
     const totalPassiveIncome = passiveIncome.reduce((sum, income) => sum + income.amount, 0);
-    
-    // Include variable expenses properly
-    const recurringExpenses = activeExpenses.filter(expense => expense.type === 'recurring');
-    const variableExpenses = activeExpenses.filter(expense => expense.type === 'variable');
-    const totalRecurringExpenses = recurringExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-    const totalVariableExpenses = variableExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-    const totalExpenses = totalRecurringExpenses + totalVariableExpenses;
-    
+    const totalExpenses = activeExpenses.reduce((sum, expense) => sum + expense.amount, 0);
     const totalDebt = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
     const netWorth = totalLiquid + totalIlliquid - totalDebt;
     const monthlyBalance = totalActiveIncome + totalPassiveIncome - totalExpenses;
@@ -195,26 +189,13 @@ export const PDFExport = () => {
 
     <div class="section">
         <div class="section-title">Monthly Expenses (${currency} ${totalExpenses.toLocaleString()})</div>
-        <div class="section">
-            <div class="section-title">Recurring Expenses (${currency} ${totalRecurringExpenses.toLocaleString()})</div>
-            ${recurringExpenses.map(expense => `
-                <div class="item">
-                    <span class="item-name">${expense.name} (${expense.category})</span>
-                    <span class="item-value negative">${currency} ${expense.amount.toLocaleString()}</span>
-                </div>
-            `).join('')}
-            ${recurringExpenses.length === 0 ? '<div class="item">No recurring expenses recorded</div>' : ''}
-        </div>
-        <div class="section">
-            <div class="section-title">Variable Expenses (${currency} ${totalVariableExpenses.toLocaleString()})</div>
-            ${variableExpenses.map(expense => `
-                <div class="item">
-                    <span class="item-name">${expense.name} (${expense.category})</span>
-                    <span class="item-value negative">${currency} ${expense.amount.toLocaleString()}</span>
-                </div>
-            `).join('')}
-            ${variableExpenses.length === 0 ? '<div class="item">No variable expenses recorded</div>' : ''}
-        </div>
+        ${activeExpenses.map(expense => `
+            <div class="item">
+                <span class="item-name">${expense.name} (${expense.category})</span>
+                <span class="item-value negative">${currency} ${expense.amount.toLocaleString()}</span>
+            </div>
+        `).join('')}
+        ${activeExpenses.length === 0 ? '<div class="item">No expenses recorded</div>' : ''}
     </div>
 
     ${totalDebt > 0 ? `

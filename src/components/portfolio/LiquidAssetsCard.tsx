@@ -12,7 +12,6 @@ import { useTranslation } from "@/contexts/TranslationContext";
 import { EditableValue } from "@/components/ui/editable-value";
 import { IconSelector } from './IconSelector';
 import { iconMap, groupedIcons } from './IconData';
-import { useWalletFetch } from "@/hooks/useWalletFetch";
 
 export const LiquidAssetsCard = () => {
   const { t } = useTranslation();
@@ -22,7 +21,6 @@ export const LiquidAssetsCard = () => {
     addLiquidAsset,
     removeLiquidAsset
   } = useFinancialData();
-  const { fetchWalletBalance, fetchCryptoPrice, isLoading } = useWalletFetch();
   const [newLiquidAsset, setNewLiquidAsset] = useState({
     name: '',
     value: 0,
@@ -52,47 +50,19 @@ export const LiquidAssetsCard = () => {
     }
   };
 
-  const handleWalletConnect = async (assetId: string, walletAddress: string) => {
-    try {
-      const balance = await fetchWalletBalance(walletAddress);
-      updateLiquidAsset(assetId, { 
-        value: balance.totalUsd,
-        walletAddress,
-        lastUpdated: balance.lastUpdated
-      });
-    } catch (error) {
-      console.error('Failed to fetch wallet balance:', error);
-    }
-  };
-
-  const handlePriceTracking = async (assetId: string, symbol: string, amount: number) => {
-    try {
-      const price = await fetchCryptoPrice(symbol);
-      const totalValue = price * amount;
-      updateLiquidAsset(assetId, { 
-        value: totalValue,
-        cryptoAmount: amount,
-        cryptoSymbol: symbol,
-        lastUpdated: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Failed to fetch crypto price:', error);
-    }
-  };
-
   const cryptoAssets = ['BTC', 'ETH', 'USDT', 'BNB', 'ADA', 'SOL', 'DOT', 'MATIC'];
 
   return (
     <Card className="bg-card/80 backdrop-blur-sm border-accent border-2">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-accent flex items-center gap-2 font-mono uppercase text-sm sm:text-base">
+          <CardTitle className="text-accent flex items-center gap-2 font-mono uppercase">
             <Coins size={20} />
-            <span className="truncate">{t.liquidAssets}</span>
+            {t.liquidAssets}
           </CardTitle>
           <Dialog open={isAddingLiquid} onOpenChange={setIsAddingLiquid}>
             <DialogTrigger asChild>
-              <Button size="sm" variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground flex-shrink-0">
+              <Button size="sm" variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
                 <Plus size={16} />
               </Button>
             </DialogTrigger>
@@ -148,26 +118,26 @@ export const LiquidAssetsCard = () => {
             </DialogContent>
           </Dialog>
         </div>
-        <div className="text-xl sm:text-2xl font-bold text-accent font-mono">
+        <div className="text-2xl font-bold text-accent font-mono">
           {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalLiquid.toLocaleString()}
         </div>
         <div className="text-xs text-muted-foreground font-mono">
           {data.liquidAssets.length - activeLiquidAssets.length} {t.inactive.toLowerCase()} {t.assets.toLowerCase()}
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 overflow-x-auto">
         {data.liquidAssets.map(asset => {
           const Icon = iconMap[asset.icon] || Coins;
           const percentage = totalLiquid > 0 ? asset.value / totalLiquid * 100 : 0;
           const isCrypto = cryptoAssets.some(crypto => asset.name.toUpperCase().includes(crypto));
           
           return (
-            <div key={asset.id} className={`space-y-2 ${!asset.isActive ? 'opacity-50' : ''}`}>
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
+            <div key={asset.id} className={`space-y-2 min-w-0 ${!asset.isActive ? 'opacity-50' : ''}`}>
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
                   <Select value={asset.icon} onValueChange={value => updateLiquidAsset(asset.id, { icon: value })}>
-                    <SelectTrigger className="w-10 h-8 p-1 border-border bg-input flex-shrink-0">
-                      <Icon size={14} className={asset.color} />
+                    <SelectTrigger className="w-12 h-8 p-1 border-border bg-input">
+                      <Icon size={16} className={asset.color} />
                     </SelectTrigger>
                     <SelectContent className="max-h-80 bg-card border-border border-2">
                       {Object.entries(groupedIcons).map(([category, icons]) => (
@@ -193,7 +163,7 @@ export const LiquidAssetsCard = () => {
                   <Input
                     value={asset.name}
                     onChange={e => updateLiquidAsset(asset.id, { name: e.target.value })}
-                    className="border-none p-0 text-sm font-medium bg-transparent flex-1 min-w-0 font-mono text-foreground"
+                    className="border-none p-0 font-medium bg-transparent flex-1 min-w-0 font-mono text-foreground"
                   />
                   {(isCrypto || asset.trackingMode !== 'manual') && (
                     <Dialog open={showAdvancedFor === asset.id} onOpenChange={(open) => setShowAdvancedFor(open ? asset.id : null)}>
@@ -201,14 +171,14 @@ export const LiquidAssetsCard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-blue-400 border-blue-400 hover:bg-blue-400/20 p-1 flex-shrink-0"
+                          className="text-blue-400 border-blue-400 hover:bg-blue-400/20 p-1"
                         >
                           <Settings size={12} />
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="bg-card border-2 border-border max-w-md">
                         <DialogHeader>
-                          <DialogTitle className="font-mono text-sm">Advanced: {asset.name}</DialogTitle>
+                          <DialogTitle className="font-mono">Advanced Tracking: {asset.name}</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4">
                           <div className="space-y-2">
@@ -281,9 +251,21 @@ export const LiquidAssetsCard = () => {
                       </DialogContent>
                     </Dialog>
                   )}
+                  <Button
+                    onClick={() => updateLiquidAsset(asset.id, { isActive: !asset.isActive })}
+                    variant="outline"
+                    size="sm"
+                    className={`whitespace-nowrap font-mono uppercase text-xs ${
+                      asset.isActive 
+                        ? "bg-accent/20 text-accent border-accent" 
+                        : "bg-muted text-muted-foreground border-muted-foreground"
+                    }`}
+                  >
+                    {asset.isActive ? t.active : t.inactive}
+                  </Button>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <div className="text-right">
+                  <div className="text-right min-w-0">
                     <div className="font-bold font-mono text-foreground text-sm">
                       {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} 
                       <EditableValue
@@ -298,24 +280,12 @@ export const LiquidAssetsCard = () => {
                     )}
                   </div>
                   <Button
-                    onClick={() => updateLiquidAsset(asset.id, { isActive: !asset.isActive })}
-                    variant="outline"
-                    size="sm"
-                    className={`text-xs font-mono uppercase flex-shrink-0 ${
-                      asset.isActive 
-                        ? "bg-accent/20 text-accent border-accent" 
-                        : "bg-muted text-muted-foreground border-muted-foreground"
-                    }`}
-                  >
-                    {asset.isActive ? t.active : t.inactive}
-                  </Button>
-                  <Button
                     onClick={() => removeLiquidAsset(asset.id)}
                     variant="outline"
                     size="sm"
-                    className="text-red-400 hover:text-red-300 border-red-400 hover:border-red-300 bg-transparent flex-shrink-0 p-1"
+                    className="text-red-400 hover:text-red-300 border-red-400 hover:border-red-300 bg-transparent flex-shrink-0"
                   >
-                    <Trash2 size={12} />
+                    <Trash2 size={14} />
                   </Button>
                 </div>
               </div>
