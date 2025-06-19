@@ -94,7 +94,7 @@ export const DevMenu = () => {
                 variant="outline"
                 className="text-xs font-mono bg-zinc-900 text-white hover:bg-zinc-800"
               >
-                Dark
+                Default
               </Button>
               <Button
                 onClick={() => handleColorChange('dual-tone')}
@@ -105,12 +105,12 @@ export const DevMenu = () => {
                 Dual Tone
               </Button>
               <Button
-                onClick={() => handleColorChange('light')}
+                onClick={() => handleColorChange('monochrome')}
                 size="sm"
                 variant="outline"
-                className="text-xs font-mono bg-white text-black border-black hover:bg-gray-100"
+                className="text-xs font-mono bg-gray-800 text-gray-100 hover:bg-gray-700"
               >
-                Light
+                Monochrome
               </Button>
             </div>
           </div>
