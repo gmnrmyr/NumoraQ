@@ -1,14 +1,12 @@
-
 import React from 'react';
 import { Skull, Bot, Zap } from 'lucide-react';
 import { useTranslation } from '@/contexts/TranslationContext';
-
 export const DashboardHeader = () => {
-  const { t } = useTranslation();
-
-  return (
-    <div className="text-center space-y-6 py-8">
-      <div className="flex items-center justify-center gap-4">
+  const {
+    t
+  } = useTranslation();
+  return <div className="text-center space-y-6 py-8">
+      <div className="flex items-center justify-center gap-4 py-[13px]">
         <div className="flex items-center gap-2">
           <div className="p-3 border-2 border-accent bg-background">
             <Skull className="text-accent" size={28} />
@@ -36,6 +34,5 @@ export const DashboardHeader = () => {
         <div className="w-4 h-4 border-2 border-accent"></div>
         <div className="w-8 h-1 bg-accent"></div>
       </div>
-    </div>
-  );
+    </div>;
 };
