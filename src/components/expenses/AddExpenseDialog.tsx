@@ -12,20 +12,22 @@ interface AddExpenseDialogProps {
   onOpenChange: (open: boolean) => void;
   onAddExpense: (expense: any) => void;
   categoryOptions: Array<{ value: string; label: string }>;
+  type: 'recurring' | 'variable';
 }
 
 export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
   isOpen,
   onOpenChange,
   onAddExpense,
-  categoryOptions
+  categoryOptions,
+  type
 }) => {
   const { t } = useTranslation();
   const [newExpense, setNewExpense] = useState({
     name: '',
     amount: 0,
     category: 'housing',
-    type: 'recurring' as 'recurring' | 'variable',
+    type: type,
     status: 'active' as 'active' | 'inactive',
     day: '',
     specificDate: '',
@@ -52,7 +54,7 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
         name: '',
         amount: 0,
         category: 'housing',
-        type: 'recurring',
+        type: type,
         status: 'active',
         day: '',
         specificDate: '',
