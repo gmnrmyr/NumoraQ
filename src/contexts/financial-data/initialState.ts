@@ -72,7 +72,7 @@ export const initialFinancialData: FinancialData = {
     name: '',
     defaultCurrency: 'USD',
     language: 'en',
-    avatar: undefined
+    avatarIcon: undefined
   },
   projectionMonths: 12,
   exchangeRates: {
