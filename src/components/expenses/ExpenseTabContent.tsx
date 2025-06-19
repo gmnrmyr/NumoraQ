@@ -1,10 +1,9 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { useTranslation } from "@/contexts/TranslationContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExpenseCard } from "./ExpenseCard";
 import { AddExpenseDialog } from "./AddExpenseDialog";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 interface ExpenseTabContentProps {
   type: 'recurring' | 'variable';
@@ -15,9 +14,7 @@ interface ExpenseTabContentProps {
   onAddExpense: (expense: any) => void;
   categoryOptions: Array<{ value: string; label: string }>;
   isAddingExpense: boolean;
-  setIsAddingExpense: (adding: boolean) => void;
-  hideAddButton?: boolean;
-  hideTotal?: boolean;
+  setIsAddingExpense: (open: boolean) => void;
 }
 
 export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
@@ -29,59 +26,49 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
   onAddExpense,
   categoryOptions,
   isAddingExpense,
-  setIsAddingExpense,
-  hideAddButton = false,
-  hideTotal = false
+  setIsAddingExpense
 }) => {
   const { t } = useTranslation();
+  
+  const cardClass = type === 'recurring' ? "bg-card border-red-600" : "bg-card border-orange-500";
+  const titleClass = type === 'recurring' ? "text-red-400" : "text-orange-400";
+  const totalClass = type === 'recurring' ? "text-red-400" : "text-orange-400";
+  const inactiveClass = type === 'recurring' ? "text-red-400/70" : "text-orange-400/70";
 
   return (
-    <div className="space-y-4">
-      {!hideTotal && (
-        <div className="flex items-center justify-between">
-          <div className="text-lg font-bold text-accent font-mono brutalist-heading">
-            Monthly Total: ${total.toFixed(2)}
+    <Card className={`${cardClass} border-2 backdrop-blur-sm`}>
+      <CardHeader className="pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <CardTitle className={`${titleClass} text-sm sm:text-base font-mono uppercase`}>
+              {type === 'recurring' ? t.recurringExpenses : t.variableExpenses}
+            </CardTitle>
+            <div className={`text-lg sm:text-2xl font-bold ${totalClass} font-mono`}>
+              $ {total.toLocaleString()}{type === 'recurring' ? `/${t.monthly.toLowerCase()}` : ` ${t.totalExpenses}`}
+            </div>
+            <div className={`text-xs ${inactiveClass} font-mono`}>
+              {expenses.filter(e => e.status === 'inactive').length} {t.inactiveExpenses}
+            </div>
           </div>
-          {!hideAddButton && (
-            <Button 
-              onClick={() => setIsAddingExpense(true)}
-              size="sm" 
-              className="brutalist-button"
-            >
-              <Plus size={16} className="mr-1" />
-              {type === 'recurring' ? `Add ${t.recurring}` : `Add ${t.variable}`}
-            </Button>
-          )}
+          <AddExpenseDialog
+            isOpen={isAddingExpense}
+            onOpenChange={setIsAddingExpense}
+            onAddExpense={onAddExpense}
+            categoryOptions={categoryOptions}
+          />
         </div>
-      )}
-
-      <div className="space-y-3">
+      </CardHeader>
+      <CardContent className="space-y-3">
         {expenses.map((expense) => (
-          <ExpenseCard
-            key={expense.id}
-            expense={expense}
+          <ExpenseCard 
+            key={expense.id} 
+            expense={expense} 
             onUpdate={onUpdateExpense}
             onRemove={onRemoveExpense}
             categoryOptions={categoryOptions}
           />
         ))}
-        
-        {expenses.length === 0 && !hideAddButton && (
-          <div className="text-center py-8 text-muted-foreground font-mono">
-            <p className="brutalist-heading">No {type} expenses yet</p>
-            <p className="text-xs mt-2">Add your first {type} expense to start tracking</p>
-          </div>
-        )}
-      </div>
-
-      {/* Add Expense Dialog */}
-      <AddExpenseDialog
-        type={type}
-        onAddExpense={onAddExpense}
-        categoryOptions={categoryOptions}
-        isOpen={isAddingExpense}
-        onOpenChange={setIsAddingExpense}
-      />
-    </div>
+      </CardContent>
+    </Card>
   );
 };
