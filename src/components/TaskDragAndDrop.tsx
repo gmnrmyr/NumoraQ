@@ -1,0 +1,150 @@
+
+import React, { useState } from 'react';
+import { useFinancialData } from '@/contexts/FinancialDataContext';
+import { Task } from '@/contexts/financial-data/types';
+import { Button } from '@/components/ui/button';
+import { EditableValue } from '@/components/ui/editable-value';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { GripVertical, Trash2, Calendar } from 'lucide-react';
+
+interface TaskItemProps {
+  task: Task;
+  index: number;
+  onReorder: (dragIndex: number, hoverIndex: number) => void;
+}
+
+const TaskItem: React.FC<TaskItemProps> = ({ task, index, onReorder }) => {
+  const { updateTask, removeTask } = useFinancialData();
+  const [isDragging, setIsDragging] = useState(false);
+  const [draggedOver, setDraggedOver] = useState(false);
+
+  const handleDragStart = (e: React.DragEvent) => {
+    setIsDragging(true);
+    e.dataTransfer.setData('text/plain', index.toString());
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDraggedOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setDraggedOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDraggedOver(false);
+    const dragIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    if (dragIndex !== index) {
+      onReorder(dragIndex, index);
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'goal': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'asset': return 'bg-green-100 text-green-800 border-green-200';
+      case 'finance': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'personal': return 'bg-purple-100 text-purple-800 border-purple-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'low': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  return (
+    <div
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={`
+        p-3 bg-background/50 border-2 border-border brutalist-card cursor-move
+        ${isDragging ? 'opacity-50' : ''}
+        ${draggedOver ? 'border-accent' : ''}
+        ${task.completed ? 'opacity-60' : ''}
+      `}
+    >
+      <div className="flex items-start gap-3">
+        <GripVertical size={16} className="text-muted-foreground mt-1 flex-shrink-0" />
+        
+        <Checkbox
+          checked={task.completed}
+          onCheckedChange={(checked) => updateTask(task.id, { completed: !!checked })}
+          className="mt-1"
+        />
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <EditableValue
+              value={task.title}
+              onSave={(value) => updateTask(task.id, { title: String(value) })}
+              type="text"
+              className={`font-medium text-sm font-mono ${task.completed ? 'line-through' : ''}`}
+            />
+          </div>
+          
+          {task.description && (
+            <div className="mb-2">
+              <EditableValue
+                value={task.description}
+                onSave={(value) => updateTask(task.id, { description: String(value) })}
+                type="text"
+                className="text-xs text-muted-foreground font-mono"
+                placeholder="Add description..."
+              />
+            </div>
+          )}
+          
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge className={getCategoryColor(task.category || 'personal')}>
+              {task.category || 'personal'}
+            </Badge>
+            
+            <Badge className={getPriorityColor(task.priority || 'medium')}>
+              {task.priority || 'medium'}
+            </Badge>
+            
+            {task.dueDate && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Calendar size={12} />
+                <EditableValue
+                  value={task.dueDate}
+                  onSave={(value) => updateTask(task.id, { dueDate: String(value) })}
+                  type="text"
+                  className="text-xs font-mono"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <Button
+          onClick={() => removeTask(task.id)}
+          variant="outline"
+          size="sm"
+          className="text-red-600 hover:text-red-700 p-1 h-6 w-6 border-2 border-border flex-shrink-0"
+        >
+          <Trash2 size={12} />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default TaskItem;
