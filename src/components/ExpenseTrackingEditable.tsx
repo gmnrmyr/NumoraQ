@@ -34,28 +34,23 @@ export const ExpenseTrackingEditable = () => {
     })
     .reduce((sum, expense) => sum + expense.amount, 0);
 
-  // Separate future and past expenses for better organization
-  const currentVariableExpenses = variableExpenses.filter(expense => {
-    if (!expense.specificDate) return true;
-    const expenseMonth = expense.specificDate.slice(0, 7);
-    return expenseMonth === currentMonth;
-  });
-
+  // Calculate future dated variable expenses separately
   const futureVariableExpenses = variableExpenses
     .filter(expense => {
-      if (!expense.specificDate) return false;
+      if (expense.status !== 'active' || !expense.specificDate) return false;
+      
       const expenseMonth = expense.specificDate.slice(0, 7);
       return expenseMonth > currentMonth;
-    })
-    .sort((a, b) => (a.specificDate || '').localeCompare(b.specificDate || ''));
+    });
 
+  // Calculate past dated variable expenses separately  
   const pastVariableExpenses = variableExpenses
     .filter(expense => {
-      if (!expense.specificDate) return false;
+      if (expense.status !== 'active' || !expense.specificDate) return false;
+      
       const expenseMonth = expense.specificDate.slice(0, 7);
       return expenseMonth < currentMonth;
-    })
-    .sort((a, b) => (b.specificDate || '').localeCompare(a.specificDate || ''));
+    });
 
   const categoryOptions = [
     { value: 'housing', label: t.housing },
@@ -95,7 +90,7 @@ export const ExpenseTrackingEditable = () => {
         <TabsContent value="variable" className="space-y-4">
           <ExpenseTabContent
             type="variable"
-            expenses={currentVariableExpenses}
+            expenses={variableExpenses.filter(e => !e.specificDate || e.specificDate.slice(0, 7) === currentMonth)}
             total={totalVariable}
             onUpdateExpense={updateExpense}
             onRemoveExpense={removeExpense}
@@ -105,55 +100,35 @@ export const ExpenseTrackingEditable = () => {
             setIsAddingExpense={setIsAddingExpense}
           />
           
-          {/* Show future expenses as editable cards */}
+          {/* Show future expenses separately */}
           {futureVariableExpenses.length > 0 && (
-            <div className="mt-6 p-4 bg-muted/50 border-3 border-border brutalist-card">
-              <h4 className="font-mono font-bold text-sm mb-3 text-blue-400 brutalist-heading">
-                FUTURE SCHEDULED EXPENSES
+            <div className="mt-4 p-3 bg-muted border-2 border-border">
+              <h4 className="font-mono font-bold text-sm mb-2 text-blue-400">
+                Future Scheduled Expenses:
               </h4>
-              <div className="space-y-3">
+              <div className="space-y-1 text-xs font-mono">
                 {futureVariableExpenses.map(expense => (
-                  <ExpenseTabContent
-                    key={expense.id}
-                    type="variable"
-                    expenses={[expense]}
-                    total={0}
-                    onUpdateExpense={updateExpense}
-                    onRemoveExpense={removeExpense}
-                    onAddExpense={addExpense}
-                    categoryOptions={categoryOptions}
-                    isAddingExpense={false}
-                    setIsAddingExpense={() => {}}
-                    hideAddButton={true}
-                    hideTotal={true}
-                  />
+                  <div key={expense.id} className="flex justify-between">
+                    <span>{expense.name}</span>
+                    <span className="text-blue-400">${expense.amount} on {expense.specificDate}</span>
+                  </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Show past expenses as editable cards */}
+          {/* Show past expenses separately */}
           {pastVariableExpenses.length > 0 && (
-            <div className="mt-6 p-4 bg-muted/50 border-3 border-border brutalist-card">
-              <h4 className="font-mono font-bold text-sm mb-3 text-orange-400 brutalist-heading">
-                PAST SCHEDULED EXPENSES
+            <div className="mt-4 p-3 bg-muted border-2 border-border">
+              <h4 className="font-mono font-bold text-sm mb-2 text-orange-400">
+                Past Scheduled Expenses:
               </h4>
-              <div className="space-y-3">
+              <div className="space-y-1 text-xs font-mono">
                 {pastVariableExpenses.map(expense => (
-                  <ExpenseTabContent
-                    key={expense.id}
-                    type="variable"
-                    expenses={[expense]}
-                    total={0}
-                    onUpdateExpense={updateExpense}
-                    onRemoveExpense={removeExpense}
-                    onAddExpense={addExpense}
-                    categoryOptions={categoryOptions}
-                    isAddingExpense={false}
-                    setIsAddingExpense={() => {}}
-                    hideAddButton={true}
-                    hideTotal={true}
-                  />
+                  <div key={expense.id} className="flex justify-between">
+                    <span>{expense.name}</span>
+                    <span className="text-orange-400">${expense.amount} on {expense.specificDate}</span>
+                  </div>
                 ))}
               </div>
             </div>

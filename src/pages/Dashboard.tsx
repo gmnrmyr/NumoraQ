@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { PortfolioOverview } from "@/components/PortfolioOverview";
@@ -10,7 +11,7 @@ import { ProjectionChart } from "@/components/ProjectionChart";
 import { DataManagementSection } from "@/components/DataManagementSection";
 import { UserProfileSection } from "@/components/UserProfileSection";
 import { DevMenu } from "@/components/DevMenu";
-import { AdminPanel } from "@/components/admin/AdminPanel";
+import { AdminPanel } from "@/components/AdminPanel";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
