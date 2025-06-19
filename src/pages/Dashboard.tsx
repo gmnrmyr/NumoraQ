@@ -19,6 +19,7 @@ import { ExchangeRatesBanner } from "@/components/dashboard/ExchangeRatesBanner"
 import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
 import { AIAdvisor } from "@/components/ai/AIAdvisor";
+import { PWASetup } from "@/components/PWASetup";
 import { useAdminMode } from "@/hooks/useAdminMode";
 
 const Dashboard = () => {
@@ -128,6 +129,7 @@ const Dashboard = () => {
           
           <DevMenu />
           <AIAdvisor />
+          <PWASetup />
           <AdminPanel 
             isOpen={showAdminPanel} 
             onClose={() => setShowAdminPanel(false)} 
