@@ -1,47 +1,141 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { PortfolioOverview } from "@/components/PortfolioOverview";
-import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
+import { IncomeTracking } from "@/components/IncomeTracking";
+import { ExpenseTrackingEditable } from "@/components/ExpenseTrackingEditable";
+import { AssetManagementEditable } from "@/components/AssetManagementEditable";
+import { TaskManagementEditable } from "@/components/TaskManagementEditable";
+import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
+import { ProjectionChart } from "@/components/ProjectionChart";
+import { DataManagementSection } from "@/components/DataManagementSection";
+import { UserProfileSection } from "@/components/UserProfileSection";
+import { DevMenu } from "@/components/DevMenu";
+import { AdminPanel } from "@/components/admin/AdminPanel";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ExchangeRatesBanner } from "@/components/dashboard/ExchangeRatesBanner";
-import { UnsavedChangesIndicator } from "@/components/UnsavedChangesIndicator";
-import { ThemeCustomizer } from "@/components/ThemeCustomizer";
-import { AdminControlPanel } from "@/components/AdminControlPanel";
-import { useAdminMode } from '@/hooks/useAdminMode';
+import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
+import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
+import { AIAdvisor } from "@/components/ai/AIAdvisor";
+import { useAdminMode } from "@/hooks/useAdminMode";
 
-export default function Dashboard() {
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const { isAdminMode } = useAdminMode();
+const Dashboard = () => {
+  const [activeTab, setActiveTab] = useState('portfolio');
+  const { showAdminPanel, setShowAdminPanel } = useAdminMode();
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.shiftKey && event.key === 'E') {
-        event.preventDefault();
-        setShowAdminPanel(true);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  const getSectionTitle = (tab: string) => {
+    switch (tab) {
+      case 'portfolio': return 'PORTFOLIO OVERVIEW';
+      case 'income': return 'INCOME TRACKING';
+      case 'expenses': return 'EXPENSE MANAGEMENT';
+      case 'assets': return 'ASSET MANAGEMENT';
+      case 'tasks': return 'TASK MANAGEMENT';
+      case 'debt': return 'DEBT TRACKING';
+      default: return 'DASHBOARD';
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-      <ExchangeRatesBanner />
+    <>
+      {/* SEO Meta Tags for Dashboard */}
+      <title>Dashboard - OPEN FINDASH | Financial Analysis & Crypto Tracking</title>
+      <meta name="description" content="Complete financial dashboard for tracking your crypto portfolio, income, expenses, and net worth. Real-time data analysis for smart financial decisions." />
+      <meta name="keywords" content="financial dashboard, crypto tracking, portfolio management, expense tracking, income analysis, net worth calculator" />
+      <meta name="robots" content="noindex, nofollow" />
       
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        <MetricsOverview />
-        <PortfolioOverview />
-      </main>
+      <div className="min-h-screen bg-background text-foreground font-mono">
+        <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="pt-20 sm:pt-32 pb-4">
+          <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
+            <DashboardHeader />
+            
+            {/* Consolidated User Profile Section */}
+            <UserProfileSection />
+            
+            <DataManagementSection />
+            <ExchangeRatesBanner />
+            <MetricsOverview />
+            <ProjectionCard />
 
-      <UnsavedChangesIndicator />
-      <ThemeCustomizer />
-      
-      <AdminControlPanel 
-        isOpen={showAdminPanel} 
-        onClose={() => setShowAdminPanel(false)} 
-      />
-    </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <div>
+                <TabsContent value="portfolio" className="space-y-6" data-section="portfolio">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('portfolio')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <PortfolioOverview />
+                </TabsContent>
+
+                <TabsContent value="income" className="space-y-6" data-section="income">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('income')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <IncomeTracking />
+                </TabsContent>
+
+                <TabsContent value="expenses" className="space-y-6" data-section="expenses">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('expenses')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <ExpenseTrackingEditable />
+                </TabsContent>
+
+                <TabsContent value="assets" className="space-y-6" data-section="assets">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('assets')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <AssetManagementEditable />
+                </TabsContent>
+
+                <TabsContent value="tasks" className="space-y-6" data-section="tasks">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('tasks')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <TaskManagementEditable />
+                </TabsContent>
+
+                <TabsContent value="debt" className="space-y-6" data-section="debt">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('debt')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <DebtTrackingEditable />
+                </TabsContent>
+              </div>
+            </Tabs>
+
+            <ProjectionChart />
+          </div>
+          
+          <DevMenu />
+          <AIAdvisor />
+          <AdminPanel 
+            isOpen={showAdminPanel} 
+            onClose={() => setShowAdminPanel(false)} 
+          />
+        </div>
+        <Footer />
+      </div>
+    </>
   );
-}
+};
+
+export default Dashboard;
