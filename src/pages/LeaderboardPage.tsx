@@ -167,7 +167,12 @@ const LeaderboardPage = () => {
                         <div className="flex items-center gap-3">
                           {getRankIcon(entry.rank)}
                           <div>
-                            <div className="font-mono font-bold text-sm">{entry.user_name}</div>
+                            <div className="font-mono font-bold text-sm flex items-center gap-2">
+                              {entry.user_name}
+                              <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                                UID:{entry.user_uid}
+                              </Badge>
+                            </div>
                             <div className="text-xs text-muted-foreground font-mono">
                               Rank #{entry.rank}
                             </div>

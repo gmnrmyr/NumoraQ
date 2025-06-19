@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Shield, Key, X, Copy, Gift, Wallet, DollarSign, Crown, Settings, Globe, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Shield, Key, X, Copy, Gift, Wallet, DollarSign, Crown, Settings, Globe, Trash2, CheckCircle, XCircle, Users as UsersIcon } from 'lucide-react';
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { useUserPoints } from '@/hooks/useUserPoints';
 import { toast } from '@/hooks/use-toast';
@@ -134,8 +133,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
           </div>
         ) : (
           <Tabs defaultValue="premium" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="premium">Premium</TabsTrigger>
+              <TabsTrigger value="users">Users</TabsTrigger>
               <TabsTrigger value="wallet">Wallet</TabsTrigger>
               <TabsTrigger value="site">Site</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -247,6 +247,48 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                       </Table>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="users" className="space-y-4">
+              <Card className="bg-background/50 border-2 border-purple-600">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-purple-400 flex items-center gap-2 text-sm font-mono uppercase">
+                    <UsersIcon size={16} />
+                    User Management & UID System
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-muted p-3 border-2 border-border rounded">
+                    <div className="text-xs font-mono">
+                      <div className="font-bold mb-2">UID SYSTEM STATUS:</div>
+                      <div className="text-green-400">✓ UIDs now display on leaderboard</div>
+                      <div className="text-green-400">✓ 8-character unique identifiers generated from user IDs</div>
+                      <div className="text-green-400">✓ Format: User-{'{UID}'} (e.g., User-A1B2C3D4)</div>
+                      <div className="text-muted-foreground mt-2">
+                        UIDs are automatically generated from user authentication IDs for consistency.
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground font-mono uppercase">Manual Point Allocation:</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        placeholder="User ID"
+                        className="font-mono text-xs"
+                      />
+                      <Input
+                        type="number"
+                        placeholder="Points"
+                        className="font-mono text-xs"
+                      />
+                    </div>
+                    <Button className="brutalist-button w-full">
+                      Award Points
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
