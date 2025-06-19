@@ -1,3 +1,4 @@
+
 export interface LiquidAsset {
   id: string;
   name: string;
@@ -76,6 +77,19 @@ export interface Property {
   statusText: string;
   prediction: string;
   rentRange: string;
+}
+
+export interface Stock {
+  id: string;
+  symbol: string;
+  name: string;
+  shares: number;
+  currentPrice: number;
+  totalValue: number;
+  status: 'yielding' | 'growth' | 'dividend';
+  yield?: number;
+  statusIcon: string;
+  statusText: string;
 }
 
 export interface ExchangeRates {
