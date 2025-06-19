@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -34,7 +33,7 @@ export const IncomeTracking = () => {
     addPassiveIncome({
       source: "New Passive Income",
       amount: 0,
-      status: 'pending',
+      status: 'active',
       icon: 'TrendingUp'
     });
   };
@@ -43,7 +42,7 @@ export const IncomeTracking = () => {
     addActiveIncome({
       source: "New Active Income",
       amount: 0,
-      status: 'pending',
+      status: 'active',
       icon: 'Briefcase'
     });
   };
