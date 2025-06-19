@@ -27,6 +27,9 @@ export interface PassiveIncome {
   note?: string;
 }
 
+// Alias for backward compatibility
+export type PassiveIncomeItem = PassiveIncome;
+
 export interface ActiveIncome {
   id: string;
   source: string;
@@ -34,6 +37,9 @@ export interface ActiveIncome {
   status: 'active' | 'inactive';
   icon: string;
 }
+
+// Alias for backward compatibility
+export type ActiveIncomeItem = ActiveIncome;
 
 export interface Expense {
   id: string;
@@ -43,6 +49,9 @@ export interface Expense {
   type: 'recurring' | 'variable';
   status: 'active' | 'inactive';
 }
+
+// Alias for backward compatibility
+export type ExpenseItem = Expense;
 
 export interface Task {
   id: string;
@@ -59,6 +68,9 @@ export interface Task {
   dueDate?: string;
 }
 
+// Alias for backward compatibility
+export type TaskItem = Task;
+
 export interface Debt {
   id: string;
   creditor: string;
@@ -69,6 +81,9 @@ export interface Debt {
   description?: string;
   isActive: boolean;
 }
+
+// Alias for backward compatibility
+export type DebtItem = Debt;
 
 export interface Property {
   id: string;
@@ -84,6 +99,9 @@ export interface Property {
   prediction: string;
   rentRange: string;
 }
+
+// Alias for backward compatibility
+export type PropertyItem = Property;
 
 export interface Stock {
   id: string;
@@ -107,9 +125,65 @@ export interface ExchangeRates {
 }
 
 export interface UserProfile {
-  displayName: string;
-  avatarIcon: string;
+  name: string;
   defaultCurrency: string;
-  livePricesEnabled: boolean;
-  customCurrencyPair: string;
+  language: string;
+  avatarIcon?: string;
+}
+
+export interface FinancialData {
+  userProfile: UserProfile;
+  projectionMonths: number;
+  exchangeRates: ExchangeRates;
+  liquidAssets: LiquidAsset[];
+  illiquidAssets: IlliquidAsset[];
+  passiveIncome: PassiveIncome[];
+  activeIncome: ActiveIncome[];
+  expenses: Expense[];
+  tasks: Task[];
+  debts: Debt[];
+  properties: Property[];
+  version: string;
+  createdAt: string;
+  lastModified: string;
+}
+
+export interface FinancialDataContextType {
+  data: FinancialData;
+  updateUserProfile: (updates: Partial<UserProfile>) => void;
+  updateProjectionMonths: (months: number) => void;
+  updateExchangeRate: (key: keyof ExchangeRates, value: number) => void;
+  updateLiquidAsset: (id: string, updates: Partial<LiquidAsset>) => void;
+  updateIlliquidAsset: (id: string, updates: Partial<IlliquidAsset>) => void;
+  updatePassiveIncome: (id: string, updates: Partial<PassiveIncome>) => void;
+  updateActiveIncome: (id: string, updates: Partial<ActiveIncome>) => void;
+  updateExpense: (id: string, updates: Partial<Expense>) => void;
+  updateTask: (id: string, updates: Partial<Task>) => void;
+  updateDebt: (id: string, updates: Partial<Debt>) => void;
+  updateProperty: (id: string, updates: Partial<Property>) => void;
+  addLiquidAsset: (asset: Omit<LiquidAsset, 'id'>) => void;
+  addIlliquidAsset: (asset: Omit<IlliquidAsset, 'id'>) => void;
+  addPassiveIncome: (income: Omit<PassiveIncome, 'id'>) => void;
+  addActiveIncome: (income: Omit<ActiveIncome, 'id'>) => void;
+  addExpense: (expense: Omit<Expense, 'id'>) => void;
+  addTask: (task: Omit<Task, 'id'>) => void;
+  addDebt: (debt: Omit<Debt, 'id'>) => void;
+  addProperty: (property: Omit<Property, 'id'>) => void;
+  removeLiquidAsset: (id: string) => void;
+  removeIlliquidAsset: (id: string) => void;
+  removePassiveIncome: (id: string) => void;
+  removeActiveIncome: (id: string) => void;
+  removeExpense: (id: string) => void;
+  removeTask: (id: string) => void;
+  removeCompletedTasks: () => void;
+  removeDebt: (id: string) => void;
+  removeProperty: (id: string) => void;
+  exportToCSV: () => void;
+  importFromJSON: (jsonData: string) => boolean;
+  resetData: () => void;
+  updateProfileName: (name: string) => void;
+  saveToCloud: () => Promise<void>;
+  loadFromCloud: (isSilent?: boolean) => Promise<void>;
+  syncState: 'idle' | 'loading' | 'saving' | 'error';
+  lastSync: string | null;
 }

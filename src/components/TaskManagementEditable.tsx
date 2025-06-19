@@ -91,8 +91,8 @@ export const TaskManagementEditable = () => {
           };
           return getPriorityValue(b) - getPriorityValue(a);
         case 'dueDate':
-          const aDate = task.dueDate || task.date;
-          const bDate = task.dueDate || task.date;
+          const aDate = a.dueDate || a.date;
+          const bDate = b.dueDate || b.date;
           if (!aDate && !bDate) return 0;
           if (!aDate) return 1;
           if (!bDate) return -1;
