@@ -18,21 +18,8 @@ export const ExpenseTrackingEditable = () => {
     .filter(expense => expense.status === 'active')
     .reduce((sum, expense) => sum + expense.amount, 0);
     
-  // Only count variable expenses that are scheduled for current month or have no date
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
-  
   const totalVariable = variableExpenses
-    .filter(expense => {
-      if (expense.status !== 'active') return false;
-      
-      // If no specific date, count as monthly
-      if (!expense.specificDate) return true;
-      
-      // If has specific date, only count if it's in current month
-      const expenseDate = new Date(expense.specificDate);
-      return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear;
-    })
+    .filter(expense => expense.status === 'active')
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   const categoryOptions = [

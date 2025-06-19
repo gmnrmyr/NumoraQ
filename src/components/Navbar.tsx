@@ -87,8 +87,8 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   return (
     <div className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
       isScrolled 
-        ? 'bg-background/90 backdrop-blur-xl border-b-2 border-border/60' 
-        : 'bg-background/95 backdrop-blur-lg border-b-2 border-border'
+        ? 'bg-background/80 backdrop-blur-lg border-b-2 border-border/50' 
+        : 'bg-background/95 backdrop-blur-md border-b-2 border-border'
     }`}>
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-4">
