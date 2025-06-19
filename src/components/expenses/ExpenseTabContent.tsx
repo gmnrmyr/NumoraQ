@@ -75,15 +75,13 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
       </div>
 
       {/* Add Expense Dialog */}
-      {isAddingExpense && (
-        <AddExpenseDialog
-          type={type}
-          onAddExpense={onAddExpense}
-          categoryOptions={categoryOptions}
-          isOpen={isAddingExpense}
-          onOpenChange={setIsAddingExpense}
-        />
-      )}
+      <AddExpenseDialog
+        type={type}
+        onAddExpense={onAddExpense}
+        categoryOptions={categoryOptions}
+        isOpen={isAddingExpense}
+        onOpenChange={setIsAddingExpense}
+      />
     </div>
   );
 };
