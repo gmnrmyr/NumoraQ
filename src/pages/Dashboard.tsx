@@ -18,6 +18,7 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ExchangeRatesBanner } from "@/components/dashboard/ExchangeRatesBanner";
 import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
+import { AIAdvisor } from "@/components/ai/AIAdvisor";
 import { useAdminMode } from "@/hooks/useAdminMode";
 
 const Dashboard = () => {
@@ -126,6 +127,7 @@ const Dashboard = () => {
           </div>
           
           <DevMenu />
+          <AIAdvisor />
           <AdminPanel 
             isOpen={showAdminPanel} 
             onClose={() => setShowAdminPanel(false)} 
