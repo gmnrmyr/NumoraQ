@@ -3,68 +3,50 @@ import { useState, useEffect } from 'react';
 
 interface DegenCode {
   code: string;
-  duration: string;
+  duration: '1year' | '5years' | 'lifetime';
   createdAt: string;
-  used: boolean;
+  expiresAt: string;
   usedBy?: string;
+  usedAt?: string;
+  grantedVia?: 'admin' | 'payment' | 'donation';
+}
+
+interface ActiveDegenCode {
+  code: string;
+  expiresAt: string;
+  activatedBy?: string;
 }
 
 export const useAdminMode = () => {
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const [degenCodes, setDegenCodes] = useState<DegenCode[]>([]);
-  const [isDegenMode, setIsDegenMode] = useState(false);
-  const [degenExpiry, setDegenExpiry] = useState<string | null>(null);
+  const [codes, setCodes] = useState<DegenCode[]>([]);
+  const [activeDegenCode, setActiveDegenCode] = useState<ActiveDegenCode | null>(null);
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.shiftKey && event.key === 'E') {
-        event.preventDefault();
-        setShowAdminPanel(true);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  useEffect(() => {
-    // Load stored data
-    const adminMode = localStorage.getItem('adminMode');
-    const storedCodes = localStorage.getItem('degenCodes');
-    const storedDegenMode = localStorage.getItem('degenMode');
-    const storedDegenExpiry = localStorage.getItem('degenExpiry');
-    
-    if (adminMode === 'true') {
-      setIsAdminMode(true);
-    }
-    
-    if (storedCodes) {
-      try {
-        setDegenCodes(JSON.parse(storedCodes));
-      } catch (error) {
-        console.error('Error parsing stored degen codes:', error);
-      }
+    // Load codes from localStorage
+    const savedCodes = localStorage.getItem('adminGeneratedCodes');
+    if (savedCodes) {
+      setCodes(JSON.parse(savedCodes));
     }
 
-    if (storedDegenMode === 'true' && storedDegenExpiry) {
-      const expiryDate = new Date(storedDegenExpiry);
-      if (expiryDate > new Date()) {
-        setIsDegenMode(true);
-        setDegenExpiry(storedDegenExpiry);
+    // Load active degen code
+    const savedActiveCode = localStorage.getItem('activeDegenCode');
+    if (savedActiveCode) {
+      const parsedCode = JSON.parse(savedActiveCode);
+      // Check if code is still valid
+      if (new Date(parsedCode.expiresAt) > new Date()) {
+        setActiveDegenCode(parsedCode);
       } else {
-        // Expired
-        localStorage.removeItem('degenMode');
-        localStorage.removeItem('degenExpiry');
+        localStorage.removeItem('activeDegenCode');
       }
     }
   }, []);
 
-  const enterAdminMode = (password: string) => {
-    if (password === 'admin123') {
+  const enterAdminMode = (password: string): boolean => {
+    // Simple password check - in production, this should be more secure
+    if (password === 'admin123' || password === 'lovable2024') {
       setIsAdminMode(true);
-      setShowAdminPanel(false);
-      localStorage.setItem('adminMode', 'true');
       return true;
     }
     return false;
@@ -72,90 +54,154 @@ export const useAdminMode = () => {
 
   const exitAdminMode = () => {
     setIsAdminMode(false);
-    localStorage.removeItem('adminMode');
   };
 
-  const generateDegenCode = (duration: '1year' | '5years' | 'lifetime') => {
-    const code = `DEGEN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+  const generateDegenCode = (duration: '1year' | '5years' | 'lifetime'): string => {
+    const prefix = duration === 'lifetime' ? 'LIFE' : duration === '5years' ? '5YR' : '1YR';
+    const randomString = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const code = `${prefix}-${randomString}`;
+    
+    const now = new Date();
+    let expiresAt: string;
+    
+    switch (duration) {
+      case '1year':
+        expiresAt = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate()).toISOString();
+        break;
+      case '5years':
+        expiresAt = new Date(now.getFullYear() + 5, now.getMonth(), now.getDate()).toISOString();
+        break;
+      case 'lifetime':
+        expiresAt = new Date(2099, 11, 31).toISOString();
+        break;
+    }
+
     const newCode: DegenCode = {
       code,
       duration,
-      createdAt: new Date().toISOString(),
-      used: false
+      createdAt: now.toISOString(),
+      expiresAt,
+      grantedVia: 'admin'
     };
-    
-    const updatedCodes = [...degenCodes, newCode];
-    setDegenCodes(updatedCodes);
-    localStorage.setItem('degenCodes', JSON.stringify(updatedCodes));
+
+    const updatedCodes = [newCode, ...codes];
+    setCodes(updatedCodes);
+    localStorage.setItem('adminGeneratedCodes', JSON.stringify(updatedCodes));
     
     return code;
   };
 
-  const activateDegenCode = (code: string, userEmail?: string) => {
-    const foundCode = degenCodes.find(c => c.code === code && !c.used);
-    if (!foundCode) return false;
-
-    // Mark code as used
-    const updatedCodes = degenCodes.map(c => 
-      c.code === code ? { ...c, used: true, usedBy: userEmail } : c
-    );
-    setDegenCodes(updatedCodes);
-    localStorage.setItem('degenCodes', JSON.stringify(updatedCodes));
-
-    // Calculate expiry
-    const now = new Date();
-    let expiry: Date;
+  const addDonationCode = (walletAddress: string, amount: number): string => {
+    let duration: '1year' | '5years' | 'lifetime';
     
-    switch (foundCode.duration) {
-      case '1year':
-        expiry = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
-        break;
-      case '5years':
-        expiry = new Date(now.getFullYear() + 5, now.getMonth(), now.getDate());
-        break;
-      case 'lifetime':
-        expiry = new Date(2099, 11, 31); // Far future date
-        break;
-      default:
-        expiry = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+    if (amount >= 1000) {
+      duration = 'lifetime';
+    } else if (amount >= 500) {
+      duration = '5years';
+    } else {
+      duration = '1year';
     }
 
-    setIsDegenMode(true);
-    setDegenExpiry(expiry.toISOString());
-    localStorage.setItem('degenMode', 'true');
-    localStorage.setItem('degenExpiry', expiry.toISOString());
-
-    return true;
+    const code = generateDegenCode(duration);
+    
+    // Update the code to mark it as donation-granted
+    const updatedCodes = codes.map(c => 
+      c.code === code 
+        ? { ...c, grantedVia: 'donation' as const, usedBy: walletAddress }
+        : c
+    );
+    
+    setCodes(updatedCodes);
+    localStorage.setItem('adminGeneratedCodes', JSON.stringify(updatedCodes));
+    
+    return code;
   };
 
-  const getDegenTimeRemaining = () => {
-    if (!degenExpiry) return null;
+  const activateDegenCode = (code: string, userIdentifier?: string): boolean => {
+    const foundCode = codes.find(c => c.code === code && !c.usedBy);
     
-    const expiry = new Date(degenExpiry);
+    if (foundCode && new Date(foundCode.expiresAt) > new Date()) {
+      // Mark code as used
+      const updatedCodes = codes.map(c => 
+        c.code === code 
+          ? { ...c, usedBy: userIdentifier || 'unknown', usedAt: new Date().toISOString() }
+          : c
+      );
+      setCodes(updatedCodes);
+      localStorage.setItem('adminGeneratedCodes', JSON.stringify(updatedCodes));
+
+      // Set active degen code
+      const activeCode: ActiveDegenCode = {
+        code: foundCode.code,
+        expiresAt: foundCode.expiresAt,
+        activatedBy: userIdentifier
+      };
+      setActiveDegenCode(activeCode);
+      localStorage.setItem('activeDegenCode', JSON.stringify(activeCode));
+      
+      return true;
+    }
+    
+    return false;
+  };
+
+  const isDegenMode = activeDegenCode !== null && new Date(activeDegenCode.expiresAt) > new Date();
+
+  const getDegenTimeRemaining = (): string => {
+    if (!activeDegenCode) return '';
+    
     const now = new Date();
-    const diff = expiry.getTime() - now.getTime();
+    const expires = new Date(activeDegenCode.expiresAt);
+    const diff = expires.getTime() - now.getTime();
     
     if (diff <= 0) return 'Expired';
     
-    const years = Math.floor(diff / (365.25 * 24 * 60 * 60 * 1000));
-    const days = Math.floor((diff % (365.25 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000));
+    const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+    const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24));
     
-    if (years > 50) return 'Lifetime';
-    if (years > 0) return `${years} year${years > 1 ? 's' : ''} ${days > 0 ? `${days} days` : ''}`;
-    return `${days} day${days > 1 ? 's' : ''}`;
+    if (years > 0) return `${years}y ${days}d remaining`;
+    if (days > 0) return `${days} days remaining`;
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    return `${hours} hours remaining`;
+  };
+
+  const getActiveCodeStats = () => {
+    const now = new Date();
+    const activeCodes = codes.filter(code => new Date(code.expiresAt) > now);
+    const expiredCodes = codes.filter(code => new Date(code.expiresAt) <= now);
+    const usedCodes = codes.filter(code => code.usedBy);
+
+    return {
+      total: codes.length,
+      active: activeCodes.length,
+      expired: expiredCodes.length,
+      used: usedCodes.length,
+      byDuration: {
+        lifetime: codes.filter(c => c.duration === 'lifetime').length,
+        fiveYears: codes.filter(c => c.duration === '5years').length,
+        oneYear: codes.filter(c => c.duration === '1year').length
+      },
+      bySource: {
+        admin: codes.filter(c => c.grantedVia === 'admin').length,
+        donation: codes.filter(c => c.grantedVia === 'donation').length,
+        payment: codes.filter(c => c.grantedVia === 'payment').length
+      }
+    };
   };
 
   return {
     isAdminMode,
-    showAdminPanel,
-    setShowAdminPanel,
     enterAdminMode,
     exitAdminMode,
     generateDegenCode,
+    addDonationCode,
     activateDegenCode,
-    degenCodes,
     isDegenMode,
-    degenExpiry,
-    getDegenTimeRemaining
+    getDegenTimeRemaining,
+    showAdminPanel,
+    setShowAdminPanel,
+    codes,
+    getActiveCodeStats
   };
 };
