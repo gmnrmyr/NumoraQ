@@ -11,6 +11,7 @@ interface EditableValueProps {
   suffix?: string;
   type?: 'currency' | 'number' | 'percentage' | 'text';
   placeholder?: string;
+  disabled?: boolean;
 }
 
 export const EditableValue: React.FC<EditableValueProps> = ({
@@ -20,7 +21,8 @@ export const EditableValue: React.FC<EditableValueProps> = ({
   prefix = '',
   suffix = '',
   type = 'currency',
-  placeholder
+  placeholder,
+  disabled = false
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value.toString());
@@ -79,6 +81,7 @@ export const EditableValue: React.FC<EditableValueProps> = ({
   };
   
   const handleStartEditing = (e: React.MouseEvent) => {
+    if (disabled) return;
     e.preventDefault();
     e.stopPropagation();
     // Sync with prop value before entering edit mode
@@ -109,6 +112,7 @@ export const EditableValue: React.FC<EditableValueProps> = ({
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
+        disabled={disabled}
         className={cn("w-full min-w-0", className)}
         onClick={(e) => e.stopPropagation()}
       />
@@ -119,11 +123,12 @@ export const EditableValue: React.FC<EditableValueProps> = ({
     <span
       onClick={handleStartEditing}
       className={cn(
-        "cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded transition-colors",
+        disabled ? "cursor-default opacity-60" : "cursor-pointer hover:bg-slate-100",
+        "px-1 py-0.5 rounded transition-colors",
         value === '' && placeholder ? 'text-slate-400' : '',
         className
       )}
-      title="Click to edit"
+      title={disabled ? "Editing disabled" : "Click to edit"}
     >
       {value === '' && placeholder ? placeholder : `${prefix}${formatValue(value)}${suffix}`}
     </span>
