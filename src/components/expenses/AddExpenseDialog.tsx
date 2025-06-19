@@ -8,6 +8,7 @@ import { Plus, Calendar } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 interface AddExpenseDialogProps {
+  type: 'recurring' | 'variable';
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onAddExpense: (expense: any) => void;
@@ -15,6 +16,7 @@ interface AddExpenseDialogProps {
 }
 
 export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
+  type,
   isOpen,
   onOpenChange,
   onAddExpense,
@@ -25,7 +27,6 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
     name: '',
     amount: 0,
     category: 'housing',
-    type: 'recurring' as 'recurring' | 'variable',
     status: 'active' as 'active' | 'inactive',
     day: '',
     specificDate: '',
@@ -37,13 +38,13 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
         name: newExpense.name,
         amount: newExpense.amount,
         category: newExpense.category,
-        type: newExpense.type,
+        type: type,
         status: newExpense.status,
       };
 
-      if (newExpense.type === 'recurring') {
+      if (type === 'recurring') {
         payload.day = newExpense.day;
-      } else if (newExpense.type === 'variable' && newExpense.specificDate) {
+      } else if (type === 'variable' && newExpense.specificDate) {
         payload.specificDate = newExpense.specificDate;
       }
 
@@ -52,7 +53,6 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
         name: '',
         amount: 0,
         category: 'housing',
-        type: 'recurring',
         status: 'active',
         day: '',
         specificDate: '',
@@ -63,12 +63,6 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button size="sm" className="w-full sm:w-auto brutalist-button">
-          <Plus size={16} className="mr-1" />
-          {t.addExpense}
-        </Button>
-      </DialogTrigger>
       <DialogContent className="w-[95vw] max-w-md bg-card border-2 border-border z-50">
         <DialogHeader>
           <DialogTitle className="font-mono uppercase">{t.addNewExpense}</DialogTitle>
@@ -99,16 +93,7 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
               ))}
             </SelectContent>
           </Select>
-          <Select value={newExpense.type} onValueChange={(value: 'recurring' | 'variable') => setNewExpense({ ...newExpense, type: value })}>
-            <SelectTrigger className="bg-input border-2 border-border font-mono">
-              <SelectValue placeholder={t.selectType} />
-            </SelectTrigger>
-            <SelectContent className="bg-card border-2 border-border z-50">
-              <SelectItem value="recurring" className="font-mono hover:bg-accent hover:text-accent-foreground">{t.recurring}</SelectItem>
-              <SelectItem value="variable" className="font-mono hover:bg-accent hover:text-accent-foreground">{t.variable}</SelectItem>
-            </SelectContent>
-          </Select>
-          {newExpense.type === 'recurring' && (
+          {type === 'recurring' && (
             <Input
               type="number"
               min={1}
@@ -119,7 +104,7 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
               className="bg-input border-2 border-border font-mono"
             />
           )}
-          {newExpense.type === 'variable' && (
+          {type === 'variable' && (
             <div className="space-y-2">
               <Input
                 type="date"
