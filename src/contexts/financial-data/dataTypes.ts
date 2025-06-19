@@ -42,6 +42,7 @@ export interface Expense {
   category: string;
   type: 'recurring' | 'variable';
   status: 'active' | 'inactive';
+  specificDate?: string; // Added for variable expenses with specific dates
 }
 
 export interface Task {
