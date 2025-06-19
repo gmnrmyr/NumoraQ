@@ -2,12 +2,50 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Code, X } from "lucide-react";
-import { DataManagementSection } from "./DataManagementSection";
+import { Code, X, Palette, User, Download } from "lucide-react";
 import { UserFeedbackDialog } from "./UserFeedbackDialog";
+import { useFinancialData } from "@/contexts/FinancialDataContext";
 
 export const DevMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { updateUserProfile, exportToCSV, resetData } = useFinancialData();
+
+  const handleColorChange = (theme: string) => {
+    document.documentElement.className = theme;
+    localStorage.setItem('theme', theme);
+  };
+
+  const loadStarterProfile = () => {
+    updateUserProfile({
+      name: 'Crypto Chad',
+      defaultCurrency: 'USD',
+      language: 'en'
+    });
+    resetData();
+  };
+
+  const loadFernandaProfile = () => {
+    updateUserProfile({
+      name: 'Fernanda',
+      defaultCurrency: 'BRL',
+      language: 'pt'
+    });
+  };
+
+  const exportToJSON = () => {
+    const data = localStorage.getItem('financial-data');
+    if (data) {
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'financial-data.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  };
 
   if (!isOpen) {
     return (
@@ -42,7 +80,96 @@ export const DevMenu = () => {
               </Button>
             </div>
           </div>
-          <DataManagementSection />
+
+          {/* Color Options */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-mono font-bold uppercase flex items-center gap-2">
+              <Palette size={12} />
+              Themes
+            </h4>
+            <div className="grid grid-cols-3 gap-2">
+              <Button
+                onClick={() => handleColorChange('dark')}
+                size="sm"
+                variant="outline"
+                className="text-xs font-mono bg-zinc-900 text-white hover:bg-zinc-800"
+              >
+                Dark
+              </Button>
+              <Button
+                onClick={() => handleColorChange('dual-tone')}
+                size="sm"
+                variant="outline"
+                className="text-xs font-mono bg-gradient-to-r from-green-400 to-black text-white"
+              >
+                Dual Tone
+              </Button>
+              <Button
+                onClick={() => handleColorChange('light')}
+                size="sm"
+                variant="outline"
+                className="text-xs font-mono bg-white text-black border-black hover:bg-gray-100"
+              >
+                Light
+              </Button>
+            </div>
+          </div>
+
+          {/* Load Profiles */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-mono font-bold uppercase flex items-center gap-2">
+              <User size={12} />
+              Load Profile
+            </h4>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                onClick={loadStarterProfile}
+                size="sm"
+                variant="outline"
+                className="text-xs font-mono"
+              >
+                Starter
+              </Button>
+              <Button
+                onClick={loadFernandaProfile}
+                size="sm"
+                variant="outline"
+                className="text-xs font-mono"
+              >
+                Fernanda
+              </Button>
+            </div>
+          </div>
+
+          {/* Export Options */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-mono font-bold uppercase flex items-center gap-2">
+              <Download size={12} />
+              Export
+            </h4>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                onClick={exportToCSV}
+                size="sm"
+                variant="outline"
+                className="text-xs font-mono"
+              >
+                CSV
+              </Button>
+              <Button
+                onClick={exportToJSON}
+                size="sm"
+                variant="outline"
+                className="text-xs font-mono"
+              >
+                JSON
+              </Button>
+            </div>
+          </div>
+
+          <div className="text-xs text-muted-foreground font-mono bg-muted p-2 border-2 border-border rounded">
+            🛠️ <strong>Dev mode:</strong> Quick tools for testing and exporting data.
+          </div>
         </CardContent>
       </Card>
     </div>

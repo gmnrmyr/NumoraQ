@@ -34,6 +34,25 @@ export const DataToolbar = () => {
   const [importData, setImportData] = useState('');
   const [isImportOpen, setIsImportOpen] = useState(false);
 
+  const exportToJSON = () => {
+    const data = localStorage.getItem('financial-data');
+    if (data) {
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'financial-data.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({
+        title: "JSON exported successfully",
+        description: "Your financial data has been downloaded as JSON."
+      });
+    }
+  };
+
   const handleImport = () => {
     if (importData.trim()) {
       const success = importFromJSON(importData);
@@ -120,6 +139,15 @@ export const DataToolbar = () => {
             >
               <Download size={14} className="mr-1" />
               Export CSV
+            </Button>
+
+            <Button
+              onClick={exportToJSON}
+              variant="outline"
+              size="sm"
+            >
+              <Download size={14} className="mr-1" />
+              Export JSON
             </Button>
             
             <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
