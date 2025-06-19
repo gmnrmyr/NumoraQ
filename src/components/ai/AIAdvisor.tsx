@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Bot, Send, X, MessageCircle, Crown, EyeOff } from "lucide-react";
+import { Bot, Send, X, MessageCircle, Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface Message {
@@ -16,7 +16,6 @@ interface Message {
 
 export const AIAdvisor = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -60,45 +59,17 @@ export const AIAdvisor = () => {
     }, 1000);
   };
 
-  if (isHidden) {
+  if (!isOpen) {
     return (
       <div className="fixed bottom-4 right-4 z-50">
         <Button
-          onClick={() => setIsHidden(false)}
-          variant="outline"
-          size="sm"
-          className="bg-card/80 backdrop-blur-sm border-accent/50 hover:bg-accent/10"
-          title="Show AI Advisor"
-        >
-          <Bot size={16} />
-        </Button>
-      </div>
-    );
-  }
-
-  if (!isOpen) {
-    return (
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
-        <Button
-          onClick={() => setIsHidden(true)}
-          variant="outline"
-          size="sm"
-          className="bg-card/80 backdrop-blur-sm border-muted hover:bg-muted/20 self-end"
-          title="Hide AI Advisor"
-        >
-          <EyeOff size={14} />
-        </Button>
-        <Button
           onClick={() => setIsOpen(true)}
-          className="brutalist-button shadow-lg"
-          size="lg"
+          variant="outline"
+          size="sm"
+          className="bg-card/80 backdrop-blur-sm border-accent/50 hover:bg-accent/10 rounded-full p-3"
+          title="Open AI Advisor"
         >
-          <Bot size={20} className="mr-2" />
-          AI Advisor
-          <Badge variant="secondary" className="ml-2">
-            <Crown size={12} className="mr-1" />
-            PREMIUM
-          </Badge>
+          <Bot size={20} />
         </Button>
       </div>
     );
@@ -118,15 +89,6 @@ export const AIAdvisor = () => {
                 <Crown size={10} className="mr-1" />
                 PREMIUM
               </Badge>
-              <Button
-                onClick={() => setIsHidden(true)}
-                variant="outline"
-                size="sm"
-                className="brutalist-button"
-                title="Hide"
-              >
-                <EyeOff size={12} />
-              </Button>
               <Button
                 onClick={() => setIsOpen(false)}
                 variant="outline"
