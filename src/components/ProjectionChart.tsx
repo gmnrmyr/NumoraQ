@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { TrendingUp, ChevronDown, ChevronUp, DollarSign, Calendar, Target, AlertTriangle } from "lucide-react";
+import { TrendingUp, ChevronDown, ChevronUp, DollarSign, Calendar, Target, AlertTriangle, BarChart3 } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 
@@ -14,6 +14,7 @@ export const ProjectionChart = () => {
     const saved = localStorage.getItem('projectionChartCollapsed');
     return saved ? JSON.parse(saved) : false;
   });
+  const [showDetailedTable, setShowDetailedTable] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('projectionChartCollapsed', JSON.stringify(isCollapsed));
@@ -23,11 +24,11 @@ export const ProjectionChart = () => {
     const months = data.projectionMonths;
     const projectionData = [];
     
-    // Get current liquid assets
+    // Get current liquid assets (only active ones)
     const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
     const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
     
-    // Get monthly income and expenses - properly calculate totals
+    // Get monthly income and expenses (only active ones)
     const totalPassiveIncome = data.passiveIncome
       .filter(income => income.status === 'active')
       .reduce((sum, income) => sum + income.amount, 0);
@@ -39,38 +40,52 @@ export const ProjectionChart = () => {
     const totalRecurringExpenses = data.expenses
       .filter(expense => expense.type === 'recurring' && expense.status === 'active')
       .reduce((sum, expense) => sum + expense.amount, 0);
+
+    const totalVariableExpenses = data.expenses
+      .filter(expense => expense.type === 'variable' && expense.status === 'active')
+      .reduce((sum, expense) => sum + expense.amount, 0);
     
-    const monthlyBalance = totalPassiveIncome + totalActiveIncome - totalRecurringExpenses;
+    const monthlyNetIncome = totalPassiveIncome + totalActiveIncome - totalRecurringExpenses;
     
     // Calculate projection for each month
-    let currentBalance = totalLiquid;
+    let runningBalance = totalLiquid;
     
     // Add current month (month 0)
     projectionData.push({
       month: 0,
-      balance: Math.round(currentBalance),
+      balance: Math.round(runningBalance),
       monthlyIncome: totalPassiveIncome + totalActiveIncome,
       monthlyExpenses: totalRecurringExpenses,
-      netChange: 0, // No change for current month
-      liquidAssets: totalLiquid,
+      netChange: 0,
       passiveIncome: totalPassiveIncome,
       activeIncome: totalActiveIncome,
-      cumulativeGrowth: 0
+      recurringExpenses: totalRecurringExpenses,
+      cumulativeGrowth: 0,
+      balanceChange: 0
     });
     
     // Calculate future months
     for (let i = 1; i <= months; i++) {
-      currentBalance += monthlyBalance;
+      const previousBalance = runningBalance;
+      
+      // Apply monthly variable expenses only in month 1
+      const variableExpensesThisMonth = i === 1 ? totalVariableExpenses : 0;
+      const monthlyChange = monthlyNetIncome - variableExpensesThisMonth;
+      
+      runningBalance += monthlyChange;
+      
       projectionData.push({
         month: i,
-        balance: Math.round(currentBalance),
+        balance: Math.round(runningBalance),
         monthlyIncome: totalPassiveIncome + totalActiveIncome,
-        monthlyExpenses: totalRecurringExpenses,
-        netChange: monthlyBalance,
-        liquidAssets: totalLiquid,
+        monthlyExpenses: totalRecurringExpenses + variableExpensesThisMonth,
+        netChange: monthlyChange,
         passiveIncome: totalPassiveIncome,
         activeIncome: totalActiveIncome,
-        cumulativeGrowth: currentBalance - totalLiquid
+        recurringExpenses: totalRecurringExpenses,
+        variableExpenses: variableExpensesThisMonth,
+        cumulativeGrowth: runningBalance - totalLiquid,
+        balanceChange: runningBalance - previousBalance
       });
     }
     
@@ -115,7 +130,7 @@ export const ProjectionChart = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-foreground flex items-center gap-2 text-sm sm:text-base font-mono uppercase">
             <TrendingUp size={16} className="text-accent" />
-            {t.projection || 'Financial Projection'} - {data.projectionMonths} Months
+            Advanced Financial Projection - {data.projectionMonths} Months
           </CardTitle>
           <Button
             variant="ghost"
@@ -152,7 +167,7 @@ export const ProjectionChart = () => {
             <div className="text-center p-3 bg-background/50 border-2 border-border">
               <div className="text-xs text-muted-foreground font-mono uppercase">Monthly Avg</div>
               <div className={`text-lg font-bold font-mono ${monthlyAverage >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {monthlyAverage >= 0 ? '+' : ''}{currencySymbol} {monthlyAverage.toFixed(0)}
+                {monthlyAverage >= 0 ? '+' : ''}{currencySymbol} {Math.round(monthlyAverage).toLocaleString()}
               </div>
             </div>
           </div>
@@ -217,16 +232,16 @@ export const ProjectionChart = () => {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-xs font-mono text-red-400">Expenses</span>
+                    <span className="text-xs font-mono text-red-400">Recurring Expenses</span>
                     <span className="text-xs font-mono font-bold text-red-400">
-                      {currencySymbol} {projectionData[0]?.monthlyExpenses.toLocaleString()}
+                      {currencySymbol} {projectionData[0]?.recurringExpenses.toLocaleString()}
                     </span>
                   </div>
                   <hr className="border-border" />
                   <div className="flex justify-between">
                     <span className="text-xs font-mono font-bold">Net Monthly</span>
                     <span className={`text-xs font-mono font-bold ${projectionData[1]?.netChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {projectionData[1]?.netChange >= 0 ? '+' : ''}{currencySymbol} {projectionData[1]?.netChange.toLocaleString()}
+                      {projectionData[1]?.netChange >= 0 ? '+' : ''}{currencySymbol} {Math.round(projectionData[1]?.netChange || 0).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -279,7 +294,7 @@ export const ProjectionChart = () => {
                     fontFamily: 'JetBrains Mono, monospace',
                     fontSize: 12
                   }}
-                  formatter={(value) => [`${currencySymbol}${value.toLocaleString()}`, 'Balance']}
+                  formatter={(value) => [`${currencySymbol}${Number(value).toLocaleString()}`, 'Balance']}
                   labelFormatter={(label) => `Month ${label}`}
                 />
                 <Line 
@@ -293,6 +308,62 @@ export const ProjectionChart = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
+
+          {/* Monthly Detail Table - Optional */}
+          <Card className="bg-background/30 border-2 border-cyan-600 mb-6">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-cyan-400 flex items-center gap-2 text-sm font-mono uppercase">
+                  <BarChart3 size={16} />
+                  Monthly Breakdown
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowDetailedTable(!showDetailedTable)}
+                  className="text-cyan-400 hover:text-cyan-300 p-1"
+                >
+                  {showDetailedTable ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </Button>
+              </div>
+            </CardHeader>
+            {showDetailedTable && (
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs font-mono">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left p-2">Month</th>
+                        <th className="text-right p-2">Income</th>
+                        <th className="text-right p-2">Expenses</th>
+                        <th className="text-right p-2">Net</th>
+                        <th className="text-right p-2">Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {projectionData.slice(0, Math.min(12, projectionData.length)).map((month) => (
+                        <tr key={month.month} className="border-b border-border/50">
+                          <td className="p-2">{month.month === 0 ? 'Current' : `Month ${month.month}`}</td>
+                          <td className="text-right p-2 text-green-400">
+                            {currencySymbol}{month.monthlyIncome.toLocaleString()}
+                          </td>
+                          <td className="text-right p-2 text-red-400">
+                            {currencySymbol}{month.monthlyExpenses.toLocaleString()}
+                          </td>
+                          <td className={`text-right p-2 ${month.netChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {month.netChange >= 0 ? '+' : ''}{currencySymbol}{Math.round(month.netChange).toLocaleString()}
+                          </td>
+                          <td className="text-right p-2 text-accent font-bold">
+                            {currencySymbol}{month.balance.toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            )}
+          </Card>
 
           {/* Risk Assessment Panel */}
           <Card className="bg-background/30 border-2 border-yellow-600 mb-6">
@@ -335,14 +406,14 @@ export const ProjectionChart = () => {
             </CardContent>
           </Card>
 
-          {/* Insights Section */}
+          {/* AI Insights Section */}
           <div className="p-4 bg-muted/20 border-l-4 border-accent">
             <div className="text-xs font-mono text-muted-foreground">
               💡 <strong>AI Insights:</strong>
               <br />
               • {isPositiveProjection ? 'Positive' : 'Negative'} growth trajectory over {data.projectionMonths} months
               <br />
-              • Monthly net flow: {currencySymbol}{(projectionData[1]?.netChange || 0).toLocaleString()}
+              • Monthly net flow: {currencySymbol}{Math.round(projectionData[1]?.netChange || 0).toLocaleString()}
               <br />
               • Total projected change: {currencySymbol}{totalGrowth.toLocaleString()}
               <br />
