@@ -10,7 +10,6 @@ import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
 import { ProjectionChart } from "@/components/ProjectionChart";
 import { DataManagementSection } from "@/components/DataManagementSection";
 import { UserProfileSection } from "@/components/UserProfileSection";
-import { UserAvatarSection } from "@/components/dashboard/UserAvatarSection";
 import { DevMenu } from "@/components/DevMenu";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -36,15 +35,8 @@ const Dashboard = () => {
           <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
             <DashboardHeader />
             
-            {/* User Profile Section with integrated avatar */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-              <div className="lg:col-span-2">
-                <UserProfileSection />
-              </div>
-              <div className="lg:col-span-2">
-                <UserAvatarSection />
-              </div>
-            </div>
+            {/* Consolidated User Profile Section */}
+            <UserProfileSection />
             
             <DataManagementSection />
             <ExchangeRatesBanner />
