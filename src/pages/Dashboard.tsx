@@ -11,15 +11,18 @@ import { ProjectionChart } from "@/components/ProjectionChart";
 import { DataManagementSection } from "@/components/DataManagementSection";
 import { UserProfileSection } from "@/components/UserProfileSection";
 import { DevMenu } from "@/components/DevMenu";
+import { AdminPanel } from "@/components/AdminPanel";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ExchangeRatesBanner } from "@/components/dashboard/ExchangeRatesBanner";
 import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
+import { useAdminMode } from "@/hooks/useAdminMode";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
+  const { showAdminPanel, setShowAdminPanel } = useAdminMode();
 
   return (
     <>
@@ -75,6 +78,10 @@ const Dashboard = () => {
           </div>
           
           <DevMenu />
+          <AdminPanel 
+            isOpen={showAdminPanel} 
+            onClose={() => setShowAdminPanel(false)} 
+          />
         </div>
         <Footer />
       </div>

@@ -27,7 +27,7 @@ export const ProjectionChart = () => {
     const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
     const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
     
-    // Get monthly income and expenses
+    // Get monthly income and expenses - properly calculate totals
     const totalPassiveIncome = data.passiveIncome
       .filter(income => income.status === 'active')
       .reduce((sum, income) => sum + income.amount, 0);
@@ -45,7 +45,22 @@ export const ProjectionChart = () => {
     // Calculate projection for each month
     let currentBalance = totalLiquid;
     
-    for (let i = 0; i <= months; i++) {
+    // Add current month (month 0)
+    projectionData.push({
+      month: 0,
+      balance: Math.round(currentBalance),
+      monthlyIncome: totalPassiveIncome + totalActiveIncome,
+      monthlyExpenses: totalRecurringExpenses,
+      netChange: 0, // No change for current month
+      liquidAssets: totalLiquid,
+      passiveIncome: totalPassiveIncome,
+      activeIncome: totalActiveIncome,
+      cumulativeGrowth: 0
+    });
+    
+    // Calculate future months
+    for (let i = 1; i <= months; i++) {
+      currentBalance += monthlyBalance;
       projectionData.push({
         month: i,
         balance: Math.round(currentBalance),
@@ -57,8 +72,6 @@ export const ProjectionChart = () => {
         activeIncome: totalActiveIncome,
         cumulativeGrowth: currentBalance - totalLiquid
       });
-      
-      currentBalance += monthlyBalance;
     }
     
     return projectionData;
@@ -212,8 +225,8 @@ export const ProjectionChart = () => {
                   <hr className="border-border" />
                   <div className="flex justify-between">
                     <span className="text-xs font-mono font-bold">Net Monthly</span>
-                    <span className={`text-xs font-mono font-bold ${projectionData[0]?.netChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {projectionData[0]?.netChange >= 0 ? '+' : ''}{currencySymbol} {projectionData[0]?.netChange.toLocaleString()}
+                    <span className={`text-xs font-mono font-bold ${projectionData[1]?.netChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {projectionData[1]?.netChange >= 0 ? '+' : ''}{currencySymbol} {projectionData[1]?.netChange.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -279,44 +292,6 @@ export const ProjectionChart = () => {
                 />
               </LineChart>
             </ResponsiveContainer>
-          </div>
-
-          {/* Detailed Monthly Projection Table */}
-          <div className="overflow-x-auto mb-6">
-            <table className="w-full text-xs font-mono">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left p-2 text-accent">Month</th>
-                  <th className="text-right p-2 text-green-400">Income</th>
-                  <th className="text-right p-2 text-red-400">Expenses</th>
-                  <th className="text-right p-2 text-blue-400">Net</th>
-                  <th className="text-right p-2 text-purple-400">Growth</th>
-                  <th className="text-right p-2 text-accent">Balance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projectionData.map((month, index) => (
-                  <tr key={index} className="border-b border-border/30 hover:bg-muted/20">
-                    <td className="p-2">{index === 0 ? 'Current' : `Month ${index}`}</td>
-                    <td className="text-right p-2 text-green-400">
-                      {currencySymbol}{month.monthlyIncome.toLocaleString()}
-                    </td>
-                    <td className="text-right p-2 text-red-400">
-                      -{currencySymbol}{month.monthlyExpenses.toLocaleString()}
-                    </td>
-                    <td className={`text-right p-2 ${month.netChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {month.netChange >= 0 ? '+' : ''}{currencySymbol}{month.netChange.toLocaleString()}
-                    </td>
-                    <td className={`text-right p-2 text-purple-400`}>
-                      {month.cumulativeGrowth >= 0 ? '+' : ''}{currencySymbol}{month.cumulativeGrowth.toLocaleString()}
-                    </td>
-                    <td className="text-right p-2 text-accent font-bold">
-                      {currencySymbol}{month.balance.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
 
           {/* Risk Assessment Panel */}

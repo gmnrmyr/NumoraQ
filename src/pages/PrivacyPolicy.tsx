@@ -1,77 +1,85 @@
-
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const PrivacyPolicy = () => {
-  const navigate = useNavigate();
-
   return (
-    <div className="min-h-screen bg-background text-foreground font-mono p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => navigate(-1)}
-            className="brutalist-button"
-          >
-            <ArrowLeft size={16} />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold uppercase">Privacy Policy</h1>
-        </div>
-
-        <Card className="brutalist-card">
+    <div className="min-h-screen bg-background text-foreground font-mono py-12">
+      <div className="max-w-4xl mx-auto">
+        <Card className="bg-card border-2 border-border brutalist-card">
           <CardHeader>
-            <CardTitle>FinDash Privacy Policy</CardTitle>
+            <CardTitle className="text-3xl font-mono font-bold text-accent uppercase">
+              Privacy Policy
+            </CardTitle>
+            <p className="text-muted-foreground font-mono">
+              Last updated: {new Date().toLocaleDateString()}
+            </p>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm">
+          <CardContent className="space-y-6 font-mono text-sm">
             <section>
-              <h3 className="font-bold mb-2">1. Information We Collect</h3>
-              <p>We collect information you provide directly to us, such as when you create an account, use our services, or communicate with us.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">1. Information We Collect</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                OPEN FINDASH collects information you provide directly to us, such as when you create an account, use our services, or contact us for support.
+              </p>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">2. How We Use Your Information</h3>
-              <p>We use the information we collect to provide, maintain, and improve our services, process transactions, and communicate with you.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">2. How We Use Your Information</h2>
+              <ul className="list-disc list-inside text-muted-foreground space-y-2">
+                <li>To provide and maintain OPEN FINDASH services</li>
+                <li>To process transactions and send related information</li>
+                <li>To send technical notices and support messages</li>
+                <li>To respond to your comments and questions</li>
+              </ul>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">3. Information Sharing</h3>
-              <p>We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, except as described in this policy.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">3. Data Security</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                We implement reasonable security measures to protect your information from unauthorized access, alteration, or disclosure.
+              </p>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">4. Data Storage</h3>
-              <p>Your financial data is stored locally in your browser and optionally synced to secure cloud storage with encryption.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">4. Data Retention</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                We retain your personal information for as long as necessary to provide you with our services and as otherwise necessary to comply with our legal obligations, resolve disputes, and enforce our agreements.
+              </p>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">5. Cookies</h3>
-              <p>We use cookies and similar technologies to enhance your experience, analyze usage, and customize content.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">5. Sharing Your Information</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                We do not share your personal information with third parties except as described in this policy or with your consent.
+              </p>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">6. Your Rights</h3>
-              <p>You have the right to access, update, or delete your personal information. You can also opt out of certain communications.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">6. Cookies and Tracking Technologies</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                We use cookies and other tracking technologies to improve your experience and analyze how our services are used.
+              </p>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">7. Security</h3>
-              <p>We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">7. Your Rights</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                You have the right to access, correct, or delete your personal information. Contact us to exercise these rights.
+              </p>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">8. Changes to This Policy</h3>
-              <p>We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">8. Changes to This Policy</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                We may update this privacy policy from time to time. We will notify you of any significant changes.
+              </p>
             </section>
 
-            <div className="text-xs text-muted-foreground border-t border-border pt-4 mt-6">
-              <p>Last updated: {new Date().toLocaleDateString()}</p>
-            </div>
+            <section>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">9. Contact Us</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                If you have any questions about this privacy policy, please contact us.
+              </p>
+            </section>
           </CardContent>
         </Card>
       </div>

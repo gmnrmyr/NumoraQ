@@ -1,67 +1,78 @@
-
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const TermsOfService = () => {
-  const navigate = useNavigate();
-
   return (
-    <div className="min-h-screen bg-background text-foreground font-mono p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => navigate(-1)}
-            className="brutalist-button"
-          >
-            <ArrowLeft size={16} />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold uppercase">Terms of Service</h1>
-        </div>
-
-        <Card className="brutalist-card">
+    <div className="min-h-screen bg-background text-foreground font-mono pt-20 sm:pt-32 pb-4">
+      <div className="max-w-4xl mx-auto">
+        <Card className="bg-card border-2 border-border brutalist-card">
           <CardHeader>
-            <CardTitle>FinDash Terms of Service</CardTitle>
+            <CardTitle className="text-3xl font-mono font-bold text-accent uppercase">
+              Terms of Service
+            </CardTitle>
+            <p className="text-muted-foreground font-mono">
+              Last updated: {new Date().toLocaleDateString()}
+            </p>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm">
+          <CardContent className="space-y-6 font-mono text-sm">
             <section>
-              <h3 className="font-bold mb-2">1. Acceptance of Terms</h3>
-              <p>By accessing and using FinDash, you accept and agree to be bound by the terms and provision of this agreement.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">1. Acceptance of Terms</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                By accessing and using OPEN FINDASH ("the Service"), you accept and agree to be bound by the terms and provision of this agreement.
+              </p>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">2. Use License</h3>
-              <p>Permission is granted to temporarily use FinDash for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">2. Description of Service</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                OPEN FINDASH is a financial dashboard application that helps users track their assets, income, expenses, and financial projections. The service is provided "as is" and we make no warranties regarding its accuracy or reliability.
+              </p>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">3. Disclaimer</h3>
-              <p>FinDash is provided for informational purposes only. We do not provide financial advice. All financial decisions should be made with proper consultation.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">3. User Responsibilities</h2>
+              <ul className="list-disc list-inside text-muted-foreground space-y-2">
+                <li>You are responsible for maintaining the confidentiality of your account</li>
+                <li>You agree to provide accurate and complete information</li>
+                <li>You are responsible for all activities under your account</li>
+                <li>You agree not to use the service for any unlawful purposes</li>
+              </ul>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">4. Data Security</h3>
-              <p>We implement appropriate security measures to protect your personal information. However, no method of transmission over the internet is 100% secure.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">4. Intellectual Property</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                All content, trademarks, and data on OPEN FINDASH are owned by us or our licensors and are protected by copyright laws.
+              </p>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">5. Service Availability</h3>
-              <p>FinDash is provided "as is" without warranty of any kind. We do not guarantee uninterrupted service availability.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">5. Limitation of Liability</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                OPEN FINDASH is not liable for any direct, indirect, incidental, or consequential damages resulting from your use of the service.
+              </p>
             </section>
 
             <section>
-              <h3 className="font-bold mb-2">6. Contact Information</h3>
-              <p>For questions about these Terms of Service, please contact us through our platform.</p>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">6. Governing Law</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                These terms shall be governed by the laws of the jurisdiction in which OPEN FINDASH operates, without regard to its conflict of law provisions.
+              </p>
             </section>
 
-            <div className="text-xs text-muted-foreground border-t border-border pt-4 mt-6">
-              <p>Last updated: {new Date().toLocaleDateString()}</p>
-            </div>
+            <section>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">7. Changes to Terms</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                OPEN FINDASH reserves the right to modify or replace these terms at any time. Your continued use of the service after any such changes constitutes your acceptance of the new terms.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-accent mb-3 uppercase">8. Contact Information</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                If you have any questions about these Terms, please contact us at support@openfindash.com.
+              </p>
+            </section>
           </CardContent>
         </Card>
       </div>
