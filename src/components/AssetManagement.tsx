@@ -1,8 +1,8 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Home, Calendar, DollarSign } from "lucide-react";
+import { WalletTracker } from './portfolio/WalletTracker';
 
 export const AssetManagement = () => {
   const properties = [
@@ -58,7 +58,7 @@ export const AssetManagement = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Property Portfolio */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {properties.map((property, index) => (
@@ -201,6 +201,14 @@ export const AssetManagement = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Wallet Tracker Section */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold font-mono uppercase text-accent border-b-2 border-accent pb-2">
+          Blockchain Wallets
+        </h2>
+        <WalletTracker />
+      </div>
     </div>
   );
 };
