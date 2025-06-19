@@ -157,11 +157,4 @@ export interface Translations {
   partial: string;
   paid: string;
   due: string;
-  
-  // New properties for expenses
-  specificDate: string;
-  optional: string;
-  dateHelp: string;
-  expense: string;
-  noExpenses: string;
 }

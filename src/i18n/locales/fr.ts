@@ -138,11 +138,4 @@ export const fr: Translations = {
   partial: 'Partiel',
   paid: 'Payé',
   due: 'Échéance',
-
-  // New properties for expenses
-  specificDate: 'Date Spécifique',
-  optional: 'Optionnel',
-  dateHelp: 'Laisser vide pour une dépense variable mensuelle récurrente',
-  expense: 'Dépense',
-  noExpenses: 'Aucune dépense suivie pour le moment. Ajoutez-en une pour commencer !'
 };

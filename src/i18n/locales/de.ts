@@ -138,11 +138,4 @@ export const de: Translations = {
   partial: 'Teilweise',
   paid: 'Bezahlt',
   due: 'Fällig',
-
-  // New properties for expenses
-  specificDate: 'Spezifisches Datum',
-  optional: 'Optional',
-  dateHelp: 'Leer lassen für monatlich wiederkehrende variable Ausgabe',
-  expense: 'Ausgabe',
-  noExpenses: 'Noch keine Ausgaben verfolgt. Fügen Sie eine hinzu, um zu beginnen!'
 };

@@ -8,41 +8,57 @@ import { Plus } from "lucide-react";
 import { useTranslation } from "@/contexts/TranslationContext";
 
 interface AddExpenseDialogProps {
-  type: 'recurring' | 'variable';
-  onAddExpense: (expense: any) => void;
-  categoryOptions: Array<{ value: string; label: string }>;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onAddExpense: (expense: any) => void;
+  categoryOptions: Array<{ value: string; label: string }>;
 }
 
 export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
-  type,
-  onAddExpense,
-  categoryOptions,
   isOpen,
-  onOpenChange
+  onOpenChange,
+  onAddExpense,
+  categoryOptions
 }) => {
   const { t } = useTranslation();
   const [newExpense, setNewExpense] = useState({
     name: '',
     amount: 0,
-    category: '',
-    specificDate: ''
+    category: 'housing',
+    type: 'recurring' as 'recurring' | 'variable',
+    status: 'active' as 'active' | 'inactive',
+    day: '',
   });
 
   const handleAddExpense = () => {
-    if (newExpense.name.trim() && newExpense.amount > 0 && newExpense.category) {
-      const expenseData = {
-        name: newExpense.name,
-        amount: newExpense.amount,
-        category: newExpense.category,
-        type,
-        status: 'active' as const,
-        ...(type === 'variable' && newExpense.specificDate && { specificDate: newExpense.specificDate })
-      };
-      
-      onAddExpense(expenseData);
-      setNewExpense({ name: '', amount: 0, category: '', specificDate: '' });
+    if (newExpense.name.trim()) {
+      const payload =
+        newExpense.type === 'recurring'
+        ? {
+            name: newExpense.name,
+            amount: newExpense.amount,
+            category: newExpense.category,
+            type: newExpense.type,
+            status: newExpense.status,
+            day: newExpense.day,
+          }
+        : {
+            name: newExpense.name,
+            amount: newExpense.amount,
+            category: newExpense.category,
+            type: newExpense.type,
+            status: newExpense.status,
+          };
+
+      onAddExpense(payload);
+      setNewExpense({
+        name: '',
+        amount: 0,
+        category: 'housing',
+        type: 'recurring',
+        status: 'active',
+        day: '',
+      });
       onOpenChange(false);
     }
   };
@@ -50,63 +66,63 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button size="sm" className="brutalist-button">
+        <Button size="sm" className="w-full sm:w-auto brutalist-button">
           <Plus size={16} className="mr-1" />
-          {t.add || "Add"} {type === 'recurring' ? t.recurringExpenses : t.variableExpenses}
+          {t.addExpense}
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[95vw] max-w-md bg-card border-2 border-border">
+      <DialogContent className="w-[95vw] max-w-md bg-card border-2 border-border z-50">
         <DialogHeader>
-          <DialogTitle className="font-mono uppercase">
-            {t.add || "Add"} {type === 'recurring' ? t.recurringExpenses : t.variableExpenses}
-          </DialogTitle>
+          <DialogTitle className="font-mono uppercase">{t.addNewExpense}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <Input
-            placeholder={t.expenseName || "Expense name"}
+            placeholder={t.expenseName}
             value={newExpense.name}
             onChange={(e) => setNewExpense({ ...newExpense, name: e.target.value })}
-            className="bg-input border-2 border-border"
+            className="bg-input border-2 border-border font-mono"
           />
           <Input
             type="number"
-            placeholder={t.amount || "Amount"}
-            value={newExpense.amount || ''}
+            placeholder={t.amount}
+            value={newExpense.amount}
             onChange={(e) => setNewExpense({ ...newExpense, amount: parseFloat(e.target.value) || 0 })}
-            className="bg-input border-2 border-border"
+            className="bg-input border-2 border-border font-mono"
           />
           <Select value={newExpense.category} onValueChange={(value) => setNewExpense({ ...newExpense, category: value })}>
-            <SelectTrigger className="bg-input border-2 border-border">
-              <SelectValue placeholder={t.selectCategory || "Select category"} />
+            <SelectTrigger className="bg-input border-2 border-border font-mono">
+              <SelectValue placeholder={t.selectCategory} />
             </SelectTrigger>
-            <SelectContent className="bg-card border-2 border-border">
-              {categoryOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+            <SelectContent className="bg-card border-2 border-border z-50">
+              {categoryOptions.map(option => (
+                <SelectItem key={option.value} value={option.value} className="font-mono hover:bg-accent hover:text-accent-foreground">
                   {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          
-          {type === 'variable' && (
-            <div className="space-y-2">
-              <label className="text-sm font-mono text-muted-foreground">
-                {t.specificDate || "Specific Date"} ({t.optional || "Optional"})
-              </label>
-              <Input
-                type="date"
-                value={newExpense.specificDate}
-                onChange={(e) => setNewExpense({ ...newExpense, specificDate: e.target.value })}
-                className="bg-input border-2 border-border"
-              />
-              <p className="text-xs text-muted-foreground font-mono">
-                {t.dateHelp || "Leave empty for monthly recurring variable expense"}
-              </p>
-            </div>
+          <Select value={newExpense.type} onValueChange={(value: 'recurring' | 'variable') => setNewExpense({ ...newExpense, type: value })}>
+            <SelectTrigger className="bg-input border-2 border-border font-mono">
+              <SelectValue placeholder={t.selectType} />
+            </SelectTrigger>
+            <SelectContent className="bg-card border-2 border-border z-50">
+              <SelectItem value="recurring" className="font-mono hover:bg-accent hover:text-accent-foreground">{t.recurring}</SelectItem>
+              <SelectItem value="variable" className="font-mono hover:bg-accent hover:text-accent-foreground">{t.variable}</SelectItem>
+            </SelectContent>
+          </Select>
+          {newExpense.type === 'recurring' && (
+            <Input
+              type="number"
+              min={1}
+              max={31}
+              placeholder={t.dueDayPlaceholder}
+              value={newExpense.day}
+              onChange={(e) => setNewExpense({ ...newExpense, day: e.target.value })}
+              className="bg-input border-2 border-border font-mono"
+            />
           )}
-          
           <Button onClick={handleAddExpense} className="w-full brutalist-button">
-            {t.add || "Add"} {t.expense || "Expense"}
+            {t.addExpense}
           </Button>
         </div>
       </DialogContent>

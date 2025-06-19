@@ -48,7 +48,6 @@ export interface Expense {
   category: string;
   type: 'recurring' | 'variable';
   status: 'active' | 'inactive';
-  specificDate?: string; // Added for variable expenses with specific dates
 }
 
 // Alias for backward compatibility
@@ -131,9 +130,6 @@ export interface UserProfile {
   language: string;
   avatarIcon?: string;
   liveDataEnabled?: boolean;
-  theme?: string; // Added for theme persistence
-  donorWallet?: string; // Added for donor tracking
-  totalDonated?: number; // Added for donor tracking
 }
 
 export interface FinancialData {
