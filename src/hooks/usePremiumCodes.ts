@@ -42,7 +42,7 @@ export const usePremiumCodes = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setCodes(data || []);
+      setCodes((data || []) as PremiumCode[]);
     } catch (error) {
       console.error('Error loading premium codes:', error);
       toast({

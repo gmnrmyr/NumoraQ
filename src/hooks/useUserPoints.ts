@@ -34,8 +34,8 @@ export const useUserPoints = () => {
 
       if (error) throw error;
 
-      setUserPoints(data || []);
-      setTotalPoints(data?.reduce((sum, point) => sum + point.points, 0) || 0);
+      setUserPoints((data || []) as UserPoints[]);
+      setTotalPoints((data || []).reduce((sum, point) => sum + point.points, 0));
     } catch (error) {
       console.error('Error loading user points:', error);
     } finally {

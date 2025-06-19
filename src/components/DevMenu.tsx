@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -11,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 export const DevMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data, updateUserProfile } = useFinancialData();
-  const { activateDegenCode } = useAdminMode();
+  const { activatePremiumCode } = useAdminMode();
   const [degenCode, setDegenCode] = useState('');
 
   const applyTheme = (theme: string) => {
@@ -57,8 +58,9 @@ export const DevMenu = () => {
     });
   };
 
-  const handleActivateDegenCode = () => {
-    if (activateDegenCode(degenCode, data.userProfile.name)) {
+  const handleActivateDegenCode = async () => {
+    const success = await activatePremiumCode(degenCode, data.userProfile.name);
+    if (success) {
       toast({
         title: "Degen Mode Activated!",
         description: "You now have access to premium features."
