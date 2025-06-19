@@ -35,7 +35,7 @@ export const DataToolbar = () => {
   const [isImportOpen, setIsImportOpen] = useState(false);
 
   const exportToJSON = () => {
-    const data = localStorage.getItem('financial-data');
+    const data = localStorage.getItem('financialData');
     if (data) {
       const blob = new Blob([data], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
