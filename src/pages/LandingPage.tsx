@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isAnimationEnabled, toggleAnimation, showToggle } = useAnimationToggle();
+  const animationInitRef = useRef<boolean>(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -19,25 +20,73 @@ const LandingPage = () => {
       });
     }, 2000);
 
-    // Initialize Unicorn Studio
-    if (!window.UnicornStudio) {
-      window.UnicornStudio = { 
-        isInitialized: false,
-        init: () => {}
-      };
+    // Enhanced Unicorn Studio initialization with navigation fix
+    const initializeAnimation = () => {
+      // Reset animation state on each page load
+      animationInitRef.current = false;
+      
+      if (!window.UnicornStudio) {
+        window.UnicornStudio = { 
+          isInitialized: false,
+          init: () => {}
+        };
+      }
+
+      // Force reinitialize if already exists
+      if (window.UnicornStudio.isInitialized) {
+        window.UnicornStudio.isInitialized = false;
+      }
+
       const script = document.createElement("script");
       script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
       script.onload = function() {
-        if (!window.UnicornStudio.isInitialized) {
-          window.UnicornStudio.init();
-          window.UnicornStudio.isInitialized = true;
+        if (!animationInitRef.current) {
+          try {
+            window.UnicornStudio.init();
+            window.UnicornStudio.isInitialized = true;
+            animationInitRef.current = true;
+          } catch (error) {
+            console.log('Animation initialization skipped');
+          }
         }
       };
+      
+      // Remove existing script if present
+      const existingScript = document.querySelector('script[src*="unicornStudio"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      
       (document.head || document.body).appendChild(script);
-    }
+    };
 
-    return () => clearInterval(timer);
-  }, []);
+    // Initialize animation with a small delay to ensure DOM is ready
+    const initTimer = setTimeout(initializeAnimation, 100);
+
+    return () => {
+      clearInterval(timer);
+      clearTimeout(initTimer);
+    };
+  }, []); // Empty dependency array ensures this runs on every mount
+
+  // Additional effect to handle animation state changes
+  useEffect(() => {
+    if (isAnimationEnabled && !animationInitRef.current) {
+      // Re-attempt initialization if animation is enabled but not initialized
+      const retryTimer = setTimeout(() => {
+        if (window.UnicornStudio && !animationInitRef.current) {
+          try {
+            window.UnicornStudio.init();
+            animationInitRef.current = true;
+          } catch (error) {
+            console.log('Animation retry failed, but continuing');
+          }
+        }
+      }, 500);
+
+      return () => clearTimeout(retryTimer);
+    }
+  }, [isAnimationEnabled]);
 
   const features = [
     {
@@ -129,22 +178,22 @@ const LandingPage = () => {
 
         {/* Hero Section - Added top padding for fixed navbar */}
         <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-          {/* Animation Toggle for Mobile/Tablet */}
+          {/* Improved Animation Toggle for Mobile/Tablet */}
           {showToggle && (
             <div className="fixed top-20 right-4 z-40">
               <Button
                 onClick={toggleAnimation}
                 variant="outline"
                 size="sm"
-                className="bg-card/80 backdrop-blur-sm border-accent/50 hover:bg-accent/10"
+                className="bg-card/80 backdrop-blur-sm border-accent/50 hover:bg-accent/10 px-3 py-2"
+                title={isAnimationEnabled ? 'Pause Animation' : 'Play Animation'}
               >
                 {isAnimationEnabled ? <Pause size={16} /> : <Play size={16} />}
-                <span className="ml-1 text-xs">Animation</span>
               </Button>
             </div>
           )}
 
-          {/* Responsive Unicorn Studio Background with bleed effect and bottom fade */}
+          {/* Enhanced Unicorn Studio Background with improved mobile handling */}
           {isAnimationEnabled && (
             <div 
               className="absolute inset-0 -mx-8 -mt-8 overflow-hidden z-0"
@@ -161,9 +210,10 @@ const LandingPage = () => {
                   height: 'max(900px, 120vh)',
                   transform: 'scale(1.1)'
                 }}
+                key={`desktop-${animationInitRef.current}`} // Force re-render when animation resets
               />
               
-              {/* Mobile & Tablet Animation */}
+              {/* Mobile & Tablet Animation - Enhanced for better triggering */}
               <div 
                 data-us-project="Jmp7i20rUQsDyxKJ0OWM" 
                 className="lg:hidden w-full h-full min-w-[120vw] min-h-[120vh] -ml-[10vw] -mt-[10vh]"
@@ -172,6 +222,7 @@ const LandingPage = () => {
                   height: 'max(1024px, 120vh)',
                   transform: 'scale(1.1)'
                 }}
+                key={`mobile-${animationInitRef.current}`} // Force re-render when animation resets
               />
             </div>
           )}
