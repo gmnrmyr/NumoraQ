@@ -10,28 +10,28 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon.svg",
+      "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png"
     },
     {
-      "src": "/favicon.svg",
+      "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png"
     }
   ],
   "categories": ["finance", "productivity", "business"],
   "screenshots": [
     {
-      "src": "/favicon.svg",
+      "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
       "sizes": "1280x720",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "form_factor": "wide"
     }
   ],
