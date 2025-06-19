@@ -7,15 +7,6 @@ interface DegenCode {
   createdAt: string;
   used: boolean;
   usedBy?: string;
-  usedAt?: string;
-  userEmail?: string;
-}
-
-interface ProjectSettings {
-  walletAddress: string;
-  enableCryptoDonations: boolean;
-  enablePayPalDonations: boolean;
-  donationGoal?: number;
 }
 
 export const useAdminMode = () => {
@@ -24,11 +15,6 @@ export const useAdminMode = () => {
   const [degenCodes, setDegenCodes] = useState<DegenCode[]>([]);
   const [isDegenMode, setIsDegenMode] = useState(false);
   const [degenExpiry, setDegenExpiry] = useState<string | null>(null);
-  const [projectSettings, setProjectSettings] = useState<ProjectSettings>({
-    walletAddress: '0x6c21bB0Ef4b7d037aB6b124f372ae7705c6d74AD',
-    enableCryptoDonations: true,
-    enablePayPalDonations: true,
-  });
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -48,7 +34,6 @@ export const useAdminMode = () => {
     const storedCodes = localStorage.getItem('degenCodes');
     const storedDegenMode = localStorage.getItem('degenMode');
     const storedDegenExpiry = localStorage.getItem('degenExpiry');
-    const storedProjectSettings = localStorage.getItem('projectSettings');
     
     if (adminMode === 'true') {
       setIsAdminMode(true);
@@ -59,14 +44,6 @@ export const useAdminMode = () => {
         setDegenCodes(JSON.parse(storedCodes));
       } catch (error) {
         console.error('Error parsing stored degen codes:', error);
-      }
-    }
-
-    if (storedProjectSettings) {
-      try {
-        setProjectSettings(JSON.parse(storedProjectSettings));
-      } catch (error) {
-        console.error('Error parsing project settings:', error);
       }
     }
 
@@ -120,13 +97,7 @@ export const useAdminMode = () => {
 
     // Mark code as used
     const updatedCodes = degenCodes.map(c => 
-      c.code === code ? { 
-        ...c, 
-        used: true, 
-        usedBy: userEmail,
-        usedAt: new Date().toISOString(),
-        userEmail 
-      } : c
+      c.code === code ? { ...c, used: true, usedBy: userEmail } : c
     );
     setDegenCodes(updatedCodes);
     localStorage.setItem('degenCodes', JSON.stringify(updatedCodes));
@@ -157,32 +128,6 @@ export const useAdminMode = () => {
     return true;
   };
 
-  const updateProjectSettings = (settings: Partial<ProjectSettings>) => {
-    const newSettings = { ...projectSettings, ...settings };
-    setProjectSettings(newSettings);
-    localStorage.setItem('projectSettings', JSON.stringify(newSettings));
-  };
-
-  const getActiveCodesCount = () => {
-    return degenCodes.filter(c => c.used).length;
-  };
-
-  const getUnusedCodesCount = () => {
-    return degenCodes.filter(c => !c.used).length;
-  };
-
-  const getCodeStats = () => {
-    const total = degenCodes.length;
-    const used = getActiveCodesCount();
-    const unused = getUnusedCodesCount();
-    const recentActivations = degenCodes.filter(c => 
-      c.used && c.usedAt && 
-      new Date(c.usedAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    ).length;
-
-    return { total, used, unused, recentActivations };
-  };
-
   const getDegenTimeRemaining = () => {
     if (!degenExpiry) return null;
     
@@ -200,12 +145,6 @@ export const useAdminMode = () => {
     return `${days} day${days > 1 ? 's' : ''}`;
   };
 
-  const deleteCode = (codeId: string) => {
-    const updatedCodes = degenCodes.filter(c => c.code !== codeId);
-    setDegenCodes(updatedCodes);
-    localStorage.setItem('degenCodes', JSON.stringify(updatedCodes));
-  };
-
   return {
     isAdminMode,
     showAdminPanel,
@@ -217,12 +156,6 @@ export const useAdminMode = () => {
     degenCodes,
     isDegenMode,
     degenExpiry,
-    getDegenTimeRemaining,
-    projectSettings,
-    updateProjectSettings,
-    getActiveCodesCount,
-    getUnusedCodesCount,
-    getCodeStats,
-    deleteCode
+    getDegenTimeRemaining
   };
 };
