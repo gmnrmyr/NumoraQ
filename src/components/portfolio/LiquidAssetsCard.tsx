@@ -13,7 +13,7 @@ import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { toast } from "@/hooks/use-toast";
 
 export const LiquidAssetsCard = () => {
-  const { data, updateLiquidAssets } = useFinancialData();
+  const { data, updateLiquidAsset, addLiquidAsset, removeLiquidAsset } = useFinancialData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<any>(null);
   const [showInactive, setShowInactive] = useState(false);
@@ -45,22 +45,15 @@ export const LiquidAssetsCard = () => {
       return;
     }
 
-    let updatedAssets;
     if (editingAsset) {
-      updatedAssets = data.liquidAssets.map(asset => 
-        asset.id === editingAsset.id 
-          ? { ...asset, ...formData }
-          : asset
-      );
+      updateLiquidAsset(editingAsset.id, formData);
     } else {
-      const newAsset = {
-        id: Date.now().toString(),
-        ...formData
-      };
-      updatedAssets = [...data.liquidAssets, newAsset];
+      addLiquidAsset({
+        ...formData,
+        color: 'text-foreground'
+      });
     }
 
-    updateLiquidAssets(updatedAssets);
     setIsDialogOpen(false);
     resetForm();
     
@@ -82,8 +75,7 @@ export const LiquidAssetsCard = () => {
   };
 
   const handleDelete = (assetId: string) => {
-    const updatedAssets = data.liquidAssets.filter(asset => asset.id !== assetId);
-    updateLiquidAssets(updatedAssets);
+    removeLiquidAsset(assetId);
     toast({
       title: "Asset Deleted",
       description: "Asset has been removed successfully."
@@ -91,12 +83,10 @@ export const LiquidAssetsCard = () => {
   };
 
   const handleToggleActive = (assetId: string) => {
-    const updatedAssets = data.liquidAssets.map(asset => 
-      asset.id === assetId 
-        ? { ...asset, isActive: !asset.isActive }
-        : asset
-    );
-    updateLiquidAssets(updatedAssets);
+    const asset = data.liquidAssets.find(a => a.id === assetId);
+    if (asset) {
+      updateLiquidAsset(assetId, { isActive: !asset.isActive });
+    }
   };
 
   const activeAssets = data.liquidAssets.filter(asset => asset.isActive);
@@ -109,15 +99,15 @@ export const LiquidAssetsCard = () => {
     <Card className="brutalist-card">
       <CardHeader className="pb-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <CardTitle className="text-base sm:text-lg font-mono uppercase text-accent truncate">
+          <div className="flex items-center gap-2 min-w-0">
+            <CardTitle className="text-sm sm:text-base font-mono uppercase text-accent truncate">
               LIQUID ASSETS
             </CardTitle>
-            <Badge variant="outline" className="font-mono text-xs whitespace-nowrap">
+            <Badge variant="outline" className="font-mono text-xs whitespace-nowrap flex-shrink-0">
               {currency} {totalValue.toLocaleString()}
             </Badge>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -170,8 +160,9 @@ export const LiquidAssetsCard = () => {
                   <div>
                     <Label className="font-mono text-xs uppercase">Icon</Label>
                     <IconSelector
-                      selectedIcon={formData.icon}
-                      onIconSelect={(icon) => setFormData(prev => ({ ...prev, icon }))}
+                      value={formData.icon}
+                      onChange={(icon) => setFormData(prev => ({ ...prev, icon }))}
+                      placeholder="Choose an icon"
                     />
                   </div>
                   <div className="flex items-center space-x-2">
@@ -210,7 +201,7 @@ export const LiquidAssetsCard = () => {
               }`}
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="text-accent text-lg">
+                <div className="text-accent text-lg flex-shrink-0">
                   {asset.icon === 'TrendingUp' && <TrendingUp size={20} />}
                   {asset.icon === 'Wallet' && '💰'}
                   {asset.icon !== 'TrendingUp' && asset.icon !== 'Wallet' && '💰'}
@@ -224,7 +215,7 @@ export const LiquidAssetsCard = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-1 ml-2">
+              <div className="flex items-center gap-1 ml-2 flex-shrink-0">
                 <Button
                   variant="outline"
                   size="sm"
