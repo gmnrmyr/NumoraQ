@@ -24,6 +24,18 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
   const { showAdminPanel, setShowAdminPanel } = useAdminMode();
 
+  const getSectionTitle = (tab: string) => {
+    switch (tab) {
+      case 'portfolio': return 'PORTFOLIO OVERVIEW';
+      case 'income': return 'INCOME TRACKING';
+      case 'expenses': return 'EXPENSE MANAGEMENT';
+      case 'assets': return 'ASSET MANAGEMENT';
+      case 'tasks': return 'TASK MANAGEMENT';
+      case 'debt': return 'DEBT TRACKING';
+      default: return 'DASHBOARD';
+    }
+  };
+
   return (
     <>
       {/* SEO Meta Tags for Dashboard */}
@@ -48,27 +60,63 @@ const Dashboard = () => {
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <div>
-                <TabsContent value="portfolio" className="space-y-6">
+                <TabsContent value="portfolio" className="space-y-6" data-section="portfolio">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('portfolio')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
                   <PortfolioOverview />
                 </TabsContent>
 
-                <TabsContent value="income" className="space-y-6">
+                <TabsContent value="income" className="space-y-6" data-section="income">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('income')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
                   <IncomeTracking />
                 </TabsContent>
 
-                <TabsContent value="expenses" className="space-y-6">
+                <TabsContent value="expenses" className="space-y-6" data-section="expenses">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('expenses')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
                   <ExpenseTrackingEditable />
                 </TabsContent>
 
-                <TabsContent value="assets" className="space-y-6">
+                <TabsContent value="assets" className="space-y-6" data-section="assets">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('assets')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
                   <AssetManagementEditable />
                 </TabsContent>
 
-                <TabsContent value="tasks" className="space-y-6">
+                <TabsContent value="tasks" className="space-y-6" data-section="tasks">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('tasks')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
                   <TaskManagementEditable />
                 </TabsContent>
 
-                <TabsContent value="debt" className="space-y-6">
+                <TabsContent value="debt" className="space-y-6" data-section="debt">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('debt')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
                   <DebtTrackingEditable />
                 </TabsContent>
               </div>

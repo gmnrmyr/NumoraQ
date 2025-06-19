@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard } from "lucide-react";
+import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, Settings, User, Cloud, CloudOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { Badge } from "@/components/ui/badge";
+import { UserSettingsPanel } from "@/components/navbar/UserSettingsPanel";
 
 interface NavbarProps {
   activeTab: string;
@@ -15,7 +16,7 @@ interface NavbarProps {
 export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
-  const { data } = useFinancialData();
+  const { data, syncState, lastSync } = useFinancialData();
 
   const navItems = [
     { id: 'portfolio', label: 'Portfolio', icon: Briefcase },
@@ -29,17 +30,48 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   const handleTabChange = (tab: string) => {
     onTabChange(tab);
     setIsOpen(false);
+    
+    // Scroll to section with smooth behavior
+    setTimeout(() => {
+      const element = document.querySelector(`[data-section="${tab}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
-  // Show hamburger menu for all users (including demo users)
+  const getSyncIcon = () => {
+    if (syncState === 'saving') return <CloudOff className="animate-spin" size={14} />;
+    if (syncState === 'loading') return <CloudOff className="animate-spin" size={14} />;
+    if (syncState === 'error') return <CloudOff size={14} className="text-red-500" />;
+    return <Cloud size={14} className="text-green-500" />;
+  };
+
+  const formatLastSync = (timestamp: string | null) => {
+    if (!timestamp) return 'Never synced';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffMinutes < 1) return 'Just now';
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b-2 border-border">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-bold font-mono text-accent">OPEN FINDASH</h1>
           {user?.email && (
-            <Badge variant="outline" className="hidden sm:flex font-mono">
+            <Badge variant="outline" className="hidden sm:flex font-mono items-center gap-2">
               {user.email}
+              {user && (
+                <div className="flex items-center gap-1" title={`Last sync: ${formatLastSync(lastSync)}`}>
+                  {getSyncIcon()}
+                </div>
+              )}
             </Badge>
           )}
         </div>
@@ -61,35 +93,50 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
               </Button>
             );
           })}
+          
+          {/* User Settings for logged in users */}
+          {user && <UserSettingsPanel />}
         </nav>
 
-        {/* Mobile Navigation - Show for all users */}
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="lg:hidden brutalist-button">
-              <Menu size={20} />
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="bg-card border-l-2 border-border">
-            <div className="flex flex-col gap-4 mt-8">
-              <h2 className="font-bold text-lg font-mono uppercase text-accent">Navigation</h2>
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Button
-                    key={item.id}
-                    variant={activeTab === item.id ? "default" : "ghost"}
-                    onClick={() => handleTabChange(item.id)}
-                    className="justify-start font-mono brutalist-button"
-                  >
-                    <Icon size={16} className="mr-2" />
-                    {item.label}
-                  </Button>
-                );
-              })}
-            </div>
-          </SheetContent>
-        </Sheet>
+        {/* Mobile Navigation - Show for ALL users (including demo) */}
+        <div className="flex items-center gap-2 lg:hidden">
+          {user && <UserSettingsPanel />}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="brutalist-button">
+                <Menu size={20} />
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="bg-card border-l-2 border-border">
+              <div className="flex flex-col gap-4 mt-8">
+                <h2 className="font-bold text-lg font-mono uppercase text-accent">Navigation</h2>
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Button
+                      key={item.id}
+                      variant={activeTab === item.id ? "default" : "ghost"}
+                      onClick={() => handleTabChange(item.id)}
+                      className="justify-start font-mono brutalist-button"
+                    >
+                      <Icon size={16} className="mr-2" />
+                      {item.label}
+                    </Button>
+                  );
+                })}
+                
+                {/* Mobile User Settings if not shown above */}
+                {!user && (
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <p className="text-sm text-muted-foreground font-mono">
+                      Demo Mode - Sign in for cloud sync
+                    </p>
+                  </div>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </div>
   );
