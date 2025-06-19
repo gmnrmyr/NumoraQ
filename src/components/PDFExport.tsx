@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { FileText, Download } from "lucide-react";
+import { FileText, Printer } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { toast } from "@/hooks/use-toast";
 
@@ -223,18 +223,39 @@ export const PDFExport = () => {
   const exportToPDF = () => {
     try {
       const htmlContent = generatePDFContent();
-      const blob = new Blob([htmlContent], { type: 'text/html' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `financial-summary-${data.userProfile.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.html`;
-      a.click();
-      window.URL.revokeObjectURL(url);
       
-      toast({
-        title: "PDF Export Generated",
-        description: "Your financial summary has been downloaded as an HTML file. Open it in your browser and use Print > Save as PDF to create a PDF.",
-      });
+      // Create a new window/tab with the content
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+        
+        // Wait for content to load, then trigger print dialog
+        printWindow.onload = () => {
+          setTimeout(() => {
+            printWindow.print();
+          }, 500);
+        };
+        
+        toast({
+          title: "Print Dialog Opened",
+          description: "The print dialog has been opened in a new tab. Select 'Save as PDF' as your printer destination.",
+        });
+      } else {
+        // Fallback for blocked popups
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `financial-summary-${data.userProfile.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.html`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        toast({
+          title: "PDF Export Downloaded",
+          description: "Your financial summary has been downloaded. Open it in your browser and use Print > Save as PDF.",
+        });
+      }
     } catch (error) {
       toast({
         title: "Export Failed",
@@ -249,9 +270,9 @@ export const PDFExport = () => {
       onClick={exportToPDF}
       variant="outline"
       size="sm"
-      className="brutalist-button"
+      className="brutalist-button bg-blue-50 hover:bg-blue-100 border-blue-200"
     >
-      <FileText size={16} className="mr-1" />
+      <Printer size={16} className="mr-1" />
       Export PDF
     </Button>
   );
