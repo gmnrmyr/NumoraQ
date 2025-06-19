@@ -51,7 +51,7 @@ export type TaskItem = Task;
 export type DebtItem = Debt;
 export type PropertyItem = Property;
 
-// Context type
+// Context type with aligned sync states
 export interface FinancialDataContextType {
   data: FinancialData;
   updateUserProfile: (updates: Partial<UserProfile>) => void;
@@ -88,6 +88,6 @@ export interface FinancialDataContextType {
   updateProfileName: (name: string) => void;
   saveToCloud: () => Promise<void>;
   loadFromCloud: (showToast?: boolean) => Promise<void>;
-  syncState: 'idle' | 'syncing' | 'error';
+  syncState: 'idle' | 'loading' | 'saving' | 'error';
   lastSync: string | null;
 }

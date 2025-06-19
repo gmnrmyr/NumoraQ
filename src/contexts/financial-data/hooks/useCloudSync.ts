@@ -10,7 +10,7 @@ export const useCloudSync = (
   importFromJSON: (jsonData: string) => boolean,
   user: any
 ) => {
-  const [syncState, setSyncState] = useState<'idle' | 'loading' | 'saving'>('idle');
+  const [syncState, setSyncState] = useState<'idle' | 'loading' | 'saving' | 'error'>('idle');
   const [lastSync, setLastSync] = useState<string | null>(() => {
     // Initialize from localStorage
     return localStorage.getItem('lastSync');
@@ -66,6 +66,7 @@ export const useCloudSync = (
         });
       }
     } catch (err: any) {
+      setSyncState('error');
       if (!isSilent) {
         toast({
           title: "Cloud Load Failed",
@@ -75,7 +76,9 @@ export const useCloudSync = (
       }
       console.error("Cloud load failed:", err);
     } finally {
-      setSyncState('idle');
+      if (syncState !== 'error') {
+        setSyncState('idle');
+      }
     }
   };
 
@@ -103,6 +106,7 @@ export const useCloudSync = (
         .single();
 
       if (upsertErr) {
+        setSyncState('error');
         toast({ title: "Cloud Save Failed", description: upsertErr.message, variant: "destructive" });
       } else {
         // Use the server timestamp returned from the upsert and update data state
@@ -113,11 +117,11 @@ export const useCloudSync = (
         setData({ ...dataToSave, lastModified: serverTimestamp });
         
         toast({ title: "Saved!", description: "Data synced to cloud." });
+        setSyncState('idle');
       }
     } catch (err: any) {
+      setSyncState('error');
       toast({ title: "Save Failed", description: err.message || String(err), variant: "destructive" });
-    } finally {
-      setSyncState('idle');
     }
   };
 
