@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, Settings, User, Cloud, CloudOff, LogIn } from "lucide-react";
+import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, Settings, User, Cloud, CloudOff, LogIn, Trophy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +40,12 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   }, []);
 
   const handleTabChange = (tab: string) => {
+    if (tab === 'leaderboard') {
+      navigate('/leaderboard');
+      setIsOpen(false);
+      return;
+    }
+    
     onTabChange(tab);
     setIsOpen(false);
 
@@ -91,6 +97,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
         ? 'bg-background/70 backdrop-blur-xl border-b-2 border-border/50' 
         : 'bg-background/80 backdrop-blur-lg border-b-2 border-border'
     }`}>
+      {/* Main Navbar */}
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-4">
           <h1 
@@ -131,6 +138,21 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
               );
             })}
           </div>
+          
+          {/* Leaderboard Section - Only for logged users */}
+          {user && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-accent/10 border border-accent/20 rounded-lg">
+              <Button
+                variant={activeTab === 'leaderboard' ? "default" : "ghost"}
+                onClick={() => handleTabChange('leaderboard')}
+                size="sm"
+                className="font-mono brutalist-button text-slate-100"
+              >
+                <Trophy size={16} className="mr-1" />
+                Leaderboard
+              </Button>
+            </div>
+          )}
           
           {/* Settings Section */}
           <div className="flex items-center gap-2 px-3 py-2 bg-muted/20 border border-muted/30 rounded-lg">
@@ -174,6 +196,23 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
                     </Button>
                   );
                 })}
+
+                {/* Mobile Leaderboard - Only for logged users */}
+                {user && (
+                  <>
+                    <div className="border-t border-border pt-4 mt-2">
+                      <h3 className="font-bold text-sm font-mono uppercase text-accent mb-2">Community</h3>
+                      <Button
+                        variant={activeTab === 'leaderboard' ? "default" : "ghost"}
+                        onClick={() => handleTabChange('leaderboard')}
+                        className="justify-start font-mono brutalist-button w-full"
+                      >
+                        <Trophy size={16} className="mr-2" />
+                        Leaderboard
+                      </Button>
+                    </div>
+                  </>
+                )}
                 
                 {!user && (
                   <div className="mt-4 pt-4 border-t border-border">
