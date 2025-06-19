@@ -6,15 +6,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Info, Gift, Crown, Star, Zap, CreditCard, Wallet } from "lucide-react";
+import { Info, Gift, Crown, Star, Zap, CreditCard, Wallet, RefreshCw } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { useDonorWallet } from "@/hooks/useDonorWallet";
 import { toast } from "@/hooks/use-toast";
 
 export const UserTitleBadge = () => {
   const { data, updateUserProfile } = useFinancialData();
+  const { fetchDonationData, isLoading } = useDonorWallet();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [donorWallet, setDonorWallet] = useState(data.userProfile.donorWallet || '');
-  const [totalDonated, setTotalDonated] = useState(data.userProfile.totalDonated || 0);
 
   const getTitleInfo = (amount: number) => {
     if (amount >= 1000) return { title: 'PATRON', icon: Crown, color: 'text-yellow-400' };
@@ -24,19 +25,47 @@ export const UserTitleBadge = () => {
     return { title: 'USER', icon: Info, color: 'text-muted-foreground' };
   };
 
-  const currentTitle = getTitleInfo(totalDonated);
+  const currentTitle = getTitleInfo(data.userProfile.totalDonated || 0);
   const TitleIcon = currentTitle.icon;
+
+  const handleFetchDonations = async () => {
+    if (!donorWallet.trim()) {
+      toast({
+        title: "Wallet Required",
+        description: "Please enter a wallet address first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const donationData = await fetchDonationData(donorWallet);
+      updateUserProfile({
+        donorWallet,
+        totalDonated: donationData.totalDonated
+      });
+      toast({
+        title: "Donations Fetched!",
+        description: `Found $${donationData.totalDonated} in donations. Title updated!`,
+      });
+      setIsDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Fetch Failed",
+        description: "Could not fetch donation data. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleSaveDonorInfo = () => {
     updateUserProfile({
-      donorWallet,
-      totalDonated
+      donorWallet
     });
     toast({
-      title: "Donor info updated!",
-      description: "Your donation status has been saved to your profile.",
+      title: "Donor wallet saved!",
+      description: "Your wallet address has been saved to your profile.",
     });
-    setIsDialogOpen(false);
   };
 
   const handleDonateWithCrypto = () => {
@@ -94,20 +123,31 @@ export const UserTitleBadge = () => {
               />
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="totalDonated" className="font-mono">Total Donated ($USD)</Label>
-              <Input
-                id="totalDonated"
-                type="number"
-                value={totalDonated}
-                onChange={(e) => setTotalDonated(Number(e.target.value))}
-                placeholder="0"
-                className="bg-input border-2 border-border font-mono"
-              />
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleFetchDonations} 
+                disabled={isLoading}
+                className="brutalist-button flex-1 bg-green-600 hover:bg-green-700"
+              >
+                {isLoading ? (
+                  <RefreshCw size={16} className="mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw size={16} className="mr-2" />
+                )}
+                Fetch Donations
+              </Button>
+              <Button onClick={handleSaveDonorInfo} variant="outline" className="brutalist-button">
+                Save
+              </Button>
             </div>
             
             <div className="bg-muted p-3 border-2 border-border">
-              <h4 className="font-mono font-bold text-sm mb-2">TITLE RANKS:</h4>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-mono font-bold text-sm">CURRENT STATUS:</h4>
+                <span className={`font-mono text-sm ${currentTitle.color}`}>
+                  ${data.userProfile.totalDonated || 0}
+                </span>
+              </div>
               <div className="space-y-1 text-xs font-mono">
                 <div className="text-yellow-400">• PATRON ($1000+) - All features + NFT airdrops</div>
                 <div className="text-purple-400">• SUPPORTER ($500+) - Premium themes + early access</div>
@@ -116,10 +156,6 @@ export const UserTitleBadge = () => {
                 <div className="text-muted-foreground">• USER ($0) - Basic features</div>
               </div>
             </div>
-            
-            <Button onClick={handleSaveDonorInfo} className="w-full brutalist-button">
-              Save Donor Information
-            </Button>
           </TabsContent>
           
           <TabsContent value="donate" className="space-y-4">

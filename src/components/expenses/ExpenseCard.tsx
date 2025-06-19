@@ -3,7 +3,7 @@ import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Calendar } from "lucide-react";
 import { EditableValue } from "@/components/ui/editable-value";
 import { StatusToggle } from "@/components/ui/status-toggle";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -51,7 +51,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
           </div>
         </div>
         
-        {/* Bottom row - Category, Day, Status, Delete */}
+        {/* Bottom row - Category, Date/Day, Status, Delete */}
         <div className="flex items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2 flex-1">
             {showCategory && (
@@ -68,7 +68,20 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
                 </SelectContent>
               </Select>
             )}
-            {expense.type === 'recurring' && (
+            
+            {/* Date input for variable expenses or day for recurring */}
+            {expense.type === 'variable' ? (
+              <div className="flex items-center gap-1">
+                <Calendar size={12} className="text-muted-foreground" />
+                <Input 
+                  type="date" 
+                  value={expense.specificDate || ''} 
+                  onChange={(e) => onUpdate(expense.id, { specificDate: e.target.value })} 
+                  className="w-28 h-6 text-xs bg-input border-2 border-border px-1 font-mono"
+                  placeholder="YYYY-MM-DD"
+                />
+              </div>
+            ) : (
               <div className="flex items-center gap-1">
                 <span className="font-mono">{t.day}:</span>
                 <Input 
@@ -83,6 +96,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
               </div>
             )}
           </div>
+          
           <div className="flex items-center gap-1">
             <StatusToggle
               status={expense.status || 'active'}
