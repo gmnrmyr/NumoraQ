@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Key, X, Copy, Gift, Wallet, DollarSign, Crown } from 'lucide-react';
+import { Shield, Key, X, Copy, Gift, Wallet, DollarSign, Crown, Settings, Globe } from 'lucide-react';
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
+import { useDonorWallet } from '@/hooks/useDonorWallet';
 import { toast } from '@/hooks/use-toast';
 
 interface AdminPanelProps {
@@ -18,10 +19,13 @@ interface AdminPanelProps {
 export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   const { isAdminMode, enterAdminMode, exitAdminMode, generateDegenCode } = useAdminMode();
   const { data, updateUserProfile } = useFinancialData();
+  const { addFakeDonation } = useDonorWallet();
   const [password, setPassword] = useState('');
   const [generatedCodes, setGeneratedCodes] = useState<string[]>([]);
   const [projectWallet, setProjectWallet] = useState('');
   const [testDonationAmount, setTestDonationAmount] = useState(0);
+  const [testWalletAddress, setTestWalletAddress] = useState('');
+  const [websiteName, setWebsiteName] = useState('Open Findash');
 
   const handleLogin = () => {
     if (enterAdminMode(password)) {
@@ -56,6 +60,49 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     });
   };
 
+  const handleAddFakeDonation = () => {
+    if (!testWalletAddress.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a wallet address.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (testDonationAmount <= 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid donation amount.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const donationData = addFakeDonation(testWalletAddress, testDonationAmount);
+      
+      // If this is the current user's wallet, update their profile
+      if (testWalletAddress === data.userProfile.donorWallet) {
+        updateUserProfile({
+          totalDonated: donationData.totalDonated
+        });
+      }
+
+      toast({
+        title: "Fake Donation Added",
+        description: `Added $${testDonationAmount} to wallet ${testWalletAddress.substring(0, 10)}...`,
+      });
+      setTestDonationAmount(0);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add fake donation.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleTestDonation = () => {
     updateUserProfile({
       totalDonated: (data.userProfile.totalDonated || 0) + testDonationAmount
@@ -74,6 +121,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     toast({
       title: "Donations Reset",
       description: "User donation total reset to $0."
+    });
+  };
+
+  const handleUpdateWebsiteName = () => {
+    // Store website name in localStorage for now
+    localStorage.setItem('websiteName', websiteName);
+    toast({
+      title: "Website Name Updated",
+      description: `Website name changed to: ${websiteName}`,
     });
   };
 
@@ -111,9 +167,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
           </div>
         ) : (
           <Tabs defaultValue="codes" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="codes">Degen Codes</TabsTrigger>
-              <TabsTrigger value="donors">Donor System</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="codes">Codes</TabsTrigger>
+              <TabsTrigger value="donors">Donors</TabsTrigger>
+              <TabsTrigger value="site">Site</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
@@ -176,7 +233,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-yellow-400 flex items-center gap-2 text-sm font-mono uppercase">
                     <Gift size={16} />
-                    Donor Management
+                    Donor Management & Testing
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -191,7 +248,33 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                   </div>
                   
                   <div className="border-t border-border pt-4">
-                    <div className="text-xs text-muted-foreground font-mono uppercase mb-2">Test Donor Features:</div>
+                    <div className="text-xs text-muted-foreground font-mono uppercase mb-2">Add Fake Donation (Testing):</div>
+                    
+                    <div className="space-y-2">
+                      <Input
+                        value={testWalletAddress}
+                        onChange={(e) => setTestWalletAddress(e.target.value)}
+                        placeholder="Wallet address to add donation to"
+                        className="font-mono text-xs"
+                      />
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          value={testDonationAmount}
+                          onChange={(e) => setTestDonationAmount(Number(e.target.value))}
+                          placeholder="Amount"
+                          className="font-mono text-xs"
+                        />
+                        <Button onClick={handleAddFakeDonation} size="sm" className="brutalist-button bg-green-600">
+                          <DollarSign size={12} className="mr-1" />
+                          Add Fake $
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t border-border pt-4">
+                    <div className="text-xs text-muted-foreground font-mono uppercase mb-2">Current User Testing:</div>
                     
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xs font-mono">Current User Total:</span>
@@ -213,7 +296,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                     </div>
                     
                     <Button onClick={handleResetDonations} size="sm" variant="outline" className="brutalist-button w-full mt-2">
-                      Reset Donations
+                      Reset User Donations
                     </Button>
                   </div>
                   
@@ -225,6 +308,40 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                       <div className="text-blue-400">• BACKER ($100+) - Advanced features unlocked</div>
                       <div className="text-green-400">• DONOR ($10+) - Supporter badge + thanks</div>
                       <div className="text-muted-foreground">• USER ($0) - Basic features</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="site" className="space-y-4">
+              <Card className="bg-background/50 border-2 border-blue-600">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-blue-400 flex items-center gap-2 text-sm font-mono uppercase">
+                    <Globe size={16} />
+                    Website Configuration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-xs text-muted-foreground font-mono uppercase">Website Name:</label>
+                    <Input
+                      value={websiteName}
+                      onChange={(e) => setWebsiteName(e.target.value)}
+                      placeholder="Enter website name"
+                      className="font-mono text-xs"
+                    />
+                    <Button onClick={handleUpdateWebsiteName} className="brutalist-button bg-blue-600 hover:bg-blue-700">
+                      Update Website Name
+                    </Button>
+                  </div>
+                  
+                  <div className="bg-muted p-3 border-2 border-border">
+                    <div className="text-xs font-mono">
+                      <div className="font-bold mb-1">Current Configuration:</div>
+                      <div>• Name: {localStorage.getItem('websiteName') || 'Open Findash'}</div>
+                      <div>• Version: 1.0.0</div>
+                      <div>• Theme: {data.userProfile.theme || 'default'}</div>
                     </div>
                   </div>
                 </CardContent>
