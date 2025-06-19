@@ -5,7 +5,7 @@ import { useTranslation } from "@/contexts/TranslationContext";
 import { Github, Twitter, Coffee, Heart, ExternalLink } from 'lucide-react';
 
 export const Footer = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   return (
     <footer className="border-t-2 border-border bg-card/50 backdrop-blur-sm mt-auto">
@@ -103,7 +103,7 @@ export const Footer = () => {
               <span className="text-xs text-muted-foreground font-mono">All systems operational</span>
             </div>
             <div className="text-xs text-muted-foreground font-mono">
-              v2.0.0 - {t.language || 'en'}
+              v2.0.0 - {language || 'en'}
             </div>
           </div>
         </div>

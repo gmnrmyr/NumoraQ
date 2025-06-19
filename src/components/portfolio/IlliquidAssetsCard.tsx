@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import { Plus, Trash2, Building } from "lucide-react";
+import { Plus, Trash2, Gem, Info } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { EditableValue } from "@/components/ui/editable-value";
@@ -20,7 +20,7 @@ export const IlliquidAssetsCard = () => {
   const [newIlliquidAsset, setNewIlliquidAsset] = useState({
     name: '',
     value: 0,
-    icon: 'Building',
+    icon: 'Gem',
     color: 'text-foreground',
     isActive: true
   });
@@ -36,7 +36,7 @@ export const IlliquidAssetsCard = () => {
       setNewIlliquidAsset({
         name: '',
         value: 0,
-        icon: 'Building',
+        icon: 'Gem',
         color: 'text-foreground',
         isActive: true
       });
@@ -49,7 +49,7 @@ export const IlliquidAssetsCard = () => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-foreground flex items-center gap-2 font-mono uppercase">
-            <Building size={20} />
+            <Gem size={20} />
             {t.illiquidAssets || 'Illiquid Assets'}
           </CardTitle>
           <Dialog open={isAddingIlliquid} onOpenChange={setIsAddingIlliquid}>
@@ -64,7 +64,7 @@ export const IlliquidAssetsCard = () => {
               </DialogHeader>
               <div className="space-y-4">
                 <Input
-                  placeholder={t.description || "Asset name"}
+                  placeholder="Asset name (art, collectibles, etc.)"
                   value={newIlliquidAsset.name}
                   onChange={(e) => setNewIlliquidAsset({ ...newIlliquidAsset, name: e.target.value })}
                   className="bg-input border-border border-2 text-foreground font-mono"
@@ -96,8 +96,16 @@ export const IlliquidAssetsCard = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4 overflow-x-auto">
+        {/* Info Banner */}
+        <div className="flex items-start gap-2 p-2 bg-muted/50 border border-border rounded">
+          <Info size={14} className="text-muted-foreground mt-0.5 flex-shrink-0" />
+          <div className="text-xs text-muted-foreground font-mono">
+            For <strong>Real Estate</strong>, use the Assets tab. For <strong>Stocks</strong>, use advanced tracking in Liquid Assets.
+          </div>
+        </div>
+
         {data.illiquidAssets.map((asset) => {
-          const Icon = iconMap[asset.icon] || Building;
+          const Icon = iconMap[asset.icon] || Gem;
           const percentage = totalIlliquid > 0 ? (asset.value / totalIlliquid) * 100 : 0;
           
           return (
