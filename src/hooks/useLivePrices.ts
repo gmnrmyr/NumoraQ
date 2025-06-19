@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -63,7 +62,6 @@ export const useLivePrices = () => {
     }
   }, [updateExchangeRate]);
 
-  // Clear existing interval
   const clearExistingInterval = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -72,10 +70,11 @@ export const useLivePrices = () => {
     }
   }, []);
 
-  // Set up auto-fetch interval for authenticated users
   useEffect(() => {
-    if (!data.userProfile?.name) {
-      console.log('No authenticated user, clearing interval');
+    const isLiveEnabled = data.userProfile?.liveDataEnabled ?? true;
+    
+    if (!data.userProfile?.name || !isLiveEnabled) {
+      console.log('No authenticated user or live data disabled, clearing interval');
       clearExistingInterval();
       lastCurrencyRef.current = null;
       return;
@@ -90,7 +89,7 @@ export const useLivePrices = () => {
       fetchLivePrices(currentCurrency);
     } else if (!lastCurrencyRef.current) {
       // Initial setup
-      console.log('Setting up price fetch interval for authenticated user');
+      console.log('Setting up price fetch interval for authenticated user with live data enabled');
       clearExistingInterval();
       fetchLivePrices(currentCurrency);
     }
@@ -108,9 +107,8 @@ export const useLivePrices = () => {
     return () => {
       clearExistingInterval();
     };
-  }, [data.userProfile?.name, data.userProfile?.defaultCurrency, fetchLivePrices, clearExistingInterval]);
+  }, [data.userProfile?.name, data.userProfile?.defaultCurrency, data.userProfile?.liveDataEnabled, fetchLivePrices, clearExistingInterval]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       clearExistingInterval();
@@ -118,7 +116,6 @@ export const useLivePrices = () => {
     };
   }, [clearExistingInterval]);
 
-  // Calculate time since last update
   const getTimeSinceLastUpdate = useCallback(() => {
     if (!data.exchangeRates.lastUpdated) return null;
     
@@ -138,6 +135,6 @@ export const useLivePrices = () => {
     error,
     lastFetchTime,
     timeSinceLastUpdate: getTimeSinceLastUpdate(),
-    isLiveDataEnabled: !!data.userProfile?.name
+    isLiveDataEnabled: !!(data.userProfile?.name && (data.userProfile?.liveDataEnabled ?? true))
   };
 };

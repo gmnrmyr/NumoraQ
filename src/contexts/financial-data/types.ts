@@ -29,9 +29,9 @@ export interface FinancialData {
 
 export interface UserProfile {
   name: string;
-  defaultCurrency: 'BRL' | 'USD' | 'EUR';
-  language: 'en' | 'pt' | 'es';
-  avatarIcon?: string;
+  defaultCurrency: 'USD' | 'BRL' | 'EUR';
+  language: 'en' | 'pt' | 'es' | 'fr' | 'de';
+  liveDataEnabled?: boolean;
 }
 
 export type IncomeStatus = 'active' | 'inactive';
