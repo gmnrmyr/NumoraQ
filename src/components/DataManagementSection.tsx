@@ -127,8 +127,9 @@ export const DataManagementSection = () => {
           </CardTitle>
           <Badge variant="outline" className="font-mono text-xs">
             {syncState === 'idle' ? '✓ Synced' : 
-             syncState === 'syncing' ? '⟳ Syncing...' : 
-             syncState === 'error' ? '✗ Error' : '⟳ Loading...'}
+             syncState === 'loading' ? '⟳ Loading...' : 
+             syncState === 'saving' ? '⟳ Saving...' : 
+             syncState === 'error' ? '✗ Error' : '⟳ Processing...'}
           </Badge>
         </div>
         {lastSync && (
@@ -145,7 +146,7 @@ export const DataManagementSection = () => {
             <div className="flex gap-2 flex-wrap">
               <Button
                 onClick={() => saveToCloud()}
-                disabled={syncState === 'syncing'}
+                disabled={syncState === 'saving' || syncState === 'loading'}
                 size="sm"
                 className="brutalist-button text-xs"
               >
@@ -154,7 +155,7 @@ export const DataManagementSection = () => {
               </Button>
               <Button
                 onClick={() => loadFromCloud()}
-                disabled={syncState === 'syncing'}
+                disabled={syncState === 'saving' || syncState === 'loading'}
                 size="sm"
                 variant="outline"
                 className="brutalist-button text-xs"

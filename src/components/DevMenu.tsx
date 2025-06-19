@@ -11,7 +11,15 @@ export const DevMenu = () => {
   const { updateUserProfile, exportToCSV, resetData } = useFinancialData();
 
   const handleColorChange = (theme: string) => {
-    document.documentElement.className = theme;
+    // Remove all theme classes first
+    document.documentElement.classList.remove('dark', 'dual-tone', 'monochrome', 'warm', 'ultra-contrast');
+    
+    // Add the new theme class
+    if (theme !== 'dark') {
+      document.documentElement.classList.add(theme);
+    }
+    
+    // Store the theme preference
     localStorage.setItem('theme', theme);
   };
 
@@ -87,7 +95,7 @@ export const DevMenu = () => {
               <Palette size={12} />
               Themes
             </h4>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 onClick={() => handleColorChange('dark')}
                 size="sm"
@@ -100,7 +108,7 @@ export const DevMenu = () => {
                 onClick={() => handleColorChange('dual-tone')}
                 size="sm"
                 variant="outline"
-                className="text-xs font-mono bg-gradient-to-r from-green-400 to-black text-white"
+                className="text-xs font-mono bg-gradient-to-r from-green-400 to-purple-600 text-white"
               >
                 Dual Tone
               </Button>
@@ -111,6 +119,22 @@ export const DevMenu = () => {
                 className="text-xs font-mono bg-gray-800 text-gray-100 hover:bg-gray-700"
               >
                 Monochrome
+              </Button>
+              <Button
+                onClick={() => handleColorChange('warm')}
+                size="sm"
+                variant="outline"
+                className="text-xs font-mono bg-gradient-to-r from-orange-600 to-red-600 text-white"
+              >
+                Warm
+              </Button>
+              <Button
+                onClick={() => handleColorChange('ultra-contrast')}
+                size="sm"
+                variant="outline"
+                className="text-xs font-mono bg-black text-white border-white hover:bg-white hover:text-black"
+              >
+                Ultra Contrast
               </Button>
             </div>
           </div>
