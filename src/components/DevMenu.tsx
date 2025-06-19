@@ -1,219 +1,154 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Settings, Palette, Zap, Crown, Lock } from "lucide-react";
-import { useFinancialData } from "@/contexts/FinancialDataContext";
-import { useAdminMode } from '@/hooks/useAdminMode';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Settings, Key, X } from "lucide-react";
+import { useAdminMode } from "@/hooks/useAdminMode";
 import { toast } from "@/hooks/use-toast";
 
 export const DevMenu = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { data, updateUserProfile } = useFinancialData();
-  const { activateDegenCode } = useAdminMode();
+  const [isVisible, setIsVisible] = useState(false);
+  const [showDegenDialog, setShowDegenDialog] = useState(false);
   const [degenCode, setDegenCode] = useState('');
+  
+  const { 
+    isAdminMode, 
+    activateDegenCode, 
+    setShowAdminPanel,
+    isDegenMode,
+    getDegenTimeRemaining 
+  } = useAdminMode();
 
-  const applyTheme = (theme: string) => {
-    const root = document.documentElement;
-    
-    // Reset all themes first
-    root.classList.remove('theme-neon', 'theme-monochrome', 'theme-dual-tone', 'theme-high-contrast', 'theme-cyberpunk', 'theme-matrix', 'theme-gold');
-    
-    switch (theme) {
-      case 'neon':
-        root.classList.add('theme-neon');
-        break;
-      case 'monochrome':
-        root.classList.add('theme-monochrome');
-        break;
-      case 'dual-tone':
-        root.classList.add('theme-dual-tone');
-        break;
-      case 'high-contrast':
-        root.classList.add('theme-high-contrast');
-        break;
-      case 'cyberpunk':
-        root.classList.add('theme-cyberpunk');
-        break;
-      case 'matrix':
-        root.classList.add('theme-matrix');
-        break;
-      case 'gold':
-        root.classList.add('theme-gold');
-        break;
-      default:
-        // Keep default theme
-        break;
-    }
-    
-    // Save theme preference
-    updateUserProfile({ theme });
-    localStorage.setItem('selectedTheme', theme);
-    
-    toast({
-      title: "Theme Applied",
-      description: `${theme.charAt(0).toUpperCase() + theme.slice(1)} theme activated.`
-    });
-  };
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Ctrl + Shift + D for dev menu
+      if (event.ctrlKey && event.shiftKey && event.key === 'D') {
+        event.preventDefault();
+        setIsVisible(!isVisible);
+      }
+      
+      // Ctrl + Shift + E for CMS/Admin panel
+      if (event.ctrlKey && event.shiftKey && event.key === 'E') {
+        event.preventDefault();
+        setShowAdminPanel(true);
+      }
+      
+      // Ctrl + Shift + G for degen code activation
+      if (event.ctrlKey && event.shiftKey && event.key === 'G') {
+        event.preventDefault();
+        setShowDegenDialog(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isVisible, setShowAdminPanel]);
 
   const handleActivateDegenCode = () => {
-    if (activateDegenCode(degenCode, data.userProfile.name)) {
-      toast({
-        title: "Degen Mode Activated!",
-        description: "You now have access to premium features."
-      });
-      setDegenCode('');
-    } else {
-      toast({
-        title: "Invalid Code",
-        description: "The code you entered is invalid or already used.",
-        variant: "destructive"
-      });
+    if (degenCode.trim()) {
+      const success = activateDegenCode(degenCode.trim());
+      if (success) {
+        toast({
+          title: "Degen Mode Activated!",
+          description: "You now have premium access to all features."
+        });
+        setShowDegenDialog(false);
+        setDegenCode('');
+      } else {
+        toast({
+          title: "Invalid Code",
+          description: "The degen code is invalid or has expired.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
-  const getDonationAmount = () => data.userProfile.totalDonated || 0;
-  const isThemeLocked = (requiredAmount: number) => getDonationAmount() < requiredAmount;
-
-  const ThemeButton = ({ theme, label, requiredAmount = 0, icon: Icon = Palette }: { 
-    theme: string; 
-    label: string; 
-    requiredAmount?: number;
-    icon?: any;
-  }) => {
-    const locked = isThemeLocked(requiredAmount);
-    
-    return (
-      <Button
-        onClick={() => locked ? null : applyTheme(theme)}
-        disabled={locked}
-        className={`brutalist-button text-xs h-8 ${locked ? 'opacity-50 cursor-not-allowed' : ''}`}
-        variant="outline"
-      >
-        <Icon size={12} className="mr-1" />
-        {label}
-        {locked && <Lock size={10} className="ml-1" />}
-      </Button>
-    );
-  };
+  if (!isVisible && !isAdminMode && !isDegenMode) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="fixed bottom-4 left-4 z-50 brutalist-button bg-card border-2 border-border"
-        >
-          <Settings size={16} className="mr-1" />
-          DEV
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="bg-card border-2 border-border max-w-md">
-        <DialogHeader>
-          <DialogTitle className="font-mono uppercase flex items-center gap-2">
-            <Settings size={16} />
-            Developer Menu
-          </DialogTitle>
-        </DialogHeader>
-
-        <Tabs defaultValue="themes" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="themes">Themes</TabsTrigger>
-            <TabsTrigger value="degen">Degen Mode</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="themes" className="space-y-4">
-            <div className="text-sm text-muted-foreground font-mono">
-              Customize your dashboard appearance:
+    <>
+      {/* Dev Menu Toggle */}
+      <div className="fixed bottom-4 right-4 z-40">
+        <div className="flex flex-col gap-2">
+          {/* Degen Status */}
+          {isDegenMode && (
+            <div className="bg-yellow-500 text-black px-3 py-1 text-xs font-mono font-bold border-2 border-black brutalist-card">
+              DEGEN MODE: {getDegenTimeRemaining()}
             </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-              <ThemeButton theme="default" label="Default" />
-              <ThemeButton theme="neon" label="Neon" />
-              <ThemeButton theme="monochrome" label="Monochrome" />
-              <ThemeButton theme="dual-tone" label="Dual Tone" />
-              <ThemeButton theme="high-contrast" label="High Contrast" />
-              <ThemeButton 
-                theme="cyberpunk" 
-                label="Cyberpunk" 
-                requiredAmount={100}
-                icon={Crown}
-              />
-              <ThemeButton 
-                theme="matrix" 
-                label="Matrix" 
-                requiredAmount={500}
-                icon={Crown}
-              />
-              <ThemeButton 
-                theme="gold" 
-                label="Gold Rush" 
-                requiredAmount={1000}
-                icon={Crown}
-              />
+          )}
+          
+          {/* Admin Status */}
+          {isAdminMode && (
+            <div className="bg-red-500 text-white px-3 py-1 text-xs font-mono font-bold border-2 border-black brutalist-card">
+              ADMIN MODE ACTIVE
             </div>
-            
-            <div className="bg-muted p-3 border-2 border-border">
-              <div className="text-xs font-mono">
-                <div className="flex items-center gap-2 mb-1">
-                  <Crown size={12} className="text-yellow-400" />
-                  <span className="font-bold">Premium Themes</span>
-                </div>
-                <div>• Cyberpunk ($100+ donated)</div>
-                <div>• Matrix ($500+ donated)</div>
-                <div>• Gold Rush ($1000+ donated)</div>
+          )}
+          
+          {/* Dev Menu Button */}
+          {isVisible && (
+            <div className="bg-card border-2 border-border p-3 space-y-2 brutalist-card">
+              <div className="text-xs font-mono text-muted-foreground">
+                Dev Menu (Ctrl+Shift+D)
               </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="degen" className="space-y-4">
-            <div className="text-sm text-muted-foreground font-mono">
-              Activate premium features:
-            </div>
-            
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Enter degen code"
-                value={degenCode}
-                onChange={(e) => setDegenCode(e.target.value)}
-                className="w-full p-2 bg-input border-2 border-border font-mono text-sm"
-              />
-              
-              <Button 
-                onClick={handleActivateDegenCode}
-                className="w-full brutalist-button"
-                disabled={!degenCode.trim()}
+              <div className="space-y-1 text-xs font-mono">
+                <div>• Ctrl+Shift+E: CMS/Admin Panel</div>
+                <div>• Ctrl+Shift+G: Degen Code</div>
+                <div>• Ctrl+Shift+D: Toggle Dev Menu</div>
+              </div>
+              <Button
+                onClick={() => setShowDegenDialog(true)}
+                size="sm"
+                className="w-full brutalist-button text-xs"
               >
-                <Zap size={16} className="mr-2" />
+                <Key size={12} className="mr-1" />
+                Enter Degen Code
+              </Button>
+              <Button
+                onClick={() => setShowAdminPanel(true)}
+                size="sm"
+                className="w-full brutalist-button text-xs"
+              >
+                <Settings size={12} className="mr-1" />
+                CMS/Admin Panel
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Degen Code Dialog */}
+      <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
+        <DialogContent className="bg-card border-2 border-border max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-mono uppercase flex items-center gap-2">
+              <Key size={16} />
+              Activate Degen Code
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-sm text-muted-foreground font-mono">
+              Enter your premium access code to unlock advanced features:
+            </div>
+            <Input
+              placeholder="Enter degen code..."
+              value={degenCode}
+              onChange={(e) => setDegenCode(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === 'Enter' && handleActivateDegenCode()}
+              className="font-mono brutalist-input"
+            />
+            <div className="flex gap-2">
+              <Button onClick={handleActivateDegenCode} className="brutalist-button flex-1">
                 Activate Code
               </Button>
-              
-              <div className="text-center text-xs text-muted-foreground font-mono">
-                OR
-              </div>
-              
-              <div className="space-y-2">
-                <Button 
-                  onClick={() => toast({ title: "Coming Soon", description: "Crypto payment integration in development." })}
-                  className="w-full brutalist-button bg-orange-600 hover:bg-orange-700"
-                >
-                  Pay with Crypto
-                </Button>
-                
-                <Button 
-                  onClick={() => toast({ title: "Coming Soon", description: "PayPal integration in development." })}
-                  className="w-full brutalist-button bg-blue-600 hover:bg-blue-700"
-                >
-                  Pay with PayPal
-                </Button>
-              </div>
+              <Button onClick={() => setShowDegenDialog(false)} variant="outline" className="brutalist-button">
+                <X size={16} />
+              </Button>
             </div>
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
