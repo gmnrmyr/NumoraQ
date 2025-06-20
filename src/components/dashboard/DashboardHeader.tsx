@@ -8,16 +8,6 @@ import { useUserTitle } from '@/hooks/useUserTitle';
 import { useAnimationToggle } from '@/hooks/useAnimationToggle';
 import { Button } from '@/components/ui/button';
 
-// Properly type the UnicornStudio global
-declare global {
-  interface Window {
-    UnicornStudio?: {
-      isInitialized: boolean;
-      init: () => void;
-    };
-  }
-}
-
 export const DashboardHeader = () => {
   const { t } = useTranslation();
   const { data } = useFinancialData();
@@ -34,22 +24,31 @@ export const DashboardHeader = () => {
   // Load UnicornStudio animation for CHAMPION users with Black Hole theme
   React.useEffect(() => {
     if (isChampionUser && isBlackHoleTheme && isAnimationEnabled && !animationPaused) {
-      // Load UnicornStudio script if not already loaded
-      if (!window.UnicornStudio) {
-        window.UnicornStudio = { 
-          isInitialized: false,
-          init: () => {}
-        };
+      // Only load if not already loaded
+      if (!document.querySelector('script[src*="unicornstudio"]')) {
         const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
-        script.onload = function() {
-          if (window.UnicornStudio && !window.UnicornStudio.isInitialized) {
-            window.UnicornStudio.init();
-            window.UnicornStudio.isInitialized = true;
-          }
-        };
-        (document.head || document.body).appendChild(script);
-      } else if (!window.UnicornStudio.isInitialized) {
+        script.type = "text/javascript";
+        script.innerHTML = `
+          !function(){
+            if(!window.UnicornStudio){
+              window.UnicornStudio={isInitialized:!1};
+              var i=document.createElement("script");
+              i.src="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
+              i.onload=function(){
+                if(!window.UnicornStudio.isInitialized){
+                  UnicornStudio.init();
+                  window.UnicornStudio.isInitialized=!0;
+                }
+              };
+              (document.head || document.body).appendChild(i);
+            } else if (!window.UnicornStudio.isInitialized) {
+              UnicornStudio.init();
+              window.UnicornStudio.isInitialized=!0;
+            }
+          }();
+        `;
+        document.head.appendChild(script);
+      } else if (window.UnicornStudio && !window.UnicornStudio.isInitialized) {
         window.UnicornStudio.init();
         window.UnicornStudio.isInitialized = true;
       }
@@ -60,16 +59,17 @@ export const DashboardHeader = () => {
     <div className="relative">
       {/* UnicornStudio Animation Background for CHAMPION users with Black Hole theme */}
       {isChampionUser && isBlackHoleTheme && isAnimationEnabled && !animationPaused && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
           <div 
             data-us-project="db3DaP9gWVnnnr7ZevK7" 
             style={{ 
-              width: '150%', 
-              height: '150%', 
-              position: 'absolute', 
-              top: '-25%', 
-              left: '-25%',
-              transform: 'scale(1.5)'
+              width: '2000px', 
+              height: '900px',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%) scale(1.2)',
+              transformOrigin: 'center center'
             }}
           />
         </div>

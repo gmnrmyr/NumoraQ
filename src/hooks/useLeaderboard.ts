@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -85,7 +86,7 @@ export const useLeaderboard = () => {
         userPointsMap.set(userId, existing);
       });
 
-      // Get user profiles for names and UIDs
+      // Get user profiles for names and UIDs - use name from profiles as primary source
       const userIds = Array.from(userPointsMap.keys());
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
@@ -100,8 +101,8 @@ export const useLeaderboard = () => {
       userPointsMap.forEach((stats, userId) => {
         const profile = profilesData?.find(p => p.id === userId);
         
-        // Use the actual name from profiles (this is the nickname from USER_INFO_CONFIG_UI)
-        let displayName = 'User';
+        // Use the name from profiles (this comes from USER_INFO_CONFIG_UI)
+        let displayName = 'Anonymous User';
         if (profile?.name && profile.name.trim()) {
           displayName = profile.name.trim();
         }
@@ -215,12 +216,12 @@ export const useLeaderboard = () => {
         return false;
       }
 
-      // Award points
+      // Award 1 point instead of 10
       const { error } = await supabase
         .from('user_points')
         .insert({
           user_id: user.user.id,
-          points: 10,
+          points: 1,
           activity_type: 'daily_login',
           activity_date: today
         });
@@ -229,7 +230,7 @@ export const useLeaderboard = () => {
 
       toast({
         title: "Daily Login Bonus!",
-        description: "You earned 10 points for logging in today!"
+        description: "You earned 1 point for logging in today!"
       });
 
       // Refresh data

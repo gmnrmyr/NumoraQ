@@ -26,7 +26,7 @@ export const DailyLoginButton = () => {
       ) : (
         <Gift size={16} className="mr-2" />
       )}
-      {claiming ? 'Claiming...' : 'Daily +10'}
+      {claiming ? 'Claiming...' : 'Daily +1'}
     </Button>
   );
 };

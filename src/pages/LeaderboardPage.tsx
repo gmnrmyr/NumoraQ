@@ -132,7 +132,7 @@ const LeaderboardPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="text-xs text-muted-foreground font-mono">
-                    • Daily Login: +10 pts<br/>
+                    • Daily Login: +1 pt<br/>
                     • Weekly Streak: +50 pts<br/>
                     • Monthly Streak: +200 pts
                   </div>
