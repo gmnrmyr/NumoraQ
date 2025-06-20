@@ -112,11 +112,17 @@ export const useLeaderboard = () => {
         const profile = profilesData?.find(p => p.id === userId);
         const isPremium = premiumData?.some(p => p.user_id === userId) || false;
         
-        // Use the name from profiles table or fallback to "Anonymous User"
-        let displayName = profile?.name?.trim() || 'Anonymous User';
+        // Use the actual name from profiles table, with fallback
+        let displayName = 'Anonymous User';
+        if (profile?.name && profile.name.trim() !== '') {
+          displayName = profile.name.trim();
+        }
         
-        // Use the UID from profiles table, with fallback
-        let userUID = profile?.user_uid || 'USER';
+        // Use the actual UID from profiles table, with fallback
+        let userUID = 'USER';
+        if (profile?.user_uid && profile.user_uid.trim() !== '') {
+          userUID = profile.user_uid.trim();
+        }
         
         leaderboardEntries.push({
           user_id: userId,
