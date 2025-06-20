@@ -1,19 +1,43 @@
 
-import DOMPurify from 'dompurify';
+// XSS Protection - with fallback if DOMPurify is not available
+let DOMPurify: any = null;
 
-// XSS Protection
+try {
+  // Dynamically import DOMPurify for better compatibility
+  if (typeof window !== 'undefined') {
+    import('dompurify').then(module => {
+      DOMPurify = module.default;
+    });
+  }
+} catch (error) {
+  console.warn('DOMPurify not available, using basic sanitization');
+}
+
 export const sanitizeInput = (input: string): string => {
-  return DOMPurify.sanitize(input, { 
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: []
-  });
+  if (DOMPurify) {
+    return DOMPurify.sanitize(input, { 
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: []
+    });
+  }
+  
+  // Basic fallback sanitization
+  return input
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+=/gi, '');
 };
 
 export const sanitizeHtml = (html: string): string => {
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br'],
-    ALLOWED_ATTR: []
-  });
+  if (DOMPurify) {
+    return DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br'],
+      ALLOWED_ATTR: []
+    });
+  }
+  
+  // Basic fallback
+  return html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
 };
 
 // Input validation

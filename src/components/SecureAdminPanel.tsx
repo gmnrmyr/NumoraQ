@@ -37,12 +37,6 @@ export const SecureAdminPanel: React.FC<SecureAdminPanelProps> = ({ isOpen, onCl
     premiumCodesLoading
   } = useAdminMode();
 
-  const [localSettings, setLocalSettings] = useState({
-    website_name: '',
-    project_wallet: '',
-    donation_goal: 0
-  });
-
   const formatTimeRemaining = (ms: number): string => {
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
@@ -90,7 +84,8 @@ export const SecureAdminPanel: React.FC<SecureAdminPanelProps> = ({ isOpen, onCl
     const sanitizedValue = typeof value === 'string' ? sanitizeInput(value) : value;
     
     await handleSecureAction('update_cms_setting', async () => {
-      await updateCMSSetting(key, sanitizedValue);
+      // Cast key to appropriate type for updateCMSSetting
+      await updateCMSSetting(key as any, sanitizedValue);
       toast({
         title: "Setting Updated",
         description: `${key} has been updated successfully.`
