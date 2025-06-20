@@ -97,7 +97,8 @@ const LandingPage = () => {
     title: "Lightning Fast",
     description: "Built for speed with modern web technologies. No lag, just pure performance."
   }];
-  return <>
+  return (
+    <>
       {/* SEO Meta Tags */}
       <title>OPEN FINDASH | Free Financial Dashboard & Crypto Portfolio Tracker</title>
       <meta name="description" content="Free, open-source financial dashboard for tracking crypto, assets, income & expenses. Privacy-first with optional cloud sync. Start building wealth today!" />
@@ -150,33 +151,55 @@ const LandingPage = () => {
 
         {/* Hero Section - Added top padding for fixed navbar */}
         <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-          {/* Improved Animation Toggle for Mobile/Tablet */}
-          {showToggle && <div className="fixed top-20 right-4 z-40">
-              <Button onClick={toggleAnimation} variant="outline" size="sm" className="bg-card/80 backdrop-blur-sm border-accent/50 hover:bg-accent/10 px-3 py-2" title={isAnimationEnabled ? 'Pause Animation' : 'Play Animation'}>
+          {/* Animation Toggle for All Devices with Tooltip */}
+          {showToggle && (
+            <div className="fixed top-20 right-4 z-40">
+              <Button 
+                onClick={toggleAnimation} 
+                variant="outline" 
+                size="sm" 
+                className="bg-card/80 backdrop-blur-sm border-accent/50 hover:bg-accent/10 px-3 py-2 group relative" 
+                title={isAnimationEnabled ? 'Pause Animation' : 'Play Animation (Heavy GPU)'}
+              >
                 {isAnimationEnabled ? <Pause size={16} /> : <Play size={16} />}
+                {/* Tooltip on hover */}
+                <div className="absolute bottom-full right-0 mb-2 px-2 py-1 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                  {isAnimationEnabled ? 'Pause Animation' : 'Play Anim (Heavy GPU)'}
+                </div>
               </Button>
-            </div>}
+            </div>
+          )}
 
           {/* Enhanced Unicorn Studio Background with improved mobile handling */}
-          {isAnimationEnabled && <div className="absolute inset-0 -mx-8 -mt-8 overflow-hidden z-0" style={{
-          background: 'linear-gradient(to bottom, transparent 0%, transparent 80%, rgba(var(--background)) 100%)'
-        }}>
+          {isAnimationEnabled && (
+            <div className="absolute inset-0 -mx-8 -mt-8 overflow-hidden z-0" style={{
+              background: 'linear-gradient(to bottom, transparent 0%, transparent 80%, rgba(var(--background)) 100%)'
+            }}>
               {/* Desktop Animation */}
-              <div data-us-project="PZSV1Zb8lHQjhdLRBsQN" className="hidden lg:block w-full h-full min-w-[120vw] min-h-[120vh] -ml-[10vw] -mt-[10vh]" style={{
-            width: 'max(1440px, 120vw)',
-            height: 'max(900px, 120vh)',
-            transform: 'scale(1.1)'
-          }} key={`desktop-${animationInitRef.current}`} // Force re-render when animation resets
-          />
+              <div 
+                data-us-project="PZSV1Zb8lHQjhdLRBsQN" 
+                className="hidden lg:block w-full h-full min-w-[120vw] min-h-[120vh] -ml-[10vw] -mt-[10vh]" 
+                style={{
+                  width: 'max(1440px, 120vw)',
+                  height: 'max(900px, 120vh)',
+                  transform: 'scale(1.1)'
+                }} 
+                key={`desktop-${animationInitRef.current}`}
+              />
               
-              {/* Mobile & Tablet Animation - Enhanced for better triggering */}
-              <div data-us-project="Jmp7i20rUQsDyxKJ0OWM" className="lg:hidden w-full h-full min-w-[120vw] min-h-[120vh] -ml-[10vw] -mt-[10vh]" style={{
-            width: 'max(768px, 120vw)',
-            height: 'max(1024px, 120vh)',
-            transform: 'scale(1.1)'
-          }} key={`mobile-${animationInitRef.current}`} // Force re-render when animation resets
-          />
-            </div>}
+              {/* Mobile & Tablet Animation */}
+              <div 
+                data-us-project="Jmp7i20rUQsDyxKJ0OWM" 
+                className="lg:hidden w-full h-full min-w-[120vw] min-h-[120vh] -ml-[10vw] -mt-[10vh]" 
+                style={{
+                  width: 'max(768px, 120vw)',
+                  height: 'max(1024px, 120vh)',
+                  transform: 'scale(1.1)'
+                }} 
+                key={`mobile-${animationInitRef.current}`}
+              />
+            </div>
+          )}
           
           <div className="max-w-7xl mx-auto text-center relative z-10">
             <Badge variant="outline" className="mb-6 text-accent border-accent font-mono bg-background/80 backdrop-blur-sm">
@@ -297,6 +320,8 @@ const LandingPage = () => {
           </div>
         </footer>
       </div>
-    </>;
+    </>
+  );
 };
+
 export default LandingPage;

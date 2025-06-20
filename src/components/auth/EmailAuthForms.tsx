@@ -29,8 +29,8 @@ export const EmailAuthForms = ({ onSignIn, onSignUp, loading }: EmailAuthFormsPr
   return (
     <Tabs defaultValue="signin" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="signin">Sign In</TabsTrigger>
-        <TabsTrigger value="signup">Sign Up</TabsTrigger>
+        <TabsTrigger value="signin">Login</TabsTrigger>
+        <TabsTrigger value="signup">Register</TabsTrigger>
       </TabsList>
       
       <TabsContent value="signin">
@@ -58,7 +58,7 @@ export const EmailAuthForms = ({ onSignIn, onSignUp, loading }: EmailAuthFormsPr
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             <Mail className="w-4 h-4 mr-2" />
-            {loading ? 'Signing In...' : 'Sign In'}
+            {loading ? 'Logging In...' : 'Login'}
           </Button>
         </form>
       </TabsContent>
@@ -90,7 +90,7 @@ export const EmailAuthForms = ({ onSignIn, onSignUp, loading }: EmailAuthFormsPr
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             <Lock className="w-4 h-4 mr-2" />
-            {loading ? 'Creating Account...' : 'Create Account'}
+            {loading ? 'Creating Account...' : 'Register'}
           </Button>
         </form>
       </TabsContent>
