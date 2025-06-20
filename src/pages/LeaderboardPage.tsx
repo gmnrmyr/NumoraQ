@@ -35,10 +35,10 @@ const LeaderboardPage = () => {
   };
 
   const handleInviteFriends = () => {
-    navigator.clipboard.writeText('openfindash.com');
+    navigator.clipboard.writeText('https://openfindash.com');
     toast({
       title: "Link Copied!",
-      description: "openfindash.com has been copied to your clipboard",
+      description: "OpenFindash.com has been copied to your clipboard",
     });
   };
 
@@ -216,12 +216,7 @@ const LeaderboardPage = () => {
                                 )}
                                 {entry.is_premium && (
                                   <Badge variant="default" className="text-xs px-2 py-0 h-4 bg-yellow-500 text-black">
-                                    DEGEN
-                                  </Badge>
-                                )}
-                                {entry.user_title && !entry.is_premium && (
-                                  <Badge variant="outline" className="text-xs px-2 py-0 h-4">
-                                    {entry.user_title}
+                                    PREMIUM
                                   </Badge>
                                 )}
                               </div>
