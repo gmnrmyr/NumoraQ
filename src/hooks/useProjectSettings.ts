@@ -48,16 +48,22 @@ export const useProjectSettings = () => {
     try {
       const { data, error } = await supabase
         .from('cms_settings')
-        .select('*')
-        .single();
+        .select('*');
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading project settings:', error);
         return;
       }
 
-      if (data) {
-        setSettings(prev => ({ ...prev, ...data }));
+      if (data && data.length > 0) {
+        const settingsMap: Partial<ProjectSettings> = {};
+        data.forEach(row => {
+          const key = row.setting_key as keyof ProjectSettings;
+          if (key in settings) {
+            settingsMap[key] = row.setting_value as string;
+          }
+        });
+        setSettings(prev => ({ ...prev, ...settingsMap }));
       }
     } catch (error) {
       console.error('Error loading project settings:', error);
@@ -72,8 +78,10 @@ export const useProjectSettings = () => {
     try {
       const { error } = await supabase
         .from('cms_settings')
-        .upsert({ [key]: value })
-        .single();
+        .upsert({
+          setting_key: key,
+          setting_value: value
+        });
 
       if (error) {
         console.error('Error updating setting:', error);
@@ -90,10 +98,14 @@ export const useProjectSettings = () => {
     if (!user) return;
 
     try {
+      const settingsToUpsert = Object.entries(updates).map(([key, value]) => ({
+        setting_key: key,
+        setting_value: value
+      }));
+
       const { error } = await supabase
         .from('cms_settings')
-        .upsert(updates)
-        .single();
+        .upsert(settingsToUpsert);
 
       if (error) {
         console.error('Error updating settings:', error);
