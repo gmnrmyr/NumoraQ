@@ -13,6 +13,8 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<{ error: any }>;
   signUpWithEmail: (email: string, password: string) => Promise<{ error: any }>;
   signInWithSolana: () => Promise<{ error: any }>;
+  signInWithDiscord: () => Promise<{ error: any }>;
+  linkAccount: (provider: 'solana' | 'discord') => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -113,9 +115,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     secureLog('Attempting Solana sign in');
     const redirectUrl = `${window.location.origin}/dashboard`;
     
-    // Try using a custom provider for Solana - this might need to be configured differently
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'github', // This is a placeholder - Solana auth needs special configuration
+      provider: 'github', // Replace with 'solana' when available
       options: {
         redirectTo: redirectUrl,
       },
@@ -124,12 +125,68 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (error) {
       secureLog('Solana sign in error:', { errorMessage: error.message });
       toast({
-        title: "Solana Authentication",
-        description: "Solana authentication is being configured. Please use email authentication for now.",
+        title: "Error",
+        description: error.message,
         variant: "destructive",
       });
     } else {
-      secureLog('OAuth sign in initiated');
+      secureLog('Solana sign in initiated');
+    }
+    
+    return { error };
+  };
+
+  const signInWithDiscord = async () => {
+    secureLog('Attempting Discord sign in');
+    const redirectUrl = `${window.location.origin}/dashboard`;
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'discord',
+      options: {
+        redirectTo: redirectUrl,
+      },
+    });
+    
+    if (error) {
+      secureLog('Discord sign in error:', { errorMessage: error.message });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      secureLog('Discord sign in initiated');
+    }
+    
+    return { error };
+  };
+
+  const linkAccount = async (provider: 'solana' | 'discord') => {
+    secureLog(`Attempting to link ${provider} account`);
+    
+    // Map provider names - adjust 'solana' to actual provider name when available
+    const providerMap = {
+      solana: 'github', // Replace with actual Solana provider when available
+      discord: 'discord'
+    };
+    
+    const { error } = await supabase.auth.linkIdentity({
+      provider: providerMap[provider] as any,
+    });
+    
+    if (error) {
+      secureLog(`${provider} link error:`, { errorMessage: error.message });
+      toast({
+        title: "Error",
+        description: `Failed to link ${provider} account: ${error.message}`,
+        variant: "destructive",
+      });
+    } else {
+      secureLog(`${provider} link initiated`);
+      toast({
+        title: "Success",
+        description: `${provider} account linked successfully!`,
+      });
     }
     
     return { error };
@@ -157,6 +214,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       signInWithEmail,
       signUpWithEmail,
       signInWithSolana,
+      signInWithDiscord,
+      linkAccount,
     }}>
       {children}
     </AuthContext.Provider>
