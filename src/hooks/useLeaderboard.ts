@@ -90,7 +90,7 @@ export const useLeaderboard = () => {
       const userIds = Array.from(userPointsMap.keys());
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, name')
+        .select('id, name, user_uid')
         .in('id', userIds);
 
       if (profilesError) throw profilesError;
@@ -100,13 +100,11 @@ export const useLeaderboard = () => {
       
       userPointsMap.forEach((stats, userId) => {
         const profile = profilesData?.find(p => p.id === userId);
-        // Generate a readable UID from the user ID (first 8 characters)
-        const userUID = userId.substring(0, 8).toUpperCase();
         
         leaderboardEntries.push({
           user_id: userId,
-          user_name: profile?.name || `User-${userUID}`,
-          user_uid: userUID,
+          user_name: profile?.name || 'Anonymous User',
+          user_uid: profile?.user_uid || 'UNKNOWN',
           total_points: stats.total_points,
           rank: 0, // Will be calculated after sorting
           donation_count: stats.donation_count,
