@@ -4,6 +4,7 @@ import { Skull, Bot, Zap } from 'lucide-react';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { UserTitleBadge } from './UserTitleBadge';
+import { PremiumStatusIndicator } from './PremiumStatusIndicator';
 
 export const DashboardHeader = () => {
   const { t } = useTranslation();
@@ -32,7 +33,10 @@ export const DashboardHeader = () => {
         {data.userProfile.name && (
           <div className="flex items-center justify-center gap-2 text-lg font-mono flex-wrap">
             <span className="text-accent">Welcome back, {data.userProfile.name}</span>
-            <UserTitleBadge />
+            <div className="flex items-center gap-2">
+              <UserTitleBadge />
+              <PremiumStatusIndicator />
+            </div>
           </div>
         )}
         <p className="text-muted-foreground text-sm sm:text-base font-mono uppercase tracking-wider px-4">

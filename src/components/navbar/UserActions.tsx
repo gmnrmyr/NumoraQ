@@ -1,15 +1,14 @@
 
 import React from 'react';
-import { DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { UserPlus, Trash2, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useTranslation } from '@/contexts/TranslationContext';
+import { UserSettingsPanel } from './UserSettingsPanel';
 
 export const UserActions: React.FC = () => {
-  const { user, signOut } = useAuth();
-  const { importFromJSON, resetData } = useFinancialData();
-  const { language, t } = useTranslation();
+  const { user } = useAuth();
+  const { importFromJSON } = useFinancialData();
+  const { language } = useTranslation();
 
   const createNewUser = (currency: 'BRL' | 'USD') => {
     const userEmail = user?.email || '';
@@ -71,9 +70,7 @@ export const UserActions: React.FC = () => {
     importFromJSON(templateJson);
   };
 
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm font-mono">{user?.email}</span>
-    </div>
-  );
+  if (!user) return null;
+
+  return <UserSettingsPanel />;
 };
