@@ -27,15 +27,27 @@ export const useAuth = () => {
   return context;
 };
 
-// Helper function to get the correct redirect URL
+// Helper function to get the correct redirect URL based on environment
 const getRedirectUrl = () => {
-  // In production, use the actual domain
-  if (window.location.hostname !== 'localhost') {
-    return window.location.origin;
-  }
+  // Check if we're in development vs production
+  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   
-  // For development, still use the actual origin but ensure it's not localhost in emails
-  return window.location.origin;
+  if (isDevelopment) {
+    // In development, use the actual local URL
+    return window.location.origin;
+  } else {
+    // In production, always use the production domain
+    // Check if we're on a Lovable preview domain or custom domain
+    const hostname = window.location.hostname;
+    
+    if (hostname.includes('lovable.app')) {
+      // Use the current Lovable preview URL
+      return window.location.origin;
+    } else {
+      // For custom domains, use the current origin
+      return window.location.origin;
+    }
+  }
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -91,11 +103,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     secureLog('Attempting sign up');
     const redirectUrl = getRedirectUrl();
     
+    secureLog('Using redirect URL:', { redirectUrl });
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
+        emailRedirectTo: `${redirectUrl}/auth?confirmed=true`,
         data: {
           email: email
         }
@@ -110,7 +124,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         variant: "destructive",
       });
     } else {
-      secureLog('Sign up initiated');
+      secureLog('Sign up initiated successfully');
       toast({
         title: "Success",
         description: "Check your email for the confirmation link! Make sure to check your spam folder.",

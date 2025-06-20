@@ -1,11 +1,11 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 import { EmailAuthForms } from '@/components/auth/EmailAuthForms';
 import { EmailConfirmationSuccess } from '@/components/auth/EmailConfirmationSuccess';
 
@@ -15,12 +15,26 @@ const AuthPage = () => {
   const [showEmailSent, setShowEmailSent] = useState(false);
   const { user, signInWithEmail, signUpWithEmail } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check if user was redirected after email confirmation
+  const isConfirmed = searchParams.get('confirmed') === 'true';
 
   useEffect(() => {
     if (user) {
       navigate('/dashboard');
     }
   }, [user, navigate]);
+
+  // Show confirmation success if user was redirected after email confirmation
+  useEffect(() => {
+    if (isConfirmed && !user) {
+      // Clear the URL parameter
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('confirmed');
+      navigate(`/auth?${newSearchParams.toString()}`, { replace: true });
+    }
+  }, [isConfirmed, user, navigate, searchParams]);
 
   const handleEmailSignIn = async (email: string, password: string) => {
     setLoading(true);
@@ -63,14 +77,29 @@ const AuthPage = () => {
         <Card className="w-full max-w-md bg-card border-2 border-accent brutalist-card">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-mono uppercase text-accent">
-              {showEmailSent ? 'Check Your Email' : 'Authentication'}
+              {showEmailSent ? 'Check Your Email' : isConfirmed ? 'Email Confirmed!' : 'Authentication'}
             </CardTitle>
             <p className="text-sm text-muted-foreground font-mono">
-              {showEmailSent ? 'Confirmation link sent!' : 'Welcome to OPEN FINDASH'}
+              {showEmailSent ? 'Confirmation link sent!' : isConfirmed ? 'Your email has been confirmed' : 'Welcome to OPEN FINDASH'}
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            {showEmailSent ? (
+            {isConfirmed ? (
+              <div className="space-y-4">
+                <Alert>
+                  <CheckCircle className="h-4 w-4" />
+                  <AlertDescription className="font-mono text-sm">
+                    Your email has been confirmed successfully! You can now log in to your account.
+                  </AlertDescription>
+                </Alert>
+                <Button 
+                  onClick={() => window.location.href = '/auth'}
+                  className="w-full"
+                >
+                  Continue to Login
+                </Button>
+              </div>
+            ) : showEmailSent ? (
               <EmailConfirmationSuccess
                 email={email}
                 onTryAgain={() => setShowEmailSent(false)}
