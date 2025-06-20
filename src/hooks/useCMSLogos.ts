@@ -13,7 +13,7 @@ interface LogoSettings {
 export const useCMSLogos = () => {
   const [logos, setLogos] = useState<LogoSettings>({
     square_logo_url: '/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png',
-    horizontal_logo_url: '/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png',
+    horizontal_logo_url: '/lovable-uploads/b4a7f5cc-5cb9-4cb0-b92e-8e0996f36253.png', // Set new horizontal logo as default
     vertical_logo_url: '/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png',
     symbol_logo_url: '/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png'
   });
