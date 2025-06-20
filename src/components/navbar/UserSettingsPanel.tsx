@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -104,14 +105,17 @@ export const UserSettingsPanel = () => {
           detail: { tab: 'portfolio' }
         }));
         
-        // Scroll to USER_INFO_CONFIG_UI section
-        const element = document.querySelector('[data-section="portfolio"]');
-        if (element) {
-          element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
+        // Scroll to the top of the page first, then to portfolio section
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+          const element = document.querySelector('[data-section="portfolio"]');
+          if (element) {
+            element.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        }, 200);
       }, 300);
     } else {
       setIsOpen(false);
@@ -120,6 +124,8 @@ export const UserSettingsPanel = () => {
         detail: { tab: 'portfolio' }
       }));
       
+      // Scroll to the top first, then to portfolio
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(() => {
         const element = document.querySelector('[data-section="portfolio"]');
         if (element) {
@@ -128,7 +134,7 @@ export const UserSettingsPanel = () => {
             block: 'start'
           });
         }
-      }, 100);
+      }, 200);
     }
   };
 
