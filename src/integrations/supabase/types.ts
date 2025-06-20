@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_user_id: string | null
+          created_at: string | null
+          details: string | null
+          id: string
+          ip_address: string | null
+          timestamp: string | null
+        }
+        Insert: {
+          action: string
+          admin_user_id?: string | null
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          ip_address?: string | null
+          timestamp?: string | null
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string | null
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          ip_address?: string | null
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
       cms_settings: {
         Row: {
           created_at: string
@@ -98,6 +128,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          admin_level: string | null
+          admin_role: boolean | null
           created_at: string | null
           default_currency: string | null
           id: string
@@ -108,6 +140,8 @@ export type Database = {
           user_uid: string | null
         }
         Insert: {
+          admin_level?: string | null
+          admin_role?: boolean | null
           created_at?: string | null
           default_currency?: string | null
           id: string
@@ -118,6 +152,8 @@ export type Database = {
           user_uid?: string | null
         }
         Update: {
+          admin_level?: string | null
+          admin_role?: boolean | null
           created_at?: string | null
           default_currency?: string | null
           id?: string

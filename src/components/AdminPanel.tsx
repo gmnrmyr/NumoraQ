@@ -20,9 +20,7 @@ interface AdminPanelProps {
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   const { 
-    isAdminMode, 
-    enterAdminMode, 
-    exitAdminMode,
+    isAdminMode,
     cmsSettings,
     updateCMSSetting,
     updateMultipleCMSSettings,
@@ -34,28 +32,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   } = useAdminMode();
   
   const { addManualPoints } = useUserPoints();
-  const [password, setPassword] = useState('');
   const [localSettings, setLocalSettings] = useState({
     website_name: '',
     project_wallet: '',
     donation_goal: 0
   });
-
-  const handleLogin = () => {
-    if (enterAdminMode(password)) {
-      toast({
-        title: "Admin Mode Activated",
-        description: "You now have admin privileges."
-      });
-      setPassword('');
-    } else {
-      toast({
-        title: "Access Denied",
-        description: "Invalid admin password.",
-        variant: "destructive"
-      });
-    }
-  };
 
   const handleGenerateCode = async (duration: '1year' | '5years' | 'lifetime') => {
     const code = await generatePremiumCode(duration);
@@ -105,29 +86,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-mono uppercase">
             <Shield size={16} className="text-accent" />
-            Admin Control Panel
+            Legacy Admin Panel
           </DialogTitle>
+          <div className="text-xs text-muted-foreground font-mono">
+            Note: This is the legacy admin panel. Use the secure admin panel for enhanced security.
+          </div>
         </DialogHeader>
 
         {!isAdminMode ? (
           <div className="space-y-4">
             <div className="text-sm text-muted-foreground font-mono">
-              Enter admin password to access admin features:
+              Admin mode not active. Please use the secure admin panel for proper authentication.
             </div>
-            <Input
-              type="password"
-              placeholder="Admin password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-              className="font-mono"
-            />
             <div className="flex gap-2">
-              <Button onClick={handleLogin} className="brutalist-button flex-1">
-                Login
-              </Button>
-              <Button onClick={onClose} variant="outline" className="brutalist-button">
-                <X size={16} />
+              <Button onClick={onClose} variant="outline" className="brutalist-button flex-1">
+                <X size={16} className="mr-2" />
+                Close
               </Button>
             </div>
           </div>
@@ -407,13 +381,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
 
             <TabsContent value="settings" className="space-y-4">
               <div className="flex gap-2">
-                <Button 
-                  onClick={exitAdminMode}
-                  variant="outline" 
-                  className="brutalist-button flex-1"
-                >
-                  Exit Admin Mode
-                </Button>
                 <Button onClick={onClose} variant="outline" className="brutalist-button">
                   <X size={16} />
                 </Button>
