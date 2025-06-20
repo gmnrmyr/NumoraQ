@@ -27,7 +27,7 @@ export const useCMSSettings = () => {
     project_wallet_solana: '',
     project_wallet_btc: '',
     project_wallet_bch: '',
-    project_paypal_email: '',
+    project_paypal_email: 'comingsoon@comingsoon.com',
     crypto_donations_enabled: true,
     paypal_donations_enabled: true,
     donation_goal: 10000,
