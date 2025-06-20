@@ -36,11 +36,44 @@ export const NicknameEditor = () => {
     }
   };
 
+  const checkNicknameAvailability = async (newNickname: string) => {
+    if (!newNickname.trim()) return false;
+    
+    // Check if another user already has this nickname
+    const { data: existingProfile, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('name', newNickname.trim())
+      .neq('id', user?.id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      // PGRST116 means no rows returned, which is what we want
+      throw error;
+    }
+
+    return !existingProfile; // Returns true if available, false if taken
+  };
+
   const updateNickname = async (newNickname: string) => {
     if (!newNickname.trim() || newNickname === nickname) return;
     
     setUpdatingNickname(true);
     try {
+      // Check if nickname is available
+      const isAvailable = await checkNicknameAvailability(newNickname);
+      
+      if (!isAvailable) {
+        toast({
+          title: "Nickname Unavailable",
+          description: "This nickname is already taken. Please choose another one.",
+          variant: "destructive"
+        });
+        setNickname(nickname); // Reset to previous value
+        setUpdatingNickname(false);
+        return;
+      }
+
       const { error } = await supabase
         .from('profiles')
         .update({ name: newNickname.trim() })
@@ -62,6 +95,7 @@ export const NicknameEditor = () => {
         description: "Failed to update nickname",
         variant: "destructive"
       });
+      setNickname(nickname); // Reset to previous value
     } finally {
       setUpdatingNickname(false);
     }

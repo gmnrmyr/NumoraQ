@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,12 +10,15 @@ import { DailyLoginButton } from '@/components/DailyLoginButton';
 import { ProfileUIDEditor } from '@/components/ProfileUIDEditor';
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 const LeaderboardPage = () => {
   const { user } = useAuth();
   const { leaderboard, userStats, loading, refresh } = useLeaderboard();
   const [currentPage, setCurrentPage] = useState(1);
   const [showProfile, setShowProfile] = useState(false);
+  const navigate = useNavigate();
   const itemsPerPage = 10;
 
   const getRankIcon = (rank: number) => {
@@ -28,6 +32,18 @@ const LeaderboardPage = () => {
 
   const highlightCurrentUser = (userId: string) => {
     return user?.id === userId ? "bg-accent/20 border-accent" : "bg-muted/20 border-border";
+  };
+
+  const handleInviteFriends = () => {
+    navigator.clipboard.writeText('https://openfindash.com');
+    toast({
+      title: "Link Copied!",
+      description: "OpenFindash.com has been copied to your clipboard",
+    });
+  };
+
+  const handleSupportPlatform = () => {
+    navigate('/donation');
   };
 
   const totalPages = Math.ceil(leaderboard.length / itemsPerPage);
@@ -101,7 +117,7 @@ const LeaderboardPage = () => {
                       <div className="text-xs text-muted-foreground font-mono">LOGINS</div>
                     </div>
                     <div className="text-center space-y-1">
-                      <div className="text-2xl font-bold text-accent">{userStats.donations}</div>
+                      <div className="text-2xl font-bold text-accent">*</div>
                       <div className="text-xs text-muted-foreground font-mono">DONATIONS</div>
                     </div>
                   </div>
@@ -198,6 +214,11 @@ const LeaderboardPage = () => {
                                     YOU
                                   </Badge>
                                 )}
+                                {entry.is_premium && (
+                                  <Badge variant="default" className="text-xs px-2 py-0 h-4 bg-yellow-500 text-black">
+                                    PREMIUM
+                                  </Badge>
+                                )}
                               </div>
                               <div className="text-xs text-muted-foreground font-mono">
                                 Rank #{entry.rank}
@@ -207,7 +228,7 @@ const LeaderboardPage = () => {
                           <div className="text-right space-y-1">
                             <div className="font-bold text-accent font-mono">{entry.total_points.toLocaleString()} pts</div>
                             <div className="text-xs text-muted-foreground font-mono">
-                              {entry.login_streak} logins • {entry.donation_count} donations
+                              {entry.login_streak} logins • * donations
                             </div>
                           </div>
                         </div>
@@ -253,11 +274,18 @@ const LeaderboardPage = () => {
                   Stay engaged, support the platform, and help grow our community to earn more fidelity points!
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button className="brutalist-button bg-accent text-accent-foreground">
+                  <Button 
+                    onClick={handleSupportPlatform}
+                    className="brutalist-button bg-accent text-accent-foreground"
+                  >
                     <Gift size={16} className="mr-2" />
                     Support Platform
                   </Button>
-                  <Button variant="outline" className="brutalist-button">
+                  <Button 
+                    onClick={handleInviteFriends}
+                    variant="outline" 
+                    className="brutalist-button"
+                  >
                     <Users size={16} className="mr-2" />
                     Invite Friends
                   </Button>
