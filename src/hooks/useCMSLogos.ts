@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface LogoSettings {
   square_logo_url: string;
@@ -45,5 +46,33 @@ export const useCMSLogos = () => {
     }
   };
 
-  return { logos, loading, refetch: fetchLogos };
+  const updateLogo = async (logoType: keyof LogoSettings, url: string) => {
+    try {
+      const { error } = await supabase
+        .from('cms_settings')
+        .upsert({
+          setting_key: logoType,
+          setting_value: url,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+
+      setLogos(prev => ({ ...prev, [logoType]: url }));
+      
+      toast({
+        title: "Logo Updated",
+        description: `${logoType.replace(/_/g, ' ')} has been updated successfully`
+      });
+    } catch (error) {
+      console.error('Error updating logo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update logo",
+        variant: "destructive"
+      });
+    }
+  };
+
+  return { logos, loading, refetch: fetchLogos, updateLogo };
 };

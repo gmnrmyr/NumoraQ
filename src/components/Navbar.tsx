@@ -115,99 +115,67 @@ export const Navbar = ({
           </div>
         </div>
 
-        {/* Desktop Actions - Always show hamburger for unlogged users */}
+        {/* Desktop Actions */}
         <div className="flex items-center gap-3">
-          {!user && (
-            <div className="flex items-center gap-3">
-              <LanguageSelector variant="outline" size="sm" />
-              <DonationLinks />
-              {/* Hamburger menu for unlogged users on desktop */}
-              <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm" className="brutalist-button">
-                    <Menu size={20} />
+          <LanguageSelector variant="outline" size="sm" />
+          
+          {/* Always show hamburger menu */}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="brutalist-button">
+                <Menu size={20} />
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="bg-card/95 backdrop-blur-md border-l-2 border-border">
+              <div className="flex flex-col gap-4 mt-8">
+                <h2 className="font-bold text-lg font-mono uppercase text-accent">
+                  {user ? 'Dashboard' : 'Dashboard Preview'}
+                </h2>
+                {dashboardItems.map(item => {
+                  const Icon = item.icon;
+                  return <Button 
+                    key={item.id} 
+                    variant={activeTab === item.id ? "default" : "ghost"} 
+                    onClick={() => handleTabChange(item.id)} 
+                    className={`justify-start font-mono brutalist-button ${!user ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    disabled={!user}
+                  >
+                    <Icon size={16} className="mr-2" />
+                    {item.label}
+                  </Button>;
+                })}
+
+                <div className="border-t border-border pt-4 mt-2">
+                  <h3 className="font-bold text-sm font-mono uppercase text-accent mb-2">Community</h3>
+                  <Button variant={isLeaderboardActive ? "default" : "ghost"} onClick={() => navigate('/leaderboard')} className="justify-start font-mono brutalist-button w-full">
+                    <Trophy size={16} className="mr-2" />
+                    Leaderboard
                   </Button>
-                </SheetTrigger>
-                <SheetContent className="bg-card/95 backdrop-blur-md border-l-2 border-border">
-                  <div className="flex flex-col gap-4 mt-8">
-                    <h2 className="font-bold text-lg font-mono uppercase text-accent">Dashboard Preview</h2>
-                    {dashboardItems.map(item => {
-                      const Icon = item.icon;
-                      return <Button key={item.id} variant="ghost" onClick={() => handleTabChange(item.id)} className="justify-start font-mono brutalist-button opacity-60 cursor-not-allowed">
-                        <Icon size={16} className="mr-2" />
-                        {item.label}
-                      </Button>;
-                    })}
+                </div>
 
-                    <div className="border-t border-border pt-4 mt-2">
-                      <h3 className="font-bold text-sm font-mono uppercase text-accent mb-2">Community</h3>
-                      <Button variant="ghost" onClick={() => navigate('/leaderboard')} className="justify-start font-mono brutalist-button w-full">
-                        <Trophy size={16} className="mr-2" />
-                        Leaderboard
-                      </Button>
-                    </div>
-
-                    <div className="mt-4 pt-4 border-t border-border">
-                      <Button onClick={handleGetStarted} className="w-full font-mono brutalist-button">
+                <div className="mt-4 pt-4 border-t border-border">
+                  <DonationLinks />
+                  {!user && (
+                    <>
+                      <Button onClick={handleGetStarted} className="w-full font-mono brutalist-button mt-4">
                         <LogIn size={16} className="mr-2" />
                         Get Started
                       </Button>
                       <p className="text-xs text-muted-foreground font-mono mt-2 text-center">
                         Demo Mode - Sign in for cloud sync
                       </p>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          )}
-          
-          {user && (
-            <div className="hidden lg:flex items-center gap-3">
-              <LanguageSelector variant="outline" size="sm" />
-              <DonationLinks />
-            </div>
-          )}
-        </div>
-
-        {/* Mobile Actions - Only for logged users */}
-        {user && (
-          <div className="flex items-center gap-2 lg:hidden">
-            <LanguageSelector variant="outline" size="sm" />
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="brutalist-button">
-                  <Menu size={20} />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="bg-card/95 backdrop-blur-md border-l-2 border-border">
-                <div className="flex flex-col gap-4 mt-8">
-                  <h2 className="font-bold text-lg font-mono uppercase text-accent">Dashboard</h2>
-                  {dashboardItems.map(item => {
-                    const Icon = item.icon;
-                    return <Button key={item.id} variant={activeTab === item.id ? "default" : "ghost"} onClick={() => handleTabChange(item.id)} className="justify-start font-mono brutalist-button">
-                      <Icon size={16} className="mr-2" />
-                      {item.label}
-                    </Button>;
-                  })}
-
-                  <div className="border-t border-border pt-4 mt-2">
-                    <h3 className="font-bold text-sm font-mono uppercase text-accent mb-2">Community</h3>
-                    <Button variant={isLeaderboardActive ? "default" : "ghost"} onClick={() => handleTabChange('leaderboard')} className="justify-start font-mono brutalist-button w-full">
-                      <Trophy size={16} className="mr-2" />
-                      Leaderboard
-                    </Button>
-                  </div>
+                    </>
+                  )}
                 </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
       {/* Bottom Row - Navigation (Desktop Only for logged users) */}
       {user && <div className="hidden lg:flex items-center justify-between px-4 py-2 bg-accent/5">
-          <nav className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             {/* Dashboard Navigation */}
             <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
               <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Dashboard:</span>
@@ -228,9 +196,9 @@ export const Navbar = ({
                 Leaderboard
               </Button>
             </div>
-          </nav>
+          </div>
           
-          {/* Right side - User Settings & Support */}
+          {/* Right side - Support only */}
           <div className="flex items-center gap-2">
             <DonationLinks />
           </div>

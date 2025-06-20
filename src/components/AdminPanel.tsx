@@ -16,17 +16,17 @@ export const AdminPanel = () => {
   const { user } = useAuth();
   const { 
     generatePremiumCode,
-    loading: premiumLoading
+    premiumCodesLoading
   } = useAdminMode();
   
   const {
     codes,
     loading: codesLoading,
-    createCode,
-    deactivateCode
+    generateCode,
+    deleteCode
   } = usePremiumCodes();
 
-  const [newCodeType, setNewCodeType] = useState('degen');
+  const [newCodeType, setNewCodeType] = useState('1year');
   const [newCodeEmail, setNewCodeEmail] = useState('');
 
   const handleGenerateCode = async () => {
@@ -35,10 +35,10 @@ export const AdminPanel = () => {
       return;
     }
 
-    const success = await generatePremiumCode(newCodeType, newCodeEmail);
+    const success = await generateCode(newCodeType as '1year' | '5years' | 'lifetime');
     if (success) {
       setNewCodeEmail('');
-      alert('Premium code generated and sent!');
+      alert('Premium code generated successfully!');
     }
   };
 
@@ -48,7 +48,7 @@ export const AdminPanel = () => {
       return;
     }
 
-    await createCode(newCodeType, newCodeEmail);
+    await generateCode(newCodeType as '1year' | '5years' | 'lifetime');
     setNewCodeEmail('');
   };
 
@@ -105,8 +105,8 @@ export const AdminPanel = () => {
                     onChange={(e) => setNewCodeType(e.target.value)}
                     className="w-full p-2 border border-border rounded bg-background font-mono"
                   >
-                    <option value="degen">Degen Mode</option>
-                    <option value="premium">Premium Access</option>
+                    <option value="1year">1 Year</option>
+                    <option value="5years">5 Years</option>
                     <option value="lifetime">Lifetime</option>
                   </select>
                 </div>
@@ -165,10 +165,10 @@ export const AdminPanel = () => {
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => deactivateCode(code.id)}
+                              onClick={() => deleteCode(code.id)}
                               className="font-mono"
                             >
-                              Deactivate
+                              Delete
                             </Button>
                           )}
                         </div>
