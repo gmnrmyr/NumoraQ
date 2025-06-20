@@ -11,7 +11,7 @@ import { ProjectionChart } from "@/components/ProjectionChart";
 import { DataManagementSection } from "@/components/DataManagementSection";
 import { UserProfileSection } from "@/components/UserProfileSection";
 import { DevMenu } from "@/components/DevMenu";
-import { AdminPanel } from "@/components/AdminPanel";
+import { SecureAdminPanel } from "@/components/SecureAdminPanel";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -20,11 +20,27 @@ import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
 import { AIAdvisor } from "@/components/ai/AIAdvisor";
 import { PWASetup } from "@/components/PWASetup";
-import { useAdminMode } from "@/hooks/useAdminMode";
+import { useSecureAdminAuth } from "@/hooks/useSecureAdminAuth";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
-  const { showAdminPanel, setShowAdminPanel } = useAdminMode();
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const { isAdmin } = useSecureAdminAuth();
+
+  // Admin panel keyboard shortcut
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.shiftKey && event.key === 'E') {
+        event.preventDefault();
+        if (isAdmin) {
+          setShowAdminPanel(true);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAdmin]);
 
   const getSectionTitle = (tab: string) => {
     switch (tab) {
@@ -130,7 +146,7 @@ const Dashboard = () => {
           <DevMenu />
           <AIAdvisor />
           <PWASetup />
-          <AdminPanel 
+          <SecureAdminPanel 
             isOpen={showAdminPanel} 
             onClose={() => setShowAdminPanel(false)} 
           />
