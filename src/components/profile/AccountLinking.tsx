@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { Wallet, MessageCircle, Mail, Link, Unlink } from 'lucide-react';
+import { Wallet, MessageCircle, Mail, Link, Unlink, Eye, EyeOff } from 'lucide-react';
 
 export const AccountLinking = () => {
   const { user, linkAccount } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
+  const [showLinkedAccounts, setShowLinkedAccounts] = useState(true);
 
   if (!user) return null;
 
@@ -27,8 +28,7 @@ export const AccountLinking = () => {
         return <Mail size={14} />;
       case 'discord':
         return <MessageCircle size={14} />;
-      case 'solana':
-      case 'github': // Temporary mapping
+      case 'web3':
         return <Wallet size={14} />;
       default:
         return <Link size={14} />;
@@ -41,9 +41,7 @@ export const AccountLinking = () => {
         return 'Email';
       case 'discord':
         return 'Discord';
-      case 'github':
-        return 'Solana'; // Temporary mapping
-      case 'solana':
+      case 'web3':
         return 'Solana';
       default:
         return provider.charAt(0).toUpperCase() + provider.slice(1);
@@ -53,36 +51,47 @@ export const AccountLinking = () => {
   return (
     <Card className="brutalist-card">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 font-mono text-sm">
-          <Link className="text-accent" size={16} />
-          LINKED ACCOUNTS
+        <CardTitle className="flex items-center justify-between font-mono text-sm">
+          <div className="flex items-center gap-2">
+            <Link className="text-accent" size={16} />
+            LINKED ACCOUNTS
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowLinkedAccounts(!showLinkedAccounts)}
+          >
+            {showLinkedAccounts ? <EyeOff size={14} /> : <Eye size={14} />}
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Connected Accounts */}
-        <div className="space-y-2">
-          <h4 className="text-xs font-mono uppercase text-muted-foreground">Connected:</h4>
-          <div className="flex flex-wrap gap-2">
-            {identities.length > 0 ? (
-              identities.map((identity, index) => (
-                <Badge key={index} variant="outline" className="font-mono text-xs">
-                  {getProviderIcon(identity.provider)}
-                  <span className="ml-1">{getProviderName(identity.provider)}</span>
+        {showLinkedAccounts && (
+          <div className="space-y-2">
+            <h4 className="text-xs font-mono uppercase text-muted-foreground">Connected:</h4>
+            <div className="flex flex-wrap gap-2">
+              {identities.length > 0 ? (
+                identities.map((identity, index) => (
+                  <Badge key={index} variant="outline" className="font-mono text-xs">
+                    {getProviderIcon(identity.provider)}
+                    <span className="ml-1">{getProviderName(identity.provider)}</span>
+                  </Badge>
+                ))
+              ) : (
+                <Badge variant="outline" className="font-mono text-xs text-muted-foreground">
+                  No accounts linked
                 </Badge>
-              ))
-            ) : (
-              <Badge variant="outline" className="font-mono text-xs text-muted-foreground">
-                No accounts linked
-              </Badge>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Link Additional Accounts */}
         <div className="space-y-2">
           <h4 className="text-xs font-mono uppercase text-muted-foreground">Link More:</h4>
           <div className="flex flex-col gap-2">
-            {!connectedProviders.includes('github') && !connectedProviders.includes('solana') && (
+            {!connectedProviders.includes('web3') && (
               <Button
                 onClick={() => handleLinkAccount('solana')}
                 variant="outline"
