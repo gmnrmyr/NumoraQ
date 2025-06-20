@@ -78,7 +78,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signUpWithEmail = async (email: string, password: string) => {
     secureLog('Attempting sign up');
-    // Use the current window location for redirect instead of hardcoded localhost
     const redirectUrl = `${window.location.origin}/dashboard`;
     
     const { error } = await supabase.auth.signUp({
@@ -116,7 +115,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const redirectUrl = `${window.location.origin}/dashboard`;
     
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'github', // Replace with 'solana' when available
+      provider: 'web3',
       options: {
         redirectTo: redirectUrl,
       },
@@ -164,9 +163,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const linkAccount = async (provider: 'solana' | 'discord') => {
     secureLog(`Attempting to link ${provider} account`);
     
-    // Map provider names - adjust 'solana' to actual provider name when available
     const providerMap = {
-      solana: 'github', // Replace with actual Solana provider when available
+      solana: 'web3',
       discord: 'discord'
     };
     

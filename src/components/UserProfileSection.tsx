@@ -7,6 +7,7 @@ import { UserPreferences } from './profile/UserPreferences';
 import { DegenModeSection } from './profile/DegenModeSection';
 import { CloudSyncStatus } from './profile/CloudSyncStatus';
 import { AccountLinking } from './profile/AccountLinking';
+import { DataManagementSection } from './DataManagementSection';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -17,28 +18,43 @@ export const UserProfileSection = () => {
   return (
     <div className="space-y-4">
       <Card className="bg-card border-2 border-border brutalist-card relative">
-        <CardContent className="space-y-4">
-          {/* Email and Cloud Sync Section */}
-          <CloudSyncStatus />
+        <CardContent className="space-y-6">
+          {/* Profile Configuration Panel */}
+          <div className="space-y-4">
+            {/* Email and Cloud Sync Section */}
+            <CloudSyncStatus />
 
-          <div className="flex items-center gap-4">
-            {/* Avatar Selection */}
-            <AvatarSelector nickname={data.userProfile.name || ''} />
-            
-            <div className="flex-1 space-y-3">
-              {/* Nickname Section */}
-              <NicknameEditor />
+            <div className="flex items-center gap-4">
+              {/* Avatar Selection */}
+              <AvatarSelector nickname={data.userProfile.name || ''} />
+              
+              <div className="flex-1 space-y-3">
+                {/* Nickname Section */}
+                <NicknameEditor />
 
-              {/* Currency and Language Selectors */}
-              <UserPreferences />
+                {/* Currency and Language Selectors */}
+                <UserPreferences />
+              </div>
+            </div>
+
+            {/* Degen Mode Section */}
+            <DegenModeSection />
+
+            <div className="text-xs text-muted-foreground font-mono bg-muted p-2 border-2 border-border rounded">
+              👤 <strong>Profile:</strong> Customize your dashboard experience and preferences.
             </div>
           </div>
 
-          {/* Degen Mode Section */}
-          <DegenModeSection />
+          {/* Account Linking Panel - Only show for authenticated users */}
+          {user && (
+            <div className="border-t border-border pt-4">
+              <AccountLinking />
+            </div>
+          )}
 
-          <div className="text-xs text-muted-foreground font-mono bg-muted p-2 border-2 border-border rounded">
-            👤 <strong>Profile:</strong> Customize your dashboard experience and preferences.
+          {/* Data Management Panel */}
+          <div className="border-t border-border pt-4">
+            <DataManagementSection />
           </div>
         </CardContent>
         
@@ -49,9 +65,6 @@ export const UserProfileSection = () => {
           <span className="text-accent font-bold"> ]</span>
         </div>
       </Card>
-
-      {/* Account Linking Section - Only show for authenticated users */}
-      {user && <AccountLinking />}
     </div>
   );
 };

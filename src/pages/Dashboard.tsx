@@ -8,7 +8,6 @@ import { AssetManagementEditable } from "@/components/AssetManagementEditable";
 import { TaskManagementEditable } from "@/components/TaskManagementEditable";
 import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
 import { ProjectionChart } from "@/components/ProjectionChart";
-import { DataManagementSection } from "@/components/DataManagementSection";
 import { UserProfileSection } from "@/components/UserProfileSection";
 import { DevMenu } from "@/components/DevMenu";
 import { SecureAdminPanel } from "@/components/SecureAdminPanel";
@@ -83,10 +82,9 @@ const Dashboard = () => {
             {/* Ad placement for non-premium users */}
             <AdSenseAd className="my-4" />
             
-            {/* Consolidated User Profile Section */}
+            {/* Consolidated User Profile Section with all panels */}
             <UserProfileSection />
             
-            <DataManagementSection />
             <ExchangeRatesBanner />
             <MetricsOverview />
             <ProjectionCard />
