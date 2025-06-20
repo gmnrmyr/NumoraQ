@@ -14,6 +14,7 @@ import AuthPage from "./pages/AuthPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import DonationPage from "./pages/DonationPage";
+import UpcomingFeatures from "./pages/UpcomingFeatures";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +42,7 @@ const App: React.FC = () => {
                   <Route path="/onboarding" element={<OnboardingPage />} />
                   <Route path="/leaderboard" element={<LeaderboardPage />} />
                   <Route path="/donation" element={<DonationPage />} />
+                  <Route path="/upcoming-features" element={<UpcomingFeatures />} />
                   <Route path="*" element={<LandingPage />} />
                 </Routes>
               </BrowserRouter>
