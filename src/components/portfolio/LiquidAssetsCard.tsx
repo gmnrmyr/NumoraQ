@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -68,26 +67,40 @@ export const LiquidAssetsCard = () => {
     }
 
     let finalValue = formData.value;
-    let assetData = { ...formData };
+    
+    // Create base asset data
+    const baseAssetData = {
+      name: formData.name,
+      value: finalValue,
+      icon: formData.icon,
+      isActive: formData.isActive,
+      color: 'text-foreground'
+    };
 
+    // For crypto assets, add crypto-specific properties
     if (assetType === 'crypto' && formData.cryptoSymbol && formData.quantity > 0) {
       finalValue = calculateCryptoValue(formData.cryptoSymbol, formData.quantity);
-      assetData = {
-        ...formData,
+      
+      const cryptoAssetData = {
+        ...baseAssetData,
         value: finalValue,
         isCrypto: true,
         cryptoSymbol: formData.cryptoSymbol,
         quantity: formData.quantity
       };
-    }
 
-    if (editingAsset) {
-      updateLiquidAsset(editingAsset.id, assetData);
+      if (editingAsset) {
+        updateLiquidAsset(editingAsset.id, cryptoAssetData);
+      } else {
+        addLiquidAsset(cryptoAssetData);
+      }
     } else {
-      addLiquidAsset({
-        ...assetData,
-        color: 'text-foreground'
-      });
+      // For manual assets, don't include crypto properties
+      if (editingAsset) {
+        updateLiquidAsset(editingAsset.id, baseAssetData);
+      } else {
+        addLiquidAsset(baseAssetData);
+      }
     }
 
     setIsDialogOpen(false);

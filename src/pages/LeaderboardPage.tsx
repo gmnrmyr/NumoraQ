@@ -12,6 +12,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { useUserTitle } from '@/hooks/useUserTitle';
 
 const LeaderboardPage = () => {
   const { user } = useAuth();
@@ -50,6 +51,22 @@ const LeaderboardPage = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentLeaderboard = leaderboard.slice(startIndex, endIndex);
+
+  // Helper function to get user title for leaderboard entries
+  const getUserTitle = (points: number) => {
+    // Same logic as in useUserTitle hook
+    const targetLevel = Math.floor(points / 100) * 100;
+    const titles = [
+      { level: 0, title: "NOOB", color: "text-gray-500" },
+      { level: 100, title: "WHALE", color: "text-purple-600" },
+      { level: 200, title: "CHAD", color: "text-blue-600" },
+      { level: 300, title: "MOON", color: "text-yellow-600" },
+      { level: 400, title: "DIAMOND", color: "text-cyan-600" },
+      { level: 500, title: "LEGEND", color: "text-red-600" }
+    ];
+    
+    return titles.reverse().find(title => targetLevel >= title.level) || titles[titles.length - 1];
+  };
 
   return (
     <>
@@ -196,43 +213,49 @@ const LeaderboardPage = () => {
                 ) : (
                   <>
                     <div className="space-y-3">
-                      {currentLeaderboard.map((entry) => (
-                        <div 
-                          key={entry.user_id} 
-                          className={`flex items-center justify-between p-3 border rounded transition-colors ${highlightCurrentUser(entry.user_id)}`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {getRankIcon(entry.rank)}
-                            <div>
-                              <div className="font-mono font-bold text-sm flex items-center gap-2">
-                                {entry.user_name}
-                                <Badge variant="outline" className="text-xs px-1 py-0 h-4">
-                                  UID:{entry.user_uid}
-                                </Badge>
-                                {user?.id === entry.user_id && (
-                                  <Badge variant="secondary" className="text-xs px-2 py-0 h-4">
-                                    YOU
+                      {currentLeaderboard.map((entry) => {
+                        const userTitle = getUserTitle(entry.total_points);
+                        return (
+                          <div 
+                            key={entry.user_id} 
+                            className={`flex items-center justify-between p-3 border rounded transition-colors ${highlightCurrentUser(entry.user_id)}`}
+                          >
+                            <div className="flex items-center gap-3">
+                              {getRankIcon(entry.rank)}
+                              <div>
+                                <div className="font-mono font-bold text-sm flex items-center gap-2">
+                                  {entry.user_name}
+                                  <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                                    UID:{entry.user_uid}
                                   </Badge>
-                                )}
-                                {entry.is_premium && (
-                                  <Badge variant="default" className="text-xs px-2 py-0 h-4 bg-yellow-500 text-black">
-                                    PREMIUM
+                                  {user?.id === entry.user_id && (
+                                    <Badge variant="secondary" className="text-xs px-2 py-0 h-4">
+                                      YOU
+                                    </Badge>
+                                  )}
+                                  {entry.is_premium && (
+                                    <Badge variant="default" className="text-xs px-2 py-0 h-4 bg-green-600 text-white">
+                                      DEGEN
+                                    </Badge>
+                                  )}
+                                  <Badge variant="outline" className={`text-xs px-2 py-0 h-4 ${userTitle.color}`}>
+                                    {userTitle.title}
                                   </Badge>
-                                )}
+                                </div>
+                                <div className="text-xs text-muted-foreground font-mono">
+                                  Rank #{entry.rank}
+                                </div>
                               </div>
+                            </div>
+                            <div className="text-right space-y-1">
+                              <div className="font-bold text-accent font-mono">{entry.total_points.toLocaleString()} pts</div>
                               <div className="text-xs text-muted-foreground font-mono">
-                                Rank #{entry.rank}
+                                {entry.login_streak} logins • * donations
                               </div>
                             </div>
                           </div>
-                          <div className="text-right space-y-1">
-                            <div className="font-bold text-accent font-mono">{entry.total_points.toLocaleString()} pts</div>
-                            <div className="text-xs text-muted-foreground font-mono">
-                              {entry.login_streak} logins • * donations
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     {/* Pagination */}
