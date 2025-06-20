@@ -35,9 +35,8 @@ export const AdminPanel = () => {
   const [pointsAmount, setPointsAmount] = useState('');
   const [pointsReason, setPointsReason] = useState('');
 
-  // Updated title requirements with correct values
+  // User title requirements (hardcoded for reference)
   const titleRequirements = [
-    { title: 'WHALE', points: 50000, donation: '$50,000+' },
     { title: 'LEGEND', points: 10000, donation: '$10,000+' },
     { title: 'PATRON', points: 5000, donation: '$5,000+' },
     { title: 'CHAMPION', points: 2000, donation: '$2,000+' },
@@ -47,8 +46,7 @@ export const AdminPanel = () => {
     { title: 'CONTRIBUTOR', points: 50, donation: '$50+' },
     { title: 'HELPER', points: 25, donation: '$25+' },
     { title: 'FRIEND', points: 20, donation: '$20+' },
-    { title: 'SUPPORTER', points: 10, donation: '$10+' },
-    { title: 'NEWCOMER', points: 0, donation: '$0 - $9' }
+    { title: 'SUPPORTER', points: 10, donation: '$10+' }
   ];
 
   const handleGenerateCode = async () => {
@@ -86,16 +84,10 @@ export const AdminPanel = () => {
       return;
     }
 
-    try {
-      await addManualPoints(pointsUserId, points, pointsReason || 'Manual admin assignment');
-      alert('Points added successfully!');
-      setPointsUserId('');
-      setPointsAmount('');
-      setPointsReason('');
-    } catch (error) {
-      console.error('Error adding points:', error);
-      alert('An error occurred while adding points.');
-    }
+    await addManualPoints(pointsUserId, points, pointsReason || 'Manual admin assignment');
+    setPointsUserId('');
+    setPointsAmount('');
+    setPointsReason('');
   };
 
   if (!user) return null;
@@ -298,9 +290,9 @@ export const AdminPanel = () => {
               </div>
               
               <div className="mt-4 p-4 bg-muted border border-border rounded">
-                <h4 className="font-mono font-bold mb-2">Quick Reference - Test with deckard.hardsurface@gmail.com:</h4>
+                <h4 className="font-mono font-bold mb-2">Quick Reference - User ID for deckard.hardsurface@gmail.com:</h4>
                 <code className="text-xs bg-background p-2 rounded block">
-                  Add 2000+ points to unlock CHAMPION role and Black Hole theme access.
+                  You can find user UUIDs in the Supabase Auth panel or by checking the browser console when users log in
                 </code>
               </div>
             </CardContent>
@@ -308,7 +300,7 @@ export const AdminPanel = () => {
 
           <Card className="border-2 border-border">
             <CardHeader>
-              <CardTitle className="font-mono">Title Requirements (Updated Reference)</CardTitle>
+              <CardTitle className="font-mono">Title Requirements (Hardcoded Reference)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -327,8 +319,7 @@ export const AdminPanel = () => {
               <div className="mt-4 p-3 bg-accent/10 border border-accent rounded">
                 <div className="text-sm font-mono text-accent">
                   <Crown size={16} className="inline mr-2" />
-                  <strong>CHAMPION Role (Black Hole Animation):</strong> 2,000+ points required<br/>
-                  <strong>Daily Login Points:</strong> Reduced to 1 point per day
+                  <strong>CHAMPION Role (Black Hole Animation):</strong> 2,000+ points required
                 </div>
               </div>
             </CardContent>
