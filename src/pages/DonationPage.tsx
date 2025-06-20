@@ -1,254 +1,145 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Copy, Wallet, CreditCard, Bitcoin, DollarSign, Clock, AlertCircle } from 'lucide-react';
-import { useProjectSettings } from '@/hooks/useProjectSettings';
-import { toast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { Crown, Heart, Zap, Star, Gift } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { DonationInterface } from '@/components/dashboard/DonationInterface';
 
 const DonationPage = () => {
-  const { settings } = useProjectSettings();
-  const [donorWallet, setDonorWallet] = useState('');
-  const [activeTab, setActiveTab] = useState('');
-
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied!",
-      description: `${label} copied to clipboard`,
-    });
-  };
-
-  const handleSaveDonorWallet = () => {
-    if (donorWallet.trim()) {
-      localStorage.setItem('donorWallet', donorWallet);
-      toast({
-        title: "Wallet Saved",
-        description: "Your donor wallet has been saved locally",
-      });
-    }
-  };
+  // Hardcoded title requirements for display
+  const titleRequirements = [
+    { title: 'LEGEND', amount: '$10,000+', points: 10000, color: 'text-purple-400', features: ['Exclusive Legend Badge', 'Priority Support', 'All Premium Features'] },
+    { title: 'PATRON', amount: '$5,000+', points: 5000, color: 'text-yellow-400', features: ['Patron Badge', 'Premium Themes', 'Advanced Features'] },
+    { title: 'CHAMPION', amount: '$2,000+', points: 2000, color: 'text-orange-400', features: ['Champion Badge', 'Black Hole Animation', 'Premium Themes'] },
+    { title: 'SUPPORTER', amount: '$1,000+', points: 1000, color: 'text-blue-400', features: ['Supporter Badge', 'Premium Access'] },
+    { title: 'BACKER', amount: '$500+', points: 500, color: 'text-green-400', features: ['Backer Badge', 'Special Recognition'] },
+    { title: 'DONOR', amount: '$100+', points: 100, color: 'text-cyan-400', features: ['Donor Badge', 'Thank You Message'] },
+    { title: 'CONTRIBUTOR', amount: '$50+', points: 50, color: 'text-indigo-400', features: ['Contributor Badge'] },
+    { title: 'HELPER', amount: '$25+', points: 25, color: 'text-pink-400', features: ['Helper Badge'] },
+    { title: 'FRIEND', amount: '$20+', points: 20, color: 'text-emerald-400', features: ['Friend Badge'] },
+    { title: 'SUPPORTER', amount: '$10+', points: 10, color: 'text-lime-400', features: ['Basic Supporter Badge'] }
+  ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-mono">
-      <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="pt-32 pb-16">
-        <div className="max-w-4xl mx-auto px-4 space-y-8">
+    <div className="min-h-screen bg-background">
+      <Navbar activeTab="" onTabChange={() => {}} />
+      
+      <div className="pt-20 sm:pt-32 pb-8">
+        <div className="max-w-6xl mx-auto px-4 space-y-8">
+          {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold text-accent uppercase tracking-wider">
-              Support {settings.website_name}
+            <h1 className="text-3xl md:text-4xl font-bold font-mono text-accent uppercase tracking-wider">
+              SUPPORT THE PROJECT
             </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Help us continue developing the best financial dashboard for crypto and traditional assets. 
-              Your donations directly fund new features, hosting, and development.
+            <p className="text-muted-foreground text-lg font-mono">
+              Help us build the future of financial tracking
             </p>
-            
-            <Alert className="bg-yellow-500/10 border-yellow-500/20 max-w-2xl mx-auto">
-              <Clock className="h-4 w-4 text-yellow-500" />
-              <AlertDescription className="text-yellow-400 font-mono text-sm">
-                ⏱️ Donations can take up to 2-5 days to reflect in your user title and ranking
-              </AlertDescription>
-            </Alert>
+            <div className="flex justify-center items-center gap-4">
+              <div className="w-8 h-1 bg-accent"></div>
+              <Heart className="text-accent" size={24} />
+              <div className="w-8 h-1 bg-accent"></div>
+            </div>
           </div>
 
-          <Tabs defaultValue="crypto" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="crypto">Crypto Donations</TabsTrigger>
-              <TabsTrigger value="traditional">Traditional Payment</TabsTrigger>
-            </TabsList>
+          {/* Donation Interface */}
+          <DonationInterface />
 
-            <TabsContent value="crypto" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {settings.project_wallet_evm && (
-                  <Card className="border-2 border-border">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 font-mono">
-                        <Wallet size={20} />
-                        Ethereum & EVM Chains
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="bg-muted p-3 border border-border rounded font-mono text-xs break-all">
-                        {settings.project_wallet_evm}
-                      </div>
-                      <Button 
-                        onClick={() => copyToClipboard(settings.project_wallet_evm, 'EVM wallet address')}
-                        className="w-full brutalist-button"
-                      >
-                        <Copy size={16} className="mr-2" />
-                        Copy EVM Address
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {settings.project_wallet_btc && (
-                  <Card className="border-2 border-border">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 font-mono">
-                        <Bitcoin size={20} />
-                        Bitcoin
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="bg-muted p-3 border border-border rounded font-mono text-xs break-all">
-                        {settings.project_wallet_btc}
-                      </div>
-                      <Button 
-                        onClick={() => copyToClipboard(settings.project_wallet_btc, 'Bitcoin wallet address')}
-                        className="w-full brutalist-button"
-                      >
-                        <Copy size={16} className="mr-2" />
-                        Copy BTC Address
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {settings.project_wallet_solana && (
-                  <Card className="border-2 border-border">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 font-mono">
-                        <Wallet size={20} />
-                        Solana
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="bg-muted p-3 border border-border rounded font-mono text-xs break-all">
-                        {settings.project_wallet_solana}
-                      </div>
-                      <Button 
-                        onClick={() => copyToClipboard(settings.project_wallet_solana, 'Solana wallet address')}
-                        className="w-full brutalist-button"
-                      >
-                        <Copy size={16} className="mr-2" />
-                        Copy SOL Address
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {settings.project_wallet_bch && (
-                  <Card className="border-2 border-border">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 font-mono">
-                        <Bitcoin size={20} />
-                        Bitcoin Cash
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="bg-muted p-3 border border-border rounded font-mono text-xs break-all">
-                        {settings.project_wallet_bch}
-                      </div>
-                      <Button 
-                        onClick={() => copyToClipboard(settings.project_wallet_bch, 'Bitcoin Cash wallet address')}
-                        className="w-full brutalist-button"
-                      >
-                        <Copy size={16} className="mr-2" />
-                        Copy BCH Address
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="traditional" className="space-y-6">
-              {settings.project_paypal_email && (
-                <Card className="border-2 border-border">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 font-mono">
-                      <CreditCard size={20} />
-                      PayPal Donation
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="bg-muted p-3 border border-border rounded font-mono text-sm">
-                      {settings.project_paypal_email}
-                    </div>
-                    <Button 
-                      onClick={() => copyToClipboard(settings.project_paypal_email, 'PayPal email')}
-                      className="w-full brutalist-button bg-blue-600 hover:bg-blue-700"
-                    >
-                      <Copy size={16} className="mr-2" />
-                      Copy PayPal Email
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-          </Tabs>
-
+          {/* Title Requirements */}
           <Card className="border-2 border-border">
             <CardHeader>
-              <CardTitle className="font-mono">Track Your Donations</CardTitle>
+              <CardTitle className="flex items-center gap-2 font-mono text-accent">
+                <Crown size={24} />
+                DONOR RECOGNITION TIERS
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="donorWallet" className="font-mono">Your Donor Wallet Address</Label>
-                <Input
-                  id="donorWallet"
-                  value={donorWallet}
-                  onChange={(e) => setDonorWallet(e.target.value)}
-                  placeholder="Enter your wallet address to track donations..."
-                  className="bg-input border-2 border-border font-mono"
-                />
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {titleRequirements.map((tier, index) => (
+                  <Card key={index} className="border border-border bg-card/50">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <Badge className={`${tier.color} bg-transparent border font-mono`}>
+                          {tier.title}
+                        </Badge>
+                        <span className="text-sm font-mono text-muted-foreground">
+                          {tier.points} pts
+                        </span>
+                      </div>
+                      <div className="text-xl font-bold font-mono text-accent">
+                        {tier.amount}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <ul className="space-y-1">
+                        {tier.features.map((feature, fIndex) => (
+                          <li key={fIndex} className="text-sm font-mono text-muted-foreground flex items-center gap-2">
+                            <Star size={12} className="text-accent" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                      {tier.title === 'CHAMPION' && (
+                        <div className="mt-2 p-2 bg-accent/10 border border-accent rounded">
+                          <div className="text-xs font-mono text-accent flex items-center gap-1">
+                            <Zap size={12} />
+                            Unlocks Black Hole Animation
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              <Button onClick={handleSaveDonorWallet} className="brutalist-button">
-                <DollarSign size={16} className="mr-2" />
-                Save Donor Wallet
-              </Button>
-              <Alert className="bg-blue-500/10 border-blue-500/20">
-                <AlertCircle className="h-4 w-4 text-blue-500" />
-                <AlertDescription className="text-blue-400 font-mono text-sm">
-                  Save your wallet address to track your donations and unlock user titles based on your contribution level.
-                </AlertDescription>
-              </Alert>
+              
+              <div className="mt-6 p-4 bg-muted border border-border rounded">
+                <div className="text-sm font-mono text-muted-foreground">
+                  <Gift size={16} className="inline mr-2" />
+                  <strong>Note:</strong> All donations directly support development and server costs. 
+                  Titles are automatically assigned based on total donation amount and grant access to exclusive features.
+                </div>
+              </div>
             </CardContent>
           </Card>
 
-          <div className="bg-muted p-6 border-2 border-border">
-            <h3 className="font-mono font-bold text-lg mb-4">Donation Benefits & User Titles</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-mono">
-              <div>
-                <div className="text-purple-400 font-bold">LEGEND ($10,000+)</div>
-                <div className="text-muted-foreground">• Ultimate recognition + all perks</div>
-                <div className="text-muted-foreground">• Exclusive access to everything</div>
+          {/* Why Support Us */}
+          <Card className="border-2 border-border">
+            <CardHeader>
+              <CardTitle className="font-mono text-accent">WHY SUPPORT OPEN FINDASH?</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <h3 className="font-mono font-bold text-foreground">🚀 DEVELOPMENT</h3>
+                  <p className="text-sm font-mono text-muted-foreground">
+                    Your support helps us build new features, improve performance, and maintain the platform.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-mono font-bold text-foreground">💰 SERVER COSTS</h3>
+                  <p className="text-sm font-mono text-muted-foreground">
+                    Keep the lights on with reliable hosting, database infrastructure, and third-party services.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-mono font-bold text-foreground">🔒 PRIVACY FIRST</h3>
+                  <p className="text-sm font-mono text-muted-foreground">
+                    We don't sell your data. Donations help us stay independent and user-focused.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-mono font-bold text-foreground">🌟 OPEN SOURCE</h3>
+                  <p className="text-sm font-mono text-muted-foreground">
+                    Supporting an open-source project that benefits the entire community.
+                  </p>
+                </div>
               </div>
-              <div>
-                <div className="text-yellow-400 font-bold">PATRON ($5,000+)</div>
-                <div className="text-muted-foreground">• Premium features + NFT airdrops</div>
-                <div className="text-muted-foreground">• Special recognition</div>
-              </div>
-              <div>
-                <div className="text-orange-400 font-bold">CHAMPION ($2,000+)</div>
-                <div className="text-muted-foreground">• Advanced analytics + early access</div>
-                <div className="text-muted-foreground">• Priority support</div>
-              </div>
-              <div>
-                <div className="text-blue-400 font-bold">SUPPORTER ($1,000+)</div>
-                <div className="text-muted-foreground">• Premium themes + features</div>
-                <div className="text-muted-foreground">• Community privileges</div>
-              </div>
-              <div>
-                <div className="text-green-400 font-bold">BACKER ($500+)</div>
-                <div className="text-muted-foreground">• Enhanced features</div>
-                <div className="text-muted-foreground">• Supporter badge</div>
-              </div>
-              <div>
-                <div className="text-cyan-400 font-bold">DONOR ($100+)</div>
-                <div className="text-muted-foreground">• Basic supporter perks</div>
-                <div className="text-muted-foreground">• Community recognition</div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
+      
       <Footer />
     </div>
   );
