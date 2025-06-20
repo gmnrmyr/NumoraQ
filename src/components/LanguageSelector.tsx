@@ -41,7 +41,13 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   const currentLanguage = languages.find(lang => lang.code === language);
   return <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        
+        <Button variant={variant} size={size} className="flex items-center gap-2 brutalist-button text-slate-50 bg-indigo-900 hover:bg-indigo-800">
+          <Globe size={16} />
+          {showLabel && <span className="hidden sm:inline font-mono uppercase">Language</span>}
+          {currentLanguage && <span className="text-sm font-mono">
+              {currentLanguage.flag} {showLabel ? '' : currentLanguage.code.toUpperCase()}
+            </span>}
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48 bg-card border-2 border-border z-50">
         <DropdownMenuLabel className="text-xs text-muted-foreground flex items-center gap-2 font-mono uppercase">
