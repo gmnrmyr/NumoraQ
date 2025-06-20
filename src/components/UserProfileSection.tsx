@@ -43,7 +43,7 @@ export const UserProfileSection = () => {
     if (diffMinutes < 60) return `${diffMinutes}m ago`;
     if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
     
-    // Format as DD/MM/YYYY, HH:MM:SS
+    // Format as DD/MM/YYYY, HH:MM:SS with current timezone
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();

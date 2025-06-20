@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -86,7 +87,7 @@ export const useLeaderboard = () => {
         userPointsMap.set(userId, existing);
       });
 
-      // Get user profiles for names and UIDs - use name from profiles as primary source
+      // Get user profiles for names and UIDs
       const userIds = Array.from(userPointsMap.keys());
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
@@ -111,15 +112,11 @@ export const useLeaderboard = () => {
         const profile = profilesData?.find(p => p.id === userId);
         const isPremium = premiumData?.some(p => p.user_id === userId) || false;
         
-        // Use the name from profiles (this comes from USER_INFO_CONFIG_UI)
+        // Use the name from profiles table, fallback to "Anonymous User" if no name set
         let displayName = profile?.name?.trim() || 'Anonymous User';
         
-        // Generate UID from user ID if not set
-        let userUID = profile?.user_uid || 'UNKNOWN';
-        if (!userUID || userUID === 'UNKNOWN') {
-          // Generate a simple UID from the user ID
-          userUID = userId.replace(/-/g, '').substring(0, 8).toUpperCase();
-        }
+        // Use the UID from profiles table, ensure it exists
+        let userUID = profile?.user_uid || 'USER';
         
         leaderboardEntries.push({
           user_id: userId,
