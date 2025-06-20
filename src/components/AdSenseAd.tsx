@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePremiumCodes } from '@/hooks/usePremiumCodes';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 
 interface AdSenseAdProps {
   slot?: string;
@@ -15,7 +15,7 @@ export const AdSenseAd: React.FC<AdSenseAdProps> = ({
   className = ""
 }) => {
   const { user } = useAuth();
-  const { isPremiumUser } = usePremiumCodes();
+  const { isPremiumUser } = usePremiumStatus();
 
   // Don't show ads if user is not logged in or is premium
   if (!user || isPremiumUser) {

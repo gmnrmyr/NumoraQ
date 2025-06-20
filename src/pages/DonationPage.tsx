@@ -14,6 +14,7 @@ import { Footer } from '@/components/Footer';
 const DonationPage = () => {
   const { settings } = useProjectSettings();
   const [donorWallet, setDonorWallet] = useState('');
+  const [activeTab, setActiveTab] = useState('');
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -35,7 +36,7 @@ const DonationPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground font-mono">
-      <Navbar />
+      <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="pt-32 pb-16">
         <div className="max-w-4xl mx-auto px-4 space-y-8">
           <div className="text-center space-y-4">

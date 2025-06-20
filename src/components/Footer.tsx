@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from "@/contexts/TranslationContext";
 import { useProjectSettings } from "@/hooks/useProjectSettings";
-import { Github, Twitter, Coffee, Heart, ExternalLink } from 'lucide-react';
+import { Github, Twitter, Coffee, Heart, ExternalLink, Zap } from 'lucide-react';
 
 export const Footer = () => {
   const { t, language } = useTranslation();
@@ -44,8 +44,9 @@ export const Footer = () => {
               <Link to="/leaderboard" className="block text-xs text-muted-foreground hover:text-accent font-mono">
                 Leaderboard
               </Link>
-              <Link to="/donation" className="block text-xs text-muted-foreground hover:text-accent font-mono">
-                Donate
+              <Link to="/upcoming-features" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-accent font-mono">
+                <Zap size={10} />
+                Upcoming Features
               </Link>
             </div>
           </div>
