@@ -1,18 +1,22 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Award, Star, TrendingUp, Calendar, Gift, Users, RefreshCw } from "lucide-react";
+import { Trophy, Medal, Award, Star, TrendingUp, Calendar, Gift, Users, RefreshCw, ChevronLeft, ChevronRight, User } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { DailyLoginButton } from '@/components/DailyLoginButton';
+import { ProfileUIDEditor } from '@/components/ProfileUIDEditor';
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
 const LeaderboardPage = () => {
   const { user } = useAuth();
   const { leaderboard, userStats, loading, refresh } = useLeaderboard();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showProfile, setShowProfile] = useState(false);
+  const itemsPerPage = 10;
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -22,6 +26,15 @@ const LeaderboardPage = () => {
       default: return <Star className="text-muted-foreground" size={16} />;
     }
   };
+
+  const highlightCurrentUser = (userId: string) => {
+    return user?.id === userId ? "bg-accent/20 border-accent" : "bg-muted/20 border-border";
+  };
+
+  const totalPages = Math.ceil(leaderboard.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentLeaderboard = leaderboard.slice(startIndex, endIndex);
 
   return (
     <>
@@ -57,8 +70,24 @@ const LeaderboardPage = () => {
                   <RefreshCw size={16} className="mr-2" />
                   Refresh
                 </Button>
+                {user && (
+                  <Button 
+                    onClick={() => setShowProfile(!showProfile)}
+                    variant="outline" 
+                    size="sm"
+                    className="brutalist-button"
+                  >
+                    <User size={16} className="mr-2" />
+                    Profile
+                  </Button>
+                )}
               </div>
             </div>
+
+            {/* Profile Editor */}
+            {showProfile && user && (
+              <ProfileUIDEditor />
+            )}
 
             {/* User Stats Card */}
             {user && (
@@ -161,32 +190,69 @@ const LeaderboardPage = () => {
                     No data available. Be the first to earn points!
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {leaderboard.map((entry) => (
-                      <div key={entry.user_id} className="flex items-center justify-between p-3 bg-muted/20 border border-border rounded">
-                        <div className="flex items-center gap-3">
-                          {getRankIcon(entry.rank)}
-                          <div>
-                            <div className="font-mono font-bold text-sm flex items-center gap-2">
-                              {entry.user_name}
-                              <Badge variant="outline" className="text-xs px-1 py-0 h-4">
-                                UID:{entry.user_uid}
-                              </Badge>
+                  <>
+                    <div className="space-y-3">
+                      {currentLeaderboard.map((entry) => (
+                        <div 
+                          key={entry.user_id} 
+                          className={`flex items-center justify-between p-3 border rounded transition-colors ${highlightCurrentUser(entry.user_id)}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {getRankIcon(entry.rank)}
+                            <div>
+                              <div className="font-mono font-bold text-sm flex items-center gap-2">
+                                {entry.user_name}
+                                <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                                  UID:{entry.user_uid}
+                                </Badge>
+                                {user?.id === entry.user_id && (
+                                  <Badge variant="secondary" className="text-xs px-2 py-0 h-4">
+                                    YOU
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground font-mono">
+                                Rank #{entry.rank}
+                              </div>
                             </div>
+                          </div>
+                          <div className="text-right space-y-1">
+                            <div className="font-bold text-accent font-mono">{entry.total_points.toLocaleString()} pts</div>
                             <div className="text-xs text-muted-foreground font-mono">
-                              Rank #{entry.rank}
+                              {entry.login_streak} logins • {entry.donation_count} donations
                             </div>
                           </div>
                         </div>
-                        <div className="text-right space-y-1">
-                          <div className="font-bold text-accent font-mono">{entry.total_points.toLocaleString()} pts</div>
-                          <div className="text-xs text-muted-foreground font-mono">
-                            {entry.login_streak} logins • {entry.donation_count} donations
-                          </div>
-                        </div>
+                      ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-center gap-2 mt-6">
+                        <Button
+                          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                          disabled={currentPage === 1}
+                          variant="outline"
+                          size="sm"
+                          className="brutalist-button"
+                        >
+                          <ChevronLeft size={16} />
+                        </Button>
+                        <span className="text-sm font-mono px-3">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <Button
+                          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                          disabled={currentPage === totalPages}
+                          variant="outline"
+                          size="sm"
+                          className="brutalist-button"
+                        >
+                          <ChevronRight size={16} />
+                        </Button>
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>

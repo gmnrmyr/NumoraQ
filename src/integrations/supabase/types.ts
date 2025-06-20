@@ -105,6 +105,7 @@ export type Database = {
           live_data_enabled: boolean | null
           name: string | null
           updated_at: string | null
+          user_uid: string | null
         }
         Insert: {
           created_at?: string | null
@@ -114,6 +115,7 @@ export type Database = {
           live_data_enabled?: boolean | null
           name?: string | null
           updated_at?: string | null
+          user_uid?: string | null
         }
         Update: {
           created_at?: string | null
@@ -123,6 +125,7 @@ export type Database = {
           live_data_enabled?: boolean | null
           name?: string | null
           updated_at?: string | null
+          user_uid?: string | null
         }
         Relationships: []
       }
@@ -202,7 +205,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_unique_uid: {
+        Args: { base_name: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
