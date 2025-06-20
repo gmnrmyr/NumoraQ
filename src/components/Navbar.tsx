@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Home, BarChart3, Trophy, LogIn, Menu, Heart } from "lucide-react";
-import { LanguageSelector } from './navbar/LanguageSelector';
+import { LanguageSelector } from '@/components/LanguageSelector';
 import { CurrencySelector } from './navbar/CurrencySelector';
 import { UserActions } from './navbar/UserActions';
 import { UserSettingsPanel } from './navbar/UserSettingsPanel';
@@ -94,7 +95,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
 
             {/* User Authentication */}
             {user ? (
-              <UserActions showUserPanel={showUserPanel} setShowUserPanel={setShowUserPanel} />
+              <UserActions />
             ) : (
               <div className="flex items-center gap-2">
                 <Button
@@ -196,7 +197,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
 
       {/* User Settings Panel */}
       {showUserPanel && user && (
-        <UserSettingsPanel onClose={() => setShowUserPanel(false)} />
+        <UserSettingsPanel />
       )}
     </nav>
   );

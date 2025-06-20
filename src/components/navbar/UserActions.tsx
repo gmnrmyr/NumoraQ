@@ -6,11 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useTranslation } from '@/contexts/TranslationContext';
 
-interface UserActionsProps {
-  onClose?: () => void;
-}
-
-export const UserActions: React.FC<UserActionsProps> = ({ onClose }) => {
+export const UserActions: React.FC = () => {
   const { user, signOut } = useAuth();
   const { importFromJSON, resetData } = useFinancialData();
   const { language, t } = useTranslation();
@@ -73,42 +69,11 @@ export const UserActions: React.FC<UserActionsProps> = ({ onClose }) => {
     };
     const templateJson = JSON.stringify(templates[currency]);
     importFromJSON(templateJson);
-    onClose?.();
   };
 
   return (
-    <>
-      <DropdownMenuItem 
-        onClick={() => createNewUser('BRL')} 
-        className="hover:bg-accent hover:text-accent-foreground font-mono"
-      >
-        <UserPlus size={16} className="mr-2" />
-        Novo Usuário (BRL 🇧🇷)
-      </DropdownMenuItem>
-      <DropdownMenuItem 
-        onClick={() => createNewUser('USD')} 
-        className="hover:bg-accent hover:text-accent-foreground font-mono"
-      >
-        <UserPlus size={16} className="mr-2" />
-        New User (USD 🇺🇸)
-      </DropdownMenuItem>
-      
-      <DropdownMenuSeparator className="bg-border" />
-      
-      <DropdownMenuItem 
-        onClick={() => { resetData(); onClose?.(); }} 
-        className="text-destructive hover:text-destructive-foreground hover:bg-destructive font-mono"
-      >
-        <Trash2 size={16} className="mr-2" />
-        {t.resetData}
-      </DropdownMenuItem>
-      <DropdownMenuItem 
-        onClick={() => { signOut(); onClose?.(); }} 
-        className="text-destructive hover:text-destructive-foreground hover:bg-destructive font-mono"
-      >
-        <LogOut size={16} className="mr-2" />
-        {t.signOut}
-      </DropdownMenuItem>
-    </>
+    <div className="flex items-center gap-2">
+      <span className="text-sm font-mono">{user?.email}</span>
+    </div>
   );
 };

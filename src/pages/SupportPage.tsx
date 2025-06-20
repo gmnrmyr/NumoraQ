@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Github, Twitter, ExternalLink, Heart, Coffee, Star, Users, MessageCircle, Mail, Zap } from "lucide-react";
+import { Github, Twitter, ExternalLink, Heart, Coffee, Star, Users, MessageCircle, Mail, Zap, DollarSign } from "lucide-react";
 
 const SupportPage = () => {
   return (
@@ -36,8 +36,8 @@ const SupportPage = () => {
             <Card className="brutalist-card border-accent bg-accent/5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-mono">
-                  <Coffee className="text-accent" size={20} />
-                  SUPPORT DEVELOPMENT
+                  <DollarSign className="text-accent" size={20} />
+                  FINANCIAL SUPPORT
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -45,7 +45,7 @@ const SupportPage = () => {
                   Your contributions help us maintain servers, add new features, and keep the platform free for everyone.
                 </p>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Card className="brutalist-card">
                     <CardContent className="p-4 text-center space-y-3">
                       <Coffee className="mx-auto text-accent" size={32} />
@@ -53,9 +53,12 @@ const SupportPage = () => {
                       <p className="text-xs text-muted-foreground font-mono">
                         Support with a small donation
                       </p>
-                      <Button className="w-full brutalist-button bg-accent text-accent-foreground">
+                      <Button 
+                        className="w-full brutalist-button bg-accent text-accent-foreground"
+                        onClick={() => window.open('https://ko-fi.com/openfindash', '_blank')}
+                      >
                         <Coffee size={16} className="mr-2" />
-                        Donate Coffee
+                        Ko-fi
                       </Button>
                     </CardContent>
                   </Card>
@@ -63,13 +66,33 @@ const SupportPage = () => {
                   <Card className="brutalist-card">
                     <CardContent className="p-4 text-center space-y-3">
                       <Heart className="mx-auto text-accent" size={32} />
-                      <h3 className="font-mono font-bold">BECOME A SPONSOR</h3>
+                      <h3 className="font-mono font-bold">GITHUB SPONSOR</h3>
                       <p className="text-xs text-muted-foreground font-mono">
-                        Support ongoing development
+                        Monthly recurring support
                       </p>
-                      <Button className="w-full brutalist-button bg-accent text-accent-foreground">
+                      <Button 
+                        className="w-full brutalist-button bg-accent text-accent-foreground"
+                        onClick={() => window.open('https://github.com/sponsors/openfindash', '_blank')}
+                      >
                         <Heart size={16} className="mr-2" />
-                        Sponsor Project
+                        Sponsor
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="brutalist-card">
+                    <CardContent className="p-4 text-center space-y-3">
+                      <DollarSign className="mx-auto text-accent" size={32} />
+                      <h3 className="font-mono font-bold">PAYPAL</h3>
+                      <p className="text-xs text-muted-foreground font-mono">
+                        One-time donation
+                      </p>
+                      <Button 
+                        className="w-full brutalist-button bg-accent text-accent-foreground"
+                        onClick={() => window.open('https://paypal.me/openfindash', '_blank')}
+                      >
+                        <DollarSign size={16} className="mr-2" />
+                        PayPal
                       </Button>
                     </CardContent>
                   </Card>
@@ -102,7 +125,7 @@ const SupportPage = () => {
                     <Button 
                       variant="outline" 
                       className="w-full brutalist-button justify-start"
-                      onClick={() => window.open('https://github.com/openfindash', '_blank')}
+                      onClick={() => window.open('https://github.com/openfindash/openfindash', '_blank')}
                     >
                       <Star size={16} className="mr-2" />
                       Star the Repository
@@ -111,7 +134,7 @@ const SupportPage = () => {
                     <Button 
                       variant="outline" 
                       className="w-full brutalist-button justify-start"
-                      onClick={() => window.open('https://github.com/openfindash/issues', '_blank')}
+                      onClick={() => window.open('https://github.com/openfindash/openfindash/issues', '_blank')}
                     >
                       <MessageCircle size={16} className="mr-2" />
                       Report Issues
@@ -140,7 +163,7 @@ const SupportPage = () => {
                       onClick={() => window.open('https://twitter.com/openfindash', '_blank')}
                     >
                       <Twitter size={16} className="mr-2" />
-                      Follow on Twitter
+                      Follow on Twitter/X
                       <ExternalLink size={12} className="ml-auto" />
                     </Button>
                     <Button 
@@ -150,6 +173,15 @@ const SupportPage = () => {
                     >
                       <MessageCircle size={16} className="mr-2" />
                       Join Discord
+                      <ExternalLink size={12} className="ml-auto" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full brutalist-button justify-start"
+                      onClick={() => window.open('https://reddit.com/r/openfindash', '_blank')}
+                    >
+                      <MessageCircle size={16} className="mr-2" />
+                      Reddit Community
                       <ExternalLink size={12} className="ml-auto" />
                     </Button>
                   </div>
