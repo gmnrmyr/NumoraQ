@@ -6,7 +6,7 @@ import { useSecureAdminAuth } from './useSecureAdminAuth';
 
 export const useAdminMode = () => {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const { isAdmin } = useSecureAdminAuth();
+  const { isAdmin, adminUser } = useSecureAdminAuth();
   
   // Use the new backend hooks
   const cmsSettings = useCMSSettings();
@@ -16,18 +16,21 @@ export const useAdminMode = () => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.shiftKey && event.key === 'E') {
         event.preventDefault();
-        setShowAdminPanel(true);
+        if (isAdmin) {
+          setShowAdminPanel(true);
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isAdmin]);
 
   return {
     isAdminMode: isAdmin, // Use secure admin status
     showAdminPanel,
     setShowAdminPanel,
+    adminUser,
     // CMS settings
     cmsSettings: cmsSettings.settings,
     updateCMSSetting: cmsSettings.updateSetting,
