@@ -68,7 +68,7 @@ export const LiquidAssetsCard = () => {
     }
 
     let finalValue = formData.value;
-    let assetData = { ...formData };
+    let assetData: any = { ...formData };
 
     if (assetType === 'crypto' && formData.cryptoSymbol && formData.quantity > 0) {
       finalValue = calculateCryptoValue(formData.cryptoSymbol, formData.quantity);
