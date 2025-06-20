@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, LogIn, Trophy } from "lucide-react";
+import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, LogIn, Trophy, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useCMSLogos } from "@/hooks/useCMSLogos";
@@ -102,6 +102,23 @@ export const Navbar = ({
     }, 100);
   };
 
+  const handleProfileClick = () => {
+    if (location.pathname !== '/dashboard') {
+      navigate('/dashboard');
+    }
+    onTabChange('portfolio');
+    setIsOpen(false);
+    setTimeout(() => {
+      const element = document.querySelector(`[data-section="portfolio"]`);
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }, 100);
+  };
+
   const handleTitleClick = () => {
     navigate('/');
   };
@@ -135,6 +152,18 @@ export const Navbar = ({
           {/* Desktop Actions */}
           <div className="flex items-center gap-3">
             <LanguageSelector variant="outline" size="sm" />
+            
+            {/* Profile Button for logged users */}
+            {user && (
+              <Button 
+                onClick={handleProfileClick}
+                variant="outline" 
+                size="sm" 
+                className="brutalist-button"
+              >
+                <User size={16} />
+              </Button>
+            )}
             
             {/* Always show hamburger menu */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -215,8 +244,17 @@ export const Navbar = ({
               </div>
             </div>
             
-            {/* Right side - Support only */}
+            {/* Right side - Profile and Support */}
             <div className="flex items-center gap-2">
+              <Button 
+                onClick={handleProfileClick}
+                variant="ghost" 
+                size="sm" 
+                className="font-mono brutalist-button text-xs px-2 py-1 h-8"
+              >
+                <User size={14} className="mr-1" />
+                Profile
+              </Button>
               <DonationLinks />
             </div>
           </div>}

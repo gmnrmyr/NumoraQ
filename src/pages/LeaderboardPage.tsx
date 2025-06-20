@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Award, Star, TrendingUp, Calendar, Gift, Users, RefreshCw, ChevronLeft, ChevronRight, User } from "lucide-react";
+import { Trophy, Medal, Award, Star, TrendingUp, Calendar, Gift, Users, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { DailyLoginButton } from '@/components/DailyLoginButton';
@@ -70,17 +69,6 @@ const LeaderboardPage = () => {
                   <RefreshCw size={16} className="mr-2" />
                   Refresh
                 </Button>
-                {user && (
-                  <Button 
-                    onClick={() => setShowProfile(!showProfile)}
-                    variant="outline" 
-                    size="sm"
-                    className="brutalist-button"
-                  >
-                    <User size={16} className="mr-2" />
-                    Profile
-                  </Button>
-                )}
               </div>
             </div>
 
