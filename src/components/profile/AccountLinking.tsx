@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { Wallet, MessageCircle, Mail, Link, Unlink, Eye, EyeOff } from 'lucide-react';
+import { Wallet, MessageCircle, Mail, Link, Eye, EyeOff } from 'lucide-react';
 
 export const AccountLinking = () => {
   const { user, linkAccount } = useAuth();

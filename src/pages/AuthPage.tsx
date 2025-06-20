@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowLeft, AlertCircle, Wallet, MessageCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { EmailAuthForms } from '@/components/auth/EmailAuthForms';
 import { EmailConfirmationSuccess } from '@/components/auth/EmailConfirmationSuccess';
 
@@ -13,7 +13,7 @@ const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [showEmailSent, setShowEmailSent] = useState(false);
-  const { user, signInWithEmail, signUpWithEmail, signInWithSolana, signInWithDiscord } = useAuth();
+  const { user, signInWithEmail, signUpWithEmail } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,18 +42,6 @@ const AuthPage = () => {
     if (!error) {
       setShowEmailSent(true);
     }
-  };
-
-  const handleSolanaSignIn = async () => {
-    setLoading(true);
-    await signInWithSolana();
-    setLoading(false);
-  };
-
-  const handleDiscordSignIn = async () => {
-    setLoading(true);
-    await signInWithDiscord();
-    setLoading(false);
   };
 
   return (
@@ -94,45 +82,11 @@ const AuthPage = () => {
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription className="text-xs font-mono">
-                    📧 Email, 🔗 Solana & 💬 Discord login available
+                    📧 Email authentication available
                     <br />
-                    🔜 More social logins coming soon!
+                    🔜 Solana, Discord and other social logins coming soon!
                   </AlertDescription>
                 </Alert>
-
-                {/* Social Login Buttons */}
-                <div className="space-y-2">
-                  <Button 
-                    onClick={handleSolanaSignIn}
-                    variant="outline"
-                    className="w-full"
-                    disabled={loading}
-                  >
-                    <Wallet className="w-4 h-4 mr-2" />
-                    {loading ? 'Connecting...' : 'Sign In with Solana'}
-                  </Button>
-
-                  <Button 
-                    onClick={handleDiscordSignIn}
-                    variant="outline"
-                    className="w-full"
-                    disabled={loading}
-                  >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    {loading ? 'Connecting...' : 'Sign In with Discord'}
-                  </Button>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Or continue with email
-                    </span>
-                  </div>
-                </div>
 
                 <EmailAuthForms
                   onSignIn={handleEmailSignIn}

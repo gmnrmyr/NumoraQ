@@ -11,12 +11,29 @@ import { AccountLinking } from './profile/AccountLinking';
 import { DataManagementSection } from './DataManagementSection';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { ChevronRight, ChevronDown, Cloud, HardDrive } from 'lucide-react';
+import { ChevronRight, ChevronDown, Cloud, Save } from 'lucide-react';
 
 export const UserProfileSection = () => {
-  const { data } = useFinancialData();
+  const { data, saveToCloud, syncState, lastSync } = useFinancialData();
   const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(true);
+
+  const handleCloudSave = () => {
+    if (user) {
+      saveToCloud();
+    }
+  };
+
+  const formatLastSync = (timestamp: string | null) => {
+    if (!timestamp) return 'Never synced';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    if (diffMinutes < 1) return 'Just now';
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
+    return date.toLocaleDateString();
+  };
 
   return (
     <div className="space-y-4">
@@ -34,16 +51,26 @@ export const UserProfileSection = () => {
               <span className="font-mono text-sm">USER_INFO_CONFIG_UI</span>
             </Button>
             
-            {/* Cloud Sync Status - Always visible */}
-            <div className="flex items-center gap-2">
-              <CloudSyncStatus />
-              {!isExpanded && (
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <HardDrive size={12} />
-                  <Cloud size={12} />
-                </div>
-              )}
-            </div>
+            {/* When collapsed, show functional cloud save button and user info */}
+            {!isExpanded && user && (
+              <div className="flex items-center gap-2">
+                <CloudSyncStatus />
+                <Button
+                  onClick={handleCloudSave}
+                  disabled={syncState === 'saving' || syncState === 'loading'}
+                  variant="outline"
+                  size="sm"
+                  className="brutalist-button"
+                  title={`Save to cloud - Last sync: ${formatLastSync(lastSync)}`}
+                >
+                  {syncState === 'saving' ? (
+                    <Save size={14} className="animate-spin" />
+                  ) : (
+                    <Cloud size={14} />
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Expanded Content */}
@@ -86,13 +113,6 @@ export const UserProfileSection = () => {
             </>
           )}
         </CardContent>
-        
-        {/* Bottom right corner title - improved styling */}
-        <div className="absolute bottom-3 right-4 text-xs text-muted-foreground font-mono opacity-80 bg-background/50 px-4 py-2 border border-accent/30 rounded shadow-sm backdrop-blur-sm">
-          <span className="text-accent font-bold">[ </span>
-          USER_INFO_CONFIG_UI
-          <span className="text-accent font-bold"> ]</span>
-        </div>
       </Card>
     </div>
   );
