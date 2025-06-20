@@ -22,24 +22,57 @@ export const UserSettingsPanel = () => {
   const displayName = data.userProfile.name || user?.email || "User";
 
   const handleTabChange = (tab: string) => {
+    console.log('Attempting to navigate to tab:', tab);
+    
     if (tab === 'leaderboard') {
       navigate('/leaderboard');
       setIsOpen(false);
       return;
     }
+    
+    // Always navigate to dashboard first
     if (location.pathname !== '/dashboard') {
       navigate('/dashboard');
+      setIsOpen(false);
+      // Use a longer timeout to ensure page loads
+      setTimeout(() => {
+        const element = document.querySelector(`[data-section="${tab}"]`);
+        console.log('Looking for element with data-section:', tab, 'Found:', element);
+        if (element) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        } else {
+          // If data-section doesn't work, try to trigger tab change via the Tabs component
+          const tabTrigger = document.querySelector(`[value="${tab}"]`);
+          console.log('Looking for tab trigger with value:', tab, 'Found:', tabTrigger);
+          if (tabTrigger) {
+            (tabTrigger as HTMLElement).click();
+          }
+        }
+      }, 500);
+    } else {
+      setIsOpen(false);
+      // We're already on dashboard, try to navigate to the section
+      setTimeout(() => {
+        const element = document.querySelector(`[data-section="${tab}"]`);
+        console.log('Looking for element with data-section:', tab, 'Found:', element);
+        if (element) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        } else {
+          // If data-section doesn't work, try to trigger tab change via the Tabs component
+          const tabTrigger = document.querySelector(`[value="${tab}"]`);
+          console.log('Looking for tab trigger with value:', tab, 'Found:', tabTrigger);
+          if (tabTrigger) {
+            (tabTrigger as HTMLElement).click();
+          }
+        }
+      }, 100);
     }
-    setIsOpen(false);
-    setTimeout(() => {
-      const element = document.querySelector(`[data-section="${tab}"]`);
-      if (element) {
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    }, 100);
   };
 
   const handleProfileClick = () => {
