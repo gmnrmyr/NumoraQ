@@ -9,23 +9,36 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Info, Gift, Crown, Star, Zap, CreditCard, Wallet, RefreshCw } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useDonorWallet } from "@/hooks/useDonorWallet";
+import { useUserTitles } from "@/hooks/useUserTitles";
+import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
 export const UserTitleBadge = () => {
   const { data, updateUserProfile } = useFinancialData();
   const { fetchDonationData, isLoading } = useDonorWallet();
+  const { userTitle } = useUserTitles();
+  const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [donorWallet, setDonorWallet] = useState(data.userProfile.donorWallet || '');
 
-  const getTitleInfo = (amount: number) => {
-    if (amount >= 1000) return { title: 'PATRON', icon: Crown, color: 'text-yellow-400' };
-    if (amount >= 500) return { title: 'SUPPORTER', icon: Star, color: 'text-purple-400' };
-    if (amount >= 100) return { title: 'BACKER', icon: Zap, color: 'text-blue-400' };
-    if (amount >= 10) return { title: 'DONOR', icon: Gift, color: 'text-green-400' };
-    return { title: 'USER', icon: Info, color: 'text-muted-foreground' };
+  const getTitleInfo = (title: string) => {
+    const titleMap: Record<string, { icon: any, color: string }> = {
+      'NEWBIE': { icon: Info, color: 'text-gray-400' },
+      'BEGINNER': { icon: Info, color: 'text-green-400' },
+      'APPRENTICE': { icon: Zap, color: 'text-blue-400' },
+      'TRACKER': { icon: Star, color: 'text-purple-400' },
+      'ANALYST': { icon: Crown, color: 'text-yellow-400' },
+      'STRATEGIST': { icon: Crown, color: 'text-orange-400' },
+      'EXPERT': { icon: Crown, color: 'text-red-400' },
+      'MASTER': { icon: Crown, color: 'text-pink-400' },
+      'LEGEND': { icon: Crown, color: 'text-indigo-400' },
+      'MATRIX LORD': { icon: Crown, color: 'text-cyan-400' },
+      'DEGEN OVERLORD': { icon: Crown, color: 'text-emerald-400' }
+    };
+    return titleMap[title] || { icon: Info, color: 'text-muted-foreground' };
   };
 
-  const currentTitle = getTitleInfo(data.userProfile.totalDonated || 0);
+  const currentTitle = getTitleInfo(userTitle);
   const TitleIcon = currentTitle.icon;
 
   const handleFetchDonations = async () => {
@@ -69,17 +82,13 @@ export const UserTitleBadge = () => {
   };
 
   const handleDonateWithCrypto = () => {
-    toast({
-      title: "Crypto Payment",
-      description: "Crypto payment integration coming soon! Use the wallet address feature for now.",
-    });
+    navigate('/donation');
+    setIsDialogOpen(false);
   };
 
   const handleDonateWithPayPal = () => {
-    toast({
-      title: "PayPal Payment",
-      description: "PayPal integration coming soon! Contact support for donation instructions.",
-    });
+    navigate('/donation');
+    setIsDialogOpen(false);
   };
 
   return (
@@ -90,14 +99,14 @@ export const UserTitleBadge = () => {
           className={`cursor-pointer hover:bg-accent/10 transition-colors font-mono ${currentTitle.color}`}
         >
           <TitleIcon size={12} className="mr-1" />
-          {currentTitle.title}
+          {userTitle}
         </Badge>
       </DialogTrigger>
       <DialogContent className="bg-card border-2 border-border max-w-md">
         <DialogHeader>
           <DialogTitle className="font-mono uppercase flex items-center gap-2">
             <Gift size={20} />
-            Donor Status & Rewards
+            User Title & Rewards
           </DialogTitle>
         </DialogHeader>
         
@@ -143,17 +152,23 @@ export const UserTitleBadge = () => {
             
             <div className="bg-muted p-3 border-2 border-border">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-mono font-bold text-sm">CURRENT STATUS:</h4>
+                <h4 className="font-mono font-bold text-sm">CURRENT TITLE:</h4>
                 <span className={`font-mono text-sm ${currentTitle.color}`}>
-                  ${data.userProfile.totalDonated || 0}
+                  {userTitle}
                 </span>
               </div>
               <div className="space-y-1 text-xs font-mono">
-                <div className="text-yellow-400">• PATRON ($1000+) - All features + NFT airdrops</div>
-                <div className="text-purple-400">• SUPPORTER ($500+) - Premium themes + early access</div>
-                <div className="text-blue-400">• BACKER ($100+) - Advanced features unlocked</div>
-                <div className="text-green-400">• DONOR ($10+) - Supporter badge + thanks</div>
-                <div className="text-muted-foreground">• USER ($0) - Basic features</div>
+                <div className="text-emerald-400">• DEGEN OVERLORD (64000+)</div>
+                <div className="text-cyan-400">• MATRIX LORD (32000+)</div>
+                <div className="text-indigo-400">• LEGEND (16000+)</div>
+                <div className="text-pink-400">• MASTER (8000+)</div>
+                <div className="text-red-400">• EXPERT (4000+)</div>
+                <div className="text-orange-400">• STRATEGIST (2000+)</div>
+                <div className="text-yellow-400">• ANALYST (1000+)</div>
+                <div className="text-purple-400">• TRACKER (600+)</div>
+                <div className="text-blue-400">• APPRENTICE (300+)</div>
+                <div className="text-green-400">• BEGINNER (100+)</div>
+                <div className="text-gray-400">• NEWBIE (0+)</div>
               </div>
             </div>
           </TabsContent>
