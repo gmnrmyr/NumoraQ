@@ -11,16 +11,24 @@ import { AccountLinking } from './profile/AccountLinking';
 import { DataManagementSection } from './DataManagementSection';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { ChevronRight, ChevronDown, Cloud, Save } from 'lucide-react';
+import { ChevronRight, ChevronDown, Cloud, Save, Mail, LogOut } from 'lucide-react';
 
 export const UserProfileSection = () => {
   const { data, saveToCloud, syncState, lastSync } = useFinancialData();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [isExpanded, setIsExpanded] = useState(true);
 
   const handleCloudSave = () => {
     if (user) {
       saveToCloud();
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
     }
   };
 
@@ -33,6 +41,11 @@ export const UserProfileSection = () => {
     if (diffMinutes < 60) return `${diffMinutes}m ago`;
     if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
     return date.toLocaleDateString();
+  };
+
+  const truncateEmail = (email: string, maxLength: number = 20) => {
+    if (email.length <= maxLength) return email;
+    return email.substring(0, maxLength - 3) + '...';
   };
 
   return (
@@ -53,22 +66,41 @@ export const UserProfileSection = () => {
             
             {/* When collapsed, show functional cloud save button and user info */}
             {!isExpanded && user && (
-              <div className="flex items-center gap-2">
-                <CloudSyncStatus />
-                <Button
-                  onClick={handleCloudSave}
-                  disabled={syncState === 'saving' || syncState === 'loading'}
-                  variant="outline"
-                  size="sm"
-                  className="brutalist-button"
-                  title={`Save to cloud - Last sync: ${formatLastSync(lastSync)}`}
-                >
-                  {syncState === 'saving' ? (
-                    <Save size={14} className="animate-spin" />
-                  ) : (
-                    <Cloud size={14} />
-                  )}
-                </Button>
+              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 min-w-0">
+                {/* User info - stacked on mobile */}
+                <div className="flex items-center gap-2 min-w-0 order-2 sm:order-1">
+                  <Mail size={14} className="text-muted-foreground flex-shrink-0" />
+                  <span className="text-xs text-muted-foreground font-mono truncate">
+                    {truncateEmail(user.email || '', 15)}
+                  </span>
+                  <Button 
+                    onClick={handleLogout} 
+                    size="sm" 
+                    variant="outline" 
+                    className="brutalist-button text-xs flex-shrink-0"
+                  >
+                    <LogOut size={12} />
+                  </Button>
+                </div>
+                
+                {/* Cloud save button */}
+                <div className="flex items-center gap-1 order-1 sm:order-2">
+                  <Button
+                    onClick={handleCloudSave}
+                    disabled={syncState === 'saving' || syncState === 'loading'}
+                    variant="outline"
+                    size="sm"
+                    className="brutalist-button flex items-center gap-1"
+                    title={`Save to cloud - Last sync: ${formatLastSync(lastSync)}`}
+                  >
+                    {syncState === 'saving' ? (
+                      <Save size={14} className="animate-spin" />
+                    ) : (
+                      <Cloud size={14} />
+                    )}
+                    <span className="text-xs hidden sm:inline">Save</span>
+                  </Button>
+                </div>
               </div>
             )}
           </div>

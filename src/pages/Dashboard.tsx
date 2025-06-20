@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { PortfolioOverview } from "@/components/PortfolioOverview";
@@ -79,9 +78,6 @@ const Dashboard = () => {
           <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
             <DashboardHeader />
             
-            {/* Ad placement for non-premium users */}
-            <AdSenseAd className="my-4" />
-            
             {/* Consolidated User Profile Section with all panels */}
             <UserProfileSection />
             
@@ -89,8 +85,8 @@ const Dashboard = () => {
             <MetricsOverview />
             <ProjectionCard />
 
-            {/* Another ad placement */}
-            <AdSenseAd className="my-6" />
+            {/* Ad placement only after substantial content is loaded */}
+            <AdSenseAd className="my-6" minContentRequired={true} />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <div>
@@ -112,7 +108,8 @@ const Dashboard = () => {
                     <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
                   </div>
                   <IncomeTracking />
-                  <AdSenseAd className="my-4" />
+                  {/* Ad placement within content sections */}
+                  <AdSenseAd className="my-4" minContentRequired={true} />
                 </TabsContent>
 
                 <TabsContent value="expenses" className="space-y-6" data-section="expenses">
@@ -159,8 +156,8 @@ const Dashboard = () => {
 
             <ProjectionChart />
             
-            {/* Final ad placement */}
-            <AdSenseAd className="my-4" />
+            {/* Final ad placement after main content */}
+            <AdSenseAd className="my-4" minContentRequired={true} />
           </div>
           
           <DevMenu />
