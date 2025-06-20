@@ -101,10 +101,23 @@ export const useLeaderboard = () => {
       userPointsMap.forEach((stats, userId) => {
         const profile = profilesData?.find(p => p.id === userId);
         
+        // Use the actual name from profiles, with fallbacks
+        let displayName = 'Anonymous User';
+        if (profile?.name && profile.name.trim()) {
+          displayName = profile.name.trim();
+        }
+        
+        // Generate UID from user ID if not set
+        let userUID = profile?.user_uid || 'UNKNOWN';
+        if (!userUID || userUID === 'UNKNOWN') {
+          // Generate a simple UID from the user ID
+          userUID = userId.replace(/-/g, '').substring(0, 8).toUpperCase();
+        }
+        
         leaderboardEntries.push({
           user_id: userId,
-          user_name: profile?.name || 'Anonymous User',
-          user_uid: profile?.user_uid || 'UNKNOWN',
+          user_name: displayName,
+          user_uid: userUID,
           total_points: stats.total_points,
           rank: 0, // Will be calculated after sorting
           donation_count: stats.donation_count,
