@@ -12,10 +12,10 @@ interface LogoSettings {
 
 export const useCMSLogos = () => {
   const [logos, setLogos] = useState<LogoSettings>({
-    square_logo_url: '/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png',
-    horizontal_logo_url: '/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png',
-    vertical_logo_url: '/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png',
-    symbol_logo_url: '/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png'
+    square_logo_url: '/lovable-uploads/a9b55d65-1fdb-426f-b462-5b057df47bd9.png',
+    horizontal_logo_url: '/lovable-uploads/a9b55d65-1fdb-426f-b462-5b057df47bd9.png',
+    vertical_logo_url: '/lovable-uploads/a9b55d65-1fdb-426f-b462-5b057df47bd9.png',
+    symbol_logo_url: '/lovable-uploads/a9b55d65-1fdb-426f-b462-5b057df47bd9.png'
   });
   const [loading, setLoading] = useState(true);
 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -20,11 +19,10 @@ export const Footer = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <img 
-                src={logos.square_logo_url} 
-                alt={`${settings.website_name} Logo`} 
-                className="h-8 w-auto"
+                src={logos.horizontal_logo_url} 
+                alt="Open Findash Logo" 
+                className="h-6 w-auto"
               />
-              <h3 className="font-mono font-bold text-accent uppercase">{settings.website_name}</h3>
             </div>
             <p className="text-xs text-muted-foreground font-mono">
               Advanced financial dashboard for crypto & traditional assets

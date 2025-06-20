@@ -109,8 +109,11 @@ const LandingPage = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center gap-2">
-                <div className="text-xl font-bold text-accent ascii-animation">₿</div>
-                <span className="text-lg font-bold">OPEN FINDASH</span>
+                <img 
+                  src="/lovable-uploads/a9b55d65-1fdb-426f-b462-5b057df47bd9.png" 
+                  alt="Open Findash Logo" 
+                  className="h-4 w-auto"
+                />
               </div>
               
               {/* Desktop Navigation */}
@@ -274,8 +277,11 @@ const LandingPage = () => {
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-2">
-                <div className="text-accent">₿</div>
-                <span className="font-bold">OPEN FINDASH</span>
+                <img 
+                  src="/lovable-uploads/a9b55d65-1fdb-426f-b462-5b057df47bd9.png" 
+                  alt="Open Findash Logo" 
+                  className="h-4 w-auto"
+                />
                 <span className="text-xs text-muted-foreground">© 2024</span>
               </div>
               

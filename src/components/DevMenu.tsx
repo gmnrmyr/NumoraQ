@@ -15,6 +15,13 @@ export const DevMenu = () => {
   const { activatePremiumCode } = useAdminMode();
   const [degenCode, setDegenCode] = useState('');
 
+  // Set monochrome as default theme on component mount
+  React.useEffect(() => {
+    if (!data.userProfile.theme) {
+      applyTheme('monochrome');
+    }
+  }, []);
+
   const applyTheme = (theme: string) => {
     const root = document.documentElement;
     
@@ -133,8 +140,8 @@ export const DevMenu = () => {
             
             <div className="grid grid-cols-2 gap-2">
               <ThemeButton theme="default" label="Default" />
+              <ThemeButton theme="monochrome" label="Monochrome (Default)" />
               <ThemeButton theme="neon" label="Neon" />
-              <ThemeButton theme="monochrome" label="Monochrome" />
               <ThemeButton theme="dual-tone" label="Dual Tone" />
               <ThemeButton theme="high-contrast" label="High Contrast" />
               <ThemeButton 
