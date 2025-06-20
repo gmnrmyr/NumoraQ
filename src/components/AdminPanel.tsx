@@ -1,394 +1,199 @@
+
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Shield, Key, X, Copy, Gift, Wallet, DollarSign, Crown, Settings, Globe, Trash2, CheckCircle, XCircle, Users as UsersIcon } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Shield, Users, Code, Gift, Crown, Settings, Globe, Upload, Wallet } from 'lucide-react';
 import { useAdminMode } from '@/hooks/useAdminMode';
-import { useUserPoints } from '@/hooks/useUserPoints';
-import { toast } from '@/hooks/use-toast';
+import { usePremiumCodes } from '@/hooks/usePremiumCodes';
+import { useAuth } from '@/contexts/AuthContext';
+import { ProjectSettingsPanel } from './cms/ProjectSettingsPanel';
 
-interface AdminPanelProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
+export const AdminPanel = () => {
+  const { user } = useAuth();
   const { 
-    isAdminMode,
-    cmsSettings,
-    updateCMSSetting,
-    updateMultipleCMSSettings,
-    premiumCodes,
     generatePremiumCode,
-    deletePremiumCode,
-    getCodeStats,
-    premiumCodesLoading
+    loading: premiumLoading
   } = useAdminMode();
   
-  const { addManualPoints } = useUserPoints();
-  const [localSettings, setLocalSettings] = useState({
-    website_name: '',
-    project_wallet: '',
-    donation_goal: 0
-  });
+  const {
+    codes,
+    loading: codesLoading,
+    createCode,
+    deactivateCode
+  } = usePremiumCodes();
 
-  const handleGenerateCode = async (duration: '1year' | '5years' | 'lifetime') => {
-    const code = await generatePremiumCode(duration);
-    if (code) {
-      copyToClipboard(code);
+  const [newCodeType, setNewCodeType] = useState('degen');
+  const [newCodeEmail, setNewCodeEmail] = useState('');
+
+  const handleGenerateCode = async () => {
+    if (!newCodeEmail.trim()) {
+      alert('Please enter an email address');
+      return;
+    }
+
+    const success = await generatePremiumCode(newCodeType, newCodeEmail);
+    if (success) {
+      setNewCodeEmail('');
+      alert('Premium code generated and sent!');
     }
   };
 
-  const copyToClipboard = (code: string) => {
-    navigator.clipboard.writeText(code);
-    toast({
-      title: "Copied",
-      description: "Code copied to clipboard."
-    });
-  };
-
-  const handleDeleteCode = async (codeId: string) => {
-    await deletePremiumCode(codeId);
-  };
-
-  const handleUpdateWebsiteName = async () => {
-    if (localSettings.website_name.trim()) {
-      await updateCMSSetting('website_name', localSettings.website_name);
-      setLocalSettings(prev => ({ ...prev, website_name: '' }));
+  const handleCreateCode = async () => {
+    if (!newCodeEmail.trim()) {
+      alert('Please enter an email address');
+      return;
     }
+
+    await createCode(newCodeType, newCodeEmail);
+    setNewCodeEmail('');
   };
 
-  const handleUpdateProjectWallet = async () => {
-    if (localSettings.project_wallet.trim()) {
-      await updateCMSSetting('project_wallet', localSettings.project_wallet);
-      setLocalSettings(prev => ({ ...prev, project_wallet: '' }));
-    }
-  };
-
-  const handleUpdateDonationGoal = async () => {
-    if (localSettings.donation_goal > 0) {
-      await updateCMSSetting('donation_goal', localSettings.donation_goal);
-      setLocalSettings(prev => ({ ...prev, donation_goal: 0 }));
-    }
-  };
-
-  const codeStats = getCodeStats();
+  if (!user) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-card border-2 border-border max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-mono uppercase">
-            <Shield size={16} className="text-accent" />
-            Legacy Admin Panel
-          </DialogTitle>
-          <div className="text-xs text-muted-foreground font-mono">
-            Note: This is the legacy admin panel. Use the secure admin panel for enhanced security.
+    <div className="space-y-6">
+      <Card className="border-2 border-accent bg-accent/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-mono text-accent">
+            <Shield size={24} />
+            ADMIN CONTROL PANEL
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm font-mono text-muted-foreground">
+            Authorized Administrator: {user.email}
           </div>
-        </DialogHeader>
+        </CardContent>
+      </Card>
 
-        {!isAdminMode ? (
-          <div className="space-y-4">
-            <div className="text-sm text-muted-foreground font-mono">
-              Admin mode not active. Please use the secure admin panel for proper authentication.
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={onClose} variant="outline" className="brutalist-button flex-1">
-                <X size={16} className="mr-2" />
-                Close
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <Tabs defaultValue="premium" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="premium">Premium</TabsTrigger>
-              <TabsTrigger value="users">Users</TabsTrigger>
-              <TabsTrigger value="wallet">Wallet</TabsTrigger>
-              <TabsTrigger value="site">Site</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="premium" className="space-y-4">
-              <Card className="bg-background/50 border-2 border-green-600">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-green-400 flex items-center gap-2 text-sm font-mono uppercase">
-                    <Crown size={16} />
-                    Premium Code Management
-                  </CardTitle>
-                  <div className="flex gap-4 text-xs font-mono">
-                    <span>Total: <Badge variant="outline">{codeStats.total}</Badge></span>
-                    <span>Active: <Badge variant="outline" className="border-green-500">{codeStats.active}</Badge></span>
-                    <span>Used: <Badge variant="outline" className="border-red-500">{codeStats.used}</Badge></span>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-3 gap-2">
-                    <Button 
-                      onClick={() => handleGenerateCode('1year')}
-                      className="brutalist-button bg-blue-600 hover:bg-blue-700 text-xs"
-                      disabled={premiumCodesLoading}
-                    >
-                      Generate 1 Year
-                    </Button>
-                    <Button 
-                      onClick={() => handleGenerateCode('5years')}
-                      className="brutalist-button bg-purple-600 hover:bg-purple-700 text-xs"
-                      disabled={premiumCodesLoading}
-                    >
-                      Generate 5 Years
-                    </Button>
-                    <Button 
-                      onClick={() => handleGenerateCode('lifetime')}
-                      className="brutalist-button bg-yellow-600 hover:bg-yellow-700 text-xs"
-                      disabled={premiumCodesLoading}
-                    >
-                      Generate Lifetime
-                    </Button>
-                  </div>
-                  
-                  {premiumCodes.length > 0 && (
-                    <div className="max-h-64 overflow-y-auto border border-border rounded">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="font-mono text-xs">Code</TableHead>
-                            <TableHead className="font-mono text-xs">Duration</TableHead>
-                            <TableHead className="font-mono text-xs">Status</TableHead>
-                            <TableHead className="font-mono text-xs">Used By</TableHead>
-                            <TableHead className="font-mono text-xs">Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {premiumCodes.map((code) => (
-                            <TableRow key={code.id}>
-                              <TableCell className="font-mono text-xs">{code.code}</TableCell>
-                              <TableCell className="font-mono text-xs">{code.code_type}</TableCell>
-                              <TableCell>
-                                {code.used_by ? (
-                                  <Badge variant="outline" className="border-red-500 text-red-500">
-                                    <XCircle size={12} className="mr-1" />
-                                    Used
-                                  </Badge>
-                                ) : (
-                                  <Badge variant="outline" className="border-green-500 text-green-500">
-                                    <CheckCircle size={12} className="mr-1" />
-                                    Active
-                                  </Badge>
-                                )}
-                              </TableCell>
-                              <TableCell className="font-mono text-xs">
-                                {code.used_by ? (
-                                  <div>
-                                    <div>{code.user_email || 'Unknown'}</div>
-                                    <div className="text-muted-foreground">
-                                      {code.used_at ? new Date(code.used_at).toLocaleDateString() : ''}
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <span className="text-muted-foreground">-</span>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex gap-1">
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => copyToClipboard(code.code)}
-                                    className="h-6 w-6 p-0"
-                                  >
-                                    <Copy size={12} />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleDeleteCode(code.id)}
-                                    className="h-6 w-6 p-0 hover:bg-red-50"
-                                  >
-                                    <Trash2 size={12} />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+      <Tabs defaultValue="cms" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 bg-card border-2 border-border">
+          <TabsTrigger value="cms" className="font-mono">
+            <Settings size={16} className="mr-2" />
+            CMS Settings
+          </TabsTrigger>
+          <TabsTrigger value="codes" className="font-mono">
+            <Gift size={16} className="mr-2" />
+            Premium Codes
+          </TabsTrigger>
+          <TabsTrigger value="users" className="font-mono">
+            <Users size={16} className="mr-2" />
+            User Management
+          </TabsTrigger>
+        </TabsList>
 
-            <TabsContent value="users" className="space-y-4">
-              <Card className="bg-background/50 border-2 border-purple-600">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-purple-400 flex items-center gap-2 text-sm font-mono uppercase">
-                    <UsersIcon size={16} />
-                    User Management & UID System
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="bg-muted p-3 border-2 border-border rounded">
-                    <div className="text-xs font-mono">
-                      <div className="font-bold mb-2">UID SYSTEM STATUS:</div>
-                      <div className="text-green-400">✓ UIDs now display on leaderboard</div>
-                      <div className="text-green-400">✓ 8-character unique identifiers generated from user IDs</div>
-                      <div className="text-green-400">✓ Format: User-{'{UID}'} (e.g., User-A1B2C3D4)</div>
-                      <div className="text-muted-foreground mt-2">
-                        UIDs are automatically generated from user authentication IDs for consistency.
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground font-mono uppercase">Manual Point Allocation:</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Input
-                        placeholder="User ID"
-                        className="font-mono text-xs"
-                      />
-                      <Input
-                        type="number"
-                        placeholder="Points"
-                        className="font-mono text-xs"
-                      />
-                    </div>
-                    <Button className="brutalist-button w-full">
-                      Award Points
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+        <TabsContent value="cms" className="space-y-4">
+          <ProjectSettingsPanel />
+        </TabsContent>
 
-            <TabsContent value="wallet" className="space-y-4">
-              <Card className="bg-background/50 border-2 border-blue-600">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-blue-400 flex items-center gap-2 text-sm font-mono uppercase">
-                    <Wallet size={16} />
-                    Project Wallet Settings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground font-mono uppercase">Current Project Wallet:</Label>
-                    <div className="font-mono text-xs p-2 bg-muted rounded border">
-                      {cmsSettings.project_wallet}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground font-mono uppercase">Update Project Wallet:</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={localSettings.project_wallet}
-                        onChange={(e) => setLocalSettings(prev => ({ ...prev, project_wallet: e.target.value }))}
-                        className="font-mono text-xs"
-                        placeholder="0x..."
-                      />
-                      <Button onClick={handleUpdateProjectWallet} className="brutalist-button">
-                        Update
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs font-mono uppercase">Crypto Donations</Label>
-                      <Switch
-                        checked={cmsSettings.crypto_donations_enabled}
-                        onCheckedChange={(checked) => updateCMSSetting('crypto_donations_enabled', checked)}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs font-mono uppercase">PayPal Donations</Label>
-                      <Switch
-                        checked={cmsSettings.paypal_donations_enabled}
-                        onCheckedChange={(checked) => updateCMSSetting('paypal_donations_enabled', checked)}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground font-mono uppercase">Current Goal: ${cmsSettings.donation_goal?.toLocaleString()}</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        value={localSettings.donation_goal || ''}
-                        onChange={(e) => setLocalSettings(prev => ({ ...prev, donation_goal: Number(e.target.value) }))}
-                        className="font-mono text-xs"
-                        placeholder="10000"
-                      />
-                      <Button onClick={handleUpdateDonationGoal} className="brutalist-button">
-                        Update Goal
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="site" className="space-y-4">
-              <Card className="bg-background/50 border-2 border-blue-600">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-blue-400 flex items-center gap-2 text-sm font-mono uppercase">
-                    <Globe size={16} />
-                    Website Configuration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground font-mono uppercase">Current Website Name:</Label>
-                    <div className="font-mono text-xs p-2 bg-muted rounded border">
-                      {cmsSettings.website_name}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground font-mono uppercase">Update Website Name:</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={localSettings.website_name}
-                        onChange={(e) => setLocalSettings(prev => ({ ...prev, website_name: e.target.value }))}
-                        placeholder="Enter new website name"
-                        className="font-mono text-xs"
-                      />
-                      <Button onClick={handleUpdateWebsiteName} className="brutalist-button">
-                        Update Name
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-muted p-3 border-2 border-border rounded">
-                    <div className="text-xs font-mono">
-                      <div className="font-bold mb-1">Current Configuration:</div>
-                      <div>• Name: {cmsSettings.website_name}</div>
-                      <div>• Wallet: {cmsSettings.project_wallet}</div>
-                      <div>• Crypto: {cmsSettings.crypto_donations_enabled ? 'Enabled' : 'Disabled'}</div>
-                      <div>• PayPal: {cmsSettings.paypal_donations_enabled ? 'Enabled' : 'Disabled'}</div>
-                      <div>• Goal: ${cmsSettings.donation_goal?.toLocaleString()}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="settings" className="space-y-4">
-              <div className="flex gap-2">
-                <Button onClick={onClose} variant="outline" className="brutalist-button">
-                  <X size={16} />
-                </Button>
+        <TabsContent value="codes" className="space-y-4">
+          <Card className="border-2 border-border">
+            <CardHeader>
+              <CardTitle className="font-mono">Generate Premium Code</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="codeType" className="font-mono">Code Type</Label>
+                  <select 
+                    id="codeType"
+                    value={newCodeType} 
+                    onChange={(e) => setNewCodeType(e.target.value)}
+                    className="w-full p-2 border border-border rounded bg-background font-mono"
+                  >
+                    <option value="degen">Degen Mode</option>
+                    <option value="premium">Premium Access</option>
+                    <option value="lifetime">Lifetime</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="email" className="font-mono">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={newCodeEmail}
+                    onChange={(e) => setNewCodeEmail(e.target.value)}
+                    placeholder="user@example.com"
+                    className="font-mono"
+                  />
+                </div>
+                
+                <div className="flex items-end">
+                  <Button 
+                    onClick={handleCreateCode}
+                    disabled={codesLoading || !newCodeEmail.trim()}
+                    className="w-full font-mono"
+                  >
+                    <Gift size={16} className="mr-2" />
+                    Generate Code
+                  </Button>
+                </div>
               </div>
-            </TabsContent>
-          </Tabs>
-        )}
-      </DialogContent>
-    </Dialog>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 border-border">
+            <CardHeader>
+              <CardTitle className="font-mono">Active Premium Codes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {codesLoading ? (
+                <div className="font-mono text-muted-foreground">Loading codes...</div>
+              ) : (
+                <div className="space-y-2">
+                  {codes.length === 0 ? (
+                    <div className="font-mono text-muted-foreground">No codes generated yet</div>
+                  ) : (
+                    codes.map((code) => (
+                      <div key={code.id} className="flex items-center justify-between p-3 border border-border rounded">
+                        <div className="font-mono">
+                          <div className="font-bold">{code.code}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {code.user_email} - {code.code_type}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={code.is_active ? "default" : "secondary"}>
+                            {code.is_active ? "Active" : "Used"}
+                          </Badge>
+                          {code.is_active && (
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => deactivateCode(code.id)}
+                              className="font-mono"
+                            >
+                              Deactivate
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="users" className="space-y-4">
+          <Card className="border-2 border-border">
+            <CardHeader>
+              <CardTitle className="font-mono">User Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-muted-foreground">
+                User management features coming soon...
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
