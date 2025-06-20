@@ -1,190 +1,218 @@
 
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Home, BarChart3, Trophy, LogIn, Menu, Heart } from "lucide-react";
-import { LanguageSelector } from '@/components/LanguageSelector';
-import { CurrencySelector } from './navbar/CurrencySelector';
-import { UserActions } from './navbar/UserActions';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTranslation } from "@/contexts/TranslationContext";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, LogIn, Trophy } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { useCMSLogos } from "@/hooks/useCMSLogos";
+import { useProjectSettings } from "@/hooks/useProjectSettings";
+import { useNavigate, useLocation } from "react-router-dom";
+import { DonationLinks } from "@/components/navbar/DonationLinks";
 
 interface NavbarProps {
-  activeTab: 'home' | 'dashboard' | 'leaderboard' | 'support' | string;
+  activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
 export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { logos } = useCMSLogos();
+  const { settings } = useProjectSettings();
   const navigate = useNavigate();
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const location = useLocation();
 
-  const handleNavigation = (path: string, tab: string) => {
-    navigate(path);
-    onTabChange(tab as any);
-    setShowMobileMenu(false);
+  const dashboardItems = [
+    { id: 'portfolio', label: 'Portfolio', icon: Briefcase },
+    { id: 'income', label: 'Income', icon: TrendingUp },
+    { id: 'expenses', label: 'Expenses', icon: DollarSign },
+    { id: 'assets', label: 'Assets', icon: Home },
+    { id: 'tasks', label: 'Tasks', icon: CheckSquare },
+    { id: 'debt', label: 'Debt', icon: CreditCard }
+  ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleTabChange = (tab: string) => {
+    if (tab === 'leaderboard') {
+      navigate('/leaderboard');
+      setIsOpen(false);
+      return;
+    }
+    
+    if (location.pathname !== '/dashboard') {
+      navigate('/dashboard');
+    }
+    
+    onTabChange(tab);
+    setIsOpen(false);
+
+    setTimeout(() => {
+      const element = document.querySelector(`[data-section="${tab}"]`);
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }, 100);
   };
 
+  const handleTitleClick = () => {
+    navigate('/');
+  };
+
+  const handleGetStarted = () => {
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      navigate('/auth');
+    }
+  };
+
+  const isLeaderboardActive = location.pathname === '/leaderboard';
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b-2 border-border">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4">
-        <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Logo and Brand */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            <div className="flex items-center gap-2">
-              <img src="/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png" alt="Logo" className="h-8 w-8 sm:h-10 sm:w-10" />
-              <div className="flex flex-col">
-                <h1 className="text-sm sm:text-xl font-bold font-mono text-accent tracking-tight">
-                  OPEN FINDASH
-                </h1>
-                <div className="text-xs text-muted-foreground font-mono tracking-wider hidden sm:block">
-                  FINANCIAL COMMAND CENTER
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center gap-1">
-            <Button
-              variant={activeTab === 'home' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => handleNavigation('/', 'home')}
-              className="brutalist-button text-xs font-mono"
-            >
-              <Home size={14} className="mr-1" />
-              HOME
-            </Button>
-            <Button
-              variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => handleNavigation('/dashboard', 'dashboard')}
-              className="brutalist-button text-xs font-mono"
-            >
-              <BarChart3 size={14} className="mr-1" />
-              DASHBOARD
-            </Button>
-            <Button
-              variant={activeTab === 'leaderboard' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => handleNavigation('/leaderboard', 'leaderboard')}
-              className="brutalist-button text-xs font-mono"
-            >
-              <Trophy size={14} className="mr-1" />
-              LEADERBOARD
-            </Button>
-            <Button
-              variant={activeTab === 'support' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => handleNavigation('/support', 'support')}
-              className="brutalist-button text-xs font-mono"
-            >
-              <Heart size={14} className="mr-1" />
-              SUPPORT
-            </Button>
-          </div>
-
-          {/* User Actions */}
-          <div className="flex items-center gap-1 sm:gap-2">
-            {/* Language & Currency Selectors */}
-            <div className="hidden sm:flex items-center gap-1">
-              <LanguageSelector />
-              <CurrencySelector />
-            </div>
-
-            {/* User Authentication */}
-            {user ? (
-              <UserActions />
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={() => handleNavigation('/auth', 'auth')}
-                  size="sm"
-                  variant="outline"
-                  className="brutalist-button text-xs font-mono"
-                >
-                  <LogIn size={12} className="sm:mr-1" />
-                  <span className="hidden sm:inline">LOGIN</span>
-                </Button>
-              </div>
-            )}
-
-            {/* Mobile Menu */}
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="brutalist-button"
-              >
-                <Menu size={16} />
-              </Button>
-            </div>
+    <div className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+      isScrolled 
+        ? 'bg-background/70 backdrop-blur-xl border-b-2 border-border/50' 
+        : 'bg-background/80 backdrop-blur-lg border-b-2 border-border'
+    }`}>
+      {/* Top Row - Brand & Basic Actions */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleTitleClick}>
+            <img 
+              src={logos.square_logo_url} 
+              alt={`${settings.website_name} Logo`} 
+              className="h-8 w-auto"
+            />
+            <h1 className="text-xl font-bold font-mono text-accent uppercase">
+              {settings.website_name}
+            </h1>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
-        {showMobileMenu && (
-          <div className="md:hidden border-t border-border bg-card/95 backdrop-blur-sm">
-            <div className="flex flex-col space-y-1 p-2">
-              <Button
-                variant={activeTab === 'home' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => handleNavigation('/', 'home')}
-                className="brutalist-button text-xs font-mono justify-start"
-              >
-                <Home size={14} className="mr-2" />
-                HOME
+        {/* Desktop Actions */}
+        <div className="hidden lg:flex items-center gap-3">
+          {!user && <LanguageSelector variant="outline" size="sm" />}
+          <DonationLinks />
+          {!user && (
+            <Button onClick={handleGetStarted} className="font-mono brutalist-button" size="sm">
+              <LogIn size={16} className="mr-1" />
+              Get Started
+            </Button>
+          )}
+        </div>
+
+        {/* Mobile Actions */}
+        <div className="flex items-center gap-2 lg:hidden">
+          {!user && <LanguageSelector variant="outline" size="sm" />}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="brutalist-button">
+                <Menu size={20} />
               </Button>
-              <Button
-                variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => handleNavigation('/dashboard', 'dashboard')}
-                className="brutalist-button text-xs font-mono justify-start"
-              >
-                <BarChart3 size={14} className="mr-2" />
-                DASHBOARD
-              </Button>
-              <Button
-                variant={activeTab === 'leaderboard' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => handleNavigation('/leaderboard', 'leaderboard')}
-                className="brutalist-button text-xs font-mono justify-start"
-              >
-                <Trophy size={14} className="mr-2" />
-                LEADERBOARD
-              </Button>
-              <Button
-                variant={activeTab === 'support' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => handleNavigation('/support', 'support')}
-                className="brutalist-button text-xs font-mono justify-start"
-              >
-                <Heart size={14} className="mr-2" />
-                SUPPORT
-              </Button>
-              {!user && (
-                <Button
-                  onClick={() => handleNavigation('/auth', 'auth')}
-                  size="sm"
-                  variant="outline"
-                  className="brutalist-button text-xs font-mono justify-start"
-                >
-                  <LogIn size={14} className="mr-2" />
-                  LOGIN
-                </Button>
-              )}
-              
-              {/* Language & Currency Selectors for Mobile */}
-              <div className="flex items-center gap-2 pt-2 border-t border-border">
-                <LanguageSelector />
-                <CurrencySelector />
+            </SheetTrigger>
+            <SheetContent className="bg-card/95 backdrop-blur-md border-l-2 border-border">
+              <div className="flex flex-col gap-4 mt-8">
+                <h2 className="font-bold text-lg font-mono uppercase text-accent">Dashboard</h2>
+                {dashboardItems.map(item => {
+                  const Icon = item.icon;
+                  return (
+                    <Button
+                      key={item.id}
+                      variant={activeTab === item.id ? "default" : "ghost"}
+                      onClick={() => handleTabChange(item.id)}
+                      className="justify-start font-mono brutalist-button"
+                    >
+                      <Icon size={16} className="mr-2" />
+                      {item.label}
+                    </Button>
+                  );
+                })}
+
+                {user && (
+                  <>
+                    <div className="border-t border-border pt-4 mt-2">
+                      <h3 className="font-bold text-sm font-mono uppercase text-accent mb-2">Community</h3>
+                      <Button
+                        variant={isLeaderboardActive ? "default" : "ghost"}
+                        onClick={() => handleTabChange('leaderboard')}
+                        className="justify-start font-mono brutalist-button w-full"
+                      >
+                        <Trophy size={16} className="mr-2" />
+                        Leaderboard
+                      </Button>
+                    </div>
+                  </>
+                )}
+                
+                {!user && (
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <Button onClick={handleGetStarted} className="w-full font-mono brutalist-button">
+                      <LogIn size={16} className="mr-2" />
+                      Get Started
+                    </Button>
+                    <p className="text-xs text-muted-foreground font-mono mt-2 text-center">
+                      Demo Mode - Sign in for cloud sync
+                    </p>
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
-        )}
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
-    </nav>
+
+      {/* Bottom Row - Navigation (Desktop Only) */}
+      {user && (
+        <div className="hidden lg:flex items-center justify-center px-4 py-2 bg-accent/5">
+          <nav className="flex items-center gap-2">
+            {/* Dashboard Navigation */}
+            <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
+              <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Dashboard:</span>
+              {dashboardItems.map(item => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.id}
+                    variant={activeTab === item.id ? "default" : "ghost"}
+                    onClick={() => handleTabChange(item.id)}
+                    size="sm"
+                    className="font-mono brutalist-button text-xs px-2 py-1 h-8"
+                  >
+                    <Icon size={14} className="mr-1" />
+                    {item.label}
+                  </Button>
+                );
+              })}
+            </div>
+            
+            {/* Leaderboard */}
+            <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
+              <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Community:</span>
+              <Button
+                variant={isLeaderboardActive ? "default" : "ghost"}
+                onClick={() => handleTabChange('leaderboard')}
+                size="sm"
+                className="font-mono brutalist-button text-xs px-2 py-1 h-8"
+              >
+                <Trophy size={14} className="mr-1" />
+                Leaderboard
+              </Button>
+            </div>
+          </nav>
+        </div>
+      )}
+    </div>
   );
 };
