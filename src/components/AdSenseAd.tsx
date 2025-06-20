@@ -1,6 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AdSenseAdProps {
   adSlot: string;
@@ -21,20 +22,21 @@ export const AdSenseAd: React.FC<AdSenseAdProps> = ({
   style = { display: 'block' },
   className = ""
 }) => {
+  const { user } = useAuth();
   const { isPremium, loading } = usePremiumStatus();
 
   useEffect(() => {
-    if (!loading && !isPremium) {
+    if (!loading && !isPremium && user) {
       try {
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       } catch (error) {
         console.error('AdSense error:', error);
       }
     }
-  }, [loading, isPremium]);
+  }, [loading, isPremium, user]);
 
-  // Don't show ads for premium users or while loading
-  if (loading || isPremium) {
+  // Don't show ads for premium users, while loading, or for non-authenticated users
+  if (loading || isPremium || !user) {
     return null;
   }
 

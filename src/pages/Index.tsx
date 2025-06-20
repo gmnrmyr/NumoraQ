@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -345,7 +344,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-display font-bold text-foreground brutalist-heading">COMPLETE PRIVACY</h3>
               <p className="text-muted-foreground font-mono">
-                All your financial data stays with you. No cloud storage, no data mining, <span className="text-accent">complete privacy control.</span>
+                All your financial data stays with you. Local storage, complete privacy control, <span className="text-accent">your data never leaves your device.</span>
               </p>
             </div>
             
