@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -40,9 +41,7 @@ export const useLeaderboard = () => {
 
   const loadLeaderboard = async () => {
     try {
-      console.log('Loading leaderboard...');
-      
-      // Get aggregated user points
+      // Get aggregated user points with profiles
       const { data: pointsData, error: pointsError } = await supabase
         .from('user_points')
         .select(`
@@ -52,12 +51,7 @@ export const useLeaderboard = () => {
           activity_date
         `);
 
-      if (pointsError) {
-        console.error('Points error:', pointsError);
-        throw pointsError;
-      }
-
-      console.log('Points data:', pointsData);
+      if (pointsError) throw pointsError;
 
       // Aggregate points by user
       const userPointsMap = new Map<string, {
@@ -93,55 +87,36 @@ export const useLeaderboard = () => {
         userPointsMap.set(userId, existing);
       });
 
-      console.log('User points map:', userPointsMap);
-
-      // Get ALL profiles for names and UIDs
+      // Get user profiles for names and UIDs
+      const userIds = Array.from(userPointsMap.keys());
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, name, user_uid');
+        .select('id, name, user_uid')
+        .in('id', userIds);
 
-      if (profilesError) {
-        console.error('Profiles error:', profilesError);
-        throw profilesError;
-      }
-
-      console.log('All profiles data:', profilesData);
+      if (profilesError) throw profilesError;
 
       // Get premium status for users
-      const userIds = Array.from(userPointsMap.keys());
       const { data: premiumData, error: premiumError } = await supabase
         .from('user_premium_status')
         .select('user_id, is_premium')
         .in('user_id', userIds)
         .eq('is_premium', true);
 
-      if (premiumError) {
-        console.error('Premium error:', premiumError);
-      }
+      if (premiumError) throw premiumError;
 
-      console.log('Premium data:', premiumData);
-
-      // Create leaderboard entries for users with points
+      // Combine data and create leaderboard
       const leaderboardEntries: LeaderboardEntry[] = [];
       
       userPointsMap.forEach((stats, userId) => {
         const profile = profilesData?.find(p => p.id === userId);
         const isPremium = premiumData?.some(p => p.user_id === userId) || false;
         
-        // Use profile data if available
-        let displayName = 'Anonymous User';
-        let userUID = 'USER';
+        // Use the name from profiles table or fallback to "Anonymous User"
+        let displayName = profile?.name?.trim() || 'Anonymous User';
         
-        if (profile) {
-          if (profile.name && profile.name.trim() !== '') {
-            displayName = profile.name.trim();
-          }
-          if (profile.user_uid && profile.user_uid.trim() !== '') {
-            userUID = profile.user_uid.trim();
-          }
-        }
-        
-        console.log(`User ${userId}: name="${displayName}", uid="${userUID}", points=${stats.total_points}`);
+        // Use the UID from profiles table, with fallback
+        let userUID = profile?.user_uid || 'USER';
         
         leaderboardEntries.push({
           user_id: userId,
@@ -162,7 +137,6 @@ export const useLeaderboard = () => {
         entry.rank = index + 1;
       });
 
-      console.log('Final leaderboard entries:', leaderboardEntries);
       setLeaderboard(leaderboardEntries.slice(0, 10)); // Top 10
     } catch (error) {
       console.error('Error loading leaderboard:', error);
@@ -247,7 +221,7 @@ export const useLeaderboard = () => {
         return false;
       }
 
-      // Award 1 point
+      // Award 1 point instead of 10
       const { error } = await supabase
         .from('user_points')
         .insert({
