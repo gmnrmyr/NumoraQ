@@ -26,6 +26,24 @@ const queryClient = new QueryClient({
 });
 
 const App: React.FC = () => {
+  // Apply monochrome theme by default on app initialization
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem('selectedTheme');
+    const root = document.documentElement;
+    
+    // If no theme is saved, apply monochrome as default
+    if (!savedTheme) {
+      root.classList.add('theme-monochrome');
+      localStorage.setItem('selectedTheme', 'monochrome');
+    } else {
+      // Apply saved theme
+      root.classList.remove('theme-neon', 'theme-monochrome', 'theme-dual-tone', 'theme-high-contrast', 'theme-cyberpunk', 'theme-matrix', 'theme-gold');
+      if (savedTheme !== 'default') {
+        root.classList.add(`theme-${savedTheme}`);
+      }
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
