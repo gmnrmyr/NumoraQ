@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Settings, User, LogIn, LogOut, Trophy, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard } from 'lucide-react';
+import { Menu, User, LogIn, LogOut, Trophy, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useTranslation } from '@/contexts/TranslationContext';
@@ -80,7 +80,7 @@ export const UserSettingsPanel = () => {
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="flex items-center gap-2 brutalist-button">
-          <Settings size={16} />
+          <Menu size={16} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 bg-card border-2 border-border z-50">
@@ -95,7 +95,7 @@ export const UserSettingsPanel = () => {
           </>
         )}
         
-        {/* Dashboard Navigation */}
+        {/* Dashboard Navigation - Available for all users */}
         <DropdownMenuLabel className="text-xs text-muted-foreground font-mono uppercase">
           Dashboard
         </DropdownMenuLabel>
@@ -105,8 +105,7 @@ export const UserSettingsPanel = () => {
             <DropdownMenuItem 
               key={item.id}
               onClick={() => handleTabChange(item.id)}
-              className={`hover:bg-accent hover:text-accent-foreground font-mono ${!user ? 'opacity-60' : ''}`}
-              disabled={!user}
+              className="hover:bg-accent hover:text-accent-foreground font-mono"
             >
               <Icon size={16} className="mr-2" />
               {item.label}
