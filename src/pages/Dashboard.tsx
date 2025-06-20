@@ -43,6 +43,17 @@ const Dashboard = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isAdmin]);
 
+  // Handle external tab changes (from navbar)
+  React.useEffect(() => {
+    const handleTabChange = (event: CustomEvent) => {
+      console.log('Received tab change event:', event.detail);
+      setActiveTab(event.detail.tab);
+    };
+
+    window.addEventListener('dashboardTabChange', handleTabChange as EventListener);
+    return () => window.removeEventListener('dashboardTabChange', handleTabChange as EventListener);
+  }, []);
+
   const getSectionTitle = (tab: string) => {
     switch (tab) {
       case 'portfolio': return 'PORTFOLIO OVERVIEW';

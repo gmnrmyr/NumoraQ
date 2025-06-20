@@ -2,12 +2,28 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Crown, Heart, Zap, Star, Gift } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Crown, Heart, Zap, Star, Gift, Copy, Check } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { DonationInterface } from '@/components/dashboard/DonationInterface';
+import { useCMSSettings } from '@/hooks/useCMSSettings';
+import { toast } from '@/hooks/use-toast';
 
 const DonationPage = () => {
+  const { settings, loading } = useCMSSettings();
+  const [copiedWallet, setCopiedWallet] = React.useState<string>('');
+
+  const copyWallet = (wallet: string, type: string) => {
+    navigator.clipboard.writeText(wallet);
+    setCopiedWallet(type);
+    setTimeout(() => setCopiedWallet(''), 2000);
+    toast({
+      title: "Copied!",
+      description: `${type} wallet address copied to clipboard`
+    });
+  };
+
   // Hardcoded title requirements for display
   const titleRequirements = [
     { title: 'WHALE', amount: '$50,000+', points: 50000, color: 'text-purple-600', features: ['Exclusive Whale Badge', 'Ultra VIP Access', 'All Premium Features', 'Direct Developer Contact'] },
@@ -23,6 +39,29 @@ const DonationPage = () => {
     { title: 'SUPPORTER', amount: '$10+', points: 10, color: 'text-lime-400', features: ['Basic Supporter Badge'] },
     { title: 'NEWCOMER', amount: '$0-9', points: 0, color: 'text-slate-400', features: ['Welcome Badge', '1 point daily login'] }
   ];
+
+  const walletOptions = [
+    { type: 'EVM', address: settings.project_wallet_evm, label: 'Ethereum / BSC / Polygon', icon: '⚡' },
+    { type: 'Solana', address: settings.project_wallet_solana, label: 'Solana Network', icon: '🌟' },
+    { type: 'Bitcoin', address: settings.project_wallet_btc, label: 'Bitcoin Network', icon: '₿' },
+    { type: 'Bitcoin Cash', address: settings.project_wallet_bch, label: 'Bitcoin Cash Network', icon: '🅱️' }
+  ].filter(wallet => wallet.address && wallet.address.trim() !== '');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar activeTab="" onTabChange={() => {}} />
+        <div className="pt-20 sm:pt-32 pb-8">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="text-center">
+              <div className="animate-pulse">Loading donation information...</div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,6 +83,86 @@ const DonationPage = () => {
               <div className="w-8 h-1 bg-accent"></div>
             </div>
           </div>
+
+          {/* Crypto Wallets Section */}
+          {walletOptions.length > 0 && (
+            <Card className="border-2 border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-mono text-accent">
+                  💰 CRYPTO DONATIONS
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {walletOptions.map((wallet) => (
+                    <div key={wallet.type} className="p-4 border border-border rounded bg-card/50">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{wallet.icon}</span>
+                          <span className="font-mono font-bold text-foreground">{wallet.type}</span>
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          {wallet.label}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <code className="flex-1 p-2 bg-muted rounded font-mono text-xs break-all">
+                          {wallet.address}
+                        </code>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyWallet(wallet.address, wallet.type)}
+                          className="font-mono"
+                        >
+                          {copiedWallet === wallet.type ? <Check size={16} /> : <Copy size={16} />}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-4 p-3 bg-muted border border-border rounded">
+                  <div className="text-sm font-mono text-muted-foreground">
+                    <Gift size={16} className="inline mr-2" />
+                    <strong>Note:</strong> Copy the wallet address for your preferred network and send your donation. 
+                    All transactions are processed on-chain and help fund development and server costs.
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* PayPal Section */}
+          {settings.project_paypal_email && (
+            <Card className="border-2 border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-mono text-accent">
+                  💳 PAYPAL DONATIONS
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="p-4 border border-border rounded bg-card/50">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-foreground">PayPal Email:</span>
+                    <div className="flex items-center gap-2">
+                      <code className="p-2 bg-muted rounded font-mono text-sm">
+                        {settings.project_paypal_email}
+                      </code>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copyWallet(settings.project_paypal_email, 'PayPal')}
+                        className="font-mono"
+                      >
+                        {copiedWallet === 'PayPal' ? <Check size={16} /> : <Copy size={16} />}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Donation Interface */}
           <DonationInterface isOpen={false} onClose={() => {}} />
@@ -109,7 +228,7 @@ const DonationPage = () => {
           {/* Why Support Us */}
           <Card className="border-2 border-border">
             <CardHeader>
-              <CardTitle className="font-mono text-accent">WHY SUPPORT OPEN FINDASH?</CardTitle>
+              <CardTitle className="font-mono text-accent">WHY SUPPORT {settings.website_name?.toUpperCase() || 'OPEN FINDASH'}?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
