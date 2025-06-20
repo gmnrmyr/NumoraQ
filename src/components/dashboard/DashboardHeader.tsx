@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Skull, Bot, Zap } from 'lucide-react';
+import { Skull, Bot, Zap, Pause, Play } from 'lucide-react';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { UserTitleBadge } from './UserTitleBadge';
@@ -12,36 +12,42 @@ export const DashboardHeader = () => {
   const { data } = useFinancialData();
   const { userTitle } = useUserTitle();
   const { isAnimationEnabled } = useAnimationToggle();
+  const [animationPaused, setAnimationPaused] = React.useState(false);
   
-  // Check if user has CHAMPION role (2000+ donation points or level 80+)
+  // Check if user has CHAMPION role (2000+ donation points or level 80+) AND black hole theme
   const isChampionUser = userTitle.level >= 80 || userTitle.title === 'CHAMPION';
+  const currentTheme = data.userProfile.theme || 'monochrome';
+  const showBlackHoleAnimation = isChampionUser && currentTheme === 'black-hole' && isAnimationEnabled && !animationPaused;
   
-  // Load UnicornStudio animation for CHAMPION users
+  // Load UnicornStudio animation for CHAMPION users with black hole theme
   React.useEffect(() => {
-    if (isChampionUser && isAnimationEnabled) {
+    if (showBlackHoleAnimation) {
       // Load UnicornStudio script if not already loaded
       if (!window.UnicornStudio) {
-        window.UnicornStudio = { isInitialized: false };
+        window.UnicornStudio = { 
+          isInitialized: false,
+          init: () => {} // Add missing init function
+        };
         const script = document.createElement("script");
         script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
         script.onload = function() {
-          if (!window.UnicornStudio.isInitialized) {
+          if (!window.UnicornStudio.isInitialized && typeof UnicornStudio !== 'undefined') {
             UnicornStudio.init();
             window.UnicornStudio.isInitialized = true;
           }
         };
         (document.head || document.body).appendChild(script);
-      } else if (!window.UnicornStudio.isInitialized) {
+      } else if (!window.UnicornStudio.isInitialized && typeof UnicornStudio !== 'undefined') {
         UnicornStudio.init();
         window.UnicornStudio.isInitialized = true;
       }
     }
-  }, [isChampionUser, isAnimationEnabled]);
+  }, [showBlackHoleAnimation]);
   
   return (
     <div className="relative">
-      {/* UnicornStudio Animation Background for CHAMPION users */}
-      {isChampionUser && isAnimationEnabled && (
+      {/* UnicornStudio Animation Background for CHAMPION users with black hole theme */}
+      {showBlackHoleAnimation && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div 
             data-us-project="db3DaP9gWVnnnr7ZevK7" 
@@ -66,9 +72,21 @@ export const DashboardHeader = () => {
         </div>
         
         <div className="space-y-2">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-foreground brutalist-heading">
-            FINANCIAL COMMAND CENTER
-          </h1>
+          <div className="flex items-center justify-center gap-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-foreground brutalist-heading">
+              FINANCIAL COMMAND CENTER
+            </h1>
+            {/* Animation Control Button for Black Hole theme */}
+            {isChampionUser && currentTheme === 'black-hole' && isAnimationEnabled && (
+              <button
+                onClick={() => setAnimationPaused(!animationPaused)}
+                className="p-2 border-2 border-accent bg-background hover:bg-accent hover:text-background transition-colors"
+                title={animationPaused ? "Resume Animation" : "Pause Animation"}
+              >
+                {animationPaused ? <Play size={16} /> : <Pause size={16} />}
+              </button>
+            )}
+          </div>
           {data.userProfile.name && (
             <div className="flex items-center justify-center gap-2 text-lg font-mono flex-wrap">
               <span className="text-accent">Welcome back, {data.userProfile.name}</span>
