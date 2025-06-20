@@ -5,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Copy, Wallet, CreditCard, Bitcoin, DollarSign } from 'lucide-react';
+import { Copy, Wallet, CreditCard, Bitcoin, DollarSign, Clock, AlertCircle } from 'lucide-react';
 import { useProjectSettings } from '@/hooks/useProjectSettings';
 import { toast } from '@/hooks/use-toast';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const DonationPage = () => {
   const { settings } = useProjectSettings();
@@ -47,11 +48,13 @@ const DonationPage = () => {
               Help us continue developing the best financial dashboard for crypto and traditional assets. 
               Your donations directly fund new features, hosting, and development.
             </p>
-            <div className="bg-muted p-4 border-2 border-border rounded">
-              <p className="text-sm font-mono text-yellow-400">
-                ⚠️ Donations can take up to 2-5 days to reflect in your user title and ranking
-              </p>
-            </div>
+            
+            <Alert className="bg-yellow-500/10 border-yellow-500/20 max-w-2xl mx-auto">
+              <Clock className="h-4 w-4 text-yellow-500" />
+              <AlertDescription className="text-yellow-400 font-mono text-sm">
+                ⏱️ Donations can take up to 2-5 days to reflect in your user title and ranking
+              </AlertDescription>
+            </Alert>
           </div>
 
           <Tabs defaultValue="crypto" className="w-full">
@@ -201,33 +204,46 @@ const DonationPage = () => {
                 <DollarSign size={16} className="mr-2" />
                 Save Donor Wallet
               </Button>
-              <div className="text-xs text-muted-foreground font-mono">
-                Save your wallet address to track your donations and unlock user titles based on your contribution level.
-              </div>
+              <Alert className="bg-blue-500/10 border-blue-500/20">
+                <AlertCircle className="h-4 w-4 text-blue-500" />
+                <AlertDescription className="text-blue-400 font-mono text-sm">
+                  Save your wallet address to track your donations and unlock user titles based on your contribution level.
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
 
           <div className="bg-muted p-6 border-2 border-border">
-            <h3 className="font-mono font-bold text-lg mb-4">Donation Benefits</h3>
+            <h3 className="font-mono font-bold text-lg mb-4">Donation Benefits & User Titles</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-mono">
               <div>
-                <div className="text-yellow-400 font-bold">PATRON ($1000+)</div>
-                <div className="text-muted-foreground">• All features + NFT airdrops</div>
+                <div className="text-purple-400 font-bold">LEGEND ($10,000+)</div>
+                <div className="text-muted-foreground">• Ultimate recognition + all perks</div>
+                <div className="text-muted-foreground">• Exclusive access to everything</div>
+              </div>
+              <div>
+                <div className="text-yellow-400 font-bold">PATRON ($5,000+)</div>
+                <div className="text-muted-foreground">• Premium features + NFT airdrops</div>
                 <div className="text-muted-foreground">• Special recognition</div>
               </div>
               <div>
-                <div className="text-purple-400 font-bold">SUPPORTER ($500+)</div>
-                <div className="text-muted-foreground">• Premium themes + early access</div>
-                <div className="text-muted-foreground">• Advanced features</div>
-              </div>
-              <div>
-                <div className="text-blue-400 font-bold">BACKER ($100+)</div>
-                <div className="text-muted-foreground">• Advanced features unlocked</div>
+                <div className="text-orange-400 font-bold">CHAMPION ($2,000+)</div>
+                <div className="text-muted-foreground">• Advanced analytics + early access</div>
                 <div className="text-muted-foreground">• Priority support</div>
               </div>
               <div>
-                <div className="text-green-400 font-bold">DONOR ($10+)</div>
-                <div className="text-muted-foreground">• Supporter badge + thanks</div>
+                <div className="text-blue-400 font-bold">SUPPORTER ($1,000+)</div>
+                <div className="text-muted-foreground">• Premium themes + features</div>
+                <div className="text-muted-foreground">• Community privileges</div>
+              </div>
+              <div>
+                <div className="text-green-400 font-bold">BACKER ($500+)</div>
+                <div className="text-muted-foreground">• Enhanced features</div>
+                <div className="text-muted-foreground">• Supporter badge</div>
+              </div>
+              <div>
+                <div className="text-cyan-400 font-bold">DONOR ($100+)</div>
+                <div className="text-muted-foreground">• Basic supporter perks</div>
                 <div className="text-muted-foreground">• Community recognition</div>
               </div>
             </div>
