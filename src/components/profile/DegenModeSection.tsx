@@ -26,7 +26,7 @@ export const DegenModeSection = () => {
     }
   };
 
-  const getDegenTimeRemaining = () => "Active"; // Placeholder until backend integration
+  const getDegenTimeRemaining = () => "Lifetime"; // Updated to show lifetime
 
   return (
     <div className="border-t border-border pt-4">
@@ -35,19 +35,14 @@ export const DegenModeSection = () => {
           <Crown size={16} className={isPremiumUser ? "text-yellow-400" : "text-muted-foreground"} />
           <span className="font-mono text-sm">Degen Mode</span>
           {isPremiumUser && (
-            <div className="flex items-center gap-2">
-              <Badge className="bg-yellow-400/20 text-yellow-400 border-yellow-400">
-                ACTIVE
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="bg-green-600/20 border-green-600 text-green-400 font-mono cursor-help"
-                title="Lifetime access - No ads, premium features enabled"
-              >
-                <Timer size={12} className="mr-1" />
-                {getDegenTimeRemaining()}
-              </Badge>
-            </div>
+            <Badge 
+              variant="outline" 
+              className="bg-green-600/20 border-green-600 text-green-400 font-mono cursor-help"
+              title="Lifetime access - No ads, premium features enabled"
+            >
+              <Timer size={12} className="mr-1" />
+              {getDegenTimeRemaining()}
+            </Badge>
           )}
         </div>
         {!isPremiumUser && (

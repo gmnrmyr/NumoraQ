@@ -34,16 +34,27 @@ export const UserProfileSection = () => {
 
   const formatLastSync = (timestamp: string | null) => {
     if (!timestamp) return 'Never synced';
+    
     const date = new Date(timestamp);
     const now = new Date();
     const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
     if (diffMinutes < 1) return 'Just now';
     if (diffMinutes < 60) return `${diffMinutes}m ago`;
     if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
-    return date.toLocaleDateString();
+    
+    // Format as DD/MM/YYYY, HH:MM:SS
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
   };
 
-  const truncateEmail = (email: string, maxLength: number = 20) => {
+  const truncateEmail = (email: string, maxLength: number = 15) => {
     if (email.length <= maxLength) return email;
     return email.substring(0, maxLength - 3) + '...';
   };
@@ -67,11 +78,11 @@ export const UserProfileSection = () => {
             {/* When collapsed, show functional cloud save button and user info */}
             {!isExpanded && user && (
               <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 min-w-0">
-                {/* User info - stacked on mobile */}
+                {/* User info - stacked on mobile, responsive layout */}
                 <div className="flex items-center gap-2 min-w-0 order-2 sm:order-1">
                   <Mail size={14} className="text-muted-foreground flex-shrink-0" />
                   <span className="text-xs text-muted-foreground font-mono truncate">
-                    {truncateEmail(user.email || '', 15)}
+                    {truncateEmail(user.email || '', window.innerWidth < 640 ? 12 : 15)}
                   </span>
                   <Button 
                     onClick={handleLogout} 

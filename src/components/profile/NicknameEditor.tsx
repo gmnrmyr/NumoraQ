@@ -4,36 +4,35 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { UserTitleBadge } from '@/components/dashboard/UserTitleBadge';
 
 export const NicknameEditor = () => {
   const { user } = useAuth();
-  const { data, updateUserProfile } = useFinancialData();
-  const [nickname, setNickname] = useState(data.userProfile.name || '');
+  const [nickname, setNickname] = useState('');
   const [currentUID, setCurrentUID] = useState('');
   const [updatingNickname, setUpdatingNickname] = useState(false);
   
   useEffect(() => {
     if (user) {
-      loadUserUID();
+      loadUserProfile();
     }
   }, [user]);
 
-  const loadUserUID = async () => {
+  const loadUserProfile = async () => {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('user_uid')
+        .select('name, user_uid')
         .eq('id', user?.id)
         .single();
 
       if (error) throw error;
+      setNickname(profile?.name || '');
       setCurrentUID(profile?.user_uid || '');
     } catch (error) {
-      console.error('Error loading user UID:', error);
+      console.error('Error loading user profile:', error);
     }
   };
 
@@ -50,8 +49,7 @@ export const NicknameEditor = () => {
       if (error) throw error;
 
       setNickname(newNickname.trim());
-      updateUserProfile({ name: newNickname.trim() });
-      await loadUserUID(); // Reload UID as it's auto-generated from name
+      await loadUserProfile(); // Reload to get the new UID
       
       toast({
         title: "Nickname Updated",
@@ -85,7 +83,11 @@ export const NicknameEditor = () => {
           disabled={updatingNickname}
         />
         {currentUID && (
-          <Badge variant="outline" className="font-mono text-xs px-2 py-1">
+          <Badge 
+            variant="outline" 
+            className="font-mono text-xs px-2 py-1 cursor-help"
+            title="Internal user identifier for system purposes"
+          >
             UID: {currentUID}
           </Badge>
         )}

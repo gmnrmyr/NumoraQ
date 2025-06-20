@@ -27,29 +27,6 @@ export const useAuth = () => {
   return context;
 };
 
-// Helper function to get the correct redirect URL based on environment
-const getRedirectUrl = () => {
-  // Check if we're in development vs production
-  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  
-  if (isDevelopment) {
-    // In development, use the actual local URL
-    return window.location.origin;
-  } else {
-    // In production, always use the production domain
-    // Check if we're on a Lovable preview domain or custom domain
-    const hostname = window.location.hostname;
-    
-    if (hostname.includes('lovable.app')) {
-      // Use the current Lovable preview URL
-      return window.location.origin;
-    } else {
-      // For custom domains, use the current origin
-      return window.location.origin;
-    }
-  }
-};
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -101,15 +78,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signUpWithEmail = async (email: string, password: string) => {
     secureLog('Attempting sign up');
-    const redirectUrl = getRedirectUrl();
-    
-    secureLog('Using redirect URL:', { redirectUrl });
     
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${redirectUrl}/auth?confirmed=true`,
+        emailRedirectTo: 'https://openfindash.com/auth?confirmed=true',
         data: {
           email: email
         }
@@ -137,12 +111,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signInWithSolana = async () => {
     secureLog('Attempting Solana sign in');
-    const redirectUrl = getRedirectUrl();
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'github' as any,
       options: {
-        redirectTo: redirectUrl,
+        redirectTo: 'https://openfindash.com/dashboard',
       },
     });
     
@@ -162,12 +135,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signInWithDiscord = async () => {
     secureLog('Attempting Discord sign in');
-    const redirectUrl = getRedirectUrl();
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'discord',
       options: {
-        redirectTo: redirectUrl,
+        redirectTo: 'https://openfindash.com/dashboard',
       },
     });
     
