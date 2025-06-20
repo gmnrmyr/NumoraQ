@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -41,7 +40,9 @@ export const useLeaderboard = () => {
 
   const loadLeaderboard = async () => {
     try {
-      // Get aggregated user points with profiles
+      console.log('Loading leaderboard...');
+      
+      // Get aggregated user points
       const { data: pointsData, error: pointsError } = await supabase
         .from('user_points')
         .select(`
@@ -51,7 +52,12 @@ export const useLeaderboard = () => {
           activity_date
         `);
 
-      if (pointsError) throw pointsError;
+      if (pointsError) {
+        console.error('Points error:', pointsError);
+        throw pointsError;
+      }
+
+      console.log('Points data:', pointsData);
 
       // Aggregate points by user
       const userPointsMap = new Map<string, {
@@ -87,42 +93,55 @@ export const useLeaderboard = () => {
         userPointsMap.set(userId, existing);
       });
 
-      // Get user profiles for names and UIDs
-      const userIds = Array.from(userPointsMap.keys());
+      console.log('User points map:', userPointsMap);
+
+      // Get ALL profiles for names and UIDs
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, name, user_uid')
-        .in('id', userIds);
+        .select('id, name, user_uid');
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('Profiles error:', profilesError);
+        throw profilesError;
+      }
+
+      console.log('All profiles data:', profilesData);
 
       // Get premium status for users
+      const userIds = Array.from(userPointsMap.keys());
       const { data: premiumData, error: premiumError } = await supabase
         .from('user_premium_status')
         .select('user_id, is_premium')
         .in('user_id', userIds)
         .eq('is_premium', true);
 
-      if (premiumError) throw premiumError;
+      if (premiumError) {
+        console.error('Premium error:', premiumError);
+      }
 
-      // Combine data and create leaderboard
+      console.log('Premium data:', premiumData);
+
+      // Create leaderboard entries for users with points
       const leaderboardEntries: LeaderboardEntry[] = [];
       
       userPointsMap.forEach((stats, userId) => {
         const profile = profilesData?.find(p => p.id === userId);
         const isPremium = premiumData?.some(p => p.user_id === userId) || false;
         
-        // Use the actual name from profiles table, with fallback
+        // Use profile data if available
         let displayName = 'Anonymous User';
-        if (profile?.name && profile.name.trim() !== '') {
-          displayName = profile.name.trim();
+        let userUID = 'USER';
+        
+        if (profile) {
+          if (profile.name && profile.name.trim() !== '') {
+            displayName = profile.name.trim();
+          }
+          if (profile.user_uid && profile.user_uid.trim() !== '') {
+            userUID = profile.user_uid.trim();
+          }
         }
         
-        // Use the actual UID from profiles table, with fallback
-        let userUID = 'USER';
-        if (profile?.user_uid && profile.user_uid.trim() !== '') {
-          userUID = profile.user_uid.trim();
-        }
+        console.log(`User ${userId}: name="${displayName}", uid="${userUID}", points=${stats.total_points}`);
         
         leaderboardEntries.push({
           user_id: userId,
@@ -143,6 +162,7 @@ export const useLeaderboard = () => {
         entry.rank = index + 1;
       });
 
+      console.log('Final leaderboard entries:', leaderboardEntries);
       setLeaderboard(leaderboardEntries.slice(0, 10)); // Top 10
     } catch (error) {
       console.error('Error loading leaderboard:', error);
@@ -227,7 +247,7 @@ export const useLeaderboard = () => {
         return false;
       }
 
-      // Award 1 point instead of 10
+      // Award 1 point
       const { error } = await supabase
         .from('user_points')
         .insert({

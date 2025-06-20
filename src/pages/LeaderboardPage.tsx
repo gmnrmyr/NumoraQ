@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -216,7 +215,7 @@ const LeaderboardPage = () => {
                                 )}
                                 {entry.is_premium && (
                                   <Badge variant="default" className="text-xs px-2 py-0 h-4 bg-yellow-500 text-black">
-                                    PREMIUM
+                                    DEGEN
                                   </Badge>
                                 )}
                               </div>
