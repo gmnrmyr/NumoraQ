@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, LogIn, Trophy } from "lucide-react";
+import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, Trophy, Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useCMSLogos } from "@/hooks/useCMSLogos";
@@ -105,10 +105,11 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
         <div className="hidden lg:flex items-center gap-3">
           <LanguageSelector variant="outline" size="sm" />
           <DonationLinks />
-          <Button onClick={handleGetStarted} className="font-mono brutalist-button" size="sm">
-            <LogIn size={16} className="mr-1" />
-            {user ? 'Dashboard' : 'Get Started'}
-          </Button>
+          {user && (
+            <Button onClick={handleGetStarted} className="font-mono brutalist-button" size="sm">
+              Dashboard
+            </Button>
+          )}
         </div>
 
         {/* Mobile Actions */}
@@ -151,8 +152,8 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
                 </div>
                 
                 <div className="mt-4 pt-4 border-t border-border">
-                  <Button onClick={handleGetStarted} className="w-full font-mono brutalist-button">
-                    <LogIn size={16} className="mr-2" />
+                  <DonationLinks />
+                  <Button onClick={handleGetStarted} className="w-full font-mono brutalist-button mt-2">
                     {user ? 'Dashboard' : 'Get Started'}
                   </Button>
                   {!user && (
@@ -168,28 +169,29 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
       </div>
 
       {/* Bottom Row - Navigation (Always Show for Dashboard Items) */}
-      <div className="hidden lg:flex items-center justify-center px-4 py-2 bg-accent/5">
-        <nav className="flex items-center gap-2">
-          {/* Dashboard Navigation */}
-          <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
-            <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Dashboard:</span>
-            {dashboardItems.map(item => {
-              const Icon = item.icon;
-              return (
-                <Button
-                  key={item.id}
-                  variant={activeTab === item.id ? "default" : "ghost"}
-                  onClick={() => handleTabChange(item.id)}
-                  size="sm"
-                  className="font-mono brutalist-button text-xs px-2 py-1 h-8"
-                >
-                  <Icon size={14} className="mr-1" />
-                  {item.label}
-                </Button>
-              );
-            })}
-          </div>
-          
+      <div className="hidden lg:flex items-center justify-between px-4 py-2 bg-accent/5">
+        {/* Left side - Dashboard Navigation */}
+        <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
+          <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Dashboard:</span>
+          {dashboardItems.map(item => {
+            const Icon = item.icon;
+            return (
+              <Button
+                key={item.id}
+                variant={activeTab === item.id ? "default" : "ghost"}
+                onClick={() => handleTabChange(item.id)}
+                size="sm"
+                className="font-mono brutalist-button text-xs px-2 py-1 h-8"
+              >
+                <Icon size={14} className="mr-1" />
+                {item.label}
+              </Button>
+            );
+          })}
+        </div>
+
+        {/* Right side - Community and User Actions */}
+        <div className="flex items-center gap-2">
           {/* Community Navigation */}
           <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
             <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Community:</span>
@@ -203,7 +205,21 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
               Leaderboard
             </Button>
           </div>
-        </nav>
+
+          {/* User Actions */}
+          <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
+            <DonationLinks />
+            {user && (
+              <Button 
+                onClick={handleGetStarted} 
+                size="sm" 
+                className="font-mono brutalist-button text-xs px-2 py-1 h-8 ml-2"
+              >
+                Dashboard
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
