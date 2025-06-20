@@ -13,8 +13,6 @@ import Dashboard from "./pages/Dashboard";
 import AuthPage from "./pages/AuthPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
-import DonationPage from "./pages/DonationPage";
-import UpcomingFeatures from "./pages/UpcomingFeatures";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
@@ -44,7 +42,6 @@ const App: React.FC = () => {
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/onboarding" element={<OnboardingPage />} />
                   <Route path="/leaderboard" element={<LeaderboardPage />} />
-                  <Route path="/donation" element={<DonationPage />} />
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="*" element={<NotFound />} />
