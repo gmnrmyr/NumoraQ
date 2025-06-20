@@ -14,6 +14,7 @@ export const DashboardHeader = () => {
   const { userTitle } = useUserTitle();
   const { isAnimationEnabled } = useAnimationToggle();
   const [animationPaused, setAnimationPaused] = React.useState(false);
+  const [animationLoaded, setAnimationLoaded] = React.useState(false);
   
   // Check if user has CHAMPION role (2000+ donation points or level 80+)
   const isChampionUser = userTitle.level >= 80 || userTitle.title === 'CHAMPION';
@@ -24,36 +25,68 @@ export const DashboardHeader = () => {
   // Load UnicornStudio animation for CHAMPION users with Black Hole theme
   React.useEffect(() => {
     if (isChampionUser && isBlackHoleTheme && isAnimationEnabled && !animationPaused) {
-      // Only load if not already loaded
-      if (!document.querySelector('script[src*="unicornstudio"]')) {
+      const loadUnicornStudio = () => {
+        // Remove any existing scripts first
+        const existingScripts = document.querySelectorAll('script[src*="unicornstudio"]');
+        existingScripts.forEach(script => script.remove());
+        
+        // Reset UnicornStudio
+        if (window.UnicornStudio) {
+          window.UnicornStudio.isInitialized = false;
+        }
+        
+        // Create and inject the script
         const script = document.createElement("script");
         script.type = "text/javascript";
-        script.innerHTML = `
-          !function(){
-            if(!window.UnicornStudio){
-              window.UnicornStudio={isInitialized:!1};
-              var i=document.createElement("script");
-              i.src="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
-              i.onload=function(){
-                if(!window.UnicornStudio.isInitialized){
-                  UnicornStudio.init();
-                  window.UnicornStudio.isInitialized=!0;
-                }
-              };
-              (document.head || document.body).appendChild(i);
-            } else if (!window.UnicornStudio.isInitialized) {
-              UnicornStudio.init();
-              window.UnicornStudio.isInitialized=!0;
+        script.async = true;
+        script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
+        
+        script.onload = () => {
+          console.log('UnicornStudio script loaded');
+          if (window.UnicornStudio && !window.UnicornStudio.isInitialized) {
+            try {
+              window.UnicornStudio.init();
+              window.UnicornStudio.isInitialized = true;
+              setAnimationLoaded(true);
+              console.log('UnicornStudio initialized successfully');
+            } catch (error) {
+              console.error('Error initializing UnicornStudio:', error);
             }
-          }();
-        `;
+          }
+        };
+        
+        script.onerror = () => {
+          console.error('Failed to load UnicornStudio script');
+        };
+        
         document.head.appendChild(script);
-      } else if (window.UnicornStudio && !window.UnicornStudio.isInitialized) {
-        window.UnicornStudio.init();
-        window.UnicornStudio.isInitialized = true;
-      }
+      };
+
+      // Small delay to ensure DOM is ready
+      const timer = setTimeout(loadUnicornStudio, 100);
+      return () => clearTimeout(timer);
+    } else {
+      setAnimationLoaded(false);
     }
   }, [isChampionUser, isBlackHoleTheme, isAnimationEnabled, animationPaused]);
+  
+  // Force re-initialization when animation becomes visible
+  React.useEffect(() => {
+    if (animationLoaded && isChampionUser && isBlackHoleTheme && isAnimationEnabled && !animationPaused) {
+      const timer = setTimeout(() => {
+        if (window.UnicornStudio && window.UnicornStudio.isInitialized) {
+          try {
+            // Try to re-initialize to ensure animation shows
+            window.UnicornStudio.init();
+            console.log('UnicornStudio re-initialized');
+          } catch (error) {
+            console.error('Error re-initializing UnicornStudio:', error);
+          }
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [animationLoaded, isChampionUser, isBlackHoleTheme, isAnimationEnabled, animationPaused]);
   
   return (
     <div className="relative">
@@ -63,15 +96,21 @@ export const DashboardHeader = () => {
           <div 
             data-us-project="db3DaP9gWVnnnr7ZevK7" 
             style={{ 
-              width: '2000px', 
-              height: '900px',
+              width: '2400px', 
+              height: '1200px',
               position: 'absolute',
               top: '50%',
               left: '50%',
-              transform: 'translate(-50%, -50%) scale(1.2)',
+              transform: 'translate(-50%, -50%) scale(1.5)',
               transformOrigin: 'center center'
             }}
           />
+          {/* Debug info - remove in production */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="absolute top-4 left-4 text-xs text-white bg-black/50 p-2 rounded z-10">
+              Animation: {animationLoaded ? 'Loaded' : 'Loading...'}
+            </div>
+          )}
         </div>
       )}
       

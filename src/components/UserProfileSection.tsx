@@ -452,9 +452,11 @@ export const UserProfileSection = () => {
         </div>
       </CardContent>
       
-      {/* Bottom right corner title */}
-      <div className="absolute bottom-2 right-2 text-xs text-muted-foreground font-mono opacity-60">
+      {/* Bottom right corner title - improved styling */}
+      <div className="absolute bottom-3 right-4 text-xs text-muted-foreground font-mono opacity-80 bg-background/50 px-3 py-1 border border-accent/30 rounded shadow-sm backdrop-blur-sm">
+        <span className="text-accent font-bold">[ </span>
         USER_INFO_CONFIG_UI
+        <span className="text-accent font-bold"> ]</span>
       </div>
     </Card>
   );
