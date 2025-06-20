@@ -20,6 +20,7 @@ import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
 import { AIAdvisor } from "@/components/ai/AIAdvisor";
 import { PWASetup } from "@/components/PWASetup";
+import { AdSenseAd } from "@/components/AdSenseAd";
 import { useSecureAdminAuth } from "@/hooks/useSecureAdminAuth";
 
 const Dashboard = () => {
@@ -68,6 +69,9 @@ const Dashboard = () => {
           <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
             <DashboardHeader />
             
+            {/* Ad placement for non-premium users */}
+            <AdSenseAd className="my-4" />
+            
             {/* Consolidated User Profile Section */}
             <UserProfileSection />
             
@@ -75,6 +79,9 @@ const Dashboard = () => {
             <ExchangeRatesBanner />
             <MetricsOverview />
             <ProjectionCard />
+
+            {/* Another ad placement */}
+            <AdSenseAd className="my-6" />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <div>
@@ -96,6 +103,7 @@ const Dashboard = () => {
                     <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
                   </div>
                   <IncomeTracking />
+                  <AdSenseAd className="my-4" />
                 </TabsContent>
 
                 <TabsContent value="expenses" className="space-y-6" data-section="expenses">
@@ -141,6 +149,9 @@ const Dashboard = () => {
             </Tabs>
 
             <ProjectionChart />
+            
+            {/* Final ad placement */}
+            <AdSenseAd className="my-4" />
           </div>
           
           <DevMenu />
