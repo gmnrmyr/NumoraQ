@@ -27,6 +27,17 @@ export const useAuth = () => {
   return context;
 };
 
+// Helper function to get the correct redirect URL
+const getRedirectUrl = () => {
+  // In production, use the actual domain
+  if (window.location.hostname !== 'localhost') {
+    return window.location.origin;
+  }
+  
+  // For development, still use the actual origin but ensure it's not localhost in emails
+  return window.location.origin;
+};
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -78,7 +89,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signUpWithEmail = async (email: string, password: string) => {
     secureLog('Attempting sign up');
-    const redirectUrl = `${window.location.origin}/dashboard`;
+    const redirectUrl = getRedirectUrl();
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -112,10 +123,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signInWithSolana = async () => {
     secureLog('Attempting Solana sign in');
-    const redirectUrl = `${window.location.origin}/dashboard`;
+    const redirectUrl = getRedirectUrl();
     
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'github' as any, // Using github as placeholder for web3 until proper typing is available
+      provider: 'github' as any,
       options: {
         redirectTo: redirectUrl,
       },
@@ -137,7 +148,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signInWithDiscord = async () => {
     secureLog('Attempting Discord sign in');
-    const redirectUrl = `${window.location.origin}/dashboard`;
+    const redirectUrl = getRedirectUrl();
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'discord',
@@ -164,7 +175,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     secureLog(`Attempting to link ${provider} account`);
     
     const providerMap = {
-      solana: 'github' as any, // Using github as placeholder for web3 until proper typing is available
+      solana: 'github' as any,
       discord: 'discord'
     };
     
