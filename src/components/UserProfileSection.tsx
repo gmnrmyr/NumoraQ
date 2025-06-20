@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -6,13 +5,16 @@ import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Input } from './ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { User, Mail, DollarSign, Globe, LogOut, Crown, Gift, Skull, Bot, Zap, Lock } from 'lucide-react';
+import { User, Mail, DollarSign, Globe, LogOut, Crown, Gift, Skull, Bot, Zap, Lock, Cloud, CloudOff, Timer } from 'lucide-react';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMode } from '@/hooks/useAdminMode';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { EditableValue } from './ui/editable-value';
 import { UserTitleBadge } from './dashboard/UserTitleBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 const avatarOptions = [
   { id: '1', icon: '🤖', name: 'Robot' },
@@ -41,7 +43,9 @@ const nftPlaceholders = [
 export const UserProfileSection = () => {
   const {
     data,
-    updateUserProfile
+    updateUserProfile,
+    syncState,
+    lastSync
   } = useFinancialData();
   const {
     user,
@@ -50,10 +54,67 @@ export const UserProfileSection = () => {
   const {
     activatePremiumCode
   } = useAdminMode();
+  const { isPremiumUser } = usePremiumStatus();
   const [showDegenDialog, setShowDegenDialog] = useState(false);
   const [showAvatarDialog, setShowAvatarDialog] = useState(false);
   const [showNFTGallery, setShowNFTGallery] = useState(false);
   const [degenCode, setDegenCode] = useState('');
+  const [nickname, setNickname] = useState(data.userProfile.name || '');
+  const [currentUID, setCurrentUID] = useState('');
+  const [updatingNickname, setUpdatingNickname] = useState(false);
+  
+  React.useEffect(() => {
+    if (user) {
+      loadUserUID();
+    }
+  }, [user]);
+
+  const loadUserUID = async () => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('user_uid')
+        .eq('id', user?.id)
+        .single();
+
+      if (error) throw error;
+      setCurrentUID(profile?.user_uid || '');
+    } catch (error) {
+      console.error('Error loading user UID:', error);
+    }
+  };
+
+  const updateNickname = async (newNickname: string) => {
+    if (!newNickname.trim() || newNickname === nickname) return;
+    
+    setUpdatingNickname(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ name: newNickname.trim() })
+        .eq('id', user?.id);
+
+      if (error) throw error;
+
+      setNickname(newNickname.trim());
+      updateUserProfile({ name: newNickname.trim() });
+      await loadUserUID(); // Reload UID as it's auto-generated from name
+      
+      toast({
+        title: "Nickname Updated",
+        description: "Your nickname and UID have been updated successfully!"
+      });
+    } catch (error) {
+      console.error('Error updating nickname:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update nickname",
+        variant: "destructive"
+      });
+    } finally {
+      setUpdatingNickname(false);
+    }
+  };
   
   const handleLogout = async () => {
     try {
@@ -79,26 +140,82 @@ export const UserProfileSection = () => {
   };
 
   const truncateEmail = (email: string) => {
-    if (email.length <= 16) return email;
-    return email.substring(0, 13) + '...';
+    if (email.length <= 20) return email;
+    return email.substring(0, 17) + '...';
+  };
+
+  const getSyncIcon = () => {
+    if (syncState === 'saving') return <CloudOff className="animate-spin" size={14} />;
+    if (syncState === 'loading') return <CloudOff className="animate-spin" size={14} />;
+    if (syncState === 'error') return <CloudOff size={14} className="text-red-500" />;
+    return <Cloud size={14} className="text-green-500" />;
+  };
+
+  const formatLastSync = (timestamp: string | null) => {
+    if (!timestamp) return 'Never synced';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    if (diffMinutes < 1) return 'Just now';
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
+    return date.toLocaleDateString();
   };
 
   const selectedAvatar = avatarOptions.find(avatar => avatar.icon === data.userProfile.avatarIcon);
 
-  // Simple premium status check - we'll enhance this later with the backend
-  const isDegenMode = false; // Placeholder until backend integration
-  const getDegenTimeRemaining = () => "No active premium"; // Placeholder
+  const getDegenTimeRemaining = () => "No active premium"; // Placeholder until backend integration
 
   return (
-    <Card className="bg-card border-2 border-border brutalist-card">
+    <Card className="bg-card border-2 border-border brutalist-card relative">
       <CardContent className="space-y-4">
+        {/* Email and Cloud Sync Section */}
+        {user && (
+          <div className="flex items-center justify-between p-3 bg-muted/20 border border-border rounded">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <Mail size={14} className="text-muted-foreground flex-shrink-0" />
+              <span className="text-sm text-muted-foreground font-mono truncate">
+                {truncateEmail(user.email)}
+              </span>
+              <div className="flex items-center gap-1" title={`Last sync: ${formatLastSync(lastSync)}`}>
+                {getSyncIcon()}
+              </div>
+            </div>
+            
+            {/* Degen Mode Badge */}
+            {isPremiumUser && (
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-green-600/20 border-green-600 text-green-400 font-mono">
+                  <Zap size={12} className="mr-1" />
+                  DEGEN MODE
+                </Badge>
+                <Badge variant="outline" className="bg-yellow-600/20 border-yellow-600 text-yellow-400 font-mono">
+                  <Timer size={12} className="mr-1" />
+                  Active
+                </Badge>
+              </div>
+            )}
+            
+            <Button 
+              onClick={handleLogout} 
+              size="sm" 
+              variant="outline" 
+              className="brutalist-button text-xs flex-shrink-0 ml-2"
+            >
+              <LogOut size={12} className="sm:mr-1" />
+              <span className="hidden sm:inline">Logout</span>
+            </Button>
+          </div>
+        )}
+
         <div className="flex items-center gap-4">
+          {/* Avatar Selection Dialog */}
           <Dialog open={showAvatarDialog} onOpenChange={setShowAvatarDialog}>
             <DialogTrigger asChild>
               <Avatar className="h-16 w-16 border-2 border-border cursor-pointer hover:border-accent transition-colors">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
                 <AvatarFallback className="bg-muted text-muted-foreground font-mono text-xl hover:bg-accent/20">
-                  {data.userProfile.avatarIcon || (data.userProfile.name ? data.userProfile.name.charAt(0).toUpperCase() : 'U')}
+                  {data.userProfile.avatarIcon || (nickname ? nickname.charAt(0).toUpperCase() : 'U')}
                 </AvatarFallback>
               </Avatar>
             </DialogTrigger>
@@ -128,6 +245,7 @@ export const UserProfileSection = () => {
                   </div>
                 </div>
 
+                {/* NFT Gallery and other avatar options */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-mono text-sm">My NFTs</h4>
@@ -221,37 +339,30 @@ export const UserProfileSection = () => {
             </DialogContent>
           </Dialog>
           
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 space-y-3">
+            {/* Nickname Section */}
             <div className="flex items-center gap-2">
-              <User size={14} className="text-muted-foreground" />
-              <EditableValue 
-                value={data.userProfile.name} 
-                onSave={value => updateUserProfile({ name: String(value) })} 
-                type="text" 
-                placeholder="Your name" 
-                className="font-medium bg-input border-2 border-border font-mono" 
-              />
+              <User size={14} className="text-muted-foreground" title="Nickname" />
+              <div className="flex items-center gap-2 flex-1">
+                <Input
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  onBlur={() => updateNickname(nickname)}
+                  onKeyDown={(e) => e.key === 'Enter' && updateNickname(nickname)}
+                  placeholder="Enter your nickname"
+                  className="font-mono bg-input border-2 border-border"
+                  disabled={updatingNickname}
+                />
+                {currentUID && (
+                  <Badge variant="outline" className="font-mono text-xs px-2 py-1">
+                    UID: {currentUID}
+                  </Badge>
+                )}
+              </div>
               <UserTitleBadge />
             </div>
-            {user && (
-              <div className="flex items-center gap-2 justify-between">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <Mail size={14} className="text-muted-foreground flex-shrink-0" />
-                  <span className="text-sm text-muted-foreground font-mono truncate">
-                    {truncateEmail(user.email)}
-                  </span>
-                </div>
-                <Button 
-                  onClick={handleLogout} 
-                  size="sm" 
-                  variant="outline" 
-                  className="brutalist-button text-xs flex-shrink-0"
-                >
-                  <LogOut size={12} className="sm:mr-1" />
-                  <span className="hidden sm:inline">Logout</span>
-                </Button>
-              </div>
-            )}
+
+            {/* Currency and Language Selectors */}
             <div className="flex items-center gap-2">
               <DollarSign size={14} className="text-muted-foreground" />
               <Select 
@@ -291,13 +402,13 @@ export const UserProfileSection = () => {
         <div className="border-t border-border pt-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Crown size={16} className={isDegenMode ? "text-yellow-400" : "text-muted-foreground"} />
+              <Crown size={16} className={isPremiumUser ? "text-yellow-400" : "text-muted-foreground"} />
               <span className="font-mono text-sm">Degen Mode</span>
-              {isDegenMode && <Badge className="bg-yellow-400/20 text-yellow-400 border-yellow-400">
+              {isPremiumUser && <Badge className="bg-yellow-400/20 text-yellow-400 border-yellow-400">
                   ACTIVE
                 </Badge>}
             </div>
-            {!isDegenMode ? <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
+            {!isPremiumUser ? <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
                 <DialogTrigger asChild>
                   <Button size="sm" variant="outline" className="text-xs font-mono">
                     <Gift size={12} className="mr-1" />
@@ -323,7 +434,7 @@ export const UserProfileSection = () => {
               </div>}
           </div>
           <div className="text-xs text-muted-foreground font-mono mt-2">
-            {isDegenMode ? '🚀 No ads! Premium experience activated' : '📺 Future: Activate for ad-free experience'}
+            {isPremiumUser ? '🚀 No ads! Premium experience activated' : '📺 Future: Activate for ad-free experience'}
           </div>
         </div>
 
@@ -331,6 +442,11 @@ export const UserProfileSection = () => {
           👤 <strong>Profile:</strong> Customize your dashboard experience and preferences.
         </div>
       </CardContent>
+      
+      {/* Bottom right corner title */}
+      <div className="absolute bottom-2 right-2 text-xs text-muted-foreground font-mono opacity-60">
+        USER_INFO_CONFIG_UI
+      </div>
     </Card>
   );
 };

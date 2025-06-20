@@ -2,16 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, User, Cloud, CloudOff, LogIn, Trophy } from "lucide-react";
+import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, LogIn, Trophy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useFinancialData } from "@/contexts/FinancialDataContext";
-import { Badge } from "@/components/ui/badge";
-import { UserSettingsPanel } from "@/components/navbar/UserSettingsPanel";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { PremiumStatusIndicator } from "@/components/dashboard/PremiumStatusIndicator";
 import { useCMSLogos } from "@/hooks/useCMSLogos";
 import { useProjectSettings } from "@/hooks/useProjectSettings";
 import { useNavigate, useLocation } from "react-router-dom";
+import { DonationLinks } from "@/components/navbar/DonationLinks";
 
 interface NavbarProps {
   activeTab: string;
@@ -22,7 +19,6 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useAuth();
-  const { data, syncState, lastSync } = useFinancialData();
   const { logos } = useCMSLogos();
   const { settings } = useProjectSettings();
   const navigate = useNavigate();
@@ -82,24 +78,6 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
     }
   };
 
-  const getSyncIcon = () => {
-    if (syncState === 'saving') return <CloudOff className="animate-spin" size={14} />;
-    if (syncState === 'loading') return <CloudOff className="animate-spin" size={14} />;
-    if (syncState === 'error') return <CloudOff size={14} className="text-red-500" />;
-    return <Cloud size={14} className="text-green-500" />;
-  };
-
-  const formatLastSync = (timestamp: string | null) => {
-    if (!timestamp) return 'Never synced';
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    if (diffMinutes < 1) return 'Just now';
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
-    return date.toLocaleDateString();
-  };
-
   const isLeaderboardActive = location.pathname === '/leaderboard';
 
   return (
@@ -108,7 +86,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
         ? 'bg-background/70 backdrop-blur-xl border-b-2 border-border/50' 
         : 'bg-background/80 backdrop-blur-lg border-b-2 border-border'
     }`}>
-      {/* Top Row - Brand & User Info */}
+      {/* Top Row - Brand & Basic Actions */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleTitleClick}>
@@ -121,26 +99,13 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
               {settings.website_name}
             </h1>
           </div>
-          {user?.email && (
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="hidden sm:flex font-mono items-center gap-2 bg-muted/20">
-                <User size={12} />
-                {user.email}
-                <div className="flex items-center gap-1" title={`Last sync: ${formatLastSync(lastSync)}`}>
-                  {getSyncIcon()}
-                </div>
-              </Badge>
-              <PremiumStatusIndicator />
-            </div>
-          )}
         </div>
 
-        {/* Desktop User Actions */}
+        {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-3">
           {!user && <LanguageSelector variant="outline" size="sm" />}
-          {user ? (
-            <UserSettingsPanel />
-          ) : (
+          <DonationLinks />
+          {!user && (
             <Button onClick={handleGetStarted} className="font-mono brutalist-button" size="sm">
               <LogIn size={16} className="mr-1" />
               Get Started
@@ -148,10 +113,9 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
           )}
         </div>
 
-        {/* Mobile User Actions */}
+        {/* Mobile Actions */}
         <div className="flex items-center gap-2 lg:hidden">
           {!user && <LanguageSelector variant="outline" size="sm" />}
-          {user && <UserSettingsPanel />}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="sm" className="brutalist-button">
