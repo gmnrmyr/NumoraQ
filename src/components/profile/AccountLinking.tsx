@@ -35,10 +35,10 @@ export const AccountLinking = () => {
     }
   };
 
-  const getProviderName = (provider: string) => {
+  const getProviderName = (provider: string, identity?: any) => {
     switch (provider) {
       case 'email':
-        return 'Email';
+        return `Email: ${user.email || 'Connected'}`;
       case 'discord':
         return 'Discord';
       case 'web3':
@@ -75,7 +75,7 @@ export const AccountLinking = () => {
                 identities.map((identity, index) => (
                   <Badge key={index} variant="outline" className="font-mono text-xs">
                     {getProviderIcon(identity.provider)}
-                    <span className="ml-1">{getProviderName(identity.provider)}</span>
+                    <span className="ml-1">{getProviderName(identity.provider, identity)}</span>
                   </Badge>
                 ))
               ) : (

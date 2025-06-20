@@ -6,15 +6,42 @@ import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { UserTitleBadge } from './UserTitleBadge';
 import { useUserTitle } from '@/hooks/useUserTitle';
 import { useAnimationToggle } from '@/hooks/useAnimationToggle';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 
 export const DashboardHeader = () => {
   const { t } = useTranslation();
   const { data } = useFinancialData();
   const { userTitle } = useUserTitle();
   const { isAnimationEnabled } = useAnimationToggle();
+  const { user } = useAuth();
   const [animationPaused, setAnimationPaused] = React.useState(false);
   const [animationLoaded, setAnimationLoaded] = React.useState(false);
+  const [profileName, setProfileName] = React.useState<string>('');
+  
+  // Load user profile name
+  React.useEffect(() => {
+    const loadProfileName = async () => {
+      if (user) {
+        try {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', user.id)
+            .single();
+
+          if (!error && profile?.name) {
+            setProfileName(profile.name);
+          }
+        } catch (error) {
+          console.error('Error loading profile name:', error);
+        }
+      }
+    };
+
+    loadProfileName();
+  }, [user]);
   
   // Check if user has CHAMPION role (2000+ donation points or level 80+)
   const isChampionUser = userTitle.level >= 80 || userTitle.title === 'CHAMPION';
@@ -147,14 +174,9 @@ export const DashboardHeader = () => {
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-foreground brutalist-heading">
             FINANCIAL COMMAND CENTER
           </h1>
-          {data.userProfile.name && (
+          {profileName && (
             <div className="flex items-center justify-center gap-2 text-lg font-mono flex-wrap">
-              <span className="text-accent">Welcome back, {data.userProfile.name}</span>
-              {isChampionUser && (
-                <span className="text-xs bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-2 py-1 rounded font-bold">
-                  CHAMPION
-                </span>
-              )}
+              <span className="text-accent">Welcome back, {profileName}</span>
             </div>
           )}
           <p className="text-muted-foreground text-sm sm:text-base font-mono uppercase tracking-wider px-4">
