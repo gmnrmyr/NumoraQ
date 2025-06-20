@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Heart, Zap, Star, Gift } from 'lucide-react';
@@ -8,18 +8,22 @@ import { Footer } from '@/components/Footer';
 import { DonationInterface } from '@/components/dashboard/DonationInterface';
 
 const DonationPage = () => {
-  // Hardcoded title requirements for display
+  const [showDonationInterface, setShowDonationInterface] = useState(false);
+
+  // Updated title requirements with correct point values and new tiers
   const titleRequirements = [
+    { title: 'WHALE', amount: '$50,000+', points: 50000, color: 'text-cyan-300', features: ['Exclusive Whale Badge', 'Ultimate VIP Status', 'All Premium Features', 'Personal Support'] },
     { title: 'LEGEND', amount: '$10,000+', points: 10000, color: 'text-purple-400', features: ['Exclusive Legend Badge', 'Priority Support', 'All Premium Features'] },
     { title: 'PATRON', amount: '$5,000+', points: 5000, color: 'text-yellow-400', features: ['Patron Badge', 'Premium Themes', 'Advanced Features'] },
-    { title: 'CHAMPION', amount: '$2,000+', points: 2000, color: 'text-orange-400', features: ['Champion Badge', 'Black Hole Animation', 'Premium Themes'] },
+    { title: 'CHAMPION', amount: '$2,000+', points: 2000, color: 'text-orange-400', features: ['Champion Badge', 'Black Hole Animation Theme', 'Premium Themes'] },
     { title: 'SUPPORTER', amount: '$1,000+', points: 1000, color: 'text-blue-400', features: ['Supporter Badge', 'Premium Access'] },
     { title: 'BACKER', amount: '$500+', points: 500, color: 'text-green-400', features: ['Backer Badge', 'Special Recognition'] },
     { title: 'DONOR', amount: '$100+', points: 100, color: 'text-cyan-400', features: ['Donor Badge', 'Thank You Message'] },
     { title: 'CONTRIBUTOR', amount: '$50+', points: 50, color: 'text-indigo-400', features: ['Contributor Badge'] },
     { title: 'HELPER', amount: '$25+', points: 25, color: 'text-pink-400', features: ['Helper Badge'] },
     { title: 'FRIEND', amount: '$20+', points: 20, color: 'text-emerald-400', features: ['Friend Badge'] },
-    { title: 'SUPPORTER', amount: '$10+', points: 10, color: 'text-lime-400', features: ['Basic Supporter Badge'] }
+    { title: 'SUPPORTER', amount: '$10+', points: 10, color: 'text-lime-400', features: ['Basic Supporter Badge'] },
+    { title: 'NEWCOMER', amount: '$0 - $9', points: 0, color: 'text-gray-400', features: ['Welcome Badge', 'Daily Login: 1 Point'] }
   ];
 
   return (
@@ -44,7 +48,20 @@ const DonationPage = () => {
           </div>
 
           {/* Donation Interface */}
-          <DonationInterface />
+          <div className="text-center">
+            <button
+              onClick={() => setShowDonationInterface(true)}
+              className="bg-accent text-background px-8 py-4 font-mono font-bold hover:bg-accent/90 transition-colors"
+            >
+              <Gift className="inline mr-2" size={20} />
+              DONATE NOW
+            </button>
+          </div>
+
+          <DonationInterface 
+            isOpen={showDonationInterface} 
+            onClose={() => setShowDonationInterface(false)} 
+          />
 
           {/* Title Requirements */}
           <Card className="border-2 border-border">
@@ -84,7 +101,7 @@ const DonationPage = () => {
                         <div className="mt-2 p-2 bg-accent/10 border border-accent rounded">
                           <div className="text-xs font-mono text-accent flex items-center gap-1">
                             <Zap size={12} />
-                            Unlocks Black Hole Animation
+                            Unlocks Black Hole Animation Theme
                           </div>
                         </div>
                       )}
@@ -98,6 +115,7 @@ const DonationPage = () => {
                   <Gift size={16} className="inline mr-2" />
                   <strong>Note:</strong> All donations directly support development and server costs. 
                   Titles are automatically assigned based on total donation amount and grant access to exclusive features.
+                  Daily login rewards: 1 point per day.
                 </div>
               </div>
             </CardContent>
