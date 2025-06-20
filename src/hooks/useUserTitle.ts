@@ -10,17 +10,17 @@ interface UserTitle {
 }
 
 const USER_TITLES: UserTitle[] = [
-  // Donation-based titles (1-100)
-  { level: 100, title: 'LEGEND', color: 'text-purple-400' },
-  { level: 90, title: 'PATRON', color: 'text-yellow-400' },
-  { level: 80, title: 'CHAMPION', color: 'text-orange-400' },
-  { level: 70, title: 'SUPPORTER', color: 'text-blue-400' },
-  { level: 60, title: 'BACKER', color: 'text-green-400' },
-  { level: 50, title: 'DONOR', color: 'text-cyan-400' },
-  { level: 40, title: 'CONTRIBUTOR', color: 'text-indigo-400' },
-  { level: 30, title: 'HELPER', color: 'text-pink-400' },
-  { level: 20, title: 'FRIEND', color: 'text-emerald-400' },
-  { level: 10, title: 'SUPPORTER', color: 'text-lime-400' },
+  // Donation-based titles (highest to lowest)
+  { level: 100, title: 'WHALE', color: 'text-purple-600' },
+  { level: 90, title: 'LEGEND', color: 'text-purple-400' },
+  { level: 80, title: 'PATRON', color: 'text-yellow-400' },
+  { level: 70, title: 'CHAMPION', color: 'text-orange-400' },
+  { level: 60, title: 'SUPPORTER', color: 'text-blue-400' },
+  { level: 50, title: 'BACKER', color: 'text-green-400' },
+  { level: 40, title: 'DONOR', color: 'text-cyan-400' },
+  { level: 30, title: 'CONTRIBUTOR', color: 'text-indigo-400' },
+  { level: 20, title: 'HELPER', color: 'text-pink-400' },
+  { level: 10, title: 'FRIEND', color: 'text-emerald-400' },
   
   // Activity-based titles (101-500)
   { level: 500, title: 'MASTER TRADER', color: 'text-red-400' },
@@ -65,6 +65,8 @@ export const useUserTitle = () => {
       const donationPoints = pointsData?.filter(p => p.activity_type === 'donation')
         .reduce((sum, entry) => sum + entry.points, 0) || 0;
 
+      console.log('User points calculated:', { totalPoints, donationPoints });
+
       // Check for admin-assigned title first
       const { data: profileData } = await supabase
         .from('profiles')
@@ -86,16 +88,17 @@ export const useUserTitle = () => {
       let targetLevel = 1;
       
       if (donationPoints > 0) {
-        // Donation-based titles (higher priority)
-        if (donationPoints >= 10000) targetLevel = 100; // LEGEND
-        else if (donationPoints >= 5000) targetLevel = 90; // PATRON
-        else if (donationPoints >= 2000) targetLevel = 80; // CHAMPION
-        else if (donationPoints >= 1000) targetLevel = 70; // SUPPORTER
-        else if (donationPoints >= 500) targetLevel = 60; // BACKER
-        else if (donationPoints >= 100) targetLevel = 50; // DONOR
-        else if (donationPoints >= 50) targetLevel = 40; // CONTRIBUTOR
-        else if (donationPoints >= 25) targetLevel = 30; // HELPER
-        else if (donationPoints >= 10) targetLevel = 20; // FRIEND
+        // Donation-based titles (higher priority) - corrected thresholds
+        if (donationPoints >= 50000) targetLevel = 100; // WHALE
+        else if (donationPoints >= 10000) targetLevel = 90; // LEGEND
+        else if (donationPoints >= 5000) targetLevel = 80; // PATRON
+        else if (donationPoints >= 2000) targetLevel = 70; // CHAMPION
+        else if (donationPoints >= 1000) targetLevel = 60; // SUPPORTER
+        else if (donationPoints >= 500) targetLevel = 50; // BACKER
+        else if (donationPoints >= 100) targetLevel = 40; // DONOR
+        else if (donationPoints >= 50) targetLevel = 30; // CONTRIBUTOR
+        else if (donationPoints >= 25) targetLevel = 20; // HELPER
+        else if (donationPoints >= 20) targetLevel = 10; // FRIEND
         else targetLevel = 10; // SUPPORTER
       } else {
         // Activity-based titles
@@ -112,7 +115,10 @@ export const useUserTitle = () => {
         else targetLevel = 1;
       }
 
+      console.log('Calculated target level:', targetLevel);
+
       const title = USER_TITLES.find(t => t.level <= targetLevel) || USER_TITLES[USER_TITLES.length - 1];
+      console.log('Selected title:', title);
       setUserTitle(title);
     } catch (error) {
       console.error('Error calculating user title:', error);

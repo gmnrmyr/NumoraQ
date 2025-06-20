@@ -6,6 +6,11 @@ import { toast } from '@/hooks/use-toast';
 interface CMSSettings {
   website_name: string;
   project_wallet: string;
+  project_wallet_evm: string;
+  project_wallet_solana: string;
+  project_wallet_btc: string;
+  project_wallet_bch: string;
+  project_paypal_email: string;
   crypto_donations_enabled: boolean;
   paypal_donations_enabled: boolean;
   donation_goal: number;
@@ -18,6 +23,11 @@ export const useCMSSettings = () => {
   const [settings, setSettings] = useState<CMSSettings>({
     website_name: 'Open Findash',
     project_wallet: '0x6c21bB0Ef4b7d037aB6b124f372ae7705c6d74AD',
+    project_wallet_evm: '0x6c21bB0Ef4b7d037aB6b124f372ae7705c6d74AD',
+    project_wallet_solana: '',
+    project_wallet_btc: '',
+    project_wallet_bch: '',
+    project_paypal_email: '',
     crypto_donations_enabled: true,
     paypal_donations_enabled: true,
     donation_goal: 10000,
