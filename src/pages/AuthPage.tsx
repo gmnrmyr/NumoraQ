@@ -88,21 +88,21 @@ const AuthPage = () => {
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription className="text-xs font-mono">
-                    📧 Email & 🔗 Solana login available
+                    📧 Email login available
                     <br />
-                    🔜 More social logins coming soon!
+                    🔗 Solana login coming soon!
                   </AlertDescription>
                 </Alert>
 
-                {/* Solana Login Button */}
+                {/* Solana Login Button - Temporarily disabled */}
                 <Button 
                   onClick={handleSolanaSignIn}
                   variant="outline"
                   className="w-full"
-                  disabled={loading}
+                  disabled={true}
                 >
                   <Wallet className="w-4 h-4 mr-2" />
-                  {loading ? 'Connecting...' : 'Sign In with Solana'}
+                  Solana Sign-In (Coming Soon)
                 </Button>
 
                 <div className="relative">
@@ -111,7 +111,7 @@ const AuthPage = () => {
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-background px-2 text-muted-foreground">
-                      Or continue with email
+                      Continue with email
                     </span>
                   </div>
                 </div>

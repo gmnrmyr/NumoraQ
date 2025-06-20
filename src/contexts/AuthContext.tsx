@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signUpWithEmail = async (email: string, password: string) => {
     secureLog('Attempting sign up');
-    // Use the current application URL for redirect
+    // Use the current window location for redirect instead of hardcoded localhost
     const redirectUrl = `${window.location.origin}/dashboard`;
     
     const { error } = await supabase.auth.signUp({
@@ -113,8 +113,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     secureLog('Attempting Solana sign in');
     const redirectUrl = `${window.location.origin}/dashboard`;
     
+    // Try using a custom provider for Solana - this might need to be configured differently
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'github', // Placeholder - will need to be configured for Solana
+      provider: 'github', // This is a placeholder - Solana auth needs special configuration
       options: {
         redirectTo: redirectUrl,
       },
@@ -123,12 +124,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (error) {
       secureLog('Solana sign in error:', { errorMessage: error.message });
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Solana Authentication",
+        description: "Solana authentication is being configured. Please use email authentication for now.",
         variant: "destructive",
       });
     } else {
-      secureLog('Solana sign in initiated');
+      secureLog('OAuth sign in initiated');
     }
     
     return { error };
