@@ -2,10 +2,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from "@/contexts/TranslationContext";
+import { useProjectSettings } from "@/hooks/useProjectSettings";
 import { Github, Twitter, Coffee, Heart, ExternalLink } from 'lucide-react';
 
 export const Footer = () => {
   const { t, language } = useTranslation();
+  const { settings } = useProjectSettings();
 
   return (
     <footer className="border-t-2 border-border bg-card/50 backdrop-blur-sm mt-auto">
@@ -15,17 +17,17 @@ export const Footer = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <img 
-                src="/lovable-uploads/7f9d8dfa-2b6c-4264-ba7b-992c9fcb71e5.png" 
-                alt="Open Findash Logo" 
+                src={settings.square_logo_url} 
+                alt={`${settings.website_name} Logo`} 
                 className="h-8 w-auto"
               />
-              <h3 className="font-mono font-bold text-accent uppercase">OPEN FINDASH</h3>
+              <h3 className="font-mono font-bold text-accent uppercase">{settings.website_name}</h3>
             </div>
             <p className="text-xs text-muted-foreground font-mono">
               Advanced financial dashboard for crypto & traditional assets
             </p>
             <div className="text-xs text-muted-foreground font-mono">
-              © 2024 OPEN FINDASH. All rights reserved.
+              © 2024 {settings.website_name.toUpperCase()}. All rights reserved.
             </div>
           </div>
 
@@ -39,11 +41,11 @@ export const Footer = () => {
               <Link to="/" className="block text-xs text-muted-foreground hover:text-accent font-mono">
                 Home
               </Link>
-              <Link to="/terms" className="block text-xs text-muted-foreground hover:text-accent font-mono">
-                Terms of Service
+              <Link to="/leaderboard" className="block text-xs text-muted-foreground hover:text-accent font-mono">
+                Leaderboard
               </Link>
-              <Link to="/privacy" className="block text-xs text-muted-foreground hover:text-accent font-mono">
-                Privacy Policy
+              <Link to="/donation" className="block text-xs text-muted-foreground hover:text-accent font-mono">
+                Donate
               </Link>
             </div>
           </div>
@@ -72,26 +74,20 @@ export const Footer = () => {
                 Twitter
                 <ExternalLink size={10} />
               </a>
-              <a 
-                href="https://buymeacoffee.com/openfindash" 
-                target="_blank" 
-                rel="noopener noreferrer"
+              <Link 
+                to="/donation"
                 className="flex items-center gap-2 text-xs text-muted-foreground hover:text-accent font-mono"
               >
                 <Coffee size={12} />
                 Buy us a coffee
-                <ExternalLink size={10} />
-              </a>
-              <a 
-                href="https://github.com/sponsors/openfindash" 
-                target="_blank" 
-                rel="noopener noreferrer"
+              </Link>
+              <Link 
+                to="/donation"
                 className="flex items-center gap-2 text-xs text-muted-foreground hover:text-accent font-mono"
               >
                 <Heart size={12} />
                 Support the project
-                <ExternalLink size={10} />
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -103,7 +99,7 @@ export const Footer = () => {
               <span className="text-xs text-muted-foreground font-mono">All systems operational</span>
             </div>
             <div className="text-xs text-muted-foreground font-mono">
-              v2.0.0 - {language || 'en'}
+              {settings.version} - {language || 'en'}
             </div>
           </div>
         </div>

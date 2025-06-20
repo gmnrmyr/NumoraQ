@@ -13,9 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import AuthPage from "./pages/AuthPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import NotFound from "./pages/NotFound";
+import DonationPage from "./pages/DonationPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,9 +40,8 @@ const App: React.FC = () => {
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/onboarding" element={<OnboardingPage />} />
                   <Route path="/leaderboard" element={<LeaderboardPage />} />
-                  <Route path="/terms" element={<TermsOfService />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="*" element={<NotFound />} />
+                  <Route path="/donation" element={<DonationPage />} />
+                  <Route path="*" element={<LandingPage />} />
                 </Routes>
               </BrowserRouter>
             </TooltipProvider>

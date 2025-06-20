@@ -6,26 +6,33 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Info, Gift, Crown, Star, Zap, CreditCard, Wallet, RefreshCw } from "lucide-react";
+import { Info, Gift, Crown, Star, Zap, CreditCard, Wallet, RefreshCw, ExternalLink } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useDonorWallet } from "@/hooks/useDonorWallet";
+import { useUserPoints } from "@/hooks/useUserPoints";
 import { toast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 export const UserTitleBadge = () => {
   const { data, updateUserProfile } = useFinancialData();
   const { fetchDonationData, isLoading } = useDonorWallet();
+  const { totalPoints } = useUserPoints();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [donorWallet, setDonorWallet] = useState(data.userProfile.donorWallet || '');
 
-  const getTitleInfo = (amount: number) => {
-    if (amount >= 1000) return { title: 'PATRON', icon: Crown, color: 'text-yellow-400' };
-    if (amount >= 500) return { title: 'SUPPORTER', icon: Star, color: 'text-purple-400' };
-    if (amount >= 100) return { title: 'BACKER', icon: Zap, color: 'text-blue-400' };
-    if (amount >= 10) return { title: 'DONOR', icon: Gift, color: 'text-green-400' };
+  const getTitleInfo = (points: number, donations: number) => {
+    const totalScore = points + (donations * 10); // Weight donations higher
+    
+    if (totalScore >= 10000) return { title: 'LEGEND', icon: Crown, color: 'text-red-400' };
+    if (totalScore >= 5000) return { title: 'PATRON', icon: Crown, color: 'text-yellow-400' };
+    if (totalScore >= 2500) return { title: 'SUPPORTER', icon: Star, color: 'text-purple-400' };
+    if (totalScore >= 1000) return { title: 'BACKER', icon: Zap, color: 'text-blue-400' };
+    if (totalScore >= 100) return { title: 'DONOR', icon: Gift, color: 'text-green-400' };
+    if (totalScore >= 50) return { title: 'MEMBER', icon: Info, color: 'text-cyan-400' };
     return { title: 'USER', icon: Info, color: 'text-muted-foreground' };
   };
 
-  const currentTitle = getTitleInfo(data.userProfile.totalDonated || 0);
+  const currentTitle = getTitleInfo(totalPoints, data.userProfile.totalDonated || 0);
   const TitleIcon = currentTitle.icon;
 
   const handleFetchDonations = async () => {
@@ -68,20 +75,6 @@ export const UserTitleBadge = () => {
     });
   };
 
-  const handleDonateWithCrypto = () => {
-    toast({
-      title: "Crypto Payment",
-      description: "Crypto payment integration coming soon! Use the wallet address feature for now.",
-    });
-  };
-
-  const handleDonateWithPayPal = () => {
-    toast({
-      title: "PayPal Payment",
-      description: "PayPal integration coming soon! Contact support for donation instructions.",
-    });
-  };
-
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
@@ -109,7 +102,7 @@ export const UserTitleBadge = () => {
           
           <TabsContent value="status" className="space-y-4">
             <div className="text-sm text-muted-foreground font-mono">
-              Support Open Findash development and unlock exclusive features!
+              Current status based on points ({totalPoints}) and donations (${data.userProfile.totalDonated || 0})
             </div>
             
             <div className="space-y-2">
@@ -134,7 +127,7 @@ export const UserTitleBadge = () => {
                 ) : (
                   <RefreshCw size={16} className="mr-2" />
                 )}
-                Fetch Donations
+                Fetch
               </Button>
               <Button onClick={handleSaveDonorInfo} variant="outline" className="brutalist-button">
                 Save
@@ -142,51 +135,35 @@ export const UserTitleBadge = () => {
             </div>
             
             <div className="bg-muted p-3 border-2 border-border">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-mono font-bold text-sm">CURRENT STATUS:</h4>
-                <span className={`font-mono text-sm ${currentTitle.color}`}>
-                  ${data.userProfile.totalDonated || 0}
-                </span>
-              </div>
               <div className="space-y-1 text-xs font-mono">
-                <div className="text-yellow-400">• PATRON ($1000+) - All features + NFT airdrops</div>
-                <div className="text-purple-400">• SUPPORTER ($500+) - Premium themes + early access</div>
-                <div className="text-blue-400">• BACKER ($100+) - Advanced features unlocked</div>
-                <div className="text-green-400">• DONOR ($10+) - Supporter badge + thanks</div>
-                <div className="text-muted-foreground">• USER ($0) - Basic features</div>
+                <div className="text-red-400">• LEGEND (10000+) - Ultimate recognition</div>
+                <div className="text-yellow-400">• PATRON (5000+) - All features + NFT airdrops</div>
+                <div className="text-purple-400">• SUPPORTER (2500+) - Premium themes + early access</div>
+                <div className="text-blue-400">• BACKER (1000+) - Advanced features unlocked</div>
+                <div className="text-green-400">• DONOR (100+) - Supporter badge + thanks</div>
+                <div className="text-cyan-400">• MEMBER (50+) - Community member</div>
+                <div className="text-muted-foreground">• USER (0+) - Basic features</div>
               </div>
             </div>
           </TabsContent>
           
           <TabsContent value="donate" className="space-y-4">
-            <div className="text-sm text-muted-foreground font-mono">
-              Choose your preferred donation method:
-            </div>
-            
             <div className="space-y-3">
-              <Button 
-                onClick={handleDonateWithCrypto}
-                className="w-full brutalist-button bg-orange-600 hover:bg-orange-700"
-              >
-                <Wallet size={16} className="mr-2" />
-                Donate with Crypto
-              </Button>
-              
-              <Button 
-                onClick={handleDonateWithPayPal}
-                className="w-full brutalist-button bg-blue-600 hover:bg-blue-700"
-              >
-                <CreditCard size={16} className="mr-2" />
-                Donate with PayPal
-              </Button>
+              <Link to="/donation">
+                <Button className="w-full brutalist-button bg-orange-600 hover:bg-orange-700">
+                  <Wallet size={16} className="mr-2" />
+                  Go to Donation Page
+                  <ExternalLink size={14} className="ml-2" />
+                </Button>
+              </Link>
             </div>
             
             <div className="bg-muted p-3 border-2 border-border">
               <div className="text-xs font-mono">
                 <div className="font-bold mb-1">Benefits of donating:</div>
-                <div>• Unlock premium themes</div>
+                <div>• Unlock premium features</div>
+                <div>• Remove ads (degen mode)</div>
                 <div>• Get early access to features</div>
-                <div>• Receive NFT airdrops</div>
                 <div>• Support open-source development</div>
               </div>
             </div>
