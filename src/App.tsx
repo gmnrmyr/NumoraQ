@@ -1,57 +1,48 @@
 
-import React from "react";
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { FinancialDataProvider } from "@/contexts/FinancialDataContext";
-import { TranslationProvider } from "@/contexts/TranslationContext";
-import LandingPage from "./pages/LandingPage";
+import { AuthProvider } from "./contexts/AuthContext";
+import { FinancialDataProvider } from "./contexts/FinancialDataContext";
+import { TranslationProvider } from "./contexts/TranslationContext";
 import Dashboard from "./pages/Dashboard";
+import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
 import OnboardingPage from "./pages/OnboardingPage";
-import LeaderboardPage from "./pages/LeaderboardPage";
-import DonationPage from "./pages/DonationPage";
 import UpcomingFeatures from "./pages/UpcomingFeatures";
+import DonationPage from "./pages/DonationPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
+import SupportPage from "./pages/SupportPage";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
-const App: React.FC = () => {
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <FinancialDataProvider>
-          <TranslationProvider>
-            <TooltipProvider>
+      <TooltipProvider>
+        <TranslationProvider>
+          <AuthProvider>
+            <FinancialDataProvider>
               <Toaster />
-              <Sonner />
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/onboarding" element={<OnboardingPage />} />
-                  <Route path="/leaderboard" element={<LeaderboardPage />} />
-                  <Route path="/donation" element={<DonationPage />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/upcoming-features" element={<UpcomingFeatures />} />
-                  <Route path="*" element={<LandingPage />} />
+                  <Route path="/donation" element={<DonationPage />} />
+                  <Route path="/leaderboard" element={<LeaderboardPage />} />
+                  <Route path="/support" element={<SupportPage />} />
                 </Routes>
               </BrowserRouter>
-            </TooltipProvider>
-          </TranslationProvider>
-        </FinancialDataProvider>
-      </AuthProvider>
+            </FinancialDataProvider>
+          </AuthProvider>
+        </TranslationProvider>
+      </TooltipProvider>
     </QueryClientProvider>
   );
-};
+}
 
 export default App;

@@ -103,8 +103,8 @@ export const useLeaderboard = () => {
         
         leaderboardEntries.push({
           user_id: userId,
-          user_name: profile?.name || 'Anonymous User',
-          user_uid: profile?.user_uid || 'UNKNOWN',
+          user_name: profile?.name || 'Anonymous User', // This is the nickname that displays on leaderboard
+          user_uid: profile?.user_uid || 'UNKNOWN', // This is the UID for reference
           total_points: stats.total_points,
           rank: 0, // Will be calculated after sorting
           donation_count: stats.donation_count,
