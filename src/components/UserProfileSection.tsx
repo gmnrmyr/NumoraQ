@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -342,7 +343,9 @@ export const UserProfileSection = () => {
           <div className="flex-1 space-y-3">
             {/* Nickname Section */}
             <div className="flex items-center gap-2">
-              <User size={14} className="text-muted-foreground" title="Nickname" />
+              <div title="Nickname">
+                <User size={14} className="text-muted-foreground" />
+              </div>
               <div className="flex items-center gap-2 flex-1">
                 <Input
                   value={nickname}
@@ -404,11 +407,14 @@ export const UserProfileSection = () => {
             <div className="flex items-center gap-2">
               <Crown size={16} className={isPremiumUser ? "text-yellow-400" : "text-muted-foreground"} />
               <span className="font-mono text-sm">Degen Mode</span>
-              {isPremiumUser && <Badge className="bg-yellow-400/20 text-yellow-400 border-yellow-400">
+              {isPremiumUser && (
+                <Badge className="bg-yellow-400/20 text-yellow-400 border-yellow-400">
                   ACTIVE
-                </Badge>}
+                </Badge>
+              )}
             </div>
-            {!isPremiumUser ? <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
+            {!isPremiumUser ? (
+              <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
                 <DialogTrigger asChild>
                   <Button size="sm" variant="outline" className="text-xs font-mono">
                     <Gift size={12} className="mr-1" />
@@ -423,15 +429,27 @@ export const UserProfileSection = () => {
                     <p className="text-sm text-muted-foreground font-mono">
                       Enter your degen code to activate ad-free experience:
                     </p>
-                    <Input placeholder="DEGEN-XXXXXX" value={degenCode} onChange={e => setDegenCode(e.target.value.toUpperCase())} className="font-mono" />
-                    <Button onClick={handleActivateDegenCode} className="w-full" disabled={!degenCode.trim()}>
+                    <Input 
+                      placeholder="DEGEN-XXXXXX" 
+                      value={degenCode} 
+                      onChange={e => setDegenCode(e.target.value.toUpperCase())} 
+                      className="font-mono" 
+                    />
+                    <Button 
+                      onClick={handleActivateDegenCode} 
+                      className="w-full" 
+                      disabled={!degenCode.trim()}
+                    >
                       Activate
                     </Button>
                   </div>
                 </DialogContent>
-              </Dialog> : <div className="text-xs font-mono text-muted-foreground">
+              </Dialog>
+            ) : (
+              <div className="text-xs font-mono text-muted-foreground">
                 {getDegenTimeRemaining()}
-              </div>}
+              </div>
+            )}
           </div>
           <div className="text-xs text-muted-foreground font-mono mt-2">
             {isPremiumUser ? '🚀 No ads! Premium experience activated' : '📺 Future: Activate for ad-free experience'}
