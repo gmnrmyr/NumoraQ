@@ -69,19 +69,22 @@ export const DesktopNavigation = ({ activeTab, onTabChange, onProfileClick }: De
             Leaderboard
           </Button>
         </div>
+        
+        {/* Profile Button */}
+        <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
+          <Button 
+            onClick={onProfileClick}
+            variant="ghost" 
+            size="sm" 
+            className="font-mono brutalist-button text-xs px-2 py-1 h-8"
+          >
+            <User size={14} />
+          </Button>
+        </div>
       </div>
       
-      {/* Right side - Profile and Support */}
+      {/* Right side - Support */}
       <div className="flex items-center gap-2">
-        <Button 
-          onClick={onProfileClick}
-          variant="ghost" 
-          size="sm" 
-          className="font-mono brutalist-button text-xs px-2 py-1 h-8"
-        >
-          <User size={14} className="mr-1" />
-          Profile
-        </Button>
         <DonationLinks />
       </div>
     </div>

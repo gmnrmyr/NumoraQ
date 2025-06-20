@@ -30,7 +30,7 @@ export const NavbarHeader = ({ onTitleClick, onProfileClick, onMenuToggle }: Nav
       </div>
 
       {/* Desktop Actions */}
-      <div className="flex items-center gap-3">
+      <div className="hidden lg:flex items-center gap-3">
         <LanguageSelector variant="outline" size="sm" />
         
         {/* Profile Button for logged users */}
@@ -45,7 +45,18 @@ export const NavbarHeader = ({ onTitleClick, onProfileClick, onMenuToggle }: Nav
           </Button>
         )}
         
-        {/* Always show hamburger menu */}
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="brutalist-button"
+          onClick={onMenuToggle}
+        >
+          <Menu size={20} />
+        </Button>
+      </div>
+
+      {/* Mobile Actions - Only Menu Toggle */}
+      <div className="flex lg:hidden">
         <Button 
           variant="outline" 
           size="sm" 
