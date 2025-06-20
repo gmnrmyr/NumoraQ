@@ -20,6 +20,7 @@ import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
 import { AIAdvisor } from "@/components/ai/AIAdvisor";
 import { PWASetup } from "@/components/PWASetup";
+import { AdBanner } from "@/components/AdBanner";
 import { useSecureAdminAuth } from "@/hooks/useSecureAdminAuth";
 
 const Dashboard = () => {
@@ -64,7 +65,13 @@ const Dashboard = () => {
       
       <div className="min-h-screen bg-background text-foreground font-mono">
         <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
-        <div className="pt-20 sm:pt-32 pb-4">
+        
+        {/* Top Ad Banner */}
+        <div className="pt-20 sm:pt-32">
+          <AdBanner position="top" className="max-w-7xl mx-auto mb-4 px-2 sm:px-4" />
+        </div>
+        
+        <div className="pb-4">
           <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
             <DashboardHeader />
             
@@ -75,6 +82,9 @@ const Dashboard = () => {
             <ExchangeRatesBanner />
             <MetricsOverview />
             <ProjectionCard />
+
+            {/* Inline Ad Banner */}
+            <AdBanner position="inline" className="my-6" />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <div>
@@ -141,6 +151,9 @@ const Dashboard = () => {
             </Tabs>
 
             <ProjectionChart />
+            
+            {/* Bottom Ad Banner */}
+            <AdBanner position="bottom" className="my-6" />
           </div>
           
           <DevMenu />
