@@ -1,56 +1,95 @@
 
 import React from 'react';
-import { Skull, Bot, Zap } from 'lucide-react';
+import { Skull, Bot, Zap, Play, Pause } from 'lucide-react';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { UserTitleBadge } from './UserTitleBadge';
 import { useUserTitle } from '@/hooks/useUserTitle';
 import { useAnimationToggle } from '@/hooks/useAnimationToggle';
+import { Button } from '@/components/ui/button';
+
+// Properly type the UnicornStudio global
+declare global {
+  interface Window {
+    UnicornStudio?: {
+      isInitialized: boolean;
+      init: () => void;
+    };
+  }
+}
 
 export const DashboardHeader = () => {
   const { t } = useTranslation();
   const { data } = useFinancialData();
   const { userTitle } = useUserTitle();
   const { isAnimationEnabled } = useAnimationToggle();
+  const [animationPaused, setAnimationPaused] = React.useState(false);
   
   // Check if user has CHAMPION role (2000+ donation points or level 80+)
   const isChampionUser = userTitle.level >= 80 || userTitle.title === 'CHAMPION';
   
-  // Load UnicornStudio animation for CHAMPION users
+  // Check if Black Hole theme is active
+  const isBlackHoleTheme = data.userProfile.theme === 'black-hole';
+  
+  // Load UnicornStudio animation for CHAMPION users with Black Hole theme
   React.useEffect(() => {
-    if (isChampionUser && isAnimationEnabled) {
+    if (isChampionUser && isBlackHoleTheme && isAnimationEnabled && !animationPaused) {
       // Load UnicornStudio script if not already loaded
       if (!window.UnicornStudio) {
-        window.UnicornStudio = { isInitialized: false };
+        window.UnicornStudio = { 
+          isInitialized: false,
+          init: () => {}
+        };
         const script = document.createElement("script");
         script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
         script.onload = function() {
-          if (!window.UnicornStudio.isInitialized) {
-            UnicornStudio.init();
+          if (window.UnicornStudio && !window.UnicornStudio.isInitialized) {
+            window.UnicornStudio.init();
             window.UnicornStudio.isInitialized = true;
           }
         };
         (document.head || document.body).appendChild(script);
       } else if (!window.UnicornStudio.isInitialized) {
-        UnicornStudio.init();
+        window.UnicornStudio.init();
         window.UnicornStudio.isInitialized = true;
       }
     }
-  }, [isChampionUser, isAnimationEnabled]);
+  }, [isChampionUser, isBlackHoleTheme, isAnimationEnabled, animationPaused]);
   
   return (
     <div className="relative">
-      {/* UnicornStudio Animation Background for CHAMPION users */}
-      {isChampionUser && isAnimationEnabled && (
+      {/* UnicornStudio Animation Background for CHAMPION users with Black Hole theme */}
+      {isChampionUser && isBlackHoleTheme && isAnimationEnabled && !animationPaused && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div 
             data-us-project="db3DaP9gWVnnnr7ZevK7" 
-            style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
+            style={{ 
+              width: '150%', 
+              height: '150%', 
+              position: 'absolute', 
+              top: '-25%', 
+              left: '-25%',
+              transform: 'scale(1.5)'
+            }}
           />
         </div>
       )}
       
       <div className="text-center space-y-6 py-8 relative z-10">
+        {/* Animation Controls for CHAMPION users with Black Hole theme */}
+        {isChampionUser && isBlackHoleTheme && (
+          <div className="absolute top-2 right-2 z-20">
+            <Button
+              onClick={() => setAnimationPaused(!animationPaused)}
+              variant="outline"
+              size="sm"
+              className="brutalist-button bg-card/80 backdrop-blur-sm"
+            >
+              {animationPaused ? <Play size={16} /> : <Pause size={16} />}
+            </Button>
+          </div>
+        )}
+        
         <div className="flex items-center justify-center gap-4 py-[13px]">
           <div className="flex items-center gap-2">
             <div className="p-3 border-2 border-accent bg-background">

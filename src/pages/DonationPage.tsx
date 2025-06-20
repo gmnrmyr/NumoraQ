@@ -10,6 +10,7 @@ import { DonationInterface } from '@/components/dashboard/DonationInterface';
 const DonationPage = () => {
   // Hardcoded title requirements for display
   const titleRequirements = [
+    { title: 'WHALE', amount: '$50,000+', points: 50000, color: 'text-purple-600', features: ['Exclusive Whale Badge', 'Ultra VIP Access', 'All Premium Features', 'Direct Developer Contact'] },
     { title: 'LEGEND', amount: '$10,000+', points: 10000, color: 'text-purple-400', features: ['Exclusive Legend Badge', 'Priority Support', 'All Premium Features'] },
     { title: 'PATRON', amount: '$5,000+', points: 5000, color: 'text-yellow-400', features: ['Patron Badge', 'Premium Themes', 'Advanced Features'] },
     { title: 'CHAMPION', amount: '$2,000+', points: 2000, color: 'text-orange-400', features: ['Champion Badge', 'Black Hole Animation', 'Premium Themes'] },
@@ -19,7 +20,8 @@ const DonationPage = () => {
     { title: 'CONTRIBUTOR', amount: '$50+', points: 50, color: 'text-indigo-400', features: ['Contributor Badge'] },
     { title: 'HELPER', amount: '$25+', points: 25, color: 'text-pink-400', features: ['Helper Badge'] },
     { title: 'FRIEND', amount: '$20+', points: 20, color: 'text-emerald-400', features: ['Friend Badge'] },
-    { title: 'SUPPORTER', amount: '$10+', points: 10, color: 'text-lime-400', features: ['Basic Supporter Badge'] }
+    { title: 'SUPPORTER', amount: '$10+', points: 10, color: 'text-lime-400', features: ['Basic Supporter Badge'] },
+    { title: 'NEWCOMER', amount: '$0-9', points: 0, color: 'text-slate-400', features: ['Welcome Badge', '1 point daily login'] }
   ];
 
   return (
@@ -44,7 +46,7 @@ const DonationPage = () => {
           </div>
 
           {/* Donation Interface */}
-          <DonationInterface />
+          <DonationInterface isOpen={false} onClose={() => {}} />
 
           {/* Title Requirements */}
           <Card className="border-2 border-border">
@@ -64,7 +66,7 @@ const DonationPage = () => {
                           {tier.title}
                         </Badge>
                         <span className="text-sm font-mono text-muted-foreground">
-                          {tier.points} pts
+                          {tier.points > 0 ? `${tier.points} pts` : '0-9 pts'}
                         </span>
                       </div>
                       <div className="text-xl font-bold font-mono text-accent">
@@ -98,6 +100,7 @@ const DonationPage = () => {
                   <Gift size={16} className="inline mr-2" />
                   <strong>Note:</strong> All donations directly support development and server costs. 
                   Titles are automatically assigned based on total donation amount and grant access to exclusive features.
+                  Daily login rewards: 1 point per day.
                 </div>
               </div>
             </CardContent>
