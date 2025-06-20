@@ -46,8 +46,7 @@ export const UserProfileSection = () => {
     data,
     updateUserProfile,
     syncState,
-    lastSync,
-    saveToCloud
+    lastSync
   } = useFinancialData();
   const {
     user,
@@ -71,10 +70,6 @@ export const UserProfileSection = () => {
     }
   }, [user]);
 
-  React.useEffect(() => {
-    setNickname(data.userProfile.name || '');
-  }, [data.userProfile.name]);
-
   const loadUserUID = async () => {
     try {
       const { data: profile, error } = await supabase
@@ -95,7 +90,6 @@ export const UserProfileSection = () => {
     
     setUpdatingNickname(true);
     try {
-      // Update in Supabase profiles table
       const { error } = await supabase
         .from('profiles')
         .update({ name: newNickname.trim() })
@@ -103,18 +97,13 @@ export const UserProfileSection = () => {
 
       if (error) throw error;
 
-      // Update in local financial data context
-      updateUserProfile({ name: newNickname.trim() });
       setNickname(newNickname.trim());
-      
-      // Save to cloud to sync across devices
-      await saveToCloud();
-      
+      updateUserProfile({ name: newNickname.trim() });
       await loadUserUID(); // Reload UID as it's auto-generated from name
       
       toast({
         title: "Nickname Updated",
-        description: "Your nickname and UID have been updated and synced to cloud!"
+        description: "Your nickname and UID have been updated successfully!"
       });
     } catch (error) {
       console.error('Error updating nickname:', error);
@@ -354,7 +343,7 @@ export const UserProfileSection = () => {
           <div className="flex-1 space-y-3">
             {/* Nickname Section */}
             <div className="flex items-center gap-2">
-              <div title="Unique Nickname">
+              <div title="Nickname">
                 <User size={14} className="text-muted-foreground" />
               </div>
               <div className="flex items-center gap-2 flex-1">
@@ -363,7 +352,7 @@ export const UserProfileSection = () => {
                   onChange={(e) => setNickname(e.target.value)}
                   onBlur={() => updateNickname(nickname)}
                   onKeyDown={(e) => e.key === 'Enter' && updateNickname(nickname)}
-                  placeholder="Enter your unique nickname"
+                  placeholder="Enter your nickname"
                   className="font-mono bg-input border-2 border-border"
                   disabled={updatingNickname}
                 />
