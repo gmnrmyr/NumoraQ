@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,33 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, TrendingUp, Shield, Zap, Menu, X, Github, Twitter, Linkedin, Play, Pause } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAnimationToggle } from '@/hooks/useAnimationToggle';
-import { useCMSLogos } from '@/hooks/useCMSLogos';
-import { useProjectSettings } from '@/hooks/useProjectSettings';
-
 const LandingPage = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { logos } = useCMSLogos();
-  const { settings } = useProjectSettings();
   const {
     isAnimationEnabled,
     toggleAnimation,
     showToggle
   } = useAnimationToggle();
   const animationInitRef = useRef<boolean>(false);
-
-  // Set monochrome as default theme on component mount
-  useEffect(() => {
-    const root = document.documentElement;
-    const savedTheme = localStorage.getItem('selectedTheme');
-    
-    // If no theme is saved, apply monochrome as default
-    if (!savedTheme) {
-      root.classList.add('theme-monochrome');
-      localStorage.setItem('selectedTheme', 'monochrome');
-    }
-  }, []);
-
   useEffect(() => {
     const timer = setInterval(() => {
       const elements = document.querySelectorAll('.ascii-animation');
@@ -103,7 +84,6 @@ const LandingPage = () => {
       return () => clearTimeout(retryTimer);
     }
   }, [isAnimationEnabled]);
-
   const features = [{
     icon: <TrendingUp className="h-6 w-6" />,
     title: "Portfolio Tracking",
@@ -117,10 +97,9 @@ const LandingPage = () => {
     title: "Lightning Fast",
     description: "Built for speed with modern web technologies. No lag, just pure performance."
   }];
-
   return <>
       {/* SEO Meta Tags */}
-      <title>{settings.website_name} | Free Financial Dashboard & Crypto Portfolio Tracker</title>
+      <title>OPEN FINDASH | Free Financial Dashboard & Crypto Portfolio Tracker</title>
       <meta name="description" content="Free, open-source financial dashboard for tracking crypto, assets, income & expenses. Privacy-first with optional cloud sync. Start building wealth today!" />
       <meta name="keywords" content="financial dashboard, crypto tracker, portfolio management, open source, privacy-first, wealth tracking, free finance app" />
       
@@ -130,11 +109,8 @@ const LandingPage = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center gap-2">
-                <img 
-                  src={logos.horizontal_logo_url || '/lovable-uploads/b4a7f5cc-5cb9-4cb0-b92e-8e0996f36253.png'} 
-                  alt={`${settings.website_name} Logo`} 
-                  className="h-8 w-auto" 
-                />
+                <div className="text-xl font-bold text-accent ascii-animation">₿</div>
+                <span className="text-lg font-bold">OPEN FINDASH</span>
               </div>
               
               {/* Desktop Navigation */}
@@ -209,7 +185,7 @@ const LandingPage = () => {
               <span className="text-accent ascii-animation">Your Dashboard</span>
             </h1>
             
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">Track crypto, manage expenses, and build wealth with the most privacy-focused financial dashboard. Maximum financial clarity.</p>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">Track crypto, manage expenses, and build wealth with the most privacy-focused financial dashboard. No tracking, just pure financial clarity.</p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Button size="lg" onClick={() => navigate('/auth')} className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 text-lg px-8 py-3">
@@ -298,12 +274,8 @@ const LandingPage = () => {
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-2">
-                <img 
-                  src={logos.symbol_logo_url || logos.square_logo_url || '/lovable-uploads/b4a7f5cc-5cb9-4cb0-b92e-8e0996f36253.png'} 
-                  alt={`${settings.website_name} Symbol`} 
-                  className="h-6 w-6" 
-                />
-                <span className="font-bold">{settings.website_name}</span>
+                <div className="text-accent">₿</div>
+                <span className="font-bold">OPEN FINDASH</span>
                 <span className="text-xs text-muted-foreground">© 2024</span>
               </div>
               
@@ -321,5 +293,4 @@ const LandingPage = () => {
       </div>
     </>;
 };
-
 export default LandingPage;

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,18 +14,6 @@ export const DevMenu = () => {
   const { data, updateUserProfile } = useFinancialData();
   const { activatePremiumCode } = useAdminMode();
   const [degenCode, setDegenCode] = useState('');
-
-  // Apply monochrome as default theme on component mount
-  useEffect(() => {
-    const root = document.documentElement;
-    const savedTheme = localStorage.getItem('selectedTheme');
-    
-    // If no theme is saved, apply monochrome as default
-    if (!savedTheme) {
-      root.classList.add('theme-monochrome');
-      localStorage.setItem('selectedTheme', 'monochrome');
-    }
-  }, []);
 
   const applyTheme = (theme: string) => {
     const root = document.documentElement;
@@ -145,8 +133,8 @@ export const DevMenu = () => {
             
             <div className="grid grid-cols-2 gap-2">
               <ThemeButton theme="default" label="Default" />
-              <ThemeButton theme="monochrome" label="Monochrome ★" />
               <ThemeButton theme="neon" label="Neon" />
+              <ThemeButton theme="monochrome" label="Monochrome" />
               <ThemeButton theme="dual-tone" label="Dual Tone" />
               <ThemeButton theme="high-contrast" label="High Contrast" />
               <ThemeButton 
@@ -178,7 +166,6 @@ export const DevMenu = () => {
                 <div>• Cyberpunk ($100+ donated)</div>
                 <div>• Matrix ($500+ donated)</div>
                 <div>• Gold Rush ($1000+ donated)</div>
-                <div className="mt-2 text-accent">★ Monochrome is now default</div>
               </div>
             </div>
           </TabsContent>
