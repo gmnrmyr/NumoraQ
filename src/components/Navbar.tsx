@@ -103,19 +103,17 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
 
         {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-3">
-          {!user && <LanguageSelector variant="outline" size="sm" />}
+          <LanguageSelector variant="outline" size="sm" />
           <DonationLinks />
-          {!user && (
-            <Button onClick={handleGetStarted} className="font-mono brutalist-button" size="sm">
-              <LogIn size={16} className="mr-1" />
-              Get Started
-            </Button>
-          )}
+          <Button onClick={handleGetStarted} className="font-mono brutalist-button" size="sm">
+            <LogIn size={16} className="mr-1" />
+            {user ? 'Dashboard' : 'Get Started'}
+          </Button>
         </div>
 
         {/* Mobile Actions */}
         <div className="flex items-center gap-2 lg:hidden">
-          {!user && <LanguageSelector variant="outline" size="sm" />}
+          <LanguageSelector variant="outline" size="sm" />
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="sm" className="brutalist-button">
@@ -140,79 +138,73 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
                   );
                 })}
 
-                {user && (
-                  <>
-                    <div className="border-t border-border pt-4 mt-2">
-                      <h3 className="font-bold text-sm font-mono uppercase text-accent mb-2">Community</h3>
-                      <Button
-                        variant={isLeaderboardActive ? "default" : "ghost"}
-                        onClick={() => handleTabChange('leaderboard')}
-                        className="justify-start font-mono brutalist-button w-full"
-                      >
-                        <Trophy size={16} className="mr-2" />
-                        Leaderboard
-                      </Button>
-                    </div>
-                  </>
-                )}
+                <div className="border-t border-border pt-4 mt-2">
+                  <h3 className="font-bold text-sm font-mono uppercase text-accent mb-2">Community</h3>
+                  <Button
+                    variant={isLeaderboardActive ? "default" : "ghost"}
+                    onClick={() => handleTabChange('leaderboard')}
+                    className="justify-start font-mono brutalist-button w-full"
+                  >
+                    <Trophy size={16} className="mr-2" />
+                    Leaderboard
+                  </Button>
+                </div>
                 
-                {!user && (
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <Button onClick={handleGetStarted} className="w-full font-mono brutalist-button">
-                      <LogIn size={16} className="mr-2" />
-                      Get Started
-                    </Button>
+                <div className="mt-4 pt-4 border-t border-border">
+                  <Button onClick={handleGetStarted} className="w-full font-mono brutalist-button">
+                    <LogIn size={16} className="mr-2" />
+                    {user ? 'Dashboard' : 'Get Started'}
+                  </Button>
+                  {!user && (
                     <p className="text-xs text-muted-foreground font-mono mt-2 text-center">
                       Demo Mode - Sign in for cloud sync
                     </p>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </SheetContent>
           </Sheet>
         </div>
       </div>
 
-      {/* Bottom Row - Navigation (Desktop Only) */}
-      {user && (
-        <div className="hidden lg:flex items-center justify-center px-4 py-2 bg-accent/5">
-          <nav className="flex items-center gap-2">
-            {/* Dashboard Navigation */}
-            <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
-              <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Dashboard:</span>
-              {dashboardItems.map(item => {
-                const Icon = item.icon;
-                return (
-                  <Button
-                    key={item.id}
-                    variant={activeTab === item.id ? "default" : "ghost"}
-                    onClick={() => handleTabChange(item.id)}
-                    size="sm"
-                    className="font-mono brutalist-button text-xs px-2 py-1 h-8"
-                  >
-                    <Icon size={14} className="mr-1" />
-                    {item.label}
-                  </Button>
-                );
-              })}
-            </div>
-            
-            {/* Leaderboard */}
-            <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
-              <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Community:</span>
-              <Button
-                variant={isLeaderboardActive ? "default" : "ghost"}
-                onClick={() => handleTabChange('leaderboard')}
-                size="sm"
-                className="font-mono brutalist-button text-xs px-2 py-1 h-8"
-              >
-                <Trophy size={14} className="mr-1" />
-                Leaderboard
-              </Button>
-            </div>
-          </nav>
-        </div>
-      )}
+      {/* Bottom Row - Navigation (Always Show for Dashboard Items) */}
+      <div className="hidden lg:flex items-center justify-center px-4 py-2 bg-accent/5">
+        <nav className="flex items-center gap-2">
+          {/* Dashboard Navigation */}
+          <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
+            <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Dashboard:</span>
+            {dashboardItems.map(item => {
+              const Icon = item.icon;
+              return (
+                <Button
+                  key={item.id}
+                  variant={activeTab === item.id ? "default" : "ghost"}
+                  onClick={() => handleTabChange(item.id)}
+                  size="sm"
+                  className="font-mono brutalist-button text-xs px-2 py-1 h-8"
+                >
+                  <Icon size={14} className="mr-1" />
+                  {item.label}
+                </Button>
+              );
+            })}
+          </div>
+          
+          {/* Community Navigation */}
+          <div className="flex items-center gap-1 px-3 py-1 bg-background/50 border border-accent/20 rounded-lg">
+            <span className="text-xs font-mono uppercase text-muted-foreground mr-2">Community:</span>
+            <Button
+              variant={isLeaderboardActive ? "default" : "ghost"}
+              onClick={() => handleTabChange('leaderboard')}
+              size="sm"
+              className="font-mono brutalist-button text-xs px-2 py-1 h-8"
+            >
+              <Trophy size={14} className="mr-1" />
+              Leaderboard
+            </Button>
+          </div>
+        </nav>
+      </div>
     </div>
   );
 };
