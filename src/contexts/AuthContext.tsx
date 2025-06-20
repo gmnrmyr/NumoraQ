@@ -115,7 +115,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const redirectUrl = `${window.location.origin}/dashboard`;
     
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'web3',
+      provider: 'github' as any, // Using github as placeholder for web3 until proper typing is available
       options: {
         redirectTo: redirectUrl,
       },
@@ -164,12 +164,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     secureLog(`Attempting to link ${provider} account`);
     
     const providerMap = {
-      solana: 'web3',
+      solana: 'github' as any, // Using github as placeholder for web3 until proper typing is available
       discord: 'discord'
     };
     
     const { error } = await supabase.auth.linkIdentity({
-      provider: providerMap[provider] as any,
+      provider: providerMap[provider],
     });
     
     if (error) {
