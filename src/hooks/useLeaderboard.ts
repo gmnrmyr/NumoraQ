@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -101,8 +100,8 @@ export const useLeaderboard = () => {
       userPointsMap.forEach((stats, userId) => {
         const profile = profilesData?.find(p => p.id === userId);
         
-        // Use the actual name from profiles, with fallbacks
-        let displayName = 'Anonymous User';
+        // Use the actual name from profiles (this is the nickname from USER_INFO_CONFIG_UI)
+        let displayName = 'User';
         if (profile?.name && profile.name.trim()) {
           displayName = profile.name.trim();
         }
