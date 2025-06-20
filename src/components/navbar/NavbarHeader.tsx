@@ -1,19 +1,15 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { User, Menu } from 'lucide-react';
-import { useAuth } from "@/contexts/AuthContext";
-import { LanguageSelector } from "@/components/LanguageSelector";
+import { Settings } from 'lucide-react';
 import { useCMSLogos } from "@/hooks/useCMSLogos";
+import { UserSettingsPanel } from "@/components/navbar/UserSettingsPanel";
 
 interface NavbarHeaderProps {
   onTitleClick: () => void;
-  onProfileClick: () => void;
-  onMenuToggle: () => void;
 }
 
-export const NavbarHeader = ({ onTitleClick, onProfileClick, onMenuToggle }: NavbarHeaderProps) => {
-  const { user } = useAuth();
+export const NavbarHeader = ({ onTitleClick }: NavbarHeaderProps) => {
   const { logos } = useCMSLogos();
 
   return (
@@ -29,42 +25,9 @@ export const NavbarHeader = ({ onTitleClick, onProfileClick, onMenuToggle }: Nav
         </div>
       </div>
 
-      {/* Desktop Actions */}
-      <div className="hidden lg:flex items-center gap-3">
-        <LanguageSelector variant="outline" size="sm" />
-        
-        {/* Profile Button for logged users */}
-        {user && (
-          <Button 
-            onClick={onProfileClick}
-            variant="outline" 
-            size="sm" 
-            className="brutalist-button"
-          >
-            <User size={16} />
-          </Button>
-        )}
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="brutalist-button"
-          onClick={onMenuToggle}
-        >
-          <Menu size={20} />
-        </Button>
-      </div>
-
-      {/* Mobile Actions - Only Menu Toggle */}
-      <div className="flex lg:hidden">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="brutalist-button"
-          onClick={onMenuToggle}
-        >
-          <Menu size={20} />
-        </Button>
+      {/* Universal Settings Button */}
+      <div className="flex items-center">
+        <UserSettingsPanel />
       </div>
     </div>
   );
