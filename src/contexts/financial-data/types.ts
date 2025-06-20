@@ -1,4 +1,3 @@
-
 export interface LiquidAsset {
   id: string;
   name: string;
@@ -7,6 +6,9 @@ export interface LiquidAsset {
   color: string;
   isActive: boolean;
   trackingMode?: 'manual' | 'wallet' | 'price';
+  isCrypto?: boolean;
+  cryptoSymbol?: string;
+  quantity?: number;
 }
 
 export interface IlliquidAsset {

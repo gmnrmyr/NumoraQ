@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Menu, User, LogIn, LogOut, Trophy, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard } from 'lucide-react';
@@ -10,6 +9,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { CurrencySelector } from './CurrencySelector';
 import { DonationLinks } from './DonationLinks';
+import { supabase } from '@/integrations/supabase/client';
 
 export const UserSettingsPanel = () => {
   const { user, signOut } = useAuth();
@@ -18,8 +18,32 @@ export const UserSettingsPanel = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [profileName, setProfileName] = useState<string>('');
 
-  const displayName = data.userProfile.name || user?.email || "User";
+  // Load user profile name from Supabase
+  useEffect(() => {
+    const loadProfileName = async () => {
+      if (user) {
+        try {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', user.id)
+            .single();
+
+          if (!error && profile?.name) {
+            setProfileName(profile.name);
+          }
+        } catch (error) {
+          console.error('Error loading profile name:', error);
+        }
+      }
+    };
+
+    loadProfileName();
+  }, [user]);
+
+  const displayName = profileName || user?.email || "User";
 
   const handleTabChange = (tab: string) => {
     console.log('Attempting to navigate to tab:', tab);
