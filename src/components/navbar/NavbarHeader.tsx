@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Settings } from 'lucide-react';
 import { useCMSLogos } from "@/hooks/useCMSLogos";
 import { UserSettingsPanel } from "@/components/navbar/UserSettingsPanel";
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface NavbarHeaderProps {
   onTitleClick: () => void;
@@ -11,6 +13,31 @@ interface NavbarHeaderProps {
 
 export const NavbarHeader = ({ onTitleClick }: NavbarHeaderProps) => {
   const { logos } = useCMSLogos();
+  const { user } = useAuth();
+  const [profileName, setProfileName] = React.useState<string>('');
+
+  // Load user profile name
+  React.useEffect(() => {
+    const loadProfileName = async () => {
+      if (user) {
+        try {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', user.id)
+            .single();
+
+          if (!error && profile?.name) {
+            setProfileName(profile.name);
+          }
+        } catch (error) {
+          console.error('Error loading profile name:', error);
+        }
+      }
+    };
+
+    loadProfileName();
+  }, [user]);
 
   return (
     <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
@@ -23,6 +50,11 @@ export const NavbarHeader = ({ onTitleClick }: NavbarHeaderProps) => {
             style={{ maxWidth: '180px' }}
           />
         </div>
+        {profileName && (
+          <span className="text-sm font-mono text-muted-foreground hidden sm:inline">
+            {profileName}
+          </span>
+        )}
       </div>
 
       {/* Universal Settings Button */}

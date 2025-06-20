@@ -1,30 +1,39 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, TrendingUp } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IconSelector } from './IconSelector';
 import { iconMap, groupedIcons } from './IconData';
 import { DevelopmentTooltip } from './DevelopmentTooltip';
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { toast } from "@/hooks/use-toast";
 
+const CRYPTO_OPTIONS = [
+  { symbol: 'BTC', name: 'Bitcoin', key: 'btcPrice' },
+  { symbol: 'ETH', name: 'Ethereum', key: 'ethPrice' }
+];
+
 export const LiquidAssetsCard = () => {
   const { data, updateLiquidAsset, addLiquidAsset, removeLiquidAsset } = useFinancialData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<any>(null);
-  const [showInactive, setShowInactive] = useState(true); // Default to ON
+  const [showInactive, setShowInactive] = useState(true);
+  const [assetType, setAssetType] = useState<'manual' | 'crypto'>('manual');
   
   const [formData, setFormData] = useState({
     name: '',
     value: 0,
     icon: 'Wallet',
-    isActive: true
+    isActive: true,
+    cryptoSymbol: '',
+    quantity: 0
   });
 
   const resetForm = () => {
@@ -32,9 +41,20 @@ export const LiquidAssetsCard = () => {
       name: '',
       value: 0,
       icon: 'Wallet',
-      isActive: true
+      isActive: true,
+      cryptoSymbol: '',
+      quantity: 0
     });
     setEditingAsset(null);
+    setAssetType('manual');
+  };
+
+  const calculateCryptoValue = (cryptoSymbol: string, quantity: number) => {
+    const crypto = CRYPTO_OPTIONS.find(c => c.symbol === cryptoSymbol);
+    if (!crypto) return 0;
+    
+    const price = data.exchangeRates[crypto.key as keyof typeof data.exchangeRates] as number;
+    return price * quantity;
   };
 
   const handleSubmit = () => {
@@ -47,11 +67,25 @@ export const LiquidAssetsCard = () => {
       return;
     }
 
+    let finalValue = formData.value;
+    let assetData = { ...formData };
+
+    if (assetType === 'crypto' && formData.cryptoSymbol && formData.quantity > 0) {
+      finalValue = calculateCryptoValue(formData.cryptoSymbol, formData.quantity);
+      assetData = {
+        ...formData,
+        value: finalValue,
+        isCrypto: true,
+        cryptoSymbol: formData.cryptoSymbol,
+        quantity: formData.quantity
+      };
+    }
+
     if (editingAsset) {
-      updateLiquidAsset(editingAsset.id, formData);
+      updateLiquidAsset(editingAsset.id, assetData);
     } else {
       addLiquidAsset({
-        ...formData,
+        ...assetData,
         color: 'text-foreground'
       });
     }
@@ -67,11 +101,14 @@ export const LiquidAssetsCard = () => {
 
   const handleEdit = (asset: any) => {
     setEditingAsset(asset);
+    setAssetType(asset.isCrypto ? 'crypto' : 'manual');
     setFormData({
       name: asset.name,
       value: asset.value,
       icon: asset.icon,
-      isActive: asset.isActive
+      isActive: asset.isActive,
+      cryptoSymbol: asset.cryptoSymbol || '',
+      quantity: asset.quantity || 0
     });
     setIsDialogOpen(true);
   };
@@ -90,6 +127,18 @@ export const LiquidAssetsCard = () => {
       updateLiquidAsset(assetId, { isActive: !asset.isActive });
     }
   };
+
+  // Recalculate crypto values when exchange rates change
+  React.useEffect(() => {
+    data.liquidAssets.forEach(asset => {
+      if (asset.isCrypto && asset.cryptoSymbol && asset.quantity) {
+        const newValue = calculateCryptoValue(asset.cryptoSymbol, asset.quantity);
+        if (Math.abs(newValue - asset.value) > 0.01) {
+          updateLiquidAsset(asset.id, { value: newValue });
+        }
+      }
+    });
+  }, [data.exchangeRates.btcPrice, data.exchangeRates.ethPrice]);
 
   const activeAssets = data.liquidAssets.filter(asset => asset.isActive);
   const inactiveAssets = data.liquidAssets.filter(asset => !asset.isActive);
@@ -142,26 +191,84 @@ export const LiquidAssetsCard = () => {
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
+                      <Label className="font-mono text-xs uppercase">Asset Type</Label>
+                      <Select value={assetType} onValueChange={(value: 'manual' | 'crypto') => setAssetType(value)}>
+                        <SelectTrigger className="bg-input border-2 border-border font-mono">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="manual">Manual Entry</SelectItem>
+                          <SelectItem value="crypto">Crypto (Auto-Price)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
                       <Label htmlFor="name" className="font-mono text-xs uppercase">Asset Name</Label>
                       <Input
                         id="name"
                         value={formData.name}
                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                         className="bg-input border-2 border-border font-mono"
-                        placeholder="e.g., Cash, Savings Account"
+                        placeholder={assetType === 'crypto' ? "e.g., My Bitcoin" : "e.g., Cash, Savings Account"}
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="value" className="font-mono text-xs uppercase">Value ({currency})</Label>
-                      <Input
-                        id="value"
-                        type="number"
-                        value={formData.value}
-                        onChange={(e) => setFormData(prev => ({ ...prev, value: Number(e.target.value) }))}
-                        className="bg-input border-2 border-border font-mono"
-                        placeholder="0"
-                      />
-                    </div>
+
+                    {assetType === 'crypto' && (
+                      <>
+                        <div>
+                          <Label className="font-mono text-xs uppercase">Cryptocurrency</Label>
+                          <Select 
+                            value={formData.cryptoSymbol} 
+                            onValueChange={(value) => setFormData(prev => ({ ...prev, cryptoSymbol: value }))}
+                          >
+                            <SelectTrigger className="bg-input border-2 border-border font-mono">
+                              <SelectValue placeholder="Select crypto" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CRYPTO_OPTIONS.map(crypto => (
+                                <SelectItem key={crypto.symbol} value={crypto.symbol}>
+                                  {crypto.symbol} - {crypto.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="quantity" className="font-mono text-xs uppercase">Quantity</Label>
+                          <Input
+                            id="quantity"
+                            type="number"
+                            step="0.00000001"
+                            value={formData.quantity}
+                            onChange={(e) => setFormData(prev => ({ ...prev, quantity: Number(e.target.value) }))}
+                            className="bg-input border-2 border-border font-mono"
+                            placeholder="0.0"
+                          />
+                          {formData.cryptoSymbol && formData.quantity > 0 && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Value: {currency} {calculateCryptoValue(formData.cryptoSymbol, formData.quantity).toLocaleString()}
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+
+                    {assetType === 'manual' && (
+                      <div>
+                        <Label htmlFor="value" className="font-mono text-xs uppercase">Value ({currency})</Label>
+                        <Input
+                          id="value"
+                          type="number"
+                          value={formData.value}
+                          onChange={(e) => setFormData(prev => ({ ...prev, value: Number(e.target.value) }))}
+                          className="bg-input border-2 border-border font-mono"
+                          placeholder="0"
+                        />
+                      </div>
+                    )}
+
                     <div>
                       <Label className="font-mono text-xs uppercase">Icon</Label>
                       <IconSelector
@@ -199,7 +306,6 @@ export const LiquidAssetsCard = () => {
             </div>
           ) : (
             displayAssets.map((asset: any) => {
-              // Get the proper icon component from the stored icon value, same as IlliquidAssetsCard
               const Icon = iconMap[asset.icon] || iconMap['Wallet'];
               
               return (
@@ -211,7 +317,6 @@ export const LiquidAssetsCard = () => {
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="flex-shrink-0">
-                      {/* Icon selector for editing, same pattern as IlliquidAssetsCard */}
                       <Select value={asset.icon} onValueChange={(value) => updateLiquidAsset(asset.id, { icon: value })}>
                         <SelectTrigger className="w-12 h-8 p-1 border-border bg-input">
                           <Icon size={16} className={asset.color || 'text-foreground'} />
@@ -239,11 +344,22 @@ export const LiquidAssetsCard = () => {
                       </Select>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-mono font-bold text-sm truncate" title={asset.name}>
-                        {asset.name}
+                      <div className="flex items-center gap-2">
+                        <div className="font-mono font-bold text-sm truncate" title={asset.name}>
+                          {asset.name}
+                        </div>
+                        {asset.isCrypto && (
+                          <Badge variant="outline" className="text-xs font-mono">
+                            <TrendingUp size={10} className="mr-1" />
+                            {asset.cryptoSymbol}
+                          </Badge>
+                        )}
                       </div>
                       <div className="text-xs text-muted-foreground font-mono">
                         {currency} {asset.value.toLocaleString()}
+                        {asset.isCrypto && asset.quantity && (
+                          <span className="ml-2">({asset.quantity} {asset.cryptoSymbol})</span>
+                        )}
                       </div>
                     </div>
                   </div>
