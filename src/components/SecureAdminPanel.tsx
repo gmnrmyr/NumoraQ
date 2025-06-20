@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,10 +8,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Shield, Clock, LogOut, AlertTriangle, Key, Copy, Gift, Wallet, DollarSign, Crown, Settings, Globe, Trash2, CheckCircle, XCircle, Users as UsersIcon } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Shield, Clock, LogOut, AlertTriangle, Key, Copy, Gift, Wallet, DollarSign, Crown, Settings, Globe, Trash2, CheckCircle, XCircle, Users as UsersIcon, Upload, Save, Palette } from 'lucide-react';
 import { useSecureAdminAuth } from '@/hooks/useSecureAdminAuth';
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { useUserPoints } from '@/hooks/useUserPoints';
+import { useProjectSettings } from '@/hooks/useProjectSettings';
+import { useCMSLogos } from '@/hooks/useCMSLogos';
 import { toast } from '@/hooks/use-toast';
 import { sanitizeInput, checkRateLimit } from '@/utils/securityUtils';
 
@@ -43,13 +46,53 @@ export const SecureAdminPanel: React.FC<SecureAdminPanelProps> = ({ isOpen, onCl
     premiumCodesLoading
   } = useAdminMode();
 
+  const { settings, updateSetting, updateMultipleSettings } = useProjectSettings();
+  const { logos, updateLogo } = useCMSLogos();
   const { addManualPoints } = useUserPoints();
   
   const [localSettings, setLocalSettings] = useState({
-    website_name: '',
-    project_wallet: '',
-    donation_goal: 0
+    website_name: settings.website_name || '',
+    version: settings.version || '',
+    upcoming_features_text: settings.upcoming_features_text || '',
+    main_color_scheme: settings.main_color_scheme || 'default',
+    project_wallet_evm: settings.project_wallet_evm || '',
+    project_wallet_solana: settings.project_wallet_solana || '',
+    project_wallet_btc: settings.project_wallet_btc || '',
+    project_wallet_bch: settings.project_wallet_bch || '',
+    project_paypal_email: settings.project_paypal_email || ''
   });
+
+  const [localLogos, setLocalLogos] = useState({
+    square_logo_url: logos.square_logo_url || '',
+    horizontal_logo_url: logos.horizontal_logo_url || '',
+    vertical_logo_url: logos.vertical_logo_url || '',
+    symbol_logo_url: logos.symbol_logo_url || ''
+  });
+
+  const [copiedWallet, setCopiedWallet] = useState<string>('');
+
+  React.useEffect(() => {
+    setLocalSettings({
+      website_name: settings.website_name || '',
+      version: settings.version || '',
+      upcoming_features_text: settings.upcoming_features_text || '',
+      main_color_scheme: settings.main_color_scheme || 'default',
+      project_wallet_evm: settings.project_wallet_evm || '',
+      project_wallet_solana: settings.project_wallet_solana || '',
+      project_wallet_btc: settings.project_wallet_btc || '',
+      project_wallet_bch: settings.project_wallet_bch || '',
+      project_paypal_email: settings.project_paypal_email || ''
+    });
+  }, [settings]);
+
+  React.useEffect(() => {
+    setLocalLogos({
+      square_logo_url: logos.square_logo_url || '',
+      horizontal_logo_url: logos.horizontal_logo_url || '',
+      vertical_logo_url: logos.vertical_logo_url || '',
+      symbol_logo_url: logos.symbol_logo_url || ''
+    });
+  }, [logos]);
 
   const formatTimeRemaining = (ms: number): string => {
     const minutes = Math.floor(ms / 60000);
@@ -100,46 +143,69 @@ export const SecureAdminPanel: React.FC<SecureAdminPanelProps> = ({ isOpen, onCl
     }, { codeId });
   };
 
-  const copyToClipboard = (code: string) => {
-    navigator.clipboard.writeText(code);
+  const copyToClipboard = (text: string, type: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedWallet(type);
+    setTimeout(() => setCopiedWallet(''), 2000);
     toast({
-      title: "Copied",
-      description: "Code copied to clipboard."
+      title: "Copied!",
+      description: `${type} copied to clipboard`
     });
   };
 
-  const handleUpdateSetting = async (key: string, value: any) => {
-    const sanitizedValue = typeof value === 'string' ? sanitizeInput(value) : value;
-    
-    await handleSecureAction('update_cms_setting', async () => {
-      await updateCMSSetting(key as any, sanitizedValue);
-      toast({
-        title: "Setting Updated",
-        description: `${key} has been updated successfully.`
+  const handleSaveBasicSettings = async () => {
+    await handleSecureAction('update_basic_settings', async () => {
+      await updateMultipleSettings({
+        website_name: localSettings.website_name,
+        version: localSettings.version,
+        upcoming_features_text: localSettings.upcoming_features_text,
+        main_color_scheme: localSettings.main_color_scheme
       });
-    }, { key, value: sanitizedValue });
+      toast({
+        title: "Settings Updated",
+        description: "Basic project settings have been updated successfully"
+      });
+    });
   };
 
-  const handleUpdateWebsiteName = async () => {
-    if (localSettings.website_name.trim()) {
-      await handleUpdateSetting('website_name', localSettings.website_name);
-      setLocalSettings(prev => ({ ...prev, website_name: '' }));
-    }
+  const handleSaveWallets = async () => {
+    await handleSecureAction('update_wallet_settings', async () => {
+      await updateMultipleSettings({
+        project_wallet_evm: localSettings.project_wallet_evm,
+        project_wallet_solana: localSettings.project_wallet_solana,
+        project_wallet_btc: localSettings.project_wallet_btc,
+        project_wallet_bch: localSettings.project_wallet_bch,
+        project_paypal_email: localSettings.project_paypal_email
+      });
+      toast({
+        title: "Wallets Updated",
+        description: "All project wallets have been updated successfully"
+      });
+    });
   };
 
-  const handleUpdateProjectWallet = async () => {
-    if (localSettings.project_wallet.trim()) {
-      await handleUpdateSetting('project_wallet', localSettings.project_wallet);
-      setLocalSettings(prev => ({ ...prev, project_wallet: '' }));
-    }
+  const handleSaveLogos = async () => {
+    await handleSecureAction('update_logos', async () => {
+      await Promise.all([
+        updateLogo('square_logo_url', localLogos.square_logo_url),
+        updateLogo('horizontal_logo_url', localLogos.horizontal_logo_url),
+        updateLogo('vertical_logo_url', localLogos.vertical_logo_url),
+        updateLogo('symbol_logo_url', localLogos.symbol_logo_url)
+      ]);
+      toast({
+        title: "Logos Updated",
+        description: "All logo URLs have been updated successfully"
+      });
+    });
   };
 
-  const handleUpdateDonationGoal = async () => {
-    if (localSettings.donation_goal > 0) {
-      await handleUpdateSetting('donation_goal', localSettings.donation_goal);
-      setLocalSettings(prev => ({ ...prev, donation_goal: 0 }));
-    }
-  };
+  const colorSchemes = [
+    { value: 'default', label: 'Default Dark' },
+    { value: 'blue', label: 'Blue Theme' },
+    { value: 'green', label: 'Green Theme' },
+    { value: 'purple', label: 'Purple Theme' },
+    { value: 'red', label: 'Red Theme' }
+  ];
 
   if (loading) {
     return (
@@ -183,7 +249,7 @@ export const SecureAdminPanel: React.FC<SecureAdminPanelProps> = ({ isOpen, onCl
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-card border-2 border-border max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="bg-card border-2 border-border max-w-6xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-mono uppercase">
             <Shield size={16} className="text-accent" />
@@ -208,16 +274,287 @@ export const SecureAdminPanel: React.FC<SecureAdminPanelProps> = ({ isOpen, onCl
           </div>
         </DialogHeader>
 
-        <Tabs defaultValue="premium" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+        <Tabs defaultValue="cms" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="cms">CMS Settings</TabsTrigger>
             <TabsTrigger value="premium">Premium</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="wallet">Wallet</TabsTrigger>
-            <TabsTrigger value="site">Site</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="security">Security</TabsTrigger>
           </TabsList>
           
+          <TabsContent value="cms" className="space-y-4">
+            {/* Basic Project Settings */}
+            <Card className="border-2 border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-mono">
+                  <Globe size={20} />
+                  Project Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="website_name" className="font-mono">Website Name</Label>
+                    <Input
+                      id="website_name"
+                      value={localSettings.website_name}
+                      onChange={(e) => setLocalSettings(prev => ({ ...prev, website_name: e.target.value }))}
+                      className="font-mono"
+                      placeholder="Enter website name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="version" className="font-mono">Version</Label>
+                    <Input
+                      id="version"
+                      value={localSettings.version}
+                      onChange={(e) => setLocalSettings(prev => ({ ...prev, version: e.target.value }))}
+                      className="font-mono"
+                      placeholder="v2.0.0"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="upcoming_features" className="font-mono">Upcoming Features Text</Label>
+                  <Textarea
+                    id="upcoming_features"
+                    value={localSettings.upcoming_features_text}
+                    onChange={(e) => setLocalSettings(prev => ({ ...prev, upcoming_features_text: e.target.value }))}
+                    className="font-mono"
+                    placeholder="Describe upcoming features..."
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="color_scheme" className="font-mono">Main Color Scheme</Label>
+                  <Select
+                    value={localSettings.main_color_scheme}
+                    onValueChange={(value) => setLocalSettings(prev => ({ ...prev, main_color_scheme: value }))}
+                  >
+                    <SelectTrigger className="font-mono">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {colorSchemes.map(scheme => (
+                        <SelectItem key={scheme.value} value={scheme.value}>
+                          <div className="flex items-center gap-2">
+                            <Palette size={16} />
+                            {scheme.label}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button onClick={handleSaveBasicSettings} className="font-mono">
+                  <Save size={16} className="mr-2" />
+                  Save Project Settings
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Logo Management */}
+            <Card className="border-2 border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-mono">
+                  <Upload size={20} />
+                  Logo Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="square_logo" className="font-mono">Square Logo URL</Label>
+                    <Input
+                      id="square_logo"
+                      value={localLogos.square_logo_url}
+                      onChange={(e) => setLocalLogos(prev => ({ ...prev, square_logo_url: e.target.value }))}
+                      className="font-mono"
+                      placeholder="/path/to/square-logo.png"
+                    />
+                    <div className="mt-2 p-2 border border-border rounded">
+                      <img src={localLogos.square_logo_url} alt="Square Logo" className="h-12 w-12 object-contain bg-background" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="horizontal_logo" className="font-mono">Horizontal Logo URL</Label>
+                    <Input
+                      id="horizontal_logo"
+                      value={localLogos.horizontal_logo_url}
+                      onChange={(e) => setLocalLogos(prev => ({ ...prev, horizontal_logo_url: e.target.value }))}
+                      className="font-mono"
+                      placeholder="/path/to/horizontal-logo.png"
+                    />
+                    <div className="mt-2 p-2 border border-border rounded">
+                      <img src={localLogos.horizontal_logo_url} alt="Horizontal Logo" className="h-8 w-24 object-contain bg-background" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="vertical_logo" className="font-mono">Vertical Logo URL</Label>
+                    <Input
+                      id="vertical_logo"
+                      value={localLogos.vertical_logo_url}
+                      onChange={(e) => setLocalLogos(prev => ({ ...prev, vertical_logo_url: e.target.value }))}
+                      className="font-mono"
+                      placeholder="/path/to/vertical-logo.png"
+                    />
+                    <div className="mt-2 p-2 border border-border rounded">
+                      <img src={localLogos.vertical_logo_url} alt="Vertical Logo" className="h-16 w-12 object-contain bg-background" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="symbol_logo" className="font-mono">Symbol Only URL</Label>
+                    <Input
+                      id="symbol_logo"
+                      value={localLogos.symbol_logo_url}
+                      onChange={(e) => setLocalLogos(prev => ({ ...prev, symbol_logo_url: e.target.value }))}
+                      className="font-mono"
+                      placeholder="/path/to/symbol-logo.png"
+                    />
+                    <div className="mt-2 p-2 border border-border rounded">
+                      <img src={localLogos.symbol_logo_url} alt="Symbol Logo" className="h-8 w-8 object-contain bg-background" />
+                    </div>
+                  </div>
+                </div>
+
+                <Button onClick={handleSaveLogos} className="font-mono">
+                  <Save size={16} className="mr-2" />
+                  Save All Logos
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Wallet Management */}
+            <Card className="border-2 border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-mono">
+                  💰 Project Wallets & Payment Methods
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <Label htmlFor="evm_wallet" className="font-mono">EVM Wallet (ETH, BNB, MATIC, etc.)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="evm_wallet"
+                        value={localSettings.project_wallet_evm}
+                        onChange={(e) => setLocalSettings(prev => ({ ...prev, project_wallet_evm: e.target.value }))}
+                        className="font-mono"
+                        placeholder="0x..."
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copyToClipboard(localSettings.project_wallet_evm, 'EVM')}
+                        className="font-mono"
+                      >
+                        {copiedWallet === 'EVM' ? <CheckCircle size={16} /> : <Copy size={16} />}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="solana_wallet" className="font-mono">Solana Wallet</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="solana_wallet"
+                        value={localSettings.project_wallet_solana}
+                        onChange={(e) => setLocalSettings(prev => ({ ...prev, project_wallet_solana: e.target.value }))}
+                        className="font-mono"
+                        placeholder="Solana address..."
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copyToClipboard(localSettings.project_wallet_solana, 'Solana')}
+                        className="font-mono"
+                      >
+                        {copiedWallet === 'Solana' ? <CheckCircle size={16} /> : <Copy size={16} />}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="btc_wallet" className="font-mono">Bitcoin Wallet</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="btc_wallet"
+                        value={localSettings.project_wallet_btc}
+                        onChange={(e) => setLocalSettings(prev => ({ ...prev, project_wallet_btc: e.target.value }))}
+                        className="font-mono"
+                        placeholder="Bitcoin address..."
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copyToClipboard(localSettings.project_wallet_btc, 'Bitcoin')}
+                        className="font-mono"
+                      >
+                        {copiedWallet === 'Bitcoin' ? <CheckCircle size={16} /> : <Copy size={16} />}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="bch_wallet" className="font-mono">Bitcoin Cash Wallet</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="bch_wallet"
+                        value={localSettings.project_wallet_bch}
+                        onChange={(e) => setLocalSettings(prev => ({ ...prev, project_wallet_bch: e.target.value }))}
+                        className="font-mono"
+                        placeholder="Bitcoin Cash address..."
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copyToClipboard(localSettings.project_wallet_bch, 'Bitcoin Cash')}
+                        className="font-mono"
+                      >
+                        {copiedWallet === 'Bitcoin Cash' ? <CheckCircle size={16} /> : <Copy size={16} />}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="paypal_email" className="font-mono">PayPal Email</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="paypal_email"
+                        value={localSettings.project_paypal_email}
+                        onChange={(e) => setLocalSettings(prev => ({ ...prev, project_paypal_email: e.target.value }))}
+                        className="font-mono"
+                        placeholder="paypal@example.com"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copyToClipboard(localSettings.project_paypal_email, 'PayPal')}
+                        className="font-mono"
+                      >
+                        {copiedWallet === 'PayPal' ? <CheckCircle size={16} /> : <Copy size={16} />}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <Button onClick={handleSaveWallets} className="font-mono">
+                  <Save size={16} className="mr-2" />
+                  Save All Wallets
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
           <TabsContent value="premium" className="space-y-4">
+            {/* Premium Code Management */}
             <Card className="bg-background/50 border-2 border-green-600">
               <CardHeader className="pb-2">
                 <CardTitle className="text-green-400 flex items-center gap-2 text-sm font-mono uppercase">
@@ -302,7 +639,7 @@ export const SecureAdminPanel: React.FC<SecureAdminPanelProps> = ({ isOpen, onCl
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  onClick={() => copyToClipboard(code.code)}
+                                  onClick={() => copyToClipboard(code.code, 'Code')}
                                   className="h-6 w-6 p-0"
                                 >
                                   <Copy size={12} />
@@ -328,6 +665,7 @@ export const SecureAdminPanel: React.FC<SecureAdminPanelProps> = ({ isOpen, onCl
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
+            {/* User Management & UID System */}
             <Card className="bg-background/50 border-2 border-purple-600">
               <CardHeader className="pb-2">
                 <CardTitle className="text-purple-400 flex items-center gap-2 text-sm font-mono uppercase">
@@ -369,119 +707,7 @@ export const SecureAdminPanel: React.FC<SecureAdminPanelProps> = ({ isOpen, onCl
             </Card>
           </TabsContent>
 
-          <TabsContent value="wallet" className="space-y-4">
-            <Card className="bg-background/50 border-2 border-blue-600">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-blue-400 flex items-center gap-2 text-sm font-mono uppercase">
-                  <Wallet size={16} />
-                  Project Wallet Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground font-mono uppercase">Current Project Wallet:</Label>
-                  <div className="font-mono text-xs p-2 bg-muted rounded border">
-                    {cmsSettings.project_wallet}
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground font-mono uppercase">Update Project Wallet:</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      value={localSettings.project_wallet}
-                      onChange={(e) => setLocalSettings(prev => ({ ...prev, project_wallet: e.target.value }))}
-                      className="font-mono text-xs"
-                      placeholder="0x..."
-                    />
-                    <Button onClick={handleUpdateProjectWallet} className="brutalist-button">
-                      Update
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs font-mono uppercase">Crypto Donations</Label>
-                    <Switch
-                      checked={cmsSettings.crypto_donations_enabled}
-                      onCheckedChange={(checked) => handleUpdateSetting('crypto_donations_enabled', checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs font-mono uppercase">PayPal Donations</Label>
-                    <Switch
-                      checked={cmsSettings.paypal_donations_enabled}
-                      onCheckedChange={(checked) => handleUpdateSetting('paypal_donations_enabled', checked)}
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground font-mono uppercase">Current Goal: ${cmsSettings.donation_goal?.toLocaleString()}</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      value={localSettings.donation_goal || ''}
-                      onChange={(e) => setLocalSettings(prev => ({ ...prev, donation_goal: Number(e.target.value) }))}
-                      className="font-mono text-xs"
-                      placeholder="10000"
-                    />
-                    <Button onClick={handleUpdateDonationGoal} className="brutalist-button">
-                      Update Goal
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="site" className="space-y-4">
-            <Card className="bg-background/50 border-2 border-blue-600">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-blue-400 flex items-center gap-2 text-sm font-mono uppercase">
-                  <Globe size={16} />
-                  Website Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground font-mono uppercase">Current Website Name:</Label>
-                  <div className="font-mono text-xs p-2 bg-muted rounded border">
-                    {cmsSettings.website_name}
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground font-mono uppercase">Update Website Name:</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      value={localSettings.website_name}
-                      onChange={(e) => setLocalSettings(prev => ({ ...prev, website_name: e.target.value }))}
-                      placeholder="Enter new website name"
-                      className="font-mono text-xs"
-                    />
-                    <Button onClick={handleUpdateWebsiteName} className="brutalist-button">
-                      Update Name
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="bg-muted p-3 border-2 border-border rounded">
-                  <div className="text-xs font-mono">
-                    <div className="font-bold mb-1">Current Configuration:</div>
-                    <div>• Name: {cmsSettings.website_name}</div>
-                    <div>• Wallet: {cmsSettings.project_wallet}</div>
-                    <div>• Crypto: {cmsSettings.crypto_donations_enabled ? 'Enabled' : 'Disabled'}</div>
-                    <div>• PayPal: {cmsSettings.paypal_donations_enabled ? 'Enabled' : 'Disabled'}</div>
-                    <div>• Goal: ${cmsSettings.donation_goal?.toLocaleString()}</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-4">
+          <TabsContent value="security" className="space-y-4">
             <Card className="bg-background/50 border-2 border-red-600">
               <CardHeader className="pb-2">
                 <CardTitle className="text-red-400 flex items-center gap-2 text-sm font-mono uppercase">
