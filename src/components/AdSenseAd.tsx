@@ -17,19 +17,22 @@ export const AdSenseAd: React.FC<AdSenseAdProps> = ({
   const { user } = useAuth();
   const { isPremiumUser } = usePremiumStatus();
 
+  useEffect(() => {
+    // Only load ads for non-premium users who are logged in
+    if (user && !isPremiumUser) {
+      try {
+        // @ts-ignore
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (err) {
+        console.error('AdSense error:', err);
+      }
+    }
+  }, [user, isPremiumUser]);
+
   // Don't show ads if user is not logged in or is premium
   if (!user || isPremiumUser) {
     return null;
   }
-
-  useEffect(() => {
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (err) {
-      console.error('AdSense error:', err);
-    }
-  }, []);
 
   return (
     <div className={`adsense-container ${className}`}>
