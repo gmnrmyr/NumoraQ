@@ -6,9 +6,10 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Shield, Users, Code, Gift, Crown, Settings, Globe, Upload, Wallet } from 'lucide-react';
+import { Shield, Users, Code, Gift, Crown, Settings, Globe, Upload, Wallet, Zap } from 'lucide-react';
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { usePremiumCodes } from '@/hooks/usePremiumCodes';
+import { useUserPoints } from '@/hooks/useUserPoints';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProjectSettingsPanel } from './cms/ProjectSettingsPanel';
 
@@ -26,8 +27,27 @@ export const AdminPanel = () => {
     deleteCode
   } = usePremiumCodes();
 
+  const { addManualPoints } = useUserPoints();
+
   const [newCodeType, setNewCodeType] = useState('1year');
   const [newCodeEmail, setNewCodeEmail] = useState('');
+  const [pointsUserId, setPointsUserId] = useState('');
+  const [pointsAmount, setPointsAmount] = useState('');
+  const [pointsReason, setPointsReason] = useState('');
+
+  // User title requirements (hardcoded for reference)
+  const titleRequirements = [
+    { title: 'LEGEND', points: 10000, donation: '$10,000+' },
+    { title: 'PATRON', points: 5000, donation: '$5,000+' },
+    { title: 'CHAMPION', points: 2000, donation: '$2,000+' },
+    { title: 'SUPPORTER', points: 1000, donation: '$1,000+' },
+    { title: 'BACKER', points: 500, donation: '$500+' },
+    { title: 'DONOR', points: 100, donation: '$100+' },
+    { title: 'CONTRIBUTOR', points: 50, donation: '$50+' },
+    { title: 'HELPER', points: 25, donation: '$25+' },
+    { title: 'FRIEND', points: 20, donation: '$20+' },
+    { title: 'SUPPORTER', points: 10, donation: '$10+' }
+  ];
 
   const handleGenerateCode = async () => {
     if (!newCodeEmail.trim()) {
@@ -52,6 +72,24 @@ export const AdminPanel = () => {
     setNewCodeEmail('');
   };
 
+  const handleAddPoints = async () => {
+    if (!pointsUserId.trim() || !pointsAmount.trim()) {
+      alert('Please enter user ID and points amount');
+      return;
+    }
+
+    const points = parseInt(pointsAmount);
+    if (isNaN(points) || points <= 0) {
+      alert('Please enter a valid positive number for points');
+      return;
+    }
+
+    await addManualPoints(pointsUserId, points, pointsReason || 'Manual admin assignment');
+    setPointsUserId('');
+    setPointsAmount('');
+    setPointsReason('');
+  };
+
   if (!user) return null;
 
   return (
@@ -71,7 +109,7 @@ export const AdminPanel = () => {
       </Card>
 
       <Tabs defaultValue="cms" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-card border-2 border-border">
+        <TabsList className="grid w-full grid-cols-4 bg-card border-2 border-border">
           <TabsTrigger value="cms" className="font-mono">
             <Settings size={16} className="mr-2" />
             CMS Settings
@@ -83,6 +121,10 @@ export const AdminPanel = () => {
           <TabsTrigger value="users" className="font-mono">
             <Users size={16} className="mr-2" />
             User Management
+          </TabsTrigger>
+          <TabsTrigger value="points" className="font-mono">
+            <Zap size={16} className="mr-2" />
+            Points System
           </TabsTrigger>
         </TabsList>
 
@@ -189,6 +231,96 @@ export const AdminPanel = () => {
             <CardContent>
               <div className="font-mono text-muted-foreground">
                 User management features coming soon...
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="points" className="space-y-4">
+          <Card className="border-2 border-border">
+            <CardHeader>
+              <CardTitle className="font-mono">Manual Points Assignment</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <Label htmlFor="userId" className="font-mono">User ID</Label>
+                  <Input
+                    id="userId"
+                    value={pointsUserId}
+                    onChange={(e) => setPointsUserId(e.target.value)}
+                    placeholder="Enter user UUID"
+                    className="font-mono"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="points" className="font-mono">Points</Label>
+                  <Input
+                    id="points"
+                    type="number"
+                    value={pointsAmount}
+                    onChange={(e) => setPointsAmount(e.target.value)}
+                    placeholder="100"
+                    className="font-mono"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="reason" className="font-mono">Reason</Label>
+                  <Input
+                    id="reason"
+                    value={pointsReason}
+                    onChange={(e) => setPointsReason(e.target.value)}
+                    placeholder="Manual assignment"
+                    className="font-mono"
+                  />
+                </div>
+                
+                <div className="flex items-end">
+                  <Button 
+                    onClick={handleAddPoints}
+                    disabled={!pointsUserId.trim() || !pointsAmount.trim()}
+                    className="w-full font-mono"
+                  >
+                    <Zap size={16} className="mr-2" />
+                    Add Points
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-4 bg-muted border border-border rounded">
+                <h4 className="font-mono font-bold mb-2">Quick Reference - User ID for deckard.hardsurface@gmail.com:</h4>
+                <code className="text-xs bg-background p-2 rounded block">
+                  You can find user UUIDs in the Supabase Auth panel or by checking the browser console when users log in
+                </code>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 border-border">
+            <CardHeader>
+              <CardTitle className="font-mono">Title Requirements (Hardcoded Reference)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {titleRequirements.map((req, index) => (
+                  <div key={index} className="flex justify-between items-center p-3 border border-border rounded">
+                    <div className="font-mono">
+                      <div className="font-bold text-accent">{req.title}</div>
+                      <div className="text-sm text-muted-foreground">{req.donation}</div>
+                    </div>
+                    <Badge variant="outline" className="font-mono">
+                      {req.points} pts
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 p-3 bg-accent/10 border border-accent rounded">
+                <div className="text-sm font-mono text-accent">
+                  <Crown size={16} className="inline mr-2" />
+                  <strong>CHAMPION Role (Black Hole Animation):</strong> 2,000+ points required
+                </div>
               </div>
             </CardContent>
           </Card>
