@@ -6,7 +6,6 @@ import { Home, BarChart3, Trophy, LogIn, Menu, Heart } from "lucide-react";
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { CurrencySelector } from './navbar/CurrencySelector';
 import { UserActions } from './navbar/UserActions';
-import { UserSettingsPanel } from './navbar/UserSettingsPanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from "@/contexts/TranslationContext";
 
@@ -19,11 +18,12 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   const { user } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [showUserPanel, setShowUserPanel] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const handleNavigation = (path: string, tab: string) => {
     navigate(path);
     onTabChange(tab as any);
+    setShowMobileMenu(false);
   };
 
   return (
@@ -115,7 +115,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowUserPanel(!showUserPanel)}
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
                 className="brutalist-button"
               >
                 <Menu size={16} />
@@ -125,16 +125,13 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
         </div>
 
         {/* Mobile Navigation */}
-        {showUserPanel && (
+        {showMobileMenu && (
           <div className="md:hidden border-t border-border bg-card/95 backdrop-blur-sm">
             <div className="flex flex-col space-y-1 p-2">
               <Button
                 variant={activeTab === 'home' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => {
-                  handleNavigation('/', 'home');
-                  setShowUserPanel(false);
-                }}
+                onClick={() => handleNavigation('/', 'home')}
                 className="brutalist-button text-xs font-mono justify-start"
               >
                 <Home size={14} className="mr-2" />
@@ -143,10 +140,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
               <Button
                 variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => {
-                  handleNavigation('/dashboard', 'dashboard');
-                  setShowUserPanel(false);
-                }}
+                onClick={() => handleNavigation('/dashboard', 'dashboard')}
                 className="brutalist-button text-xs font-mono justify-start"
               >
                 <BarChart3 size={14} className="mr-2" />
@@ -155,10 +149,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
               <Button
                 variant={activeTab === 'leaderboard' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => {
-                  handleNavigation('/leaderboard', 'leaderboard');
-                  setShowUserPanel(false);
-                }}
+                onClick={() => handleNavigation('/leaderboard', 'leaderboard')}
                 className="brutalist-button text-xs font-mono justify-start"
               >
                 <Trophy size={14} className="mr-2" />
@@ -167,10 +158,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
               <Button
                 variant={activeTab === 'support' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => {
-                  handleNavigation('/support', 'support');
-                  setShowUserPanel(false);
-                }}
+                onClick={() => handleNavigation('/support', 'support')}
                 className="brutalist-button text-xs font-mono justify-start"
               >
                 <Heart size={14} className="mr-2" />
@@ -178,10 +166,7 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
               </Button>
               {!user && (
                 <Button
-                  onClick={() => {
-                    handleNavigation('/auth', 'auth');
-                    setShowUserPanel(false);
-                  }}
+                  onClick={() => handleNavigation('/auth', 'auth')}
                   size="sm"
                   variant="outline"
                   className="brutalist-button text-xs font-mono justify-start"
@@ -190,15 +175,16 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
                   LOGIN
                 </Button>
               )}
+              
+              {/* Language & Currency Selectors for Mobile */}
+              <div className="flex items-center gap-2 pt-2 border-t border-border">
+                <LanguageSelector />
+                <CurrencySelector />
+              </div>
             </div>
           </div>
         )}
       </div>
-
-      {/* User Settings Panel */}
-      {showUserPanel && user && (
-        <UserSettingsPanel />
-      )}
     </nav>
   );
 };
