@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { User } from 'lucide-react';
+import { User, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -13,6 +13,8 @@ export const NicknameEditor = () => {
   const [nickname, setNickname] = useState('');
   const [currentUID, setCurrentUID] = useState('');
   const [updatingNickname, setUpdatingNickname] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [validationState, setValidationState] = useState<'idle' | 'checking' | 'available' | 'taken' | 'error'>('idle');
   
   useEffect(() => {
     if (user) {
@@ -37,31 +39,62 @@ export const NicknameEditor = () => {
   };
 
   const checkNicknameAvailability = async (newNickname: string) => {
-    if (!newNickname.trim()) return false;
-    
-    // Check if another user already has this nickname
-    const { data: existingProfile, error } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('name', newNickname.trim())
-      .neq('id', user?.id)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      // PGRST116 means no rows returned, which is what we want
-      throw error;
+    if (!newNickname.trim() || newNickname === nickname) {
+      setValidationState('idle');
+      return true;
     }
+    
+    setIsChecking(true);
+    setValidationState('checking');
+    
+    try {
+      // Check if another user already has this nickname
+      const { data: existingProfile, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('name', newNickname.trim())
+        .neq('id', user?.id)
+        .maybeSingle();
 
-    return !existingProfile; // Returns true if available, false if taken
+      if (error) {
+        console.error('Error checking nickname availability:', error);
+        setValidationState('error');
+        return false;
+      }
+
+      const isAvailable = !existingProfile;
+      setValidationState(isAvailable ? 'available' : 'taken');
+      return isAvailable;
+    } catch (error) {
+      console.error('Error checking nickname availability:', error);
+      setValidationState('error');
+      return false;
+    } finally {
+      setIsChecking(false);
+    }
   };
 
-  const updateNickname = async (newNickname: string) => {
-    if (!newNickname.trim() || newNickname === nickname) return;
+  const handleNicknameChange = async (newValue: string) => {
+    setNickname(newValue);
+    
+    // Debounce the availability check
+    setTimeout(() => {
+      checkNicknameAvailability(newValue);
+    }, 500);
+  };
+
+  const updateNickname = async () => {
+    const trimmedNickname = nickname.trim();
+    
+    if (!trimmedNickname || trimmedNickname === currentUID) {
+      return;
+    }
     
     setUpdatingNickname(true);
+    
     try {
-      // Check if nickname is available
-      const isAvailable = await checkNicknameAvailability(newNickname);
+      // Final availability check before saving
+      const isAvailable = await checkNicknameAvailability(trimmedNickname);
       
       if (!isAvailable) {
         toast({
@@ -69,20 +102,18 @@ export const NicknameEditor = () => {
           description: "This nickname is already taken. Please choose another one.",
           variant: "destructive"
         });
-        setNickname(nickname); // Reset to previous value
-        setUpdatingNickname(false);
         return;
       }
 
       const { error } = await supabase
         .from('profiles')
-        .update({ name: newNickname.trim() })
+        .update({ name: trimmedNickname })
         .eq('id', user?.id);
 
       if (error) throw error;
 
-      setNickname(newNickname.trim());
       await loadUserProfile(); // Reload to get the new UID
+      setValidationState('idle');
       
       toast({
         title: "Nickname Updated",
@@ -95,9 +126,36 @@ export const NicknameEditor = () => {
         description: "Failed to update nickname",
         variant: "destructive"
       });
-      setNickname(nickname); // Reset to previous value
     } finally {
       setUpdatingNickname(false);
+    }
+  };
+
+  const getValidationIcon = () => {
+    switch (validationState) {
+      case 'checking':
+        return <div className="animate-spin w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full" />;
+      case 'available':
+        return <CheckCircle size={14} className="text-green-500" />;
+      case 'taken':
+        return <AlertCircle size={14} className="text-red-500" />;
+      case 'error':
+        return <AlertCircle size={14} className="text-yellow-500" />;
+      default:
+        return null;
+    }
+  };
+
+  const getValidationMessage = () => {
+    switch (validationState) {
+      case 'available':
+        return 'Available';
+      case 'taken':
+        return 'Already taken';
+      case 'error':
+        return 'Check failed';
+      default:
+        return null;
     }
   };
 
@@ -107,15 +165,28 @@ export const NicknameEditor = () => {
         <User size={14} className="text-muted-foreground" />
       </div>
       <div className="flex items-center gap-2 flex-1">
-        <Input
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-          onBlur={() => updateNickname(nickname)}
-          onKeyDown={(e) => e.key === 'Enter' && updateNickname(nickname)}
-          placeholder="Enter your nickname"
-          className="font-mono bg-input border-2 border-border"
-          disabled={updatingNickname}
-        />
+        <div className="relative flex-1">
+          <Input
+            value={nickname}
+            onChange={(e) => handleNicknameChange(e.target.value)}
+            onBlur={updateNickname}
+            onKeyDown={(e) => e.key === 'Enter' && updateNickname()}
+            placeholder="Enter your nickname"
+            className="font-mono bg-input border-2 border-border pr-8"
+            disabled={updatingNickname}
+          />
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+            {getValidationIcon()}
+          </div>
+        </div>
+        {validationState !== 'idle' && validationState !== 'checking' && (
+          <div className={`text-xs font-mono ${
+            validationState === 'available' ? 'text-green-500' : 
+            validationState === 'taken' ? 'text-red-500' : 'text-yellow-500'
+          }`}>
+            {getValidationMessage()}
+          </div>
+        )}
         {currentUID && (
           <Badge 
             variant="outline" 
