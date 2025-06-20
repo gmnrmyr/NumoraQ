@@ -6,7 +6,6 @@ import { Settings, User, UserPlus, Trash2, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useTranslation } from '@/contexts/TranslationContext';
-import { LanguageSelector } from '@/components/LanguageSelector';
 import { CurrencySelector } from './CurrencySelector';
 
 export const UserSettingsPanel = () => {
@@ -81,61 +80,58 @@ export const UserSettingsPanel = () => {
   if (!user) return null;
 
   return (
-    <div className="flex items-center gap-2">
-      <LanguageSelector variant="outline" size="sm" />
-      
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="flex items-center gap-2 brutalist-button bg-stone-900 hover:bg-stone-800 text-slate-50">
-            <Settings size={16} />
-            <span className="hidden sm:inline font-mono uppercase">{t.userProfile}</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 bg-card border-2 border-border z-50">
-          {/* User Info */}
-          <DropdownMenuLabel className="flex items-center gap-2 font-mono">
-            <User size={16} />
-            <span className="truncate">{displayName}</span>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator className="bg-border" />
-          
-          {/* Currency Selection */}
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="flex items-center gap-2 brutalist-button bg-stone-900 hover:bg-stone-800 text-slate-50">
+          <Settings size={16} />
+          <span className="hidden sm:inline font-mono uppercase">{t.userProfile}</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56 bg-card border-2 border-border z-50">
+        <DropdownMenuLabel className="flex items-center gap-2 font-mono">
+          <User size={16} />
+          <span className="truncate">{displayName}</span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator className="bg-border" />
+        
+        <div className="px-2 py-1">
           <CurrencySelector />
-          
-          {/* User Management */}
-          <DropdownMenuItem 
-            onClick={() => createNewUser('BRL')} 
-            className="hover:bg-accent hover:text-accent-foreground font-mono"
-          >
-            <UserPlus size={16} className="mr-2" />
-            Novo Usuário (BRL 🇧🇷)
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={() => createNewUser('USD')} 
-            className="hover:bg-accent hover:text-accent-foreground font-mono"
-          >
-            <UserPlus size={16} className="mr-2" />
-            New User (USD 🇺🇸)
-          </DropdownMenuItem>
-          
-          <DropdownMenuSeparator className="bg-border" />
-          
-          <DropdownMenuItem 
-            onClick={() => { resetData(); setIsOpen(false); }} 
-            className="text-destructive hover:text-destructive-foreground hover:bg-destructive font-mono"
-          >
-            <Trash2 size={16} className="mr-2" />
-            {t.resetData}
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={() => { signOut(); setIsOpen(false); }} 
-            className="text-destructive hover:text-destructive-foreground hover:bg-destructive font-mono"
-          >
-            <LogOut size={16} className="mr-2" />
-            {t.signOut}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+        </div>
+        
+        <DropdownMenuSeparator className="bg-border" />
+        
+        <DropdownMenuItem 
+          onClick={() => createNewUser('BRL')} 
+          className="hover:bg-accent hover:text-accent-foreground font-mono"
+        >
+          <UserPlus size={16} className="mr-2" />
+          Novo Usuário (BRL 🇧🇷)
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => createNewUser('USD')} 
+          className="hover:bg-accent hover:text-accent-foreground font-mono"
+        >
+          <UserPlus size={16} className="mr-2" />
+          New User (USD 🇺🇸)
+        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator className="bg-border" />
+        
+        <DropdownMenuItem 
+          onClick={() => { resetData(); setIsOpen(false); }} 
+          className="text-destructive hover:text-destructive-foreground hover:bg-destructive font-mono"
+        >
+          <Trash2 size={16} className="mr-2" />
+          {t.resetData}
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => { signOut(); setIsOpen(false); }} 
+          className="text-destructive hover:text-destructive-foreground hover:bg-destructive font-mono"
+        >
+          <LogOut size={16} className="mr-2" />
+          {t.signOut}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
