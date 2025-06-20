@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -165,7 +164,7 @@ export const UserProfileSection = () => {
 
   const selectedAvatar = avatarOptions.find(avatar => avatar.icon === data.userProfile.avatarIcon);
 
-  const getDegenTimeRemaining = () => "No active premium"; // Placeholder until backend integration
+  const getDegenTimeRemaining = () => "Active"; // Placeholder until backend integration
 
   return (
     <Card className="bg-card border-2 border-border brutalist-card relative">
@@ -182,20 +181,6 @@ export const UserProfileSection = () => {
                 {getSyncIcon()}
               </div>
             </div>
-            
-            {/* Degen Mode Badge */}
-            {isPremiumUser && (
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-green-600/20 border-green-600 text-green-400 font-mono">
-                  <Zap size={12} className="mr-1" />
-                  DEGEN MODE
-                </Badge>
-                <Badge variant="outline" className="bg-yellow-600/20 border-yellow-600 text-yellow-400 font-mono">
-                  <Timer size={12} className="mr-1" />
-                  Active
-                </Badge>
-              </div>
-            )}
             
             <Button 
               onClick={handleLogout} 
@@ -408,12 +393,22 @@ export const UserProfileSection = () => {
               <Crown size={16} className={isPremiumUser ? "text-yellow-400" : "text-muted-foreground"} />
               <span className="font-mono text-sm">Degen Mode</span>
               {isPremiumUser && (
-                <Badge className="bg-yellow-400/20 text-yellow-400 border-yellow-400">
-                  ACTIVE
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-yellow-400/20 text-yellow-400 border-yellow-400">
+                    ACTIVE
+                  </Badge>
+                  <Badge 
+                    variant="outline" 
+                    className="bg-green-600/20 border-green-600 text-green-400 font-mono cursor-help"
+                    title="Lifetime access - No ads, premium features enabled"
+                  >
+                    <Timer size={12} className="mr-1" />
+                    {getDegenTimeRemaining()}
+                  </Badge>
+                </div>
               )}
             </div>
-            {!isPremiumUser ? (
+            {!isPremiumUser && (
               <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
                 <DialogTrigger asChild>
                   <Button size="sm" variant="outline" className="text-xs font-mono">
@@ -445,10 +440,6 @@ export const UserProfileSection = () => {
                   </div>
                 </DialogContent>
               </Dialog>
-            ) : (
-              <div className="text-xs font-mono text-muted-foreground">
-                {getDegenTimeRemaining()}
-              </div>
             )}
           </div>
           <div className="text-xs text-muted-foreground font-mono mt-2">
