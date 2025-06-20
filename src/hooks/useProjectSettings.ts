@@ -16,6 +16,7 @@ interface ProjectSettings {
   symbol_logo_url: string;
   version: string;
   upcoming_features_text: string;
+  main_color_scheme: string;
 }
 
 const defaultSettings: ProjectSettings = {
@@ -30,7 +31,8 @@ const defaultSettings: ProjectSettings = {
   vertical_logo_url: '/lovable-uploads/7f9d8dfa-2b6c-4264-ba7b-992c9fcb71e5.png',
   symbol_logo_url: '/lovable-uploads/7f9d8dfa-2b6c-4264-ba7b-992c9fcb71e5.png',
   version: 'v2.0.0',
-  upcoming_features_text: 'Exciting new features coming soon!'
+  upcoming_features_text: 'Exciting new features coming soon!',
+  main_color_scheme: 'default'
 };
 
 export const useProjectSettings = () => {
@@ -92,10 +94,41 @@ export const useProjectSettings = () => {
     }
   };
 
+  const updateMultipleSettings = async (updates: Partial<ProjectSettings>) => {
+    try {
+      const upserts = Object.entries(updates).map(([key, value]) => ({
+        setting_key: key,
+        setting_value: value,
+        updated_at: new Date().toISOString()
+      }));
+
+      const { error } = await supabase
+        .from('cms_settings')
+        .upsert(upserts);
+
+      if (error) throw error;
+
+      setSettings(prev => ({ ...prev, ...updates }));
+      
+      toast({
+        title: "Settings Updated",
+        description: "Multiple settings updated successfully"
+      });
+    } catch (error) {
+      console.error('Error updating project settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update settings",
+        variant: "destructive"
+      });
+    }
+  };
+
   return {
     settings,
     loading,
     updateSetting,
+    updateMultipleSettings,
     reload: loadSettings
   };
 };
