@@ -36,64 +36,37 @@ export const NicknameEditor = () => {
     }
   };
 
-  const findAvailableNickname = async (baseNickname: string) => {
-    if (!baseNickname.trim()) return null;
+  const checkNicknameAvailability = async (newNickname: string) => {
+    if (!newNickname.trim()) return false;
     
-    const cleanBase = baseNickname.trim();
-    let candidateName = cleanBase;
-    let counter = 1;
-    
-    while (true) {
-      // Check if this candidate is available
-      const { data: existingProfile, error } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('name', candidateName)
-        .neq('id', user?.id)
-        .single();
+    // Check if another user already has this nickname
+    const { data: existingProfile, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('name', newNickname.trim())
+      .neq('id', user?.id)
+      .single();
 
-      if (error && error.code === 'PGRST116') {
-        // No rows returned, this name is available
-        return candidateName;
-      }
-      
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-      
-      // Name is taken, try with number suffix
-      candidateName = `${cleanBase}${counter}`;
-      counter++;
-      
-      // Safety check to prevent infinite loop
-      if (counter > 999) {
-        throw new Error('Could not find available nickname');
-      }
+    if (error && error.code !== 'PGRST116') {
+      // PGRST116 means no rows returned, which is what we want
+      throw error;
     }
+
+    return !existingProfile; // Returns true if available, false if taken
   };
 
   const updateNickname = async (newNickname: string) => {
-    if (!newNickname.trim()) {
-      toast({
-        title: "Invalid Nickname",
-        description: "Nickname cannot be empty",
-        variant: "destructive"
-      });
-      setNickname(nickname); // Reset to previous value
-      return;
-    }
-    
-    if (newNickname === nickname) return;
+    if (!newNickname.trim() || newNickname === nickname) return;
     
     setUpdatingNickname(true);
     try {
-      // Find an available nickname (auto-append number if needed)
-      const availableName = await findAvailableNickname(newNickname);
+      // Check if nickname is available
+      const isAvailable = await checkNicknameAvailability(newNickname);
       
-      if (!availableName) {
+      if (!isAvailable) {
         toast({
-          title: "Error",
-          description: "Could not generate available nickname",
+          title: "Nickname Unavailable",
+          description: "This nickname is already taken. Please choose another one.",
           variant: "destructive"
         });
         setNickname(nickname); // Reset to previous value
@@ -103,25 +76,18 @@ export const NicknameEditor = () => {
 
       const { error } = await supabase
         .from('profiles')
-        .update({ name: availableName })
+        .update({ name: newNickname.trim() })
         .eq('id', user?.id);
 
       if (error) throw error;
 
-      setNickname(availableName);
-      await loadUserProfile(); // Reload to get the new UID if it changed
+      setNickname(newNickname.trim());
+      await loadUserProfile(); // Reload to get the new UID
       
-      if (availableName !== newNickname.trim()) {
-        toast({
-          title: "Nickname Updated",
-          description: `"${newNickname.trim()}" was taken, so we set your nickname to "${availableName}"`
-        });
-      } else {
-        toast({
-          title: "Nickname Updated",
-          description: "Your nickname has been updated successfully!"
-        });
-      }
+      toast({
+        title: "Nickname Updated",
+        description: "Your nickname and UID have been updated successfully!"
+      });
     } catch (error) {
       console.error('Error updating nickname:', error);
       toast({
