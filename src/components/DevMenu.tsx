@@ -7,14 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Settings, Palette, Zap, Crown, Lock } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useAdminMode } from '@/hooks/useAdminMode';
-import { useUserTitle } from '@/hooks/useUserTitle';
 import { toast } from "@/hooks/use-toast";
 
 export const DevMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data, updateUserProfile } = useFinancialData();
   const { activatePremiumCode } = useAdminMode();
-  const { userTitle } = useUserTitle();
   const [degenCode, setDegenCode] = useState('');
 
   // Set monochrome as default theme on component mount and ensure it's applied from start
@@ -32,7 +30,7 @@ export const DevMenu = () => {
     const root = document.documentElement;
     
     // Reset all themes first
-    root.classList.remove('theme-neon', 'theme-monochrome', 'theme-dual-tone', 'theme-high-contrast', 'theme-cyberpunk', 'theme-matrix', 'theme-gold', 'theme-black-hole');
+    root.classList.remove('theme-neon', 'theme-monochrome', 'theme-dual-tone', 'theme-high-contrast', 'theme-cyberpunk', 'theme-matrix', 'theme-gold');
     
     switch (theme) {
       case 'neon':
@@ -55,9 +53,6 @@ export const DevMenu = () => {
         break;
       case 'gold':
         root.classList.add('theme-gold');
-        break;
-      case 'black-hole':
-        root.classList.add('theme-black-hole');
         break;
       default:
         // Keep default theme
@@ -93,16 +88,14 @@ export const DevMenu = () => {
 
   const getDonationAmount = () => data.userProfile.totalDonated || 0;
   const isThemeLocked = (requiredAmount: number) => getDonationAmount() < requiredAmount;
-  const isChampionUser = userTitle.level >= 80 || userTitle.title === 'CHAMPION';
 
-  const ThemeButton = ({ theme, label, requiredAmount = 0, icon: Icon = Palette, championOnly = false }: { 
+  const ThemeButton = ({ theme, label, requiredAmount = 0, icon: Icon = Palette }: { 
     theme: string; 
     label: string; 
     requiredAmount?: number;
     icon?: any;
-    championOnly?: boolean;
   }) => {
-    const locked = isThemeLocked(requiredAmount) || (championOnly && !isChampionUser);
+    const locked = isThemeLocked(requiredAmount);
     
     return (
       <Button
@@ -151,7 +144,7 @@ export const DevMenu = () => {
             
             <div className="grid grid-cols-2 gap-2">
               <ThemeButton theme="default" label="Default" />
-              <ThemeButton theme="monochrome" label="Monochrome" />
+              <ThemeButton theme="monochrome" label="Monochrome (Default)" />
               <ThemeButton theme="neon" label="Neon" />
               <ThemeButton theme="dual-tone" label="Dual Tone" />
               <ThemeButton theme="high-contrast" label="High Contrast" />
@@ -173,12 +166,6 @@ export const DevMenu = () => {
                 requiredAmount={1000}
                 icon={Crown}
               />
-              <ThemeButton 
-                theme="black-hole" 
-                label="Black Hole" 
-                championOnly={true}
-                icon={Zap}
-              />
             </div>
             
             <div className="bg-muted p-3 border-2 border-border">
@@ -190,10 +177,6 @@ export const DevMenu = () => {
                 <div>• Cyberpunk ($100+ donated)</div>
                 <div>• Matrix ($500+ donated)</div>
                 <div>• Gold Rush ($1000+ donated)</div>
-                <div className="flex items-center gap-1 mt-1">
-                  <Zap size={12} className="text-orange-400" />
-                  <span>• Black Hole (CHAMPION+ only)</span>
-                </div>
               </div>
             </div>
           </TabsContent>

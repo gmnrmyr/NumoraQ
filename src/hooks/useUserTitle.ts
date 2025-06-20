@@ -11,7 +11,6 @@ interface UserTitle {
 
 const USER_TITLES: UserTitle[] = [
   // Donation-based titles (1-100)
-  { level: 500, title: 'WHALE', color: 'text-cyan-300' },
   { level: 100, title: 'LEGEND', color: 'text-purple-400' },
   { level: 90, title: 'PATRON', color: 'text-yellow-400' },
   { level: 80, title: 'CHAMPION', color: 'text-orange-400' },
@@ -23,7 +22,8 @@ const USER_TITLES: UserTitle[] = [
   { level: 20, title: 'FRIEND', color: 'text-emerald-400' },
   { level: 10, title: 'SUPPORTER', color: 'text-lime-400' },
   
-  // Activity-based titles (101-499) - reserved for activity scoring
+  // Activity-based titles (101-500)
+  { level: 500, title: 'MASTER TRADER', color: 'text-red-400' },
   { level: 450, title: 'CRYPTO WIZARD', color: 'text-violet-400' },
   { level: 400, title: 'PORTFOLIO GURU', color: 'text-amber-400' },
   { level: 350, title: 'MARKET ANALYST', color: 'text-teal-400' },
@@ -31,8 +31,8 @@ const USER_TITLES: UserTitle[] = [
   { level: 250, title: 'DIAMOND HANDS', color: 'text-sky-400' },
   { level: 200, title: 'ACTIVE TRADER', color: 'text-orange-300' },
   { level: 150, title: 'INVESTOR', color: 'text-green-300' },
-  { level: 101, title: 'ENTHUSIAST', color: 'text-blue-300' },
-  { level: 51, title: 'BEGINNER', color: 'text-gray-400' },
+  { level: 100, title: 'ENTHUSIAST', color: 'text-blue-300' },
+  { level: 50, title: 'BEGINNER', color: 'text-gray-400' },
   { level: 1, title: 'NEWCOMER', color: 'text-slate-400' }
 ];
 
@@ -86,9 +86,8 @@ export const useUserTitle = () => {
       let targetLevel = 1;
       
       if (donationPoints > 0) {
-        // Donation-based titles (higher priority) - corrected point values
-        if (donationPoints >= 50000) targetLevel = 500; // WHALE
-        else if (donationPoints >= 10000) targetLevel = 100; // LEGEND
+        // Donation-based titles (higher priority)
+        if (donationPoints >= 10000) targetLevel = 100; // LEGEND
         else if (donationPoints >= 5000) targetLevel = 90; // PATRON
         else if (donationPoints >= 2000) targetLevel = 80; // CHAMPION
         else if (donationPoints >= 1000) targetLevel = 70; // SUPPORTER
@@ -96,20 +95,20 @@ export const useUserTitle = () => {
         else if (donationPoints >= 100) targetLevel = 50; // DONOR
         else if (donationPoints >= 50) targetLevel = 40; // CONTRIBUTOR
         else if (donationPoints >= 25) targetLevel = 30; // HELPER
-        else if (donationPoints >= 20) targetLevel = 20; // FRIEND
-        else if (donationPoints >= 10) targetLevel = 10; // SUPPORTER
-        else targetLevel = 1; // NEWCOMER
+        else if (donationPoints >= 10) targetLevel = 20; // FRIEND
+        else targetLevel = 10; // SUPPORTER
       } else {
         // Activity-based titles
-        if (totalPoints >= 5000) targetLevel = 450;
-        else if (totalPoints >= 2500) targetLevel = 400;
-        else if (totalPoints >= 1000) targetLevel = 350;
-        else if (totalPoints >= 750) targetLevel = 300;
-        else if (totalPoints >= 500) targetLevel = 250;
-        else if (totalPoints >= 300) targetLevel = 200;
-        else if (totalPoints >= 200) targetLevel = 150;
-        else if (totalPoints >= 100) targetLevel = 101;
-        else if (totalPoints >= 50) targetLevel = 51;
+        if (totalPoints >= 5000) targetLevel = 500;
+        else if (totalPoints >= 2500) targetLevel = 450;
+        else if (totalPoints >= 1000) targetLevel = 400;
+        else if (totalPoints >= 750) targetLevel = 350;
+        else if (totalPoints >= 500) targetLevel = 300;
+        else if (totalPoints >= 300) targetLevel = 250;
+        else if (totalPoints >= 200) targetLevel = 200;
+        else if (totalPoints >= 100) targetLevel = 150;
+        else if (totalPoints >= 50) targetLevel = 100;
+        else if (totalPoints >= 25) targetLevel = 50;
         else targetLevel = 1;
       }
 
