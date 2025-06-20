@@ -1,3 +1,4 @@
+
 export interface LiquidAsset {
   id: string;
   name: string;
@@ -133,6 +134,7 @@ export interface UserProfile {
   donorWallet?: string; // Added for donor wallet address
   totalDonated?: number; // Added for total donation amount
   theme?: string; // Added for theme preference
+  premiumExpiresAt?: string; // Added for premium expiration tracking
 }
 
 export interface FinancialData {
