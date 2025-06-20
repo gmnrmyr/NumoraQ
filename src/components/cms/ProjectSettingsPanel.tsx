@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,15 +69,16 @@ export const ProjectSettingsPanel = () => {
     });
   };
 
-  // Use the actual color schemes from DevMenu
+  // Match DevMenu color schemes exactly
   const colorSchemes = [
-    { value: 'default', label: 'Default (Dark Purple)' },
-    { value: 'blue', label: 'Blue Ocean' },
-    { value: 'green', label: 'Matrix Green' },
-    { value: 'orange', label: 'Sunset Orange' },
-    { value: 'red', label: 'Cyber Red' },
-    { value: 'pink', label: 'Neon Pink' },
-    { value: 'purple', label: 'Deep Purple' }
+    { value: 'default', label: 'Default' },
+    { value: 'monochrome', label: 'Monochrome (Default)' },
+    { value: 'neon', label: 'Neon' },
+    { value: 'dual-tone', label: 'Dual Tone' },
+    { value: 'high-contrast', label: 'High Contrast' },
+    { value: 'cyberpunk', label: 'Cyberpunk (Premium)' },
+    { value: 'matrix', label: 'Matrix (Premium)' },
+    { value: 'gold', label: 'Gold Rush (Premium)' }
   ];
 
   if (loading) return <div>Loading CMS settings...</div>;
