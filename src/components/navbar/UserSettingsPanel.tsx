@@ -36,6 +36,11 @@ export const UserSettingsPanel = () => {
       setIsOpen(false);
       // Use a longer timeout to ensure page loads
       setTimeout(() => {
+        // Dispatch custom event to change tabs
+        window.dispatchEvent(new CustomEvent('dashboardTabChange', {
+          detail: { tab }
+        }));
+        
         const element = document.querySelector(`[data-section="${tab}"]`);
         console.log('Looking for element with data-section:', tab, 'Found:', element);
         if (element) {
@@ -43,18 +48,15 @@ export const UserSettingsPanel = () => {
             behavior: 'smooth',
             block: 'start'
           });
-        } else {
-          // If data-section doesn't work, try to trigger tab change via the Tabs component
-          const tabTrigger = document.querySelector(`[value="${tab}"]`);
-          console.log('Looking for tab trigger with value:', tab, 'Found:', tabTrigger);
-          if (tabTrigger) {
-            (tabTrigger as HTMLElement).click();
-          }
         }
-      }, 500);
+      }, 300);
     } else {
       setIsOpen(false);
-      // We're already on dashboard, try to navigate to the section
+      // We're already on dashboard, dispatch event and scroll
+      window.dispatchEvent(new CustomEvent('dashboardTabChange', {
+        detail: { tab }
+      }));
+      
       setTimeout(() => {
         const element = document.querySelector(`[data-section="${tab}"]`);
         console.log('Looking for element with data-section:', tab, 'Found:', element);
@@ -63,13 +65,6 @@ export const UserSettingsPanel = () => {
             behavior: 'smooth',
             block: 'start'
           });
-        } else {
-          // If data-section doesn't work, try to trigger tab change via the Tabs component
-          const tabTrigger = document.querySelector(`[value="${tab}"]`);
-          console.log('Looking for tab trigger with value:', tab, 'Found:', tabTrigger);
-          if (tabTrigger) {
-            (tabTrigger as HTMLElement).click();
-          }
         }
       }, 100);
     }
@@ -78,17 +73,39 @@ export const UserSettingsPanel = () => {
   const handleProfileClick = () => {
     if (location.pathname !== '/dashboard') {
       navigate('/dashboard');
+      setIsOpen(false);
+      // Navigate to portfolio section which contains USER_INFO_CONFIG_UI
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('dashboardTabChange', {
+          detail: { tab: 'portfolio' }
+        }));
+        
+        // Scroll to USER_INFO_CONFIG_UI section
+        const element = document.querySelector('[data-section="portfolio"]');
+        if (element) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 300);
+    } else {
+      setIsOpen(false);
+      // We're already on dashboard
+      window.dispatchEvent(new CustomEvent('dashboardTabChange', {
+        detail: { tab: 'portfolio' }
+      }));
+      
+      setTimeout(() => {
+        const element = document.querySelector('[data-section="portfolio"]');
+        if (element) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100);
     }
-    setIsOpen(false);
-    setTimeout(() => {
-      const element = document.querySelector(`[data-section="portfolio"]`);
-      if (element) {
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    }, 100);
   };
 
   const handleAuthAction = () => {
@@ -160,15 +177,13 @@ export const UserSettingsPanel = () => {
           Leaderboard
         </DropdownMenuItem>
         
-        {user && (
-          <DropdownMenuItem 
-            onClick={handleProfileClick}
-            className="hover:bg-accent hover:text-accent-foreground font-mono"
-          >
-            <User size={16} className="mr-2" />
-            Profile
-          </DropdownMenuItem>
-        )}
+        <DropdownMenuItem 
+          onClick={handleProfileClick}
+          className="hover:bg-accent hover:text-accent-foreground font-mono"
+        >
+          <User size={16} className="mr-2" />
+          Profile
+        </DropdownMenuItem>
         
         <DropdownMenuSeparator className="bg-border" />
         
