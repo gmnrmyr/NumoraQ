@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Crown, Heart, Zap, Star, Gift, Copy, Check } from 'lucide-react';
+import { Crown, Heart, Zap, Star, Gift, Copy, Check, Info, Twitter } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { DonationInterface } from '@/components/dashboard/DonationInterface';
@@ -41,11 +41,11 @@ const DonationPage = () => {
   ];
 
   const walletOptions = [
-    { type: 'EVM', address: settings.project_wallet_evm, label: 'Ethereum / BSC / Polygon', icon: '⚡' },
-    { type: 'Solana', address: settings.project_wallet_solana, label: 'Solana Network', icon: '🌟' },
-    { type: 'Bitcoin', address: settings.project_wallet_btc, label: 'Bitcoin Network', icon: '₿' },
-    { type: 'Bitcoin Cash', address: settings.project_wallet_bch, label: 'Bitcoin Cash Network', icon: '🅱️' }
-  ].filter(wallet => wallet.address && wallet.address.trim() !== '');
+    { type: 'EVM', address: settings.project_wallet_evm, label: 'Ethereum / BSC / Polygon', icon: '⚡', status: 'active' },
+    { type: 'Solana', address: settings.project_wallet_solana, label: 'Solana Network', icon: '🌟', status: 'upcoming' },
+    { type: 'Bitcoin', address: settings.project_wallet_btc, label: 'Bitcoin Network', icon: '₿', status: 'upcoming' },
+    { type: 'Bitcoin Cash', address: settings.project_wallet_bch, label: 'Bitcoin Cash Network', icon: '🅱️', status: 'upcoming' }
+  ].filter(wallet => wallet.address && wallet.address.trim() !== '' || wallet.status === 'upcoming');
 
   if (loading) {
     return (
@@ -84,6 +84,24 @@ const DonationPage = () => {
             </div>
           </div>
 
+          {/* Auto Badge Assignment Notice */}
+          <Card className="border-2 border-accent/30 bg-accent/5">
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-3">
+                <Info className="text-accent mt-1" size={20} />
+                <div className="space-y-2">
+                  <h3 className="font-mono font-bold text-accent">AUTOMATIC BADGE ASSIGNMENT</h3>
+                  <p className="text-sm font-mono text-muted-foreground">
+                    Donor badges are automatically assigned to your profile upon receiving donations. 
+                    If you experience any issues with badge assignment, please contact us via{' '}
+                    <Twitter className="inline mx-1" size={14} />
+                    <span className="text-accent">Twitter</span> for assistance.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Crypto Wallets Section */}
           {walletOptions.length > 0 && (
             <Card className="border-2 border-border">
@@ -95,28 +113,35 @@ const DonationPage = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {walletOptions.map((wallet) => (
-                    <div key={wallet.type} className="p-4 border border-border rounded bg-card/50">
+                    <div key={wallet.type} className={`p-4 border border-border rounded ${wallet.status === 'upcoming' ? 'bg-muted/30 opacity-60' : 'bg-card/50'}`}>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <span className="text-xl">{wallet.icon}</span>
                           <span className="font-mono font-bold text-foreground">{wallet.type}</span>
+                          {wallet.status === 'upcoming' && (
+                            <Badge variant="outline" className="text-xs text-orange-400 border-orange-400">
+                              Coming Soon
+                            </Badge>
+                          )}
                         </div>
                         <Badge variant="outline" className="text-xs">
                           {wallet.label}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        <code className="flex-1 p-2 bg-muted rounded font-mono text-xs break-all">
-                          {wallet.address}
+                        <code className={`flex-1 p-2 bg-muted rounded font-mono text-xs break-all ${wallet.status === 'upcoming' ? 'text-muted-foreground' : ''}`}>
+                          {wallet.status === 'upcoming' ? 'Wallet address coming soon...' : wallet.address}
                         </code>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => copyWallet(wallet.address, wallet.type)}
-                          className="font-mono"
-                        >
-                          {copiedWallet === wallet.type ? <Check size={16} /> : <Copy size={16} />}
-                        </Button>
+                        {wallet.status === 'active' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => copyWallet(wallet.address, wallet.type)}
+                            className="font-mono"
+                          >
+                            {copiedWallet === wallet.type ? <Check size={16} /> : <Copy size={16} />}
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -125,8 +150,8 @@ const DonationPage = () => {
                 <div className="mt-4 p-3 bg-muted border border-border rounded">
                   <div className="text-sm font-mono text-muted-foreground">
                     <Gift size={16} className="inline mr-2" />
-                    <strong>Note:</strong> Copy the wallet address for your preferred network and send your donation. 
-                    All transactions are processed on-chain and help fund development and server costs.
+                    <strong>Note:</strong> Currently, only the EVM wallet is active for donations. 
+                    Other networks (Solana, Bitcoin, Bitcoin Cash) are coming soon and will enable tier tracking in the future.
                   </div>
                 </div>
               </CardContent>
@@ -134,35 +159,31 @@ const DonationPage = () => {
           )}
 
           {/* PayPal Section */}
-          {settings.project_paypal_email && (
-            <Card className="border-2 border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-mono text-accent">
-                  💳 PAYPAL DONATIONS
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="p-4 border border-border rounded bg-card/50">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-foreground">PayPal Email:</span>
-                    <div className="flex items-center gap-2">
-                      <code className="p-2 bg-muted rounded font-mono text-sm">
-                        {settings.project_paypal_email}
-                      </code>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyWallet(settings.project_paypal_email, 'PayPal')}
-                        className="font-mono"
-                      >
-                        {copiedWallet === 'PayPal' ? <Check size={16} /> : <Copy size={16} />}
-                      </Button>
-                    </div>
+          <Card className="border-2 border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-mono text-accent">
+                💳 PAYPAL DONATIONS
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="p-4 border border-border rounded bg-muted/30 opacity-60">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-foreground">PayPal Email:</span>
+                  <div className="flex items-center gap-2">
+                    <code className="p-2 bg-muted rounded font-mono text-sm text-muted-foreground">
+                      comingsoon@comingsoon.com
+                    </code>
+                    <Badge variant="outline" className="text-xs text-orange-400 border-orange-400">
+                      Coming Soon
+                    </Badge>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+                <div className="mt-2 text-xs font-mono text-muted-foreground">
+                  PayPal donations will be available soon. Stay tuned for updates!
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Donation Interface */}
           <DonationInterface isOpen={false} onClose={() => {}} />

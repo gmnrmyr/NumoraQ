@@ -16,7 +16,10 @@ import { toast } from '@/hooks/use-toast';
 export const ProjectSettingsPanel = () => {
   const { settings, updateSetting, updateMultipleSettings, loading } = useProjectSettings();
   const { logos, updateLogo } = useCMSLogos();
-  const [localSettings, setLocalSettings] = useState(settings);
+  const [localSettings, setLocalSettings] = useState({
+    ...settings,
+    project_paypal_email: settings.project_paypal_email || 'comingsoon@comingsoon.com'
+  });
   const [localLogos, setLocalLogos] = useState(logos);
   const [copiedWallet, setCopiedWallet] = useState<string>('');
 
@@ -334,7 +337,7 @@ export const ProjectSettingsPanel = () => {
                   value={localSettings.project_paypal_email}
                   onChange={(e) => setLocalSettings(prev => ({ ...prev, project_paypal_email: e.target.value }))}
                   className="font-mono"
-                  placeholder="paypal@example.com"
+                  placeholder="comingsoon@comingsoon.com"
                 />
                 <Button
                   variant="outline"
