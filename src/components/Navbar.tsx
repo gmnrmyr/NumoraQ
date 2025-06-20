@@ -2,12 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, Settings, User, Cloud, CloudOff, LogIn, Trophy } from "lucide-react";
+import { Menu, Home, TrendingUp, DollarSign, Briefcase, CheckSquare, CreditCard, User, Cloud, CloudOff, LogIn, Trophy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { Badge } from "@/components/ui/badge";
 import { UserSettingsPanel } from "@/components/navbar/UserSettingsPanel";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { PremiumStatusIndicator } from "@/components/dashboard/PremiumStatusIndicator";
+import { useCMSLogos } from "@/hooks/useCMSLogos";
+import { useProjectSettings } from "@/hooks/useProjectSettings";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface NavbarProps {
@@ -20,6 +23,8 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useAuth();
   const { data, syncState, lastSync } = useFinancialData();
+  const { logos } = useCMSLogos();
+  const { settings } = useProjectSettings();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -106,20 +111,27 @@ export const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
       {/* Top Row - Brand & User Info */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
         <div className="flex items-center gap-4">
-          <h1 
-            className="text-xl font-bold font-mono text-accent cursor-pointer hover:text-accent/80 transition-colors" 
-            onClick={handleTitleClick}
-          >
-            OPEN FINDASH
-          </h1>
+          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleTitleClick}>
+            <img 
+              src={logos.square_logo_url} 
+              alt={`${settings.website_name} Logo`} 
+              className="h-8 w-auto"
+            />
+            <h1 className="text-xl font-bold font-mono text-accent uppercase">
+              {settings.website_name}
+            </h1>
+          </div>
           {user?.email && (
-            <Badge variant="outline" className="hidden sm:flex font-mono items-center gap-2 bg-muted/20">
-              <User size={12} />
-              {user.email}
-              <div className="flex items-center gap-1" title={`Last sync: ${formatLastSync(lastSync)}`}>
-                {getSyncIcon()}
-              </div>
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="hidden sm:flex font-mono items-center gap-2 bg-muted/20">
+                <User size={12} />
+                {user.email}
+                <div className="flex items-center gap-1" title={`Last sync: ${formatLastSync(lastSync)}`}>
+                  {getSyncIcon()}
+                </div>
+              </Badge>
+              <PremiumStatusIndicator />
+            </div>
           )}
         </div>
 

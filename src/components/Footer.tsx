@@ -3,11 +3,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from "@/contexts/TranslationContext";
 import { useProjectSettings } from "@/hooks/useProjectSettings";
-import { Github, Twitter, Coffee, Heart, ExternalLink, Zap } from 'lucide-react';
+import { useCMSLogos } from "@/hooks/useCMSLogos";
+import { DonationLinks } from "@/components/navbar/DonationLinks";
+import { Github, Twitter, ExternalLink, Zap } from 'lucide-react';
 
 export const Footer = () => {
   const { t, language } = useTranslation();
   const { settings } = useProjectSettings();
+  const { logos } = useCMSLogos();
 
   return (
     <footer className="border-t-2 border-border bg-card/50 backdrop-blur-sm mt-auto">
@@ -17,7 +20,7 @@ export const Footer = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <img 
-                src={settings.square_logo_url} 
+                src={logos.square_logo_url} 
                 alt={`${settings.website_name} Logo`} 
                 className="h-8 w-auto"
               />
@@ -75,20 +78,7 @@ export const Footer = () => {
                 Twitter
                 <ExternalLink size={10} />
               </a>
-              <Link 
-                to="/donation"
-                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-accent font-mono"
-              >
-                <Coffee size={12} />
-                Buy us a coffee
-              </Link>
-              <Link 
-                to="/donation"
-                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-accent font-mono"
-              >
-                <Heart size={12} />
-                Support the project
-              </Link>
+              <DonationLinks />
             </div>
           </div>
 
