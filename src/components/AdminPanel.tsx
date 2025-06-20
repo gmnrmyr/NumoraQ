@@ -87,15 +87,11 @@ export const AdminPanel = () => {
     }
 
     try {
-      const success = await addManualPoints(pointsUserId, points, pointsReason || 'Manual admin assignment');
-      if (success) {
-        alert('Points added successfully!');
-        setPointsUserId('');
-        setPointsAmount('');
-        setPointsReason('');
-      } else {
-        alert('Failed to add points. Please check the user ID and try again.');
-      }
+      await addManualPoints(pointsUserId, points, pointsReason || 'Manual admin assignment');
+      alert('Points added successfully!');
+      setPointsUserId('');
+      setPointsAmount('');
+      setPointsReason('');
     } catch (error) {
       console.error('Error adding points:', error);
       alert('An error occurred while adding points.');

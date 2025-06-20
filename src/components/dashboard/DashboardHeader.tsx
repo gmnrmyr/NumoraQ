@@ -26,7 +26,9 @@ export const DashboardHeader = () => {
       if (!window.UnicornStudio) {
         window.UnicornStudio = { 
           isInitialized: false,
-          init: () => {} // Add missing init function
+          init: () => {
+            console.log('UnicornStudio initialized');
+          }
         };
         const script = document.createElement("script");
         script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
@@ -48,10 +50,18 @@ export const DashboardHeader = () => {
     <div className="relative">
       {/* UnicornStudio Animation Background for CHAMPION users with black hole theme */}
       {showBlackHoleAnimation && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-lg">
           <div 
             data-us-project="db3DaP9gWVnnnr7ZevK7" 
-            style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
+            style={{ 
+              width: '150%', 
+              height: '150%', 
+              position: 'absolute', 
+              top: '-25%', 
+              left: '-25%',
+              transform: 'scale(1.2)',
+              transformOrigin: 'center center'
+            }}
           />
         </div>
       )}
