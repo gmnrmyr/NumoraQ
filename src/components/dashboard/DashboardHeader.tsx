@@ -19,9 +19,16 @@ export const DashboardHeader = () => {
   const currentTheme = data.userProfile.theme || 'monochrome';
   const showBlackHoleAnimation = isChampionUser && currentTheme === 'black-hole' && isAnimationEnabled && !animationPaused;
   
+  console.log('DashboardHeader - isChampionUser:', isChampionUser);
+  console.log('DashboardHeader - currentTheme:', currentTheme);
+  console.log('DashboardHeader - isAnimationEnabled:', isAnimationEnabled);
+  console.log('DashboardHeader - showBlackHoleAnimation:', showBlackHoleAnimation);
+  console.log('DashboardHeader - userTitle:', userTitle);
+  
   // Load UnicornStudio animation for CHAMPION users with black hole theme
   React.useEffect(() => {
     if (showBlackHoleAnimation) {
+      console.log('Loading UnicornStudio animation...');
       // Load UnicornStudio script if not already loaded
       if (!window.UnicornStudio) {
         window.UnicornStudio = { 
@@ -33,15 +40,18 @@ export const DashboardHeader = () => {
         const script = document.createElement("script");
         script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
         script.onload = function() {
+          console.log('UnicornStudio script loaded');
           if (!window.UnicornStudio.isInitialized && typeof UnicornStudio !== 'undefined') {
             UnicornStudio.init();
             window.UnicornStudio.isInitialized = true;
+            console.log('UnicornStudio initialized after script load');
           }
         };
         (document.head || document.body).appendChild(script);
       } else if (!window.UnicornStudio.isInitialized && typeof UnicornStudio !== 'undefined') {
         UnicornStudio.init();
         window.UnicornStudio.isInitialized = true;
+        console.log('UnicornStudio re-initialized');
       }
     }
   }, [showBlackHoleAnimation]);
@@ -50,16 +60,16 @@ export const DashboardHeader = () => {
     <div className="relative">
       {/* UnicornStudio Animation Background for CHAMPION users with black hole theme */}
       {showBlackHoleAnimation && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-lg">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-lg z-0">
           <div 
             data-us-project="db3DaP9gWVnnnr7ZevK7" 
             style={{ 
-              width: '150%', 
-              height: '150%', 
+              width: '200%', 
+              height: '200%', 
               position: 'absolute', 
-              top: '-25%', 
-              left: '-25%',
-              transform: 'scale(1.2)',
+              top: '-50%', 
+              left: '-50%',
+              transform: 'scale(1.8)',
               transformOrigin: 'center center'
             }}
           />
