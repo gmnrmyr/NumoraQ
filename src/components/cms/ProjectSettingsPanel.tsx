@@ -70,12 +70,15 @@ export const ProjectSettingsPanel = () => {
     });
   };
 
+  // Use the actual color schemes from DevMenu
   const colorSchemes = [
-    { value: 'default', label: 'Default Dark' },
-    { value: 'blue', label: 'Blue Theme' },
-    { value: 'green', label: 'Green Theme' },
-    { value: 'purple', label: 'Purple Theme' },
-    { value: 'red', label: 'Red Theme' }
+    { value: 'default', label: 'Default (Dark Purple)' },
+    { value: 'blue', label: 'Blue Ocean' },
+    { value: 'green', label: 'Matrix Green' },
+    { value: 'orange', label: 'Sunset Orange' },
+    { value: 'red', label: 'Cyber Red' },
+    { value: 'pink', label: 'Neon Pink' },
+    { value: 'purple', label: 'Deep Purple' }
   ];
 
   if (loading) return <div>Loading CMS settings...</div>;
