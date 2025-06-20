@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -8,12 +7,17 @@ import { Settings, Palette, Zap, Crown, Lock } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { toast } from "@/hooks/use-toast";
+import { useUserTitle } from '@/hooks/useUserTitle';
 
 export const DevMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data, updateUserProfile } = useFinancialData();
   const { activatePremiumCode } = useAdminMode();
+  const { userTitle } = useUserTitle();
   const [degenCode, setDegenCode] = useState('');
+
+  // Check if user has CHAMPION role (2000+ donation points or level 80+)
+  const isChampionUser = userTitle.level >= 80 || userTitle.title === 'CHAMPION';
 
   // Set monochrome as default theme on component mount and ensure it's applied from start
   React.useEffect(() => {
@@ -30,7 +34,7 @@ export const DevMenu = () => {
     const root = document.documentElement;
     
     // Reset all themes first
-    root.classList.remove('theme-neon', 'theme-monochrome', 'theme-dual-tone', 'theme-high-contrast', 'theme-cyberpunk', 'theme-matrix', 'theme-gold');
+    root.classList.remove('theme-neon', 'theme-monochrome', 'theme-dual-tone', 'theme-high-contrast', 'theme-cyberpunk', 'theme-matrix', 'theme-gold', 'theme-black-hole');
     
     switch (theme) {
       case 'neon':
@@ -53,6 +57,9 @@ export const DevMenu = () => {
         break;
       case 'gold':
         root.classList.add('theme-gold');
+        break;
+      case 'black-hole':
+        root.classList.add('theme-black-hole');
         break;
       default:
         // Keep default theme
@@ -89,13 +96,14 @@ export const DevMenu = () => {
   const getDonationAmount = () => data.userProfile.totalDonated || 0;
   const isThemeLocked = (requiredAmount: number) => getDonationAmount() < requiredAmount;
 
-  const ThemeButton = ({ theme, label, requiredAmount = 0, icon: Icon = Palette }: { 
+  const ThemeButton = ({ theme, label, requiredAmount = 0, icon: Icon = Palette, championOnly = false }: { 
     theme: string; 
     label: string; 
     requiredAmount?: number;
     icon?: any;
+    championOnly?: boolean;
   }) => {
-    const locked = isThemeLocked(requiredAmount);
+    const locked = isThemeLocked(requiredAmount) || (championOnly && !isChampionUser);
     
     return (
       <Button
@@ -144,7 +152,7 @@ export const DevMenu = () => {
             
             <div className="grid grid-cols-2 gap-2">
               <ThemeButton theme="default" label="Default" />
-              <ThemeButton theme="monochrome" label="Monochrome (Default)" />
+              <ThemeButton theme="monochrome" label="Monochrome" />
               <ThemeButton theme="neon" label="Neon" />
               <ThemeButton theme="dual-tone" label="Dual Tone" />
               <ThemeButton theme="high-contrast" label="High Contrast" />
@@ -166,6 +174,12 @@ export const DevMenu = () => {
                 requiredAmount={1000}
                 icon={Crown}
               />
+              <ThemeButton 
+                theme="black-hole" 
+                label="Black Hole" 
+                championOnly={true}
+                icon={Zap}
+              />
             </div>
             
             <div className="bg-muted p-3 border-2 border-border">
@@ -177,6 +191,11 @@ export const DevMenu = () => {
                 <div>• Cyberpunk ($100+ donated)</div>
                 <div>• Matrix ($500+ donated)</div>
                 <div>• Gold Rush ($1000+ donated)</div>
+                <div className="flex items-center gap-1 mt-1">
+                  <Zap size={12} className="text-orange-400" />
+                  <span className="font-bold text-orange-400">Champion Only:</span>
+                </div>
+                <div>• Black Hole (CHAMPION role)</div>
               </div>
             </div>
           </TabsContent>
