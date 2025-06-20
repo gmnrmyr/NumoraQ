@@ -13,6 +13,7 @@ interface LeaderboardEntry {
   login_streak: number;
   last_activity: string;
   is_premium?: boolean;
+  user_title?: string;
 }
 
 interface UserStats {
@@ -112,11 +113,19 @@ export const useLeaderboard = () => {
         const profile = profilesData?.find(p => p.id === userId);
         const isPremium = premiumData?.some(p => p.user_id === userId) || false;
         
-        // Use the name from profiles table or fallback to "Anonymous User"
-        let displayName = profile?.name?.trim() || 'Anonymous User';
+        // Use the actual name from profiles table, fallback to "User" + partial ID if no name
+        let displayName = profile?.name?.trim();
+        if (!displayName) {
+          // Generate a fallback name using first 6 chars of user ID
+          displayName = `User${userId.substring(0, 6).toUpperCase()}`;
+        }
         
-        // Use the UID from profiles table, with fallback
-        let userUID = profile?.user_uid || 'USER';
+        // Use the UID from profiles table, with fallback to generated one
+        let userUID = profile?.user_uid;
+        if (!userUID) {
+          // Generate a fallback UID
+          userUID = `USR${userId.substring(0, 5).toUpperCase()}`;
+        }
         
         leaderboardEntries.push({
           user_id: userId,
@@ -127,7 +136,8 @@ export const useLeaderboard = () => {
           donation_count: stats.donation_count,
           login_streak: stats.login_streak,
           last_activity: stats.last_activity,
-          is_premium: isPremium
+          is_premium: isPremium,
+          user_title: isPremium ? 'DEGEN' : undefined
         });
       });
 
