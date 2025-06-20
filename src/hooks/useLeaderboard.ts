@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -12,6 +11,7 @@ interface LeaderboardEntry {
   donation_count: number;
   login_streak: number;
   last_activity: string;
+  is_premium?: boolean;
 }
 
 interface UserStats {
@@ -95,17 +95,24 @@ export const useLeaderboard = () => {
 
       if (profilesError) throw profilesError;
 
+      // Get premium status for users
+      const { data: premiumData, error: premiumError } = await supabase
+        .from('user_premium_status')
+        .select('user_id, is_premium')
+        .in('user_id', userIds)
+        .eq('is_premium', true);
+
+      if (premiumError) throw premiumError;
+
       // Combine data and create leaderboard
       const leaderboardEntries: LeaderboardEntry[] = [];
       
       userPointsMap.forEach((stats, userId) => {
         const profile = profilesData?.find(p => p.id === userId);
+        const isPremium = premiumData?.some(p => p.user_id === userId) || false;
         
         // Use the name from profiles (this comes from USER_INFO_CONFIG_UI)
-        let displayName = 'Anonymous User';
-        if (profile?.name && profile.name.trim()) {
-          displayName = profile.name.trim();
-        }
+        let displayName = profile?.name?.trim() || 'Anonymous User';
         
         // Generate UID from user ID if not set
         let userUID = profile?.user_uid || 'UNKNOWN';
@@ -122,7 +129,8 @@ export const useLeaderboard = () => {
           rank: 0, // Will be calculated after sorting
           donation_count: stats.donation_count,
           login_streak: stats.login_streak,
-          last_activity: stats.last_activity
+          last_activity: stats.last_activity,
+          is_premium: isPremium
         });
       });
 
