@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -122,7 +123,12 @@ export const Navbar = ({
         <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleTitleClick}>
-              <img src={logos.horizontal_logo_url} alt="Open Findash Logo" className="h-8 w-auto px-2" />
+              <img 
+                src={logos.horizontal_logo_url} 
+                alt="Open Findash Logo" 
+                className="h-6 sm:h-7 md:h-8 w-auto object-contain flex-shrink-0 min-w-0" 
+                style={{ maxWidth: '180px' }}
+              />
             </div>
           </div>
 

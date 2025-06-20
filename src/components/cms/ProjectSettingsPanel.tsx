@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -69,7 +70,7 @@ export const ProjectSettingsPanel = () => {
     });
   };
 
-  // Match DevMenu color schemes exactly
+  // Exact same color schemes as DevMenu
   const colorSchemes = [
     { value: 'default', label: 'Default' },
     { value: 'monochrome', label: 'Monochrome (Default)' },

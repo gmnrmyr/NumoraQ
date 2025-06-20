@@ -15,10 +15,14 @@ export const DevMenu = () => {
   const { activatePremiumCode } = useAdminMode();
   const [degenCode, setDegenCode] = useState('');
 
-  // Set monochrome as default theme on component mount
+  // Set monochrome as default theme on component mount and ensure it's applied from start
   React.useEffect(() => {
+    // Apply monochrome theme immediately if no theme is set
     if (!data.userProfile.theme) {
       applyTheme('monochrome');
+    } else {
+      // Apply the saved theme
+      applyTheme(data.userProfile.theme);
     }
   }, []);
 
