@@ -12,6 +12,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<{ error: any }>;
   signUpWithEmail: (email: string, password: string) => Promise<{ error: any }>;
+  signInWithSolana: () => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -75,6 +76,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signUpWithEmail = async (email: string, password: string) => {
     secureLog('Attempting sign up');
+    // Use the current application URL for redirect
     const redirectUrl = `${window.location.origin}/dashboard`;
     
     const { error } = await supabase.auth.signUp({
@@ -107,6 +109,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { error };
   };
 
+  const signInWithSolana = async () => {
+    secureLog('Attempting Solana sign in');
+    const redirectUrl = `${window.location.origin}/dashboard`;
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'github', // Placeholder - will need to be configured for Solana
+      options: {
+        redirectTo: redirectUrl,
+      },
+    });
+    
+    if (error) {
+      secureLog('Solana sign in error:', { errorMessage: error.message });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      secureLog('Solana sign in initiated');
+    }
+    
+    return { error };
+  };
+
   const signOut = async () => {
     secureLog('Signing out user');
     const { error } = await supabase.auth.signOut();
@@ -128,6 +155,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       signOut,
       signInWithEmail,
       signUpWithEmail,
+      signInWithSolana,
     }}>
       {children}
     </AuthContext.Provider>
