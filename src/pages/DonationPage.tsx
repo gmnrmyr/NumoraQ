@@ -40,12 +40,41 @@ const DonationPage = () => {
     { title: 'NEWCOMER', amount: '$0-9', points: 0, color: 'text-slate-400', features: ['Welcome Badge', '1 point daily login'] }
   ];
 
+  // Wallet options with CMS data and status
   const walletOptions = [
-    { type: 'EVM', address: settings.project_wallet_evm, label: 'Ethereum / BSC / Polygon', icon: '⚡', status: 'active' },
-    { type: 'Solana', address: settings.project_wallet_solana, label: 'Solana Network', icon: '🌟', status: 'upcoming' },
-    { type: 'Bitcoin', address: settings.project_wallet_btc, label: 'Bitcoin Network', icon: '₿', status: 'upcoming' },
-    { type: 'Bitcoin Cash', address: settings.project_wallet_bch, label: 'Bitcoin Cash Network', icon: '🅱️', status: 'upcoming' }
-  ].filter(wallet => wallet.address && wallet.address.trim() !== '' || wallet.status === 'upcoming');
+    { 
+      type: 'EVM', 
+      address: settings.project_wallet_evm, 
+      label: 'Ethereum / BSC / Polygon', 
+      icon: '⚡', 
+      status: 'active',
+      description: 'Active - Tracks donation tiers'
+    },
+    { 
+      type: 'Solana', 
+      address: settings.project_wallet_solana, 
+      label: 'Solana Network', 
+      icon: '🌟', 
+      status: 'upcoming',
+      description: 'Coming Soon - Will track tiers in future'
+    },
+    { 
+      type: 'Bitcoin', 
+      address: settings.project_wallet_btc, 
+      label: 'Bitcoin Network', 
+      icon: '₿', 
+      status: 'upcoming',
+      description: 'Coming Soon - Will track tiers in future'
+    },
+    { 
+      type: 'Bitcoin Cash', 
+      address: settings.project_wallet_bch, 
+      label: 'Bitcoin Cash Network', 
+      icon: '🅱️', 
+      status: 'upcoming',
+      description: 'Coming Soon - Will track tiers in future'
+    }
+  ];
 
   if (loading) {
     return (
@@ -103,60 +132,69 @@ const DonationPage = () => {
           </Card>
 
           {/* Crypto Wallets Section */}
-          {walletOptions.length > 0 && (
-            <Card className="border-2 border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-mono text-accent">
-                  💰 CRYPTO DONATIONS
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {walletOptions.map((wallet) => (
-                    <div key={wallet.type} className={`p-4 border border-border rounded ${wallet.status === 'upcoming' ? 'bg-muted/30 opacity-60' : 'bg-card/50'}`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{wallet.icon}</span>
-                          <span className="font-mono font-bold text-foreground">{wallet.type}</span>
-                          {wallet.status === 'upcoming' && (
-                            <Badge variant="outline" className="text-xs text-orange-400 border-orange-400">
-                              Coming Soon
-                            </Badge>
-                          )}
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {wallet.label}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <code className={`flex-1 p-2 bg-muted rounded font-mono text-xs break-all ${wallet.status === 'upcoming' ? 'text-muted-foreground' : ''}`}>
-                          {wallet.status === 'upcoming' ? 'Wallet address coming soon...' : wallet.address}
-                        </code>
+          <Card className="border-2 border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-mono text-accent">
+                💰 CRYPTO DONATIONS
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {walletOptions.map((wallet) => (
+                  <div key={wallet.type} className={`p-4 border border-border rounded ${wallet.status === 'upcoming' ? 'bg-muted/30' : 'bg-card/50'}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{wallet.icon}</span>
+                        <span className="font-mono font-bold text-foreground">{wallet.type}</span>
+                        {wallet.status === 'upcoming' && (
+                          <Badge variant="outline" className="text-xs text-orange-400 border-orange-400">
+                            Coming Soon
+                          </Badge>
+                        )}
                         {wallet.status === 'active' && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => copyWallet(wallet.address, wallet.type)}
-                            className="font-mono"
-                          >
-                            {copiedWallet === wallet.type ? <Check size={16} /> : <Copy size={16} />}
-                          </Button>
+                          <Badge variant="outline" className="text-xs text-green-400 border-green-400">
+                            Active
+                          </Badge>
                         )}
                       </div>
+                      <Badge variant="outline" className="text-xs">
+                        {wallet.label}
+                      </Badge>
                     </div>
-                  ))}
-                </div>
-                
-                <div className="mt-4 p-3 bg-muted border border-border rounded">
-                  <div className="text-sm font-mono text-muted-foreground">
-                    <Gift size={16} className="inline mr-2" />
-                    <strong>Note:</strong> Currently, only the EVM wallet is active for donations. 
-                    Other networks (Solana, Bitcoin, Bitcoin Cash) are coming soon and will enable tier tracking in the future.
+                    
+                    <div className="text-xs font-mono text-muted-foreground mb-2">
+                      {wallet.description}
+                    </div>
+                    
+                    <div className="flex items-center gap-2 mt-2">
+                      <code className={`flex-1 p-2 bg-muted rounded font-mono text-xs break-all ${wallet.status === 'upcoming' && !wallet.address ? 'text-muted-foreground' : ''}`}>
+                        {wallet.address || 'Wallet address will be available soon...'}
+                      </code>
+                      {wallet.address && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyWallet(wallet.address, wallet.type)}
+                          className="font-mono"
+                          disabled={wallet.status === 'upcoming'}
+                        >
+                          {copiedWallet === wallet.type ? <Check size={16} /> : <Copy size={16} />}
+                        </Button>
+                      )}
+                    </div>
                   </div>
+                ))}
+              </div>
+              
+              <div className="mt-4 p-3 bg-muted border border-border rounded">
+                <div className="text-sm font-mono text-muted-foreground">
+                  <Gift size={16} className="inline mr-2" />
+                  <strong>Note:</strong> Currently, only the EVM wallet actively tracks donation tiers. 
+                  Other networks (Solana, Bitcoin, Bitcoin Cash) will enable tier tracking in future updates.
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* PayPal Section */}
           <Card className="border-2 border-border">
@@ -166,12 +204,12 @@ const DonationPage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="p-4 border border-border rounded bg-muted/30 opacity-60">
+              <div className="p-4 border border-border rounded bg-muted/30">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-foreground">PayPal Email:</span>
                   <div className="flex items-center gap-2">
                     <code className="p-2 bg-muted rounded font-mono text-sm text-muted-foreground">
-                      comingsoon@comingsoon.com
+                      {settings.project_paypal_email}
                     </code>
                     <Badge variant="outline" className="text-xs text-orange-400 border-orange-400">
                       Coming Soon
@@ -179,7 +217,7 @@ const DonationPage = () => {
                   </div>
                 </div>
                 <div className="mt-2 text-xs font-mono text-muted-foreground">
-                  PayPal donations will be available soon. Stay tuned for updates!
+                  PayPal donations will be available soon and will enable tier tracking. Stay tuned for updates!
                 </div>
               </div>
             </CardContent>
