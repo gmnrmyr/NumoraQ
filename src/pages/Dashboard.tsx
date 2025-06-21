@@ -1,177 +1,198 @@
-import React, { useState } from 'react';
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { PortfolioOverview } from "@/components/PortfolioOverview";
-import { IncomeTracking } from "@/components/IncomeTracking";
-import { ExpenseTrackingEditable } from "@/components/ExpenseTrackingEditable";
-import { AssetManagementEditable } from "@/components/AssetManagementEditable";
-import { TaskManagementEditable } from "@/components/TaskManagementEditable";
-import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
-import { ProjectionChart } from "@/components/ProjectionChart";
-import { UserProfileSection } from "@/components/UserProfileSection";
-import { DevMenu } from "@/components/DevMenu";
-import { SecureAdminPanel } from "@/components/SecureAdminPanel";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { ExchangeRatesBanner } from "@/components/dashboard/ExchangeRatesBanner";
-import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
-import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
-import { AIAdvisor } from "@/components/ai/AIAdvisor";
-import { PWASetup } from "@/components/PWASetup";
-import { AdSenseAd } from "@/components/AdSenseAd";
-import { useSecureAdminAuth } from "@/hooks/useSecureAdminAuth";
+import React, { useState, useEffect } from 'react';
+import { Calendar } from "lucide-react";
 
-const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('portfolio');
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const { isAdmin } = useSecureAdminAuth();
+import { Overview } from '@/components/Overview';
+import { RecentSales } from '@/components/RecentSales';
+import { Shell } from '@/components/Shell';
+import { Card, CardContent } from "@/components/ui/card"
+import { useToast } from "@/hooks/use-toast"
+import { useFinancialData } from '@/contexts/FinancialDataContext';
+import { Expenses } from '@/components/expenses/Expenses';
+import { AddIncomeDialog } from '@/components/income/AddIncomeDialog';
+import { Income } from '@/components/income/Income';
+import { useTranslation } from '@/contexts/TranslationContext';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { buttonVariants } from "@/components/ui/button"
+import { Link } from 'react-router-dom';
+import { AvatarSelector } from '@/components/profile/AvatarSelector';
+import { PortfolioOverview } from '@/components/PortfolioOverview';
+import { BlackHoleAnimation } from '@/components/animations/BlackHoleAnimation';
+import { useUserTitle } from '@/hooks/useUserTitle';
 
-  // Admin panel keyboard shortcut
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.shiftKey && event.key === 'E') {
-        event.preventDefault();
-        if (isAdmin) {
-          setShowAdminPanel(true);
-        }
-      }
-    };
+export default function Dashboard() {
+  const { toast } = useToast()
+  const { data, addIncome, updateIncome, removeIncome, setDateRange } = useFinancialData();
+  const { t } = useTranslation();
+  const [isAddingIncome, setIsAddingIncome] = useState(false);
+  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date());
+  
+  const { title } = useUserTitle();
+  const isChampionOrHigher = title && ['CHAMPION', 'LEGEND', 'TITAN', 'OVERLORD'].includes(title.title);
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAdmin]);
-
-  // Handle external tab changes (from navbar)
-  React.useEffect(() => {
-    const handleTabChange = (event: CustomEvent) => {
-      console.log('Received tab change event:', event.detail);
-      setActiveTab(event.detail.tab);
-    };
-
-    window.addEventListener('dashboardTabChange', handleTabChange as EventListener);
-    return () => window.removeEventListener('dashboardTabChange', handleTabChange as EventListener);
-  }, []);
-
-  const getSectionTitle = (tab: string) => {
-    switch (tab) {
-      case 'portfolio': return 'PORTFOLIO OVERVIEW';
-      case 'income': return 'INCOME TRACKING';
-      case 'expenses': return 'EXPENSE MANAGEMENT';
-      case 'assets': return 'ASSET MANAGEMENT';
-      case 'tasks': return 'TASK MANAGEMENT';
-      case 'debt': return 'DEBT TRACKING';
-      default: return 'DASHBOARD';
+  const handleDateChange = (date: Date | undefined) => {
+    setSelectedDate(date);
+    if (date) {
+      setDateRange({
+        from: format(date, 'yyyy-MM-dd'),
+        to: format(date, 'yyyy-MM-dd')
+      });
     }
   };
 
+  useEffect(() => {
+    if (selectedDate) {
+      setDateRange({
+        from: format(selectedDate, 'yyyy-MM-dd'),
+        to: format(selectedDate, 'yyyy-MM-dd')
+      });
+    }
+  }, [selectedDate, setDateRange]);
+
   return (
-    <>
-      {/* SEO Meta Tags for Dashboard */}
-      <title>Dashboard - OPEN FINDASH | Financial Analysis & Crypto Tracking</title>
-      <meta name="description" content="Complete financial dashboard for tracking your crypto portfolio, income, expenses, and net worth. Real-time data analysis for smart financial decisions." />
-      <meta name="keywords" content="financial dashboard, crypto tracking, portfolio management, expense tracking, income analysis, net worth calculator" />
-      <meta name="robots" content="noindex, nofollow" />
+    <div className="min-h-screen bg-background relative">
+      {/* Black hole animation for Champion+ users */}
+      <BlackHoleAnimation isVisible={!!isChampionOrHigher} />
       
-      <div className="min-h-screen bg-background text-foreground font-mono">
-        <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
-        <div className="pt-20 sm:pt-32 pb-4">
-          <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
-            <DashboardHeader />
-            
-            {/* Consolidated User Profile Section with all panels */}
-            <UserProfileSection />
-            
-            <ExchangeRatesBanner />
-            <MetricsOverview />
-            <ProjectionCard />
-
-            {/* Ad placement only after substantial content is loaded */}
-            <AdSenseAd className="my-6" minContentRequired={true} />
-
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <div>
-                <TabsContent value="portfolio" className="space-y-6" data-section="portfolio">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('portfolio')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <PortfolioOverview />
-                </TabsContent>
-
-                <TabsContent value="income" className="space-y-6" data-section="income">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('income')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <IncomeTracking />
-                  {/* Ad placement within content sections */}
-                  <AdSenseAd className="my-4" minContentRequired={true} />
-                </TabsContent>
-
-                <TabsContent value="expenses" className="space-y-6" data-section="expenses">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('expenses')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <ExpenseTrackingEditable />
-                </TabsContent>
-
-                <TabsContent value="assets" className="space-y-6" data-section="assets">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('assets')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <AssetManagementEditable />
-                </TabsContent>
-
-                <TabsContent value="tasks" className="space-y-6" data-section="tasks">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('tasks')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <TaskManagementEditable />
-                </TabsContent>
-
-                <TabsContent value="debt" className="space-y-6" data-section="debt">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('debt')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <DebtTrackingEditable />
-                </TabsContent>
+      <div className="relative z-10">
+        <Shell>
+          <div className="md:grid md:grid-cols-3 md:gap-6">
+            <div className="md:col-span-1">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium">{t.profile}</h3>
+                <Link to="/settings" className={cn(buttonVariants({ variant: "ghost" }), "pl-0")}>
+                  {t.edit}
+                </Link>
               </div>
-            </Tabs>
-
-            <ProjectionChart />
-            
-            {/* Final ad placement after main content */}
-            <AdSenseAd className="my-4" minContentRequired={true} />
+              <p className="text-sm text-muted-foreground">
+                {t.profileDescription}
+              </p>
+            </div>
+            <div className="mt-5 md:col-span-2 md:mt-0">
+              <Card>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col items-center justify-center">
+                      <AvatarSelector nickname={data.userProfile.nickname} />
+                      <div className="text-sm font-medium">{data.userProfile.nickname}</div>
+                      <div className="text-xs text-muted-foreground">{title?.title}</div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="grid gap-2">
+                        <label
+                          htmlFor="email"
+                          className="text-sm font-medium leading-none"
+                        >
+                          {t.email}
+                        </label>
+                        <input
+                          type="email"
+                          id="email"
+                          value={data.userProfile.email}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          readOnly
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <label
+                          htmlFor="username"
+                          className="text-sm font-medium leading-none"
+                        >
+                          {t.username}
+                        </label>
+                        <input
+                          type="text"
+                          id="username"
+                          value={data.userProfile.username}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-          
-          <DevMenu />
-          <AIAdvisor />
-          <PWASetup />
-          <SecureAdminPanel 
-            isOpen={showAdminPanel} 
-            onClose={() => setShowAdminPanel(false)} 
-          />
-        </div>
-        <Footer />
-      </div>
-    </>
-  );
-};
+          <div className="py-12">
+            <div className="md:grid md:grid-cols-3 md:items-center md:gap-6">
+              <div className="md:col-span-1">
+                <h3 className="text-lg font-medium">{t.financialOverview}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t.financialOverviewDescription}
+                </p>
+              </div>
+              <div className="mt-5 md:col-span-2 md:mt-0">
+                <PortfolioOverview />
+              </div>
+            </div>
+          </div>
+          <div className="grid gap-10">
+            <Card>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">{t.income}</h3>
+                    <AddIncomeDialog
+                      isOpen={isAddingIncome}
+                      onOpenChange={setIsAddingIncome}
+                      onAddIncome={(income) => {
+                        addIncome(income);
+                        toast({
+                          title: "Success",
+                          description: "Income added successfully.",
+                        })
+                      }}
+                    />
+                </div>
+                <Income
+                  income={data.income}
+                  onUpdateIncome={(id, updates) => {
+                    updateIncome(id, updates);
+                    toast({
+                      title: "Success",
+                      description: "Income updated successfully.",
+                    })
+                  }}
+                  onRemoveIncome={(id) => {
+                    removeIncome(id);
+                    toast({
+                      title: "Success",
+                      description: "Income removed successfully.",
+                    })
+                  }}
+                />
+              </CardContent>
+            </Card>
 
-export default Dashboard;
+            <Card>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">{t.expenses}</h3>
+                </div>
+                <Expenses />
+              </CardContent>
+            </Card>
+          </div>
+          <div className="grid gap-10">
+            <Card>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">{t.sales}</h3>
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="h-4 w-4" />
+                    <DatePicker
+                      date={selectedDate}
+                      onDateChange={handleDateChange}
+                    />
+                  </div>
+                </div>
+                <RecentSales />
+              </CardContent>
+            </Card>
+          </div>
+        </Shell>
+      </div>
+    </div>
+  );
+}

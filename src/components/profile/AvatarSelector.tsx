@@ -23,12 +23,12 @@ const avatarOptions = [
 ];
 
 const nftPlaceholders = [
-  { id: 'nft1', name: 'Crypto Punk #1337', locked: false, rarity: 'Legendary' },
-  { id: 'nft2', name: 'Bored Ape #4269', locked: true, rarity: 'Epic' },
-  { id: 'nft3', name: 'CoolCat #888', locked: true, rarity: 'Rare' },
-  { id: 'nft4', name: 'Degen #0001', locked: true, rarity: 'Mythic' },
-  { id: 'nft5', name: 'OpenSea #999', locked: true, rarity: 'Common' },
-  { id: 'nft6', name: 'PixelPunk #42', locked: true, rarity: 'Uncommon' }
+  { id: 'nft1', locked: false, rarity: 'Legendary' },
+  { id: 'nft2', locked: true, rarity: 'Epic' },
+  { id: 'nft3', locked: true, rarity: 'Rare' },
+  { id: 'nft4', locked: true, rarity: 'Mythic' },
+  { id: 'nft5', locked: true, rarity: 'Common' },
+  { id: 'nft6', locked: true, rarity: 'Uncommon' }
 ];
 
 interface AvatarSelectorProps {
@@ -123,10 +123,6 @@ export const AvatarSelector = ({ nickname }: AvatarSelectorProps) => {
               </div>
             </div>
           </div>
-
-          <div className="text-xs text-muted-foreground font-mono text-center">
-            NFT avatars unlock with donations. More coming soon! 🚀
-          </div>
         </DialogContent>
       </Dialog>
 
@@ -160,20 +156,8 @@ export const AvatarSelector = ({ nickname }: AvatarSelectorProps) => {
                     </>
                   )}
                 </div>
-                <div className="absolute bottom-2 left-2 right-2">
-                  <div className="text-xs font-mono truncate">{nft.name}</div>
-                </div>
               </div>
             ))}
-          </div>
-          
-          <div className="text-center">
-            <div className="text-sm font-mono text-muted-foreground mb-2">
-              Unlock NFT avatars by supporting the project!
-            </div>
-            <div className="text-xs font-mono text-accent">
-              💎 Donate $100+ to unlock premium avatars
-            </div>
           </div>
         </DialogContent>
       </Dialog>
