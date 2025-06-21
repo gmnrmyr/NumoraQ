@@ -121,6 +121,13 @@ export const BlackHoleAnimation: React.FC<BlackHoleAnimationProps> = ({ isVisibl
         </Button>
       </div>
 
+      {/* Black Hole Theme Status Indicator - bottom left above hero */}
+      <div className="absolute bottom-4 left-4 z-20 pointer-events-none">
+        <div className="bg-black/90 border border-accent/50 px-3 py-2 font-mono text-xs text-accent uppercase tracking-wider">
+          // BLACK_HOLE_THEME_ON
+        </div>
+      </div>
+
       {/* Debug Info - enhanced */}
       {process.env.NODE_ENV === 'development' && (
         <div className="fixed top-4 left-4 text-xs text-white bg-black/80 p-3 rounded z-50 border border-white/20 pointer-events-auto">
