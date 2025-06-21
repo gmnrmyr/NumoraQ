@@ -1,3 +1,4 @@
+
 export interface LiquidAsset {
   id: string;
   name: string;
@@ -10,6 +11,7 @@ export interface LiquidAsset {
   cryptoSymbol?: string;
   quantity?: number;
   isStock?: boolean;
+  isReit?: boolean;
   stockSymbol?: string;
   stockName?: string;
 }
