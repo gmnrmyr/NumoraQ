@@ -160,11 +160,11 @@ export const NicknameEditor = () => {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
       <div title="Nickname">
         <User size={14} className="text-muted-foreground" />
       </div>
-      <div className="flex items-center gap-2 flex-1">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
         <div className="relative flex-1">
           <Input
             value={nickname}
@@ -187,17 +187,19 @@ export const NicknameEditor = () => {
             {getValidationMessage()}
           </div>
         )}
-        {currentUID && (
-          <Badge 
-            variant="outline" 
-            className="font-mono text-xs px-2 py-1 cursor-help"
-            title="Internal user identifier for system purposes"
-          >
-            UID: {currentUID}
-          </Badge>
-        )}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          {currentUID && (
+            <Badge 
+              variant="outline" 
+              className="font-mono text-xs px-2 py-1 cursor-help w-fit"
+              title="Internal user identifier for system purposes"
+            >
+              UID: {currentUID}
+            </Badge>
+          )}
+          <UserTitleBadge />
+        </div>
       </div>
-      <UserTitleBadge />
     </div>
   );
 };
