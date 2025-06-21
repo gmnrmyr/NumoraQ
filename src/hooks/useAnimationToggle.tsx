@@ -1,49 +1,38 @@
-
 import { useState, useEffect } from 'react';
 import { useViewport } from './useViewport';
 
 export function useAnimationToggle() {
   const { isMobile, isTablet, isDesktop } = useViewport();
-  // Start animations disabled by default for better performance and UX
+  // Start animations paused on all devices by default - too heavy for users
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(false);
 
   useEffect(() => {
-    // Load saved preference from localStorage
-    const savedPreference = localStorage.getItem('animationsEnabled');
-    if (savedPreference !== null) {
-      setIsAnimationEnabled(JSON.parse(savedPreference));
-    } else {
-      // Default to disabled for better initial UX on all devices
-      setIsAnimationEnabled(false);
-    }
-  }, []);
+    // Keep animations disabled by default on all devices for better UX
+    // Users can manually enable if they want the eye candy
+    setIsAnimationEnabled(false);
+  }, [isDesktop, isMobile, isTablet]);
 
   const toggleAnimation = () => {
-    const newState = !isAnimationEnabled;
-    setIsAnimationEnabled(newState);
+    setIsAnimationEnabled(prev => !prev);
     
-    // Save preference
-    localStorage.setItem('animationsEnabled', JSON.stringify(newState));
-    
-    // Enhanced initialization for different devices
-    if (newState) {
+    // For all devices, trigger a small delay for proper initialization
+    if (!isAnimationEnabled) {
       setTimeout(() => {
         if (window.UnicornStudio && window.UnicornStudio.init) {
           try {
             window.UnicornStudio.init();
-            console.log('🎬 Animation manually enabled on', isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop');
+            console.log('🎬 Animation manually triggered');
           } catch (error) {
-            console.log('🎬 Animation initialization completed');
+            console.log('🎬 Animation manual trigger completed');
           }
         }
-      }, isMobile ? 300 : 200); // Longer delay on mobile for better performance
+      }, 200);
     }
   };
 
   return {
     isAnimationEnabled,
     toggleAnimation,
-    showToggle: true, // Show toggle on all devices
-    deviceType: isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop'
+    showToggle: true // Show toggle on all devices
   };
 }

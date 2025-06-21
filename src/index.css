@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
@@ -226,69 +227,6 @@
   --border: 45 100% 20%;
   --input: 45 15% 15%;
   --ring: 45 100% 60%;
-}
-
-/* Dark Hole 2 Theme - Whale+ Only - Landing Page Structure */
-.theme-dark-hole-2 {
-  --background: 0 0% 2%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 4%;
-  --card-foreground: 0 0% 95%;
-  --popover: 0 0% 4%;
-  --popover-foreground: 0 0% 95%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 0 0% 9%;
-  --secondary: 0 0% 12%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 12%;
-  --muted-foreground: 0 0% 65%;
-  --accent: 0 0% 100%;
-  --accent-foreground: 0 0% 2%;
-  --destructive: 0 62% 30%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 18%;
-  --input: 0 0% 12%;
-  --ring: 0 0% 100%;
-}
-
-/* Dark Hole 2 - Landing page style background animation container */
-.theme-dark-hole-2 .dashboard-container {
-  position: relative;
-  overflow: hidden;
-}
-
-.theme-dark-hole-2 .background-animation-container {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  z-index: 0;
-  background: linear-gradient(to bottom, transparent 0%, transparent 80%, rgba(var(--background)) 100%);
-}
-
-.theme-dark-hole-2 .dashboard-content {
-  position: relative;
-  z-index: 10;
-}
-
-/* Make panels semi-transparent in dark-hole-2 theme */
-.theme-dark-hole-2 .brutalist-card,
-.theme-dark-hole-2 .card,
-.theme-dark-hole-2 [class*="card"] {
-  background: rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-color: hsl(var(--accent));
-  box-shadow: 
-    0 0 30px rgba(255, 255, 255, 0.1),
-    inset 0 0 30px rgba(0, 0, 0, 0.3);
-}
-
-.theme-dark-hole-2 .bg-card,
-.theme-dark-hole-2 .bg-background,
-.theme-dark-hole-2 .bg-muted {
-  background: rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 * {

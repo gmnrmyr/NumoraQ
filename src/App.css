@@ -11,32 +11,6 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Enhanced Mobile-First Responsive Design */
-@media (max-width: 767px) {
-  body {
-    font-size: 14px;
-  }
-  
-  .brutalist-card {
-    padding: 12px !important;
-    margin: 8px 0 !important;
-  }
-  
-  .font-mono {
-    font-size: 0.875rem !important;
-  }
-  
-  h1 { font-size: 1.5rem !important; }
-  h2 { font-size: 1.25rem !important; }
-  h3 { font-size: 1.1rem !important; }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-  .brutalist-card {
-    padding: 16px !important;
-  }
-}
-
 /* Remove any default styling that conflicts with brutalist design */
 .logo {
   height: 6em;
@@ -80,7 +54,7 @@
   font-family: 'JetBrains Mono', 'Space Mono', monospace;
 }
 
-/* Dark Dither Theme - Enhanced with better mobile support */
+/* Dark Dither Theme - Monochrome/Dithered Look for Whales+ */
 .theme-dark-dither {
   --background: 0 0% 3%;
   --foreground: 0 0% 98%;
@@ -102,7 +76,7 @@
   --input: 0 0% 12%;
   --ring: 280 100% 85%;
   
-  /* Enhanced dithering effects - responsive */
+  /* Enhanced dithering effects */
   filter: contrast(1.3) brightness(0.85);
 }
 
@@ -112,15 +86,8 @@
     radial-gradient(circle at 25% 25%, hsl(var(--card)) 1px, transparent 1px),
     radial-gradient(circle at 75% 75%, hsl(var(--muted)) 1px, transparent 1px),
     hsl(var(--card));
-  background-size: 6px 6px, 6px 6px, 100% 100%;
-  background-position: 0 0, 3px 3px, 0 0;
-}
-
-@media (max-width: 767px) {
-  .theme-dark-dither .brutalist-card {
-    background-size: 4px 4px, 4px 4px, 100% 100%;
-    background-position: 0 0, 2px 2px, 0 0;
-  }
+  background-size: 8px 8px, 8px 8px, 100% 100%;
+  background-position: 0 0, 4px 4px, 0 0;
 }
 
 .theme-dark-dither .bg-accent {
@@ -139,13 +106,6 @@
   background-position: 0 0, 2px 2px;
 }
 
-@media (max-width: 767px) {
-  .theme-dark-dither .bg-accent {
-    background-size: 3px 3px, 3px 3px;
-    background-position: 0 0, 1.5px 1.5px;
-  }
-}
-
 .theme-dark-dither h1,
 .theme-dark-dither h2,
 .theme-dark-dither h3 {
@@ -156,17 +116,7 @@
     -1px 1px 0 hsl(var(--muted));
 }
 
-@media (max-width: 767px) {
-  .theme-dark-dither h1,
-  .theme-dark-dither h2,
-  .theme-dark-dither h3 {
-    text-shadow: 
-      0.5px 0.5px 0 hsl(var(--background)),
-      -0.5px -0.5px 0 hsl(var(--muted));
-  }
-}
-
-/* Black Hole theme improvements for Champion+ - Enhanced mobile support with transparency */
+/* Black Hole theme improvements for Champion+ */
 .theme-black-hole {
   /* Enhanced for better animation visibility */
   --background: 0 0% 2%;
@@ -174,48 +124,15 @@
   --accent: 0 0% 100%;
 }
 
-.theme-black-hole .brutalist-card,
-.theme-black-hole .card,
-.theme-black-hole [class*="card"] {
-  background: rgba(0, 0, 0, 0.25) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+.theme-black-hole .brutalist-card {
+  background: hsl(var(--card));
   border-color: hsl(var(--accent));
   box-shadow: 
     0 0 20px rgba(255, 255, 255, 0.1),
     inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
-@media (max-width: 767px) {
-  .theme-black-hole .brutalist-card,
-  .theme-black-hole .card,
-  .theme-black-hole [class*="card"] {
-    background: rgba(0, 0, 0, 0.3) !important;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    box-shadow: 
-      0 0 10px rgba(255, 255, 255, 0.1),
-      inset 0 0 10px rgba(0, 0, 0, 0.5);
-  }
-}
-
-/* Make all panels transparent in black hole theme */
-.theme-black-hole .bg-card,
-.theme-black-hole .bg-background,
-.theme-black-hole .bg-muted {
-  background: rgba(0, 0, 0, 0.25) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.theme-black-hole .bg-card\/30,
-.theme-black-hole .bg-background\/30 {
-  background: rgba(0, 0, 0, 0.15) !important;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-/* DA Test Theme - Enhanced mobile support */
+/* DA Test Theme - Testing Environment */
 .theme-da-test {
   --background: 0 0% 5%;
   --foreground: 0 0% 95%;
@@ -241,67 +158,23 @@
   background: 
     radial-gradient(circle at 30% 30%, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
     linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%);
-  background-size: 100px 100px, 15px 15px;
+  background-size: 100px 100px, 20px 20px;
   animation: test-pattern 4s linear infinite;
   z-index: 0;
 }
 
-@media (max-width: 767px) {
-  .theme-da-test .test-video-placeholder {
-    background-size: 60px 60px, 10px 10px;
-    animation-duration: 6s;
-  }
-}
-
 @keyframes test-pattern {
   0% { background-position: 0 0, 0 0; }
-  100% { background-position: 100px 100px, 15px 15px; }
-}
-
-@media (max-width: 767px) {
-  @keyframes test-pattern {
-    0% { background-position: 0 0, 0 0; }
-    100% { background-position: 60px 60px, 10px 10px; }
-  }
+  100% { background-position: 100px 100px, 20px 20px; }
 }
 
 .theme-da-test .test-video-placeholder::before {
   content: "🧪 DA TEST VIDEO PLACEHOLDER";
   color: #00ff00;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   text-shadow: 0 0 10px #00ff00;
   z-index: 1;
   position: relative;
-  text-align: center;
-  padding: 0 10px;
-}
-
-@media (max-width: 767px) {
-  .theme-da-test .test-video-placeholder::before {
-    font-size: 10px;
-    content: "🧪 DA TEST MOBILE";
-  }
-}
-
-/* Enhanced Animation Performance for Mobile */
-@media (max-width: 767px) {
-  [data-us-project] {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000px;
-  }
-}
-
-/* Better touch targets for mobile */
-@media (max-width: 767px) {
-  button {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  .hover\:scale-105:hover {
-    transform: none; /* Disable hover effects on mobile */
-  }
 }
