@@ -1,14 +1,11 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Coins, Image, Wallet, Trash2, RefreshCw } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Wallet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { EVMWalletService } from './EVMWalletService';
+import { WalletService } from '@/services/walletService';
+import { WalletForm } from './WalletForm';
+import { WalletCard } from './WalletCard';
 
 interface TrackedWallet {
   id: string;
@@ -19,6 +16,10 @@ interface TrackedWallet {
     symbol: string;
     name: string;
     balance: number;
+    usdValue: number;
+  }>;
+  defiPositions: Array<{
+    protocol: string;
     usdValue: number;
   }>;
   nfts: Array<{
@@ -59,16 +60,16 @@ export const AdvancedEVMTracker = () => {
     setIsLoading(true);
     
     try {
-      const walletData = await EVMWalletService.fetchWalletTokens(newAddress);
-      const nftData = await EVMWalletService.fetchNFTValues(newAddress);
+      const walletData = await WalletService.fetchWalletData(newAddress);
       
       const newWallet: TrackedWallet = {
         id: Date.now().toString(),
         address: newAddress,
         label: newLabel,
-        totalValue: walletData.totalUsd + nftData.reduce((sum, nft) => sum + nft.totalValue, 0),
+        totalValue: walletData.totalUsd,
         tokens: walletData.tokens,
-        nfts: nftData,
+        defiPositions: walletData.defiPositions,
+        nfts: walletData.nfts,
         lastUpdated: walletData.lastUpdated,
       };
 
@@ -98,14 +99,14 @@ export const AdvancedEVMTracker = () => {
     setIsLoading(true);
     
     try {
-      const walletData = await EVMWalletService.fetchWalletTokens(wallet.address);
-      const nftData = await EVMWalletService.fetchNFTValues(wallet.address);
+      const walletData = await WalletService.fetchWalletData(wallet.address);
       
       setWallets(prev => prev.map(w => w.id === walletId ? {
         ...w,
-        totalValue: walletData.totalUsd + nftData.reduce((sum, nft) => sum + nft.totalValue, 0),
+        totalValue: walletData.totalUsd,
         tokens: walletData.tokens,
-        nfts: nftData,
+        defiPositions: walletData.defiPositions,
+        nfts: walletData.nfts,
         lastUpdated: walletData.lastUpdated,
       } : w));
       
@@ -132,10 +133,6 @@ export const AdvancedEVMTracker = () => {
     });
   };
 
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
   const totalPortfolioValue = wallets.reduce((sum, wallet) => sum + wallet.totalValue, 0);
 
   return (
@@ -157,167 +154,31 @@ export const AdvancedEVMTracker = () => {
       )}
 
       {/* Add New Wallet */}
-      <Card className="border-dashed border-2 border-muted-foreground/25">
-        <CardHeader>
-          <CardTitle className="font-mono text-sm flex items-center gap-2">
-            <Plus size={16} />
-            Advanced EVM Wallet Tracker
-          </CardTitle>
-          <p className="text-xs text-muted-foreground font-mono">
-            Fetches live token & NFT values from blockchain
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="advanced-address">Wallet Address</Label>
-              <Input
-                id="advanced-address"
-                placeholder="0x742d35Cc6638C0532925a3b8D186dE0824c821A4"
-                value={newAddress}
-                onChange={(e) => setNewAddress(e.target.value)}
-                className="font-mono text-xs"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="advanced-label">Wallet Label</Label>
-              <Input
-                id="advanced-label"
-                placeholder="My DeFi Portfolio"
-                value={newLabel}
-                onChange={(e) => setNewLabel(e.target.value)}
-              />
-            </div>
-          </div>
-          <Button 
-            onClick={addWallet} 
-            disabled={isLoading}
-            className="w-full"
-          >
-            {isLoading ? 'Fetching Data...' : 'Add Advanced Wallet'}
-          </Button>
-        </CardContent>
-      </Card>
+      <WalletForm
+        newAddress={newAddress}
+        setNewAddress={setNewAddress}
+        newLabel={newLabel}
+        setNewLabel={setNewLabel}
+        onSubmit={addWallet}
+        isLoading={isLoading}
+      />
 
       {/* Wallet List */}
       {wallets.map((wallet) => (
-        <Card key={wallet.id} className="bg-muted/20">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Wallet size={20} className="text-accent" />
-                <div>
-                  <div className="font-mono font-semibold">{wallet.label}</div>
-                  <div className="font-mono text-xs text-muted-foreground">
-                    {formatAddress(wallet.address)}
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="font-mono font-bold text-lg">
-                  ${wallet.totalValue.toLocaleString()}
-                </div>
-                <div className="font-mono text-xs text-muted-foreground">
-                  Updated: {new Date(wallet.lastUpdated).toLocaleTimeString()}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => refreshWallet(wallet.id)}
-                  disabled={isLoading}
-                >
-                  <RefreshCw size={14} />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => removeWallet(wallet.id)}
-                >
-                  <Trash2 size={14} />
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="tokens" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="tokens" className="flex items-center gap-2">
-                  <Coins size={14} />
-                  Tokens ({wallet.tokens.length})
-                </TabsTrigger>
-                <TabsTrigger value="nfts" className="flex items-center gap-2">
-                  <Image size={14} />
-                  NFTs ({wallet.nfts.length})
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="tokens" className="space-y-2 mt-4">
-                {wallet.tokens.length > 0 ? (
-                  <div className="space-y-2">
-                    {wallet.tokens.map((token, index) => (
-                      <div key={index} className="flex justify-between items-center p-3 bg-background/50 rounded border">
-                        <div>
-                          <div className="font-mono font-semibold text-sm">{token.symbol}</div>
-                          <div className="font-mono text-xs text-muted-foreground">{token.name}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-mono text-sm">
-                            {token.balance.toFixed(4)}
-                          </div>
-                          <div className="font-mono text-xs text-muted-foreground">
-                            ${token.usdValue.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-4 text-muted-foreground font-mono text-sm">
-                    No tokens found
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="nfts" className="space-y-2 mt-4">
-                {wallet.nfts.length > 0 ? (
-                  <div className="space-y-2">
-                    {wallet.nfts.map((nft, index) => (
-                      <div key={index} className="flex justify-between items-center p-3 bg-background/50 rounded border">
-                        <div>
-                          <div className="font-mono font-semibold text-sm">{nft.name}</div>
-                          <div className="font-mono text-xs text-muted-foreground">
-                            {nft.count} item{nft.count !== 1 ? 's' : ''}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-mono text-sm">
-                            ${nft.totalValue.toLocaleString()}
-                          </div>
-                          <div className="font-mono text-xs text-muted-foreground">
-                            Est. Value
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-4 text-muted-foreground font-mono text-sm">
-                    No NFTs found
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+        <WalletCard
+          key={wallet.id}
+          wallet={wallet}
+          onRefresh={refreshWallet}
+          onRemove={removeWallet}
+          isLoading={isLoading}
+        />
       ))}
 
       {wallets.length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
           <Wallet size={48} className="mx-auto mb-4 opacity-50" />
           <p className="font-mono">No advanced wallets tracked yet</p>
-          <p className="font-mono text-sm">Add your first wallet to get live token & NFT data</p>
+          <p className="font-mono text-sm">Add your first wallet to get live token & DeFi data</p>
         </div>
       )}
     </div>
