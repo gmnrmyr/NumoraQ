@@ -1,182 +1,111 @@
 
 import React, { useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Lock } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useFinancialData } from '@/contexts/FinancialDataContext';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Crown, Sparkles, Lock } from "lucide-react";
+import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { toast } from "@/hooks/use-toast";
 
-const avatarOptions = [
-  { id: '1', icon: '🤖', name: 'Robot' },
-  { id: '2', icon: '💀', name: 'Skull' },
-  { id: '3', icon: '⚡', name: 'Lightning' },
-  { id: '4', icon: '🔥', name: 'Fire' },
-  { id: '5', icon: '💎', name: 'Diamond' },
-  { id: '6', icon: '🚀', name: 'Rocket' },
-  { id: '7', icon: '👾', name: 'Alien' },
-  { id: '8', icon: '🎯', name: 'Target' },
-  { id: '9', icon: '⚔️', name: 'Swords' },
-  { id: '10', icon: '🛡️', name: 'Shield' },
-  { id: '11', icon: '🎮', name: 'Gaming' },
-  { id: '12', icon: '🔮', name: 'Crystal' }
+// Basic avatar options
+const BASIC_AVATARS = [
+  { id: 'User', icon: User, name: 'Default User', locked: false },
+  { id: 'Crown', icon: Crown, name: 'Crown', locked: false },
+  { id: 'Sparkles', icon: Sparkles, name: 'Sparkles', locked: false }
 ];
 
-const nftPlaceholders = [
-  { id: 'nft1', name: 'Crypto Punk #1337', locked: false, rarity: 'Legendary' },
-  { id: 'nft2', name: 'Bored Ape #4269', locked: true, rarity: 'Epic' },
-  { id: 'nft3', name: 'CoolCat #888', locked: true, rarity: 'Rare' },
-  { id: 'nft4', name: 'Degen #0001', locked: true, rarity: 'Mythic' },
-  { id: 'nft5', name: 'OpenSea #999', locked: true, rarity: 'Common' },
-  { id: 'nft6', name: 'PixelPunk #42', locked: true, rarity: 'Uncommon' }
+// Premium NFT avatars (locked for now)
+const NFT_AVATARS = [
+  { id: 'nft1', name: 'Locked NFT', locked: true },
+  { id: 'nft2', name: 'Locked NFT', locked: true },
+  { id: 'nft3', name: 'Locked NFT', locked: true },
+  { id: 'nft4', name: 'Locked NFT', locked: true },
+  { id: 'nft5', name: 'Locked NFT', locked: true },
+  { id: 'nft6', name: 'Locked NFT', locked: true },
 ];
 
-interface AvatarSelectorProps {
-  nickname: string;
-}
-
-export const AvatarSelector = ({ nickname }: AvatarSelectorProps) => {
-  const [showAvatarDialog, setShowAvatarDialog] = useState(false);
-  const [showNFTGallery, setShowNFTGallery] = useState(false);
-  const { user } = useAuth();
+export const AvatarSelector = () => {
   const { data, updateUserProfile } = useFinancialData();
+  const [selectedAvatar, setSelectedAvatar] = useState(data.userProfile.avatarIcon || 'User');
 
-  const handleAvatarSelect = (avatarIcon: string) => {
-    updateUserProfile({ avatarIcon });
-    setShowAvatarDialog(false);
+  const handleAvatarSelect = (avatarId: string) => {
+    // Only allow selection of unlocked avatars
+    const isBasicAvatar = BASIC_AVATARS.find(avatar => avatar.id === avatarId && !avatar.locked);
+    
+    if (isBasicAvatar) {
+      setSelectedAvatar(avatarId);
+      updateUserProfile({ avatarIcon: avatarId });
+      toast({
+        title: "Avatar Updated",
+        description: "Your avatar has been changed successfully!"
+      });
+    } else {
+      toast({
+        title: "Avatar Locked",
+        description: "This avatar is not available yet.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const selectedAvatar = avatarOptions.find(avatar => avatar.icon === data.userProfile.avatarIcon);
-
   return (
-    <>
-      <Dialog open={showAvatarDialog} onOpenChange={setShowAvatarDialog}>
-        <DialogTrigger asChild>
-          <Avatar className="h-16 w-16 border-2 border-border cursor-pointer hover:border-accent transition-colors">
-            <AvatarImage src={user?.user_metadata?.avatar_url} />
-            <AvatarFallback className="bg-muted text-muted-foreground font-mono text-xl hover:bg-accent/20">
-              {data.userProfile.avatarIcon || (nickname ? nickname.charAt(0).toUpperCase() : 'U')}
-            </AvatarFallback>
-          </Avatar>
-        </DialogTrigger>
-        <DialogContent className="bg-card border-2 border-border max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-mono uppercase">Choose Avatar</DialogTitle>
-          </DialogHeader>
+    <Card className="brutalist-card">
+      <CardHeader>
+        <CardTitle className="font-mono uppercase text-accent text-sm">
+          Choose Avatar
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="basic" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="basic" className="font-mono text-xs">Basic</TabsTrigger>
+            <TabsTrigger value="nfts" className="font-mono text-xs">NFT Gallery</TabsTrigger>
+          </TabsList>
           
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-mono text-sm mb-3">Standard Avatars</h4>
-              <div className="grid grid-cols-4 gap-3">
-                {avatarOptions.map((avatar) => (
+          <TabsContent value="basic">
+            <div className="grid grid-cols-3 gap-3">
+              {BASIC_AVATARS.map((avatar) => {
+                const IconComponent = avatar.icon;
+                const isSelected = selectedAvatar === avatar.id;
+                
+                return (
                   <Button
                     key={avatar.id}
-                    variant="outline"
-                    className={`h-16 w-16 text-2xl border-2 ${
-                      selectedAvatar?.id === avatar.id 
-                        ? 'border-accent bg-accent/20' 
-                        : 'border-border hover:border-accent/50'
+                    variant={isSelected ? "default" : "outline"}
+                    className={`h-20 flex flex-col gap-2 brutalist-button ${
+                      isSelected ? 'bg-accent text-accent-foreground' : ''
                     }`}
-                    onClick={() => handleAvatarSelect(avatar.icon)}
+                    onClick={() => handleAvatarSelect(avatar.id)}
+                    disabled={avatar.locked}
                   >
-                    {avatar.icon}
+                    <IconComponent size={24} />
+                    <span className="text-xs font-mono">{avatar.name}</span>
                   </Button>
-                ))}
-              </div>
+                );
+              })}
             </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-mono text-sm">My NFTs</h4>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setShowNFTGallery(true)}
-                  className="text-xs font-mono"
+          </TabsContent>
+          
+          <TabsContent value="nfts">
+            <div className="grid grid-cols-3 gap-3">
+              {NFT_AVATARS.map((avatar, index) => (
+                <Button
+                  key={avatar.id}
+                  variant="outline"
+                  className="h-20 flex flex-col gap-2 brutalist-button opacity-50 cursor-not-allowed"
+                  disabled={true}
                 >
-                  View Gallery
+                  <Lock size={24} className="text-muted-foreground" />
+                  <span className="text-xs font-mono text-muted-foreground">
+                    {avatar.name}
+                  </span>
                 </Button>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {nftPlaceholders.slice(0, 3).map((nft) => (
-                  <div
-                    key={nft.id}
-                    className={`relative aspect-square border-2 rounded-lg flex items-center justify-center text-xs font-mono ${
-                      nft.locked 
-                        ? 'border-muted bg-muted/20 text-muted-foreground' 
-                        : 'border-accent bg-accent/10 text-accent cursor-pointer hover:bg-accent/20'
-                    }`}
-                  >
-                    {nft.locked && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Lock size={20} className="text-muted-foreground" />
-                      </div>
-                    )}
-                    {!nft.locked && (
-                      <div className="text-center">
-                        <div>🖼️</div>
-                        <div className="text-xs">{nft.rarity}</div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
-          </div>
-
-          <div className="text-xs text-muted-foreground font-mono text-center">
-            NFT avatars unlock with donations. More coming soon! 🚀
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* NFT Gallery Dialog */}
-      <Dialog open={showNFTGallery} onOpenChange={setShowNFTGallery}>
-        <DialogContent className="bg-card border-2 border-border max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="font-mono uppercase">NFT Avatar Gallery</DialogTitle>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-3 gap-4">
-            {nftPlaceholders.map((nft) => (
-              <div
-                key={nft.id}
-                className={`relative aspect-square border-2 rounded-lg p-4 ${
-                  nft.locked 
-                    ? 'border-muted bg-muted/20' 
-                    : 'border-accent bg-accent/10 cursor-pointer hover:bg-accent/20'
-                }`}
-              >
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  {nft.locked ? (
-                    <>
-                      <Lock size={32} className="text-muted-foreground mb-2" />
-                      <div className="text-xs font-mono text-muted-foreground">LOCKED</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="text-3xl mb-2">🖼️</div>
-                      <div className="text-xs font-mono font-bold">{nft.rarity}</div>
-                    </>
-                  )}
-                </div>
-                <div className="absolute bottom-2 left-2 right-2">
-                  <div className="text-xs font-mono truncate">{nft.name}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="text-center">
-            <div className="text-sm font-mono text-muted-foreground mb-2">
-              Unlock NFT avatars by supporting the project!
-            </div>
-            <div className="text-xs font-mono text-accent">
-              💎 Donate $100+ to unlock premium avatars
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
