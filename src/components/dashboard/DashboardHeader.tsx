@@ -51,6 +51,20 @@ export const DashboardHeader = () => {
 
   return (
     <div className={`relative min-h-[300px] sm:min-h-[400px] overflow-hidden ${isDaTestTheme ? 'dashboard-header' : ''}`}>
+      {/* Black Hole Animation - Fixed at top center background */}
+      {blackHoleConfig.enabled && (
+        <div className="fixed top-0 left-1/2 transform -translate-x-1/2 pointer-events-none z-0" style={{ marginTop: '80px' }}>
+          <UnicornStudioAnimation
+            projectId={blackHoleConfig.projectId}
+            width={blackHoleConfig.width}
+            height={blackHoleConfig.height}
+            enabled={blackHoleConfig.enabled}
+            responsive={true}
+            className="w-full h-full"
+          />
+        </div>
+      )}
+
       {/* DA Test Theme Placeholder - Enhanced for mobile */}
       {isDaTestTheme && isContributor && (
         <div className="test-video-placeholder">
@@ -111,20 +125,6 @@ export const DashboardHeader = () => {
           <DashboardIcons />
           
           <div className="relative">
-            {/* Black Hole Animation - Enhanced for mobile */}
-            {blackHoleConfig.enabled && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-                <UnicornStudioAnimation
-                  projectId={blackHoleConfig.projectId}
-                  width={blackHoleConfig.width}
-                  height={blackHoleConfig.height}
-                  enabled={blackHoleConfig.enabled}
-                  responsive={true}
-                  className="w-full h-full"
-                />
-              </div>
-            )}
-
             {/* Dark Dither Animation - Enhanced for mobile */}
             {darkDitherConfig.enabled && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
