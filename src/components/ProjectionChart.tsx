@@ -41,9 +41,25 @@ export const ProjectionChart = () => {
       .filter(expense => expense.type === 'recurring' && expense.status === 'active')
       .reduce((sum, expense) => sum + expense.amount, 0);
 
-    const totalVariableExpenses = data.expenses
-      .filter(expense => expense.type === 'variable' && expense.status === 'active')
-      .reduce((sum, expense) => sum + expense.amount, 0);
+    // Helper function to get variable expenses for a specific month
+    const getVariableExpensesForMonth = (monthOffset: number) => {
+      const currentDate = new Date();
+      const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthOffset, 1);
+      const targetMonth = targetDate.toISOString().slice(0, 7); // YYYY-MM format
+      
+      return data.expenses
+        .filter(expense => {
+          if (expense.type !== 'variable' || expense.status !== 'active') return false;
+          
+          // If no specific date, it's a monthly variable expense (triggers every month)
+          if (!expense.specificDate) return true;
+          
+          // If specific date matches this month, include it
+          const expenseMonth = expense.specificDate.slice(0, 7);
+          return expenseMonth === targetMonth;
+        })
+        .reduce((sum, expense) => sum + expense.amount, 0);
+    };
     
     const monthlyNetIncome = totalPassiveIncome + totalActiveIncome - totalRecurringExpenses;
     
@@ -51,15 +67,17 @@ export const ProjectionChart = () => {
     let runningBalance = totalLiquid;
     
     // Add current month (month 0)
+    const currentMonthVariableExpenses = getVariableExpensesForMonth(0);
     projectionData.push({
       month: 0,
       balance: Math.round(runningBalance),
       monthlyIncome: totalPassiveIncome + totalActiveIncome,
-      monthlyExpenses: totalRecurringExpenses,
+      monthlyExpenses: totalRecurringExpenses + currentMonthVariableExpenses,
       netChange: 0,
       passiveIncome: totalPassiveIncome,
       activeIncome: totalActiveIncome,
       recurringExpenses: totalRecurringExpenses,
+      variableExpenses: currentMonthVariableExpenses,
       cumulativeGrowth: 0,
       balanceChange: 0
     });
@@ -68,8 +86,8 @@ export const ProjectionChart = () => {
     for (let i = 1; i <= months; i++) {
       const previousBalance = runningBalance;
       
-      // Apply monthly variable expenses only in month 1
-      const variableExpensesThisMonth = i === 1 ? totalVariableExpenses : 0;
+      // Get variable expenses for this specific month
+      const variableExpensesThisMonth = getVariableExpensesForMonth(i);
       const monthlyChange = monthlyNetIncome - variableExpensesThisMonth;
       
       runningBalance += monthlyChange;
@@ -335,7 +353,8 @@ export const ProjectionChart = () => {
                       <tr className="border-b border-border">
                         <th className="text-left p-2">Month</th>
                         <th className="text-right p-2">Income</th>
-                        <th className="text-right p-2">Expenses</th>
+                        <th className="text-right p-2">Recurring</th>
+                        <th className="text-right p-2">Variable</th>
                         <th className="text-right p-2">Net</th>
                         <th className="text-right p-2">Balance</th>
                       </tr>
@@ -348,7 +367,10 @@ export const ProjectionChart = () => {
                             {currencySymbol}{month.monthlyIncome.toLocaleString()}
                           </td>
                           <td className="text-right p-2 text-red-400">
-                            {currencySymbol}{month.monthlyExpenses.toLocaleString()}
+                            {currencySymbol}{month.recurringExpenses.toLocaleString()}
+                          </td>
+                          <td className="text-right p-2 text-orange-400">
+                            {currencySymbol}{(month.variableExpenses || 0).toLocaleString()}
                           </td>
                           <td className={`text-right p-2 ${month.netChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {month.netChange >= 0 ? '+' : ''}{currencySymbol}{Math.round(month.netChange).toLocaleString()}
@@ -406,7 +428,6 @@ export const ProjectionChart = () => {
             </CardContent>
           </Card>
 
-          {/* AI Insights Section */}
           <div className="p-4 bg-muted/20 border-l-4 border-accent">
             <div className="text-xs font-mono text-muted-foreground">
               💡 <strong>AI Insights:</strong>

@@ -44,10 +44,51 @@ export const ProjectionCard = () => {
   const totalRecurringExpenses = data.expenses
     .filter(expense => expense.type === 'recurring' && expense.status === 'active')
     .reduce((sum, expense) => sum + expense.amount, 0);
-  
-  const totalVariableExpenses = data.expenses
-    .filter(expense => expense.type === 'variable' && expense.status === 'active')
+
+  // Calculate variable expenses that count in the projection (current month + no-date expenses)
+  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
+  const currentMonthVariableExpenses = data.expenses
+    .filter(expense => {
+      if (expense.type !== 'variable' || expense.status !== 'active') return false;
+      
+      // If no specific date, it's a monthly variable expense
+      if (!expense.specificDate) return true;
+      
+      // If specific date is in current month, include it
+      const expenseMonth = expense.specificDate.slice(0, 7);
+      return expenseMonth === currentMonth;
+    })
     .reduce((sum, expense) => sum + expense.amount, 0);
+
+  // Calculate total variable expenses for the entire projection period
+  const getAllVariableExpensesForProjection = () => {
+    let totalVariableForPeriod = 0;
+    const currentDate = new Date();
+    
+    for (let monthOffset = 0; monthOffset < data.projectionMonths; monthOffset++) {
+      const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthOffset, 1);
+      const targetMonth = targetDate.toISOString().slice(0, 7);
+      
+      const monthVariableExpenses = data.expenses
+        .filter(expense => {
+          if (expense.type !== 'variable' || expense.status !== 'active') return false;
+          
+          // If no specific date, it's a monthly variable expense (counts every month)
+          if (!expense.specificDate) return true;
+          
+          // If specific date matches this month, include it
+          const expenseMonth = expense.specificDate.slice(0, 7);
+          return expenseMonth === targetMonth;
+        })
+        .reduce((sum, expense) => sum + expense.amount, 0);
+      
+      totalVariableForPeriod += monthVariableExpenses;
+    }
+    
+    return totalVariableForPeriod;
+  };
+
+  const totalVariableExpenses = getAllVariableExpensesForProjection();
 
   const activeDebts = data.debts.filter(debt => debt.isActive);
   const totalActiveDebt = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
