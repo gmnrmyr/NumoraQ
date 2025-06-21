@@ -35,19 +35,19 @@ export const ExpenseTrackingEditable = () => {
     })
     .reduce((sum, expense) => sum + expense.amount, 0);
 
-  // Calculate future dated variable expenses separately
+  // Calculate future dated variable expenses separately - INCLUDE INACTIVE ONES
   const futureVariableExpenses = variableExpenses
     .filter(expense => {
-      if (expense.status !== 'active' || !expense.specificDate) return false;
+      if (!expense.specificDate) return false;
       
       const expenseMonth = expense.specificDate.slice(0, 7);
       return expenseMonth > currentMonth;
     });
 
-  // Calculate past dated variable expenses separately  
+  // Calculate past dated variable expenses separately - INCLUDE INACTIVE ONES
   const pastVariableExpenses = variableExpenses
     .filter(expense => {
-      if (expense.status !== 'active' || !expense.specificDate) return false;
+      if (!expense.specificDate) return false;
       
       const expenseMonth = expense.specificDate.slice(0, 7);
       return expenseMonth < currentMonth;
@@ -101,7 +101,7 @@ export const ExpenseTrackingEditable = () => {
             setIsAddingExpense={setIsAddingExpense}
           />
           
-          {/* Show future expenses separately - now editable */}
+          {/* Show future expenses separately - now shows ALL future expenses (active and inactive) */}
           {futureVariableExpenses.length > 0 && (
             <div className="mt-4 p-2 sm:p-3 bg-muted border-2 border-border">
               <h4 className="font-mono font-bold text-xs sm:text-sm mb-2 text-blue-400 break-words">
@@ -122,7 +122,7 @@ export const ExpenseTrackingEditable = () => {
             </div>
           )}
 
-          {/* Show past expenses separately - now editable */}
+          {/* Show past expenses separately - now shows ALL past expenses (active and inactive) */}
           {pastVariableExpenses.length > 0 && (
             <div className="mt-4 p-2 sm:p-3 bg-muted border-2 border-border">
               <h4 className="font-mono font-bold text-xs sm:text-sm mb-2 text-orange-400 break-words">
