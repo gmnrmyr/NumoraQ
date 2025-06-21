@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Palette, Crown, Lock, Zap, Waves } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useUserTitle } from '@/hooks/useUserTitle';
 
 interface ThemeSelectorProps {
   onApplyTheme: (theme: string) => void;
@@ -12,6 +13,11 @@ interface ThemeSelectorProps {
 }
 
 export const ThemeSelector = ({ onApplyTheme, getDonationAmount, isChampionUser }: ThemeSelectorProps) => {
+  const { userTitle } = useUserTitle();
+  
+  // Check if user is Whales+ (10,000+ points)
+  const isWhalesUser = userTitle.level >= 10000 || ['WHALE', 'LEGEND'].includes(userTitle.title);
+  
   const isThemeLocked = (requiredAmount: number) => getDonationAmount() < requiredAmount;
 
   const ThemeButton = ({ theme, label, requiredAmount = 0, icon: Icon = Palette, championOnly = false, whalesOnly = false }: { 
@@ -22,7 +28,7 @@ export const ThemeSelector = ({ onApplyTheme, getDonationAmount, isChampionUser 
     championOnly?: boolean;
     whalesOnly?: boolean;
   }) => {
-    const locked = isThemeLocked(requiredAmount) || (championOnly && !isChampionUser) || (whalesOnly && getDonationAmount() < 10000);
+    const locked = isThemeLocked(requiredAmount) || (championOnly && !isChampionUser) || (whalesOnly && !isWhalesUser);
     
     return (
       <Button
@@ -101,6 +107,12 @@ export const ThemeSelector = ({ onApplyTheme, getDonationAmount, isChampionUser 
             <span className="font-bold text-purple-400">Whales+ Only:</span>
           </div>
           <div>• Dark Dither (10,000+ points)</div>
+          
+          {/* Debug info for current user */}
+          <div className="mt-2 pt-2 border-t border-border text-xs text-muted-foreground">
+            <div>Your Status: {userTitle.title} ({userTitle.level} pts)</div>
+            <div>Whales+ Access: {isWhalesUser ? '✅' : '❌'}</div>
+          </div>
         </div>
       </div>
     </div>

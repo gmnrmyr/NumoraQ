@@ -6,6 +6,12 @@ export interface LiquidAsset {
   color: string;
   isActive: boolean;
   trackingMode?: 'manual' | 'wallet' | 'price';
+  isCrypto?: boolean;
+  cryptoSymbol?: string;
+  quantity?: number;
+  isStock?: boolean;
+  stockSymbol?: string;
+  stockName?: string;
 }
 
 export interface IlliquidAsset {

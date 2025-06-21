@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Eye, EyeOff, TrendingUp } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, TrendingUp, Bitcoin, DollarSign } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IconSelector } from './IconSelector';
+import { StockSelector } from './StockSelector';
 import { iconMap, groupedIcons } from './IconData';
 import { DevelopmentTooltip } from './DevelopmentTooltip';
 import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { fetchStockPrice } from '@/services/stockService';
 import { toast } from "@/hooks/use-toast";
 
 const CRYPTO_OPTIONS = [
@@ -24,7 +26,7 @@ export const LiquidAssetsCard = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<any>(null);
   const [showInactive, setShowInactive] = useState(true);
-  const [assetType, setAssetType] = useState<'manual' | 'crypto'>('manual');
+  const [assetType, setAssetType] = useState<'manual' | 'crypto' | 'stock'>('manual');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -32,6 +34,8 @@ export const LiquidAssetsCard = () => {
     icon: 'Wallet',
     isActive: true,
     cryptoSymbol: '',
+    stockSymbol: '',
+    stockName: '',
     quantity: 0
   });
 
@@ -42,6 +46,8 @@ export const LiquidAssetsCard = () => {
       icon: 'Wallet',
       isActive: true,
       cryptoSymbol: '',
+      stockSymbol: '',
+      stockName: '',
       quantity: 0
     });
     setEditingAsset(null);
@@ -56,7 +62,29 @@ export const LiquidAssetsCard = () => {
     return price * quantity;
   };
 
-  const handleSubmit = () => {
+  const calculateStockValue = async (stockSymbol: string, quantity: number) => {
+    try {
+      const stockData = await fetchStockPrice(stockSymbol);
+      if (stockData) {
+        return stockData.price * quantity;
+      }
+      return 0;
+    } catch (error) {
+      console.error('Error calculating stock value:', error);
+      return 0;
+    }
+  };
+
+  const handleStockSelection = (symbol: string, name: string) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      stockSymbol: symbol,
+      stockName: name,
+      name: name || symbol
+    }));
+  };
+
+  const handleSubmit = async () => {
     if (!formData.name.trim()) {
       toast({
         title: "Error",
@@ -77,7 +105,7 @@ export const LiquidAssetsCard = () => {
       color: 'text-foreground'
     };
 
-    // For crypto assets, add crypto-specific properties
+    // For crypto assets
     if (assetType === 'crypto' && formData.cryptoSymbol && formData.quantity > 0) {
       finalValue = calculateCryptoValue(formData.cryptoSymbol, formData.quantity);
       
@@ -94,8 +122,28 @@ export const LiquidAssetsCard = () => {
       } else {
         addLiquidAsset(cryptoAssetData);
       }
-    } else {
-      // For manual assets, don't include crypto properties
+    }
+    // For stock assets
+    else if (assetType === 'stock' && formData.stockSymbol && formData.quantity > 0) {
+      finalValue = await calculateStockValue(formData.stockSymbol, formData.quantity);
+      
+      const stockAssetData = {
+        ...baseAssetData,
+        value: finalValue,
+        isStock: true,
+        stockSymbol: formData.stockSymbol,
+        stockName: formData.stockName,
+        quantity: formData.quantity
+      };
+
+      if (editingAsset) {
+        updateLiquidAsset(editingAsset.id, stockAssetData);
+      } else {
+        addLiquidAsset(stockAssetData);
+      }
+    }
+    // For manual assets
+    else {
       if (editingAsset) {
         updateLiquidAsset(editingAsset.id, baseAssetData);
       } else {
@@ -114,13 +162,22 @@ export const LiquidAssetsCard = () => {
 
   const handleEdit = (asset: any) => {
     setEditingAsset(asset);
-    setAssetType(asset.isCrypto ? 'crypto' : 'manual');
+    if (asset.isCrypto) {
+      setAssetType('crypto');
+    } else if (asset.isStock) {
+      setAssetType('stock');
+    } else {
+      setAssetType('manual');
+    }
+    
     setFormData({
       name: asset.name,
       value: asset.value,
       icon: asset.icon,
       isActive: asset.isActive,
       cryptoSymbol: asset.cryptoSymbol || '',
+      stockSymbol: asset.stockSymbol || '',
+      stockName: asset.stockName || '',
       quantity: asset.quantity || 0
     });
     setIsDialogOpen(true);
@@ -152,6 +209,30 @@ export const LiquidAssetsCard = () => {
       }
     });
   }, [data.exchangeRates.btcPrice, data.exchangeRates.ethPrice]);
+
+  // Periodically update stock prices
+  React.useEffect(() => {
+    const updateStockPrices = async () => {
+      const stockAssets = data.liquidAssets.filter(asset => asset.isStock);
+      
+      for (const asset of stockAssets) {
+        if (asset.stockSymbol && asset.quantity) {
+          try {
+            const newValue = await calculateStockValue(asset.stockSymbol, asset.quantity);
+            if (Math.abs(newValue - asset.value) > 0.01) {
+              updateLiquidAsset(asset.id, { value: newValue });
+            }
+          } catch (error) {
+            console.error(`Error updating stock price for ${asset.stockSymbol}:`, error);
+          }
+        }
+      }
+    };
+
+    // Update stock prices every 5 minutes
+    const interval = setInterval(updateStockPrices, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [data.liquidAssets]);
 
   const activeAssets = data.liquidAssets.filter(asset => asset.isActive);
   const inactiveAssets = data.liquidAssets.filter(asset => !asset.isActive);
@@ -205,13 +286,14 @@ export const LiquidAssetsCard = () => {
                   <div className="space-y-4">
                     <div>
                       <Label className="font-mono text-xs uppercase">Asset Type</Label>
-                      <Select value={assetType} onValueChange={(value: 'manual' | 'crypto') => setAssetType(value)}>
+                      <Select value={assetType} onValueChange={(value: 'manual' | 'crypto' | 'stock') => setAssetType(value)}>
                         <SelectTrigger className="bg-input border-2 border-border font-mono">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="manual">Manual Entry</SelectItem>
                           <SelectItem value="crypto">Crypto (Auto-Price)</SelectItem>
+                          <SelectItem value="stock">Stocks (Live Price)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -223,7 +305,7 @@ export const LiquidAssetsCard = () => {
                         value={formData.name}
                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                         className="bg-input border-2 border-border font-mono"
-                        placeholder={assetType === 'crypto' ? "e.g., My Bitcoin" : "e.g., Cash, Savings Account"}
+                        placeholder={assetType === 'crypto' ? "e.g., My Bitcoin" : assetType === 'stock' ? "e.g., Apple Stock" : "e.g., Cash, Savings Account"}
                       />
                     </div>
 
@@ -262,6 +344,37 @@ export const LiquidAssetsCard = () => {
                           {formData.cryptoSymbol && formData.quantity > 0 && (
                             <div className="text-xs text-muted-foreground mt-1">
                               Value: {currency} {calculateCryptoValue(formData.cryptoSymbol, formData.quantity).toLocaleString()}
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+
+                    {assetType === 'stock' && (
+                      <>
+                        <div>
+                          <Label className="font-mono text-xs uppercase">Stock Symbol</Label>
+                          <StockSelector
+                            value={formData.stockSymbol}
+                            onChange={handleStockSelection}
+                            placeholder="Search stocks (e.g., AAPL, NVDA, PETR4.SA)"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="stockQuantity" className="font-mono text-xs uppercase">Shares</Label>
+                          <Input
+                            id="stockQuantity"
+                            type="number"
+                            step="0.01"
+                            value={formData.quantity}
+                            onChange={(e) => setFormData(prev => ({ ...prev, quantity: Number(e.target.value) }))}
+                            className="bg-input border-2 border-border font-mono"
+                            placeholder="0"
+                          />
+                          {formData.stockSymbol && formData.quantity > 0 && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Estimated value will be calculated with live prices
                             </div>
                           )}
                         </div>
@@ -363,8 +476,14 @@ export const LiquidAssetsCard = () => {
                         </div>
                         {asset.isCrypto && (
                           <Badge variant="outline" className="text-xs font-mono">
-                            <TrendingUp size={10} className="mr-1" />
+                            <Bitcoin size={10} className="mr-1" />
                             {asset.cryptoSymbol}
+                          </Badge>
+                        )}
+                        {asset.isStock && (
+                          <Badge variant="outline" className="text-xs font-mono">
+                            <TrendingUp size={10} className="mr-1" />
+                            {asset.stockSymbol}
                           </Badge>
                         )}
                       </div>
@@ -372,6 +491,9 @@ export const LiquidAssetsCard = () => {
                         {currency} {asset.value.toLocaleString()}
                         {asset.isCrypto && asset.quantity && (
                           <span className="ml-2">({asset.quantity} {asset.cryptoSymbol})</span>
+                        )}
+                        {asset.isStock && asset.quantity && (
+                          <span className="ml-2">({asset.quantity} shares)</span>
                         )}
                       </div>
                     </div>
