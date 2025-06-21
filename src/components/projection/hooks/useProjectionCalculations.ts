@@ -81,8 +81,10 @@ export const useProjectionCalculations = () => {
             variableExpensesThisMonth += expense.amount;
           }
         } else {
-          // If no specific date, apply every month starting from month 1
-          variableExpensesThisMonth += expense.amount;
+          // If no specific date, apply in month 1 only (legacy behavior)
+          if (i === 1) {
+            variableExpensesThisMonth += expense.amount;
+          }
         }
       });
       
