@@ -5,6 +5,7 @@ import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { ExpenseTabContent } from "./expenses/ExpenseTabContent";
 import { ExpenseSummaryCard } from "./expenses/ExpenseSummaryCard";
+import { ExpenseCard } from "./expenses/ExpenseCard";
 
 export const ExpenseTrackingEditable = () => {
   const { data, updateExpense, addExpense, removeExpense } = useFinancialData();
@@ -100,35 +101,43 @@ export const ExpenseTrackingEditable = () => {
             setIsAddingExpense={setIsAddingExpense}
           />
           
-          {/* Show future expenses separately */}
+          {/* Show future expenses separately - now editable */}
           {futureVariableExpenses.length > 0 && (
-            <div className="mt-4 p-3 bg-muted border-2 border-border">
-              <h4 className="font-mono font-bold text-sm mb-2 text-blue-400">
+            <div className="mt-4 p-2 sm:p-3 bg-muted border-2 border-border">
+              <h4 className="font-mono font-bold text-xs sm:text-sm mb-2 text-blue-400 break-words">
                 Future Scheduled Expenses:
               </h4>
-              <div className="space-y-1 text-xs font-mono">
+              <div className="space-y-2 sm:space-y-3">
                 {futureVariableExpenses.map(expense => (
-                  <div key={expense.id} className="flex justify-between">
-                    <span>{expense.name}</span>
-                    <span className="text-blue-400">${expense.amount} on {expense.specificDate}</span>
-                  </div>
+                  <ExpenseCard
+                    key={expense.id}
+                    expense={expense}
+                    onUpdate={updateExpense}
+                    onRemove={removeExpense}
+                    categoryOptions={categoryOptions}
+                    showCategory={true}
+                  />
                 ))}
               </div>
             </div>
           )}
 
-          {/* Show past expenses separately */}
+          {/* Show past expenses separately - now editable */}
           {pastVariableExpenses.length > 0 && (
-            <div className="mt-4 p-3 bg-muted border-2 border-border">
-              <h4 className="font-mono font-bold text-sm mb-2 text-orange-400">
+            <div className="mt-4 p-2 sm:p-3 bg-muted border-2 border-border">
+              <h4 className="font-mono font-bold text-xs sm:text-sm mb-2 text-orange-400 break-words">
                 Past Scheduled Expenses:
               </h4>
-              <div className="space-y-1 text-xs font-mono">
+              <div className="space-y-2 sm:space-y-3">
                 {pastVariableExpenses.map(expense => (
-                  <div key={expense.id} className="flex justify-between">
-                    <span>{expense.name}</span>
-                    <span className="text-orange-400">${expense.amount} on {expense.specificDate}</span>
-                  </div>
+                  <ExpenseCard
+                    key={expense.id}
+                    expense={expense}
+                    onUpdate={updateExpense}
+                    onRemove={removeExpense}
+                    categoryOptions={categoryOptions}
+                    showCategory={true}
+                  />
                 ))}
               </div>
             </div>

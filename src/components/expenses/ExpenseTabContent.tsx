@@ -59,33 +59,37 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
 
   return (
     <Card className={`${cardClass} border-2 backdrop-blur-sm`}>
-      <CardHeader className="pb-3">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div>
-            <CardTitle className={`${titleClass} text-sm sm:text-base font-mono uppercase`}>
-              {type === 'recurring' ? t.recurringExpenses : t.variableExpenses}
-            </CardTitle>
-            <div className={`text-lg sm:text-2xl font-bold ${totalClass} font-mono`}>
-              $ {total.toLocaleString()}{type === 'recurring' ? `/${t.monthly.toLowerCase()}` : ` ${t.totalExpenses}`}
-            </div>
-            <div className={`text-xs ${inactiveClass} font-mono`}>
-              {expenses.filter(e => e.status === 'inactive').length} {t.inactiveExpenses}
-            </div>
-            {type === 'variable' && (
-              <div className={`text-xs ${titleClass} font-mono mt-1`}>
-                💡 Tip: Set specific dates for better projections
+      <CardHeader className="pb-2 sm:pb-3">
+        <div className="flex flex-col gap-2 sm:gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <CardTitle className={`${titleClass} text-xs sm:text-base font-mono uppercase break-words`}>
+                {type === 'recurring' ? t.recurringExpenses : t.variableExpenses}
+              </CardTitle>
+              <div className={`text-base sm:text-2xl font-bold ${totalClass} font-mono break-words`}>
+                $ {total.toLocaleString()}{type === 'recurring' ? `/${t.monthly.toLowerCase()}` : ` ${t.totalExpenses}`}
               </div>
-            )}
+              <div className={`text-xs ${inactiveClass} font-mono break-words`}>
+                {expenses.filter(e => e.status === 'inactive').length} {t.inactiveExpenses}
+              </div>
+              {type === 'variable' && (
+                <div className={`text-xs ${titleClass} font-mono mt-1 break-words`}>
+                  💡 Tip: Set specific dates for better projections
+                </div>
+              )}
+            </div>
+            <div className="flex-shrink-0 w-full sm:w-auto">
+              <AddExpenseDialog
+                isOpen={isAddingExpense}
+                onOpenChange={setIsAddingExpense}
+                onAddExpense={onAddExpense}
+                categoryOptions={categoryOptions}
+              />
+            </div>
           </div>
-          <AddExpenseDialog
-            isOpen={isAddingExpense}
-            onOpenChange={setIsAddingExpense}
-            onAddExpense={onAddExpense}
-            categoryOptions={categoryOptions}
-          />
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-2 sm:space-y-3">
         {sortedExpenses.map((expense) => (
           <ExpenseCard 
             key={expense.id} 
