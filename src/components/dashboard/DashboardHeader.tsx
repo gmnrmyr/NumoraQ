@@ -67,15 +67,11 @@ export const DashboardHeader = () => {
           script.onload = function() {
             if (!window.UnicornStudio.isInitialized) {
               try {
-                if (window.UnicornStudio && typeof window.UnicornStudio.init === 'function') {
-                  window.UnicornStudio.init();
-                  window.UnicornStudio.isInitialized = true;
-                  console.log('UnicornStudio initialized successfully');
-                } else {
-                  // Fallback initialization
+                // Use the global UnicornStudio directly
+                if (typeof UnicornStudio !== 'undefined' && UnicornStudio.init) {
                   UnicornStudio.init();
                   window.UnicornStudio.isInitialized = true;
-                  console.log('UnicornStudio fallback initialization');
+                  console.log('UnicornStudio initialized successfully');
                 }
               } catch (error) {
                 console.error('Error initializing UnicornStudio:', error);
@@ -86,8 +82,16 @@ export const DashboardHeader = () => {
             console.error('Failed to load UnicornStudio script');
           };
           (document.head || document.body).appendChild(script);
-        } else if (window.UnicornStudio.isInitialized) {
-          console.log('UnicornStudio already initialized');
+        } else if (!window.UnicornStudio.isInitialized) {
+          try {
+            if (typeof UnicornStudio !== 'undefined' && UnicornStudio.init) {
+              UnicornStudio.init();
+              window.UnicornStudio.isInitialized = true;
+              console.log('UnicornStudio re-initialized');
+            }
+          } catch (error) {
+            console.error('Error re-initializing UnicornStudio:', error);
+          }
         }
       };
 
@@ -97,37 +101,41 @@ export const DashboardHeader = () => {
   
   return (
     <div className="relative">
-      {/* Black Hole Animation Background for CHAMPION users with Black Hole theme */}
+      {/* Black Hole Animation as Full Background */}
       {shouldShowAnimation && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <>
           <div 
-            data-us-project="db3DaP9gWVnnnr7ZevK7" 
+            className="fixed inset-0 w-full h-full pointer-events-none z-0"
             style={{ 
-              width: '100vw', 
-              height: '100vh',
-              position: 'fixed',
-              top: '0',
-              left: '0',
-              transform: 'scale(0.5)',
-              transformOrigin: 'center center',
-              zIndex: 0
+              background: 'transparent',
+              overflow: 'hidden'
             }}
-          />
-          {/* Debug info - remove in production */}
+          >
+            <div 
+              data-us-project="db3DaP9gWVnnnr7ZevK7" 
+              style={{ 
+                width: '100vw', 
+                height: '100vh',
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                zIndex: 0
+              }}
+            />
+          </div>
+          
+          {/* Debug overlay */}
           {process.env.NODE_ENV === 'development' && (
-            <div className="absolute top-4 left-4 text-xs text-white bg-black/50 p-2 rounded z-10">
-              Animation: Champion + Black Hole
-              <br />
-              Champion: {isChampionUser ? 'Yes' : 'No'}
-              <br />
-              Theme: {data.userProfile.theme}
-              <br />
-              Animation Enabled: {isAnimationEnabled ? 'Yes' : 'No'}
-              <br />
-              Should Show: {shouldShowAnimation ? 'Yes' : 'No'}
+            <div className="fixed top-4 right-4 text-xs text-white bg-black/80 p-3 rounded z-50 border border-white/20">
+              <div className="font-bold mb-1">🕳️ Black Hole Animation</div>
+              <div>Champion: {isChampionUser ? '✅' : '❌'}</div>
+              <div>Theme: {data.userProfile.theme}</div>
+              <div>Animation Enabled: {isAnimationEnabled ? '✅' : '❌'}</div>
+              <div>Should Show: {shouldShowAnimation ? '✅' : '❌'}</div>
+              <div>Paused: {animationPaused ? '✅' : '❌'}</div>
             </div>
           )}
-        </div>
+        </>
       )}
       
       <div className="text-center space-y-6 py-8 relative z-10">
