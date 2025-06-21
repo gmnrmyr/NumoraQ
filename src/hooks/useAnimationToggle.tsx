@@ -7,24 +7,23 @@ export function useAnimationToggle() {
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(false);
 
   useEffect(() => {
-    // Default animation state is disabled for all devices
-    // Users can manually enable if they want
-    setIsAnimationEnabled(false);
+    // Enable animations by default on desktop for better UX
+    // Users can still disable if needed
+    setIsAnimationEnabled(isDesktop);
   }, [isDesktop, isMobile, isTablet]);
 
   const toggleAnimation = () => {
     setIsAnimationEnabled(prev => !prev);
     
-    // For all devices, we might need to trigger a small delay
-    // to allow the animation system to properly initialize
+    // For all devices, trigger a small delay for proper initialization
     if (!isAnimationEnabled) {
       setTimeout(() => {
-        // Force a re-check of animation initialization
         if (window.UnicornStudio && window.UnicornStudio.init) {
           try {
             window.UnicornStudio.init();
+            console.log('🎬 Animation manually triggered');
           } catch (error) {
-            console.log('Animation manual trigger completed');
+            console.log('🎬 Animation manual trigger completed');
           }
         }
       }, 200);
@@ -34,6 +33,6 @@ export function useAnimationToggle() {
   return {
     isAnimationEnabled,
     toggleAnimation,
-    showToggle: true // Show toggle on all devices now
+    showToggle: true // Show toggle on all devices
   };
 }
