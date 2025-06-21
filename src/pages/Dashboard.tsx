@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { PortfolioOverview } from "@/components/PortfolioOverview";
@@ -20,7 +19,6 @@ import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
 import { AIAdvisor } from "@/components/ai/AIAdvisor";
 import { PWASetup } from "@/components/PWASetup";
 import { AdSenseAd } from "@/components/AdSenseAd";
-import { BlackHoleAnimation } from "@/components/animations/BlackHoleAnimation";
 import { useSecureAdminAuth } from "@/hooks/useSecureAdminAuth";
 
 const Dashboard = () => {
@@ -75,9 +73,6 @@ const Dashboard = () => {
       <meta name="robots" content="noindex, nofollow" />
       
       <div className="min-h-screen bg-background text-foreground font-mono">
-        {/* Black hole animation for Champion+ users */}
-        <BlackHoleAnimation />
-        
         <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
         <div className="pt-20 sm:pt-32 pb-4">
           <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
