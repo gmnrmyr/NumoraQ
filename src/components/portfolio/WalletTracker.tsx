@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Bitcoin, Coins, Wallet } from 'lucide-react';
+import { Bitcoin, Coins, Wallet, Zap } from 'lucide-react';
 import { BitcoinTracker } from './wallet/BitcoinTracker';
 import { EVMTracker } from './wallet/EVMTracker';
 import { SolanaTracker } from './wallet/SolanaTracker';
+import { AdvancedEVMTracker } from './wallet/AdvancedEVMTracker';
 
 export const WalletTracker = () => {
   const [activeTab, setActiveTab] = useState('bitcoin');
@@ -27,14 +28,18 @@ export const WalletTracker = () => {
       </CardHeader>
       <CardContent className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="bitcoin" className="flex items-center gap-2">
               <Bitcoin size={16} />
               Bitcoin
             </TabsTrigger>
             <TabsTrigger value="evm" className="flex items-center gap-2">
               <Coins size={16} />
-              EVM Chains
+              EVM Basic
+            </TabsTrigger>
+            <TabsTrigger value="advanced" className="flex items-center gap-2">
+              <Zap size={16} />
+              EVM Pro
             </TabsTrigger>
             <TabsTrigger value="solana" className="flex items-center gap-2">
               <Coins size={16} />
@@ -48,6 +53,10 @@ export const WalletTracker = () => {
 
           <TabsContent value="evm" className="space-y-4">
             <EVMTracker />
+          </TabsContent>
+
+          <TabsContent value="advanced" className="space-y-4">
+            <AdvancedEVMTracker />
           </TabsContent>
 
           <TabsContent value="solana" className="space-y-4">
