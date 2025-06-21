@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Skull, Bot, Zap, Play, Pause } from 'lucide-react';
 import { useTranslation } from '@/contexts/TranslationContext';
@@ -42,8 +43,8 @@ export const DashboardHeader = () => {
     loadProfileName();
   }, [user]);
   
-  // Check if user has CHAMPION role (2000+ donation points or level 80+)
-  const isChampionUser = userTitle.level >= 80 || userTitle.title === 'CHAMPION';
+  // Check if user has CHAMPION role (level 50+)
+  const isChampionUser = userTitle.level >= 50;
   
   // Check if Black Hole theme is active
   const isBlackHoleTheme = data.userProfile.theme === 'black-hole';
@@ -56,19 +57,23 @@ export const DashboardHeader = () => {
     if (shouldShowAnimation) {
       console.log('Loading Black Hole animation for Champion user');
       
-      // Use the exact embed code provided
       const initUnicornStudio = () => {
         if (!window.UnicornStudio) {
-          window.UnicornStudio = { isInitialized: false };
+          window.UnicornStudio = { 
+            isInitialized: false,
+            init: () => {}
+          };
           const script = document.createElement("script");
           script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
           script.onload = function() {
             if (!window.UnicornStudio.isInitialized) {
               try {
-                window.UnicornStudio.init();
-                window.UnicornStudio.isInitialized = true;
-                setAnimationLoaded(true);
-                console.log('UnicornStudio initialized successfully');
+                if (window.UnicornStudio && typeof window.UnicornStudio.init === 'function') {
+                  window.UnicornStudio.init();
+                  window.UnicornStudio.isInitialized = true;
+                  setAnimationLoaded(true);
+                  console.log('UnicornStudio initialized successfully');
+                }
               } catch (error) {
                 console.error('Error initializing UnicornStudio:', error);
               }
