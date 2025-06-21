@@ -27,22 +27,39 @@ export const useProjectionCalculations = () => {
 
     // Helper function to get variable expenses for a specific month
     const getVariableExpensesForMonth = (monthOffset: number) => {
+      if (monthOffset === 0) {
+        // For current month, include all undated variable expenses
+        return data.expenses
+          .filter(expense => 
+            expense.type === 'variable' && 
+            expense.status === 'active' && 
+            !expense.specificDate
+          )
+          .reduce((sum, expense) => sum + expense.amount, 0);
+      }
+
       const currentDate = new Date();
       const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthOffset, 1);
       const targetMonth = targetDate.toISOString().slice(0, 7); // YYYY-MM format
       
-      return data.expenses
-        .filter(expense => {
-          if (expense.type !== 'variable' || expense.status !== 'active') return false;
-          
-          // If no specific date, it's a monthly variable expense (triggers every month)
-          if (!expense.specificDate) return true;
-          
-          // If specific date matches this exact month, include it
-          const expenseMonth = expense.specificDate.slice(0, 7);
-          return expenseMonth === targetMonth;
-        })
-        .reduce((sum, expense) => sum + expense.amount, 0);
+      let monthlyVariableExpenses = 0;
+      
+      data.expenses
+        .filter(expense => expense.type === 'variable' && expense.status === 'active')
+        .forEach(expense => {
+          if (!expense.specificDate) {
+            // No specific date = monthly variable expense (triggers every month)
+            monthlyVariableExpenses += expense.amount;
+          } else {
+            // Has specific date = only triggers in that specific month
+            const expenseMonth = expense.specificDate.slice(0, 7);
+            if (expenseMonth === targetMonth) {
+              monthlyVariableExpenses += expense.amount;
+            }
+          }
+        });
+      
+      return monthlyVariableExpenses;
     };
     
     const monthlyNetIncome = totalPassiveIncome + totalActiveIncome - totalRecurringExpenses;
