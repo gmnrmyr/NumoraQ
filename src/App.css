@@ -166,7 +166,7 @@
   }
 }
 
-/* Black Hole theme improvements for Champion+ - Enhanced mobile support */
+/* Black Hole theme improvements for Champion+ - Enhanced mobile support with transparency */
 .theme-black-hole {
   /* Enhanced for better animation visibility */
   --background: 0 0% 2%;
@@ -174,8 +174,12 @@
   --accent: 0 0% 100%;
 }
 
-.theme-black-hole .brutalist-card {
-  background: hsl(var(--card));
+.theme-black-hole .brutalist-card,
+.theme-black-hole .card,
+.theme-black-hole [class*="card"] {
+  background: rgba(0, 0, 0, 0.25) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-color: hsl(var(--accent));
   box-shadow: 
     0 0 20px rgba(255, 255, 255, 0.1),
@@ -183,11 +187,32 @@
 }
 
 @media (max-width: 767px) {
-  .theme-black-hole .brutalist-card {
+  .theme-black-hole .brutalist-card,
+  .theme-black-hole .card,
+  .theme-black-hole [class*="card"] {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     box-shadow: 
       0 0 10px rgba(255, 255, 255, 0.1),
       inset 0 0 10px rgba(0, 0, 0, 0.5);
   }
+}
+
+/* Make all panels transparent in black hole theme */
+.theme-black-hole .bg-card,
+.theme-black-hole .bg-background,
+.theme-black-hole .bg-muted {
+  background: rgba(0, 0, 0, 0.25) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.theme-black-hole .bg-card\/30,
+.theme-black-hole .bg-background\/30 {
+  background: rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 /* DA Test Theme - Enhanced mobile support */
