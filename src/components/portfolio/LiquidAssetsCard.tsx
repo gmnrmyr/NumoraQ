@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Eye, EyeOff } from "lucide-react";
-import { DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { AssetListItem } from './AssetListItem';
 import { AssetDialog } from './AssetDialog';
 import { DevelopmentTooltip } from './DevelopmentTooltip';
@@ -78,25 +78,28 @@ export const LiquidAssetsCard = () => {
                   {showInactive ? 'Hide Inactive' : 'Show All'}
                 </span>
               </Button>
-              <AssetDialog
-                isOpen={isDialogOpen}
-                onOpenChange={setIsDialogOpen}
-                editingAsset={editingAsset}
-                assetType={assetType}
-                setAssetType={setAssetType}
-                formData={formData}
-                setFormData={setFormData}
-                onStockSelection={handleStockSelection}
-                onSubmit={handleSubmit}
-                onReset={resetForm}
-                currency={currency}
-              />
-              <DialogTrigger asChild>
-                <Button size="sm" className="brutalist-button text-xs">
-                  <Plus size={14} className="mr-1" />
-                  <span className="hidden sm:inline">Add Asset</span>
-                </Button>
-              </DialogTrigger>
+              
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="brutalist-button text-xs">
+                    <Plus size={14} className="mr-1" />
+                    <span className="hidden sm:inline">Add Asset</span>
+                  </Button>
+                </DialogTrigger>
+                <AssetDialog
+                  isOpen={isDialogOpen}
+                  onOpenChange={setIsDialogOpen}
+                  editingAsset={editingAsset}
+                  assetType={assetType}
+                  setAssetType={setAssetType}
+                  formData={formData}
+                  setFormData={setFormData}
+                  onStockSelection={handleStockSelection}
+                  onSubmit={handleSubmit}
+                  onReset={resetForm}
+                  currency={currency}
+                />
+              </Dialog>
             </div>
           </div>
         </CardHeader>
