@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -68,7 +67,7 @@ export const AssetFormFields = ({
           <>
             <StockSelector
               value={formData.stockSymbol}
-              onSelect={onStockSelection}
+              onChange={onStockSelection}
               isReit={assetType === 'reit'}
             />
             <div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -7,16 +6,18 @@ import { searchStocks } from '@/services/stockService';
 
 interface StockSelectorProps {
   value: string;
-  onChange: (symbol: string, name: string) => void;
+  onSelect?: (symbol: string, name: string) => void;
+  onChange?: (symbol: string, name: string) => void;
   placeholder?: string;
-  assetType?: 'stock' | 'reit';
+  isReit?: boolean;
 }
 
 export const StockSelector = ({ 
   value, 
-  onChange, 
+  onSelect,
+  onChange,
   placeholder = "Search stocks (e.g., AAPL, NVDA)", 
-  assetType = 'stock' 
+  isReit = false 
 }: StockSelectorProps) => {
   const [query, setQuery] = useState(value);
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -27,7 +28,7 @@ export const StockSelector = ({
 
   useEffect(() => {
     if (query.length > 0) {
-      const results = searchStocks(query, assetType);
+      const results = searchStocks(query, isReit ? 'reit' : 'stock');
       setSuggestions(results);
       setShowSuggestions(results.length > 0);
       setSelectedIndex(-1);
@@ -35,7 +36,7 @@ export const StockSelector = ({
       setSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [query, assetType]);
+  }, [query, isReit]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value.toUpperCase();
@@ -44,7 +45,13 @@ export const StockSelector = ({
 
   const handleSelectStock = (stock: any) => {
     setQuery(stock.symbol);
-    onChange(stock.symbol, stock.name);
+    // Use both onSelect and onChange for backward compatibility
+    if (onSelect) {
+      onSelect(stock.symbol, stock.name);
+    }
+    if (onChange) {
+      onChange(stock.symbol, stock.name);
+    }
     setShowSuggestions(false);
   };
 
