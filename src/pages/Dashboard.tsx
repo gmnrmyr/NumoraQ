@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { MetricsOverview } from '@/components/dashboard/MetricsOverview';
 import { ProjectionCard } from '@/components/dashboard/ProjectionCard';
@@ -8,10 +8,13 @@ import { PremiumStatusIndicator } from '@/components/dashboard/PremiumStatusIndi
 import { DonationInterface } from '@/components/dashboard/DonationInterface';
 import { BlackHoleAnimation } from '@/components/animations/BlackHoleAnimation';
 import { useUserTitle } from '@/hooks/useUserTitle';
+import { Button } from '@/components/ui/button';
+import { Heart } from 'lucide-react';
 
 export default function Dashboard() {
   const { userTitle } = useUserTitle();
   const isChampionOrHigher = userTitle && ['CHAMPION', 'LEGEND', 'TITAN', 'OVERLORD'].includes(userTitle.title);
+  const [isDonationOpen, setIsDonationOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -25,7 +28,23 @@ export default function Dashboard() {
           <PremiumStatusIndicator />
           <MetricsOverview />
           <ProjectionCard />
-          <DonationInterface />
+          
+          {/* Donation Interface Trigger */}
+          <div className="flex justify-center">
+            <Button 
+              onClick={() => setIsDonationOpen(true)}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Heart size={16} />
+              Support the Project
+            </Button>
+          </div>
+          
+          <DonationInterface 
+            isOpen={isDonationOpen} 
+            onClose={() => setIsDonationOpen(false)} 
+          />
         </div>
       </div>
     </div>
