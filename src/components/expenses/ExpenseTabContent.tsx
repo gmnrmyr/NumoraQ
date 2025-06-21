@@ -35,6 +35,24 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
   const totalClass = type === 'recurring' ? "text-red-400" : "text-orange-400";
   const inactiveClass = type === 'recurring' ? "text-red-400/70" : "text-orange-400/70";
 
+  // Sort expenses by date for variable expenses
+  const sortedExpenses = React.useMemo(() => {
+    if (type === 'variable') {
+      return [...expenses].sort((a, b) => {
+        // If both have dates, sort by date
+        if (a.specificDate && b.specificDate) {
+          return new Date(a.specificDate).getTime() - new Date(b.specificDate).getTime();
+        }
+        // Items without dates go to middle
+        if (!a.specificDate && !b.specificDate) return 0;
+        if (!a.specificDate) return 1;
+        if (!b.specificDate) return -1;
+        return 0;
+      });
+    }
+    return expenses;
+  }, [expenses, type]);
+
   return (
     <Card className={`${cardClass} border-2 backdrop-blur-sm`}>
       <CardHeader className="pb-3">
@@ -59,7 +77,7 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        {expenses.map((expense) => (
+        {sortedExpenses.map((expense) => (
           <ExpenseCard 
             key={expense.id} 
             expense={expense} 
