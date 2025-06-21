@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,18 +53,29 @@ const LeaderboardPage = () => {
 
   // Helper function to get user title for leaderboard entries
   const getUserTitle = (points: number) => {
-    // Same logic as in useUserTitle hook
-    const targetLevel = Math.floor(points / 100) * 100;
     const titles = [
-      { level: 0, title: "NOOB", color: "text-gray-500" },
-      { level: 100, title: "WHALE", color: "text-purple-600" },
-      { level: 200, title: "CHAD", color: "text-blue-600" },
-      { level: 300, title: "MOON", color: "text-yellow-600" },
-      { level: 400, title: "DIAMOND", color: "text-cyan-600" },
-      { level: 500, title: "LEGEND", color: "text-red-600" }
+      { level: 50000, title: "WHALE", color: "text-purple-600" },
+      { level: 10000, title: "LEGEND", color: "text-purple-400" },
+      { level: 5000, title: "PATRON", color: "text-yellow-400" },
+      { level: 2000, title: "CHAMPION", color: "text-orange-400" },
+      { level: 1000, title: "SUPPORTER", color: "text-blue-400" },
+      { level: 500, title: "BACKER", color: "text-green-400" },
+      { level: 100, title: "DONOR", color: "text-cyan-400" },
+      { level: 50, title: "CONTRIBUTOR", color: "text-indigo-400" },
+      { level: 25, title: "HELPER", color: "text-pink-400" },
+      { level: 20, title: "FRIEND", color: "text-emerald-400" },
+      { level: 10, title: "SUPPORTER", color: "text-blue-300" },
+      { level: 0, title: "NEWCOMER", color: "text-slate-400" }
     ];
     
-    return titles.reverse().find(title => targetLevel >= title.level) || titles[titles.length - 1];
+    // Find the highest title the user qualifies for
+    for (const title of titles) {
+      if (points >= title.level) {
+        return title;
+      }
+    }
+    
+    return titles[titles.length - 1]; // Default to NEWCOMER
   };
 
   return (
