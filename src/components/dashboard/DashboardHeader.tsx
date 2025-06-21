@@ -30,7 +30,7 @@ export const DashboardHeader = () => {
   const isDarkDitherTheme = data.userProfile.theme === 'dark-dither';
   const isDaTestTheme = data.userProfile.theme === 'da-test';
   
-  // Animation configurations - Black Hole for Champion+ users
+  // Animation configurations
   const blackHoleConfig = {
     projectId: 'db3DaP9gWVnnnr7ZevK7',
     width: '400px',
@@ -38,7 +38,6 @@ export const DashboardHeader = () => {
     enabled: isChampionUser && isBlackHoleTheme && isAnimationEnabled
   };
 
-  // Dark Dither for Whales+ users
   const darkDitherConfig = {
     projectId: 'h49sb4lMLFG1hJLyIzdq',
     width: '100%',
@@ -62,25 +61,6 @@ export const DashboardHeader = () => {
       {/* DA Test Theme Placeholder */}
       {isDaTestTheme && isContributor && (
         <div className="test-video-placeholder" />
-      )}
-
-      {/* Dark Dither Background Animation - Full Width */}
-      {darkDitherConfig.enabled && (
-        <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
-          <UnicornStudioAnimation
-            projectId={darkDitherConfig.projectId}
-            width="1440px"
-            height="900px"
-            enabled={darkDitherConfig.enabled}
-            isPaused={darkDitherAnimation.isPaused}
-            style={{ 
-              width: '100%', 
-              height: '100%',
-              minWidth: '1440px',
-              transform: 'scale(1.1)'
-            }}
-          />
-        </div>
       )}
 
       <div className="relative z-10">
@@ -132,7 +112,7 @@ export const DashboardHeader = () => {
           <DashboardIcons />
           
           <div className="relative">
-            {/* Black Hole Animation - Centered */}
+            {/* Black Hole Animation */}
             {blackHoleConfig.enabled && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
                 <UnicornStudioAnimation
@@ -141,6 +121,20 @@ export const DashboardHeader = () => {
                   height={blackHoleConfig.height}
                   enabled={blackHoleConfig.enabled}
                   isPaused={blackHoleAnimation.isPaused}
+                />
+              </div>
+            )}
+
+            {/* Dark Dither Animation */}
+            {darkDitherConfig.enabled && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                <UnicornStudioAnimation
+                  projectId={darkDitherConfig.projectId}
+                  width={darkDitherConfig.width}
+                  height={darkDitherConfig.height}
+                  enabled={darkDitherConfig.enabled}
+                  isPaused={darkDitherAnimation.isPaused}
+                  style={{ maxWidth: '1440px' }}
                 />
               </div>
             )}
