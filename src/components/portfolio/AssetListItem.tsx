@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, Trash2, Eye, EyeOff, Bitcoin, TrendingUp, Building, Coins, Wallet } from "lucide-react";
+import { Edit, Trash2, Eye, EyeOff, Bitcoin, TrendingUp, Building, Coins, Wallet, Image } from "lucide-react";
 import { iconMap, groupedIcons } from './IconData';
 
 interface AssetListItemProps {
@@ -72,6 +72,14 @@ export const AssetListItem = ({
         </Badge>
       );
     }
+    if (asset.isNFT) {
+      return (
+        <Badge variant="outline" className="text-xs font-mono">
+          <Image size={10} className="mr-1" />
+          NFT
+        </Badge>
+      );
+    }
     return null;
   };
 
@@ -87,6 +95,9 @@ export const AssetListItem = ({
     }
     if (asset.isWalletTracked && asset.walletAddress) {
       return `(${asset.walletAddress.slice(0, 6)}...${asset.walletAddress.slice(-4)})`;
+    }
+    if (asset.isNFT && asset.quantity) {
+      return `(${asset.quantity} NFT${asset.quantity !== 1 ? 's' : ''})`;
     }
     return null;
   };
