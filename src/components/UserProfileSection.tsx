@@ -1,162 +1,80 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent } from './ui/card';
-import { Button } from './ui/button';
-import { AvatarSelector } from './profile/AvatarSelector';
-import { NicknameEditor } from './profile/NicknameEditor';
-import { UserPreferences } from './profile/UserPreferences';
-import { DegenModeSection } from './profile/DegenModeSection';
-import { CloudSyncStatus } from './profile/CloudSyncStatus';
-import { AccountLinking } from './profile/AccountLinking';
-import { DataManagementSection } from './DataManagementSection';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserPreferences } from "@/components/profile/UserPreferences";
+import { NicknameEditor } from "@/components/profile/NicknameEditor";
+import { AvatarSelector } from "@/components/profile/AvatarSelector";
+import { AccountLinking } from "@/components/profile/AccountLinking";
+import { DegenModeSection } from "@/components/profile/DegenModeSection";
+import { CloudSyncStatus } from "@/components/profile/CloudSyncStatus";
+import { DataManagementSection } from "@/components/DataManagementSection";
+import { DonationInterface } from "@/components/dashboard/DonationInterface";
+import { PremiumStatusIndicator } from "@/components/dashboard/PremiumStatusIndicator";
+import { UserTitleBadge } from "@/components/dashboard/UserTitleBadge";
 import { useFinancialData } from '@/contexts/FinancialDataContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { ChevronRight, ChevronDown, Cloud, Save, Mail, LogOut } from 'lucide-react';
+import { useUserTitle } from '@/hooks/useUserTitle';
 
 export const UserProfileSection = () => {
-  const { data, saveToCloud, syncState, lastSync } = useFinancialData();
-  const { user, signOut } = useAuth();
-  const [isExpanded, setIsExpanded] = useState(true);
-
-  const handleCloudSave = () => {
-    if (user) {
-      saveToCloud();
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
-  const formatLastSync = (timestamp: string | null) => {
-    if (!timestamp) return 'Never synced';
-    
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffMinutes < 1) return 'Just now';
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
-    
-    // Format as DD/MM/YYYY, HH:MM:SS with current timezone
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-    
-    return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
-  };
-
-  const truncateEmail = (email: string, maxLength: number = 15) => {
-    if (email.length <= maxLength) return email;
-    return email.substring(0, maxLength - 3) + '...';
-  };
+  const { data } = useFinancialData();
+  const { userTitle } = useUserTitle();
+  
+  // Check if user has premium themes that might have animations
+  const currentTheme = data.userProfile.theme;
+  const hasAnimationTheme = ['black-hole', 'dark-dither', 'leras'].includes(currentTheme || '');
+  
+  // Apply backdrop blur when animation themes are active
+  const cardClassName = hasAnimationTheme 
+    ? "brutalist-card bg-card/80 backdrop-blur-md border-2 border-border/60" 
+    : "brutalist-card";
 
   return (
-    <div className="space-y-4">
-      <Card className="bg-card border-2 border-border brutalist-card relative">
-        <CardContent className="space-y-6">
-          {/* Toggle Header */}
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-2 p-2"
-            >
-              {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-              <span className="font-mono text-sm">USER_INFO_CONFIG_UI</span>
-            </Button>
-            
-            {/* When collapsed, show functional cloud save button and user info */}
-            {!isExpanded && user && (
-              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 min-w-0">
-                {/* User info - stacked on mobile, responsive layout */}
-                <div className="flex items-center gap-2 min-w-0 order-2 sm:order-1">
-                  <Mail size={14} className="text-muted-foreground flex-shrink-0" />
-                  <span className="text-xs text-muted-foreground font-mono truncate">
-                    {truncateEmail(user.email || '', window.innerWidth < 640 ? 12 : 15)}
-                  </span>
-                  <Button 
-                    onClick={handleLogout} 
-                    size="sm" 
-                    variant="outline" 
-                    className="brutalist-button text-xs flex-shrink-0"
-                  >
-                    <LogOut size={12} />
-                  </Button>
-                </div>
-                
-                {/* Cloud save button */}
-                <div className="flex items-center gap-1 order-1 sm:order-2">
-                  <Button
-                    onClick={handleCloudSave}
-                    disabled={syncState === 'saving' || syncState === 'loading'}
-                    variant="outline"
-                    size="sm"
-                    className="brutalist-button flex items-center gap-1"
-                    title={`Save to cloud - Last sync: ${formatLastSync(lastSync)}`}
-                  >
-                    {syncState === 'saving' ? (
-                      <Save size={14} className="animate-spin" />
-                    ) : (
-                      <Cloud size={14} />
-                    )}
-                    <span className="text-xs hidden sm:inline">Save</span>
-                  </Button>
-                </div>
-              </div>
-            )}
+    <Card className={cardClassName}>
+      <CardHeader className="text-center">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <CardTitle className="text-lg font-mono uppercase">
+              USER CONFIG
+            </CardTitle>
+            <UserTitleBadge title={userTitle.title} level={userTitle.level} />
           </div>
+          <div className="flex items-center gap-2">
+            <PremiumStatusIndicator />
+            <CloudSyncStatus />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="profile" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="preferences">Settings</TabsTrigger>
+            <TabsTrigger value="data">Data</TabsTrigger>
+            <TabsTrigger value="premium">Premium</TabsTrigger>
+          </TabsList>
 
-          {/* Expanded Content */}
-          {isExpanded && (
-            <>
-              {/* Profile Configuration Panel */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  {/* Avatar Selection */}
-                  <AvatarSelector nickname={data.userProfile.name || ''} />
-                  
-                  <div className="flex-1 space-y-3">
-                    {/* Nickname Section */}
-                    <NicknameEditor />
+          <TabsContent value="profile" className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <NicknameEditor />
+              <AvatarSelector />
+            </div>
+            <AccountLinking />
+            <DegenModeSection />
+          </TabsContent>
 
-                    {/* Currency and Language Selectors */}
-                    <UserPreferences />
-                  </div>
-                </div>
+          <TabsContent value="preferences" className="space-y-4">
+            <UserPreferences />
+          </TabsContent>
 
-                {/* Degen Mode Section */}
-                <DegenModeSection />
+          <TabsContent value="data" className="space-y-4">
+            <DataManagementSection />
+          </TabsContent>
 
-                <div className="text-xs text-muted-foreground font-mono bg-muted p-2 border-2 border-border rounded">
-                  👤 <strong>Profile:</strong> Customize your dashboard experience and preferences.
-                </div>
-              </div>
-
-              {/* Account Linking Panel - Only show for authenticated users */}
-              {user && (
-                <div className="border-t border-border pt-4">
-                  <AccountLinking />
-                </div>
-              )}
-
-              {/* Data Management Panel */}
-              <div className="border-t border-border pt-4">
-                <DataManagementSection />
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+          <TabsContent value="premium" className="space-y-4">
+            <DonationInterface />
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
