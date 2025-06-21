@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -44,8 +45,7 @@ export const DevMenu = () => {
       'theme-gold', 
       'theme-black-hole', 
       'theme-dark-dither',
-      'theme-da-test',
-      'theme-leras'
+      'theme-da-test'
     );
     
     switch (theme) {
@@ -78,9 +78,6 @@ export const DevMenu = () => {
         break;
       case 'da-test':
         root.classList.add('theme-da-test');
-        break;
-      case 'leras':
-        root.classList.add('theme-leras');
         break;
       default:
         // Keep default theme
