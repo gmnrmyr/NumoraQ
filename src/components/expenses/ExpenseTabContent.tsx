@@ -35,12 +35,27 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
   const totalClass = type === 'recurring' ? "text-red-400" : "text-orange-400";
   const inactiveClass = type === 'recurring' ? "text-red-400/70" : "text-orange-400/70";
 
-  // Sort expenses: with dates chronologically, without dates in middle
+  // Enhanced sorting for variable expenses with dates
   const sortedExpenses = React.useMemo(() => {
-    const withDates = expenses.filter(e => e.date).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    const withoutDates = expenses.filter(e => !e.date);
-    return [...withDates, ...withoutDates];
-  }, [expenses]);
+    if (type === 'recurring') {
+      // Recurring expenses: simple sort by name or date if available
+      return expenses.sort((a, b) => {
+        if (a.date && b.date) {
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        }
+        if (a.date && !b.date) return -1;
+        if (!a.date && b.date) return 1;
+        return a.name.localeCompare(b.name);
+      });
+    } else {
+      // Variable expenses: sort by date (chronological), then no dates in middle
+      const withDates = expenses.filter(e => e.date)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      const withoutDates = expenses.filter(e => !e.date)
+        .sort((a, b) => a.name.localeCompare(b.name));
+      return [...withDates, ...withoutDates];
+    }
+  }, [expenses, type]);
 
   return (
     <Card className={`${cardClass} border-2 backdrop-blur-sm`}>
@@ -56,6 +71,11 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
             <div className={`text-xs ${inactiveClass} font-mono`}>
               {expenses.filter(e => e.status === 'inactive').length} {t.inactiveExpenses}
             </div>
+            {type === 'variable' && (
+              <div className={`text-xs ${titleClass} font-mono mt-1`}>
+                💡 Tip: Set specific dates for better projections
+              </div>
+            )}
           </div>
           <AddExpenseDialog
             isOpen={isAddingExpense}

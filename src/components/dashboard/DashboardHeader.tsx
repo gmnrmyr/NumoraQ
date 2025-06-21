@@ -36,50 +36,87 @@ export const DashboardHeader = () => {
   React.useEffect(() => {
     if (!shouldShowBlackHole && !shouldShowDarkDither) return;
 
+    // Clean up any existing scripts first
+    const existingScripts = document.querySelectorAll('script[src*="unicornStudio"]');
+    existingScripts.forEach(script => script.remove());
+
+    console.log('🎬 Initializing UnicornStudio animations...');
+    
     if (shouldShowBlackHole) {
-      console.log('🕳️ BlackHole: Initializing for user:', userTitle.title, 'level:', userTitle.level);
+      console.log('🕳️ BlackHole: Initializing for CHAMPION+ user:', userTitle.title, 'level:', userTitle.level);
     }
     
     if (shouldShowDarkDither) {
       console.log('🌊 DarkDither: Initializing for Whales+ user:', userTitle.title, 'level:', userTitle.level);
     }
     
-    // Simple script injection like your working code
+    // Create and inject the UnicornStudio script with immediate initialization
     const script = document.createElement("script");
     script.type = "text/javascript";
     script.innerHTML = `
-      !function(){
-        if(!window.UnicornStudio){
-          window.UnicornStudio={isInitialized:!1};
-          var i=document.createElement("script");
-          i.src="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
-          i.onload=function(){
-            if(!window.UnicornStudio.isInitialized){
-              UnicornStudio.init();
-              window.UnicornStudio.isInitialized=!0;
-              console.log('🎬 Animation ready');
+      (function() {
+        if (!window.UnicornStudio) {
+          window.UnicornStudio = { isInitialized: false };
+          
+          var script = document.createElement("script");
+          script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
+          
+          script.onload = function() {
+            if (!window.UnicornStudio.isInitialized) {
+              try {
+                UnicornStudio.init();
+                window.UnicornStudio.isInitialized = true;
+                console.log('🎬 UnicornStudio initialized successfully');
+                
+                // Trigger a custom event to notify components
+                window.dispatchEvent(new CustomEvent('unicornStudioReady'));
+              } catch (error) {
+                console.error('🎬 UnicornStudio initialization failed:', error);
+              }
             }
           };
-          (document.head || document.body).appendChild(i);
+          
+          script.onerror = function() {
+            console.error('🎬 Failed to load UnicornStudio script');
+          };
+          
+          (document.head || document.body).appendChild(script);
         } else if (!window.UnicornStudio.isInitialized) {
-          UnicornStudio.init();
-          window.UnicornStudio.isInitialized = true;
-          console.log('🎬 Animation ready (existing)');
+          try {
+            UnicornStudio.init();
+            window.UnicornStudio.isInitialized = true;
+            console.log('🎬 UnicornStudio re-initialized');
+            window.dispatchEvent(new CustomEvent('unicornStudioReady'));
+          } catch (error) {
+            console.error('🎬 UnicornStudio re-initialization failed:', error);
+          }
+        } else {
+          console.log('🎬 UnicornStudio already ready');
+          window.dispatchEvent(new CustomEvent('unicornStudioReady'));
         }
-      }();
+      })();
     `;
     
     document.head.appendChild(script);
-    setAnimationReady(true);
+
+    // Listen for UnicornStudio ready event
+    const handleUnicornReady = () => {
+      console.log('🎬 UnicornStudio ready event received');
+      setAnimationReady(true);
+    };
+
+    window.addEventListener('unicornStudioReady', handleUnicornReady);
 
     return () => {
-      // Cleanup
-      const existingScript = document.querySelector('script[src*="unicornStudio"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
+      window.removeEventListener('unicornStudioReady', handleUnicornReady);
+      // Don't remove scripts on cleanup to avoid re-initialization issues
     };
-  }, [shouldShowBlackHole, shouldShowDarkDither]);
+  }, [shouldShowBlackHole, shouldShowDarkDither, userTitle.title, userTitle.level]);
+
+  const toggleAnimation = () => {
+    setAnimationPaused(!animationPaused);
+    console.log('🎬 Animation', animationPaused ? 'resumed' : 'paused');
+  };
 
   return (
     <div className="relative min-h-[400px] overflow-hidden">
@@ -88,7 +125,7 @@ export const DashboardHeader = () => {
         {(shouldShowBlackHole || shouldShowDarkDither) && animationReady && (
           <div className="absolute top-4 right-4 z-50">
             <Button 
-              onClick={() => setAnimationPaused(!animationPaused)} 
+              onClick={toggleAnimation}
               variant="outline" 
               size="sm" 
               className="bg-card/80 backdrop-blur-sm border-accent/50 hover:bg-accent/10 px-3 py-2 group relative" 
@@ -106,7 +143,7 @@ export const DashboardHeader = () => {
         {shouldShowBlackHole && animationReady && (
           <div className="absolute bottom-4 left-4 z-50">
             <div className="bg-black/90 border border-accent/50 px-3 py-2 font-mono text-xs text-accent uppercase tracking-wider">
-              // BLACK_HOLE_THEME_ON
+              // BLACK_HOLE_CHAMPION+
             </div>
           </div>
         )}

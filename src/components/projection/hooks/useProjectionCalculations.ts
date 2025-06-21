@@ -1,3 +1,4 @@
+
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 
 export const useProjectionCalculations = () => {
@@ -33,9 +34,9 @@ export const useProjectionCalculations = () => {
       .filter(expense => expense.type === 'recurring' && expense.status === 'active')
       .reduce((sum, expense) => sum + expense.amount, 0);
 
-    const totalVariableExpenses = data.expenses
-      .filter(expense => expense.type === 'variable' && expense.status === 'active')
-      .reduce((sum, expense) => sum + expense.amount, 0);
+    // Get variable expenses with proper date handling
+    const activeVariableExpenses = data.expenses
+      .filter(expense => expense.type === 'variable' && expense.status === 'active');
     
     // Include dividend income in passive income
     const totalPassiveIncomeWithDividends = totalPassiveIncome + monthlyDividendIncome;
@@ -57,15 +58,35 @@ export const useProjectionCalculations = () => {
       recurringExpenses: totalRecurringExpenses,
       cumulativeGrowth: 0,
       balanceChange: 0,
-      dividendIncome: monthlyDividendIncome
+      dividendIncome: monthlyDividendIncome,
+      variableExpenses: 0
     });
     
-    // Calculate future months with compound growth for REITs
+    // Calculate future months with compound growth for REITs and specific date expenses
     for (let i = 1; i <= months; i++) {
       const previousBalance = runningBalance;
       
-      // Apply monthly variable expenses only in month 1
-      const variableExpensesThisMonth = i === 1 ? totalVariableExpenses : 0;
+      // Calculate which variable expenses should trigger this month
+      const currentDate = new Date();
+      const targetMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+      
+      let variableExpensesThisMonth = 0;
+      
+      activeVariableExpenses.forEach(expense => {
+        if (expense.date) {
+          // If expense has a specific date, check if it matches this month
+          const expenseDate = new Date(expense.date);
+          if (expenseDate.getFullYear() === targetMonth.getFullYear() && 
+              expenseDate.getMonth() === targetMonth.getMonth()) {
+            variableExpensesThisMonth += expense.amount;
+          }
+        } else {
+          // If no specific date, apply in month 1 only (legacy behavior)
+          if (i === 1) {
+            variableExpensesThisMonth += expense.amount;
+          }
+        }
+      });
       
       // Calculate compound growth for REIT dividends
       const currentMonthDividendIncome = autoCompoundAssets.reduce((sum, asset) => {
