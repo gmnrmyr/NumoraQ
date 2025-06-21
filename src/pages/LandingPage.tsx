@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, TrendingUp, Shield, Zap, Menu, X, Github, Twitter, Linkedin, Play, Pause } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAnimationToggle } from '@/hooks/useAnimationToggle';
+
 const LandingPage = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,6 +15,7 @@ const LandingPage = () => {
     showToggle
   } = useAnimationToggle();
   const animationInitRef = useRef<boolean>(false);
+
   useEffect(() => {
     const timer = setInterval(() => {
       const elements = document.querySelectorAll('.ascii-animation');
@@ -22,8 +24,12 @@ const LandingPage = () => {
       });
     }, 2000);
 
-    // Enhanced Unicorn Studio initialization with navigation fix
+    // Enhanced Unicorn Studio initialization - STARTS PAUSED for all devices
+    // Heavy animations are disabled by default to improve user experience
     const initializeAnimation = () => {
+      // Only initialize if user has explicitly enabled animations
+      if (!isAnimationEnabled) return;
+      
       // Reset animation state on each page load
       animationInitRef.current = false;
       if (!window.UnicornStudio) {
@@ -59,13 +65,13 @@ const LandingPage = () => {
       (document.head || document.body).appendChild(script);
     };
 
-    // Initialize animation with a small delay to ensure DOM is ready
+    // Only initialize animation if user has enabled it
     const initTimer = setTimeout(initializeAnimation, 100);
     return () => {
       clearInterval(timer);
       clearTimeout(initTimer);
     };
-  }, []); // Empty dependency array ensures this runs on every mount
+  }, [isAnimationEnabled]); // Depend on animation state
 
   // Additional effect to handle animation state changes
   useEffect(() => {
@@ -84,6 +90,7 @@ const LandingPage = () => {
       return () => clearTimeout(retryTimer);
     }
   }, [isAnimationEnabled]);
+
   const features = [{
     icon: <TrendingUp className="h-6 w-6" />,
     title: "Portfolio Tracking",
@@ -152,6 +159,7 @@ const LandingPage = () => {
         {/* Hero Section - Added top padding for fixed navbar */}
         <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
           {/* Animation Toggle for All Devices with Tooltip */}
+          {/* NOTE: Animations start PAUSED on all devices - too heavy for users by default */}
           {showToggle && (
             <div className="fixed top-20 right-4 z-40">
               <Button 
@@ -170,7 +178,7 @@ const LandingPage = () => {
             </div>
           )}
 
-          {/* Enhanced Unicorn Studio Background with improved mobile handling */}
+          {/* Enhanced Unicorn Studio Background - ONLY SHOWS WHEN USER ENABLES */}
           {isAnimationEnabled && (
             <div className="absolute inset-0 -mx-8 -mt-8 overflow-hidden z-0" style={{
               background: 'linear-gradient(to bottom, transparent 0%, transparent 80%, rgba(var(--background)) 100%)'
