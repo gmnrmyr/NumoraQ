@@ -17,7 +17,6 @@ export const DashboardHeader = () => {
   const { isAnimationEnabled } = useAnimationToggle();
   const { user } = useAuth();
   const [animationPaused, setAnimationPaused] = React.useState(false);
-  const [animationLoaded, setAnimationLoaded] = React.useState(false);
   const [profileName, setProfileName] = React.useState<string>('');
   
   // Load user profile name
@@ -71,8 +70,12 @@ export const DashboardHeader = () => {
                 if (window.UnicornStudio && typeof window.UnicornStudio.init === 'function') {
                   window.UnicornStudio.init();
                   window.UnicornStudio.isInitialized = true;
-                  setAnimationLoaded(true);
                   console.log('UnicornStudio initialized successfully');
+                } else {
+                  // Fallback initialization
+                  UnicornStudio.init();
+                  window.UnicornStudio.isInitialized = true;
+                  console.log('UnicornStudio fallback initialization');
                 }
               } catch (error) {
                 console.error('Error initializing UnicornStudio:', error);
@@ -84,13 +87,11 @@ export const DashboardHeader = () => {
           };
           (document.head || document.body).appendChild(script);
         } else if (window.UnicornStudio.isInitialized) {
-          setAnimationLoaded(true);
+          console.log('UnicornStudio already initialized');
         }
       };
 
       initUnicornStudio();
-    } else {
-      setAnimationLoaded(false);
     }
   }, [shouldShowAnimation]);
   
@@ -102,23 +103,28 @@ export const DashboardHeader = () => {
           <div 
             data-us-project="db3DaP9gWVnnnr7ZevK7" 
             style={{ 
-              width: '2000px', 
-              height: '900px',
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              transformOrigin: 'center center'
+              width: '100vw', 
+              height: '100vh',
+              position: 'fixed',
+              top: '0',
+              left: '0',
+              transform: 'scale(0.5)',
+              transformOrigin: 'center center',
+              zIndex: 0
             }}
           />
           {/* Debug info - remove in production */}
           {process.env.NODE_ENV === 'development' && (
             <div className="absolute top-4 left-4 text-xs text-white bg-black/50 p-2 rounded z-10">
-              Animation: {animationLoaded ? 'Loaded' : 'Loading...'}
+              Animation: Champion + Black Hole
               <br />
               Champion: {isChampionUser ? 'Yes' : 'No'}
               <br />
               Theme: {data.userProfile.theme}
+              <br />
+              Animation Enabled: {isAnimationEnabled ? 'Yes' : 'No'}
+              <br />
+              Should Show: {shouldShowAnimation ? 'Yes' : 'No'}
             </div>
           )}
         </div>
