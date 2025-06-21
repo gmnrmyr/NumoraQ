@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Eye, EyeOff, TrendingUp, Bitcoin, DollarSign } from "lucide-react";
+import { Plus, Eye, EyeOff } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IconSelector } from './IconSelector';
-import { StockSelector } from './StockSelector';
-import { iconMap, groupedIcons } from './IconData';
+import { AssetTypeSelector } from './AssetTypeSelector';
+import { AssetFormFields } from './AssetFormFields';
+import { AssetListItem } from './AssetListItem';
 import { DevelopmentTooltip } from './DevelopmentTooltip';
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { fetchStockPrice } from '@/services/stockService';
@@ -26,7 +26,7 @@ export const LiquidAssetsCard = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<any>(null);
   const [showInactive, setShowInactive] = useState(true);
-  const [assetType, setAssetType] = useState<'manual' | 'crypto' | 'stock'>('manual');
+  const [assetType, setAssetType] = useState<'manual' | 'crypto' | 'stock' | 'reit'>('manual');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -96,7 +96,6 @@ export const LiquidAssetsCard = () => {
 
     let finalValue = formData.value;
     
-    // Create base asset data
     const baseAssetData = {
       name: formData.name,
       value: finalValue,
@@ -105,7 +104,6 @@ export const LiquidAssetsCard = () => {
       color: 'text-foreground'
     };
 
-    // For crypto assets
     if (assetType === 'crypto' && formData.cryptoSymbol && formData.quantity > 0) {
       finalValue = calculateCryptoValue(formData.cryptoSymbol, formData.quantity);
       
@@ -123,14 +121,14 @@ export const LiquidAssetsCard = () => {
         addLiquidAsset(cryptoAssetData);
       }
     }
-    // For stock assets
-    else if (assetType === 'stock' && formData.stockSymbol && formData.quantity > 0) {
+    else if ((assetType === 'stock' || assetType === 'reit') && formData.stockSymbol && formData.quantity > 0) {
       finalValue = await calculateStockValue(formData.stockSymbol, formData.quantity);
       
       const stockAssetData = {
         ...baseAssetData,
         value: finalValue,
         isStock: true,
+        isReit: assetType === 'reit',
         stockSymbol: formData.stockSymbol,
         stockName: formData.stockName,
         quantity: formData.quantity
@@ -142,7 +140,6 @@ export const LiquidAssetsCard = () => {
         addLiquidAsset(stockAssetData);
       }
     }
-    // For manual assets
     else {
       if (editingAsset) {
         updateLiquidAsset(editingAsset.id, baseAssetData);
@@ -164,6 +161,8 @@ export const LiquidAssetsCard = () => {
     setEditingAsset(asset);
     if (asset.isCrypto) {
       setAssetType('crypto');
+    } else if (asset.isReit) {
+      setAssetType('reit');
     } else if (asset.isStock) {
       setAssetType('stock');
     } else {
@@ -196,6 +195,10 @@ export const LiquidAssetsCard = () => {
     if (asset) {
       updateLiquidAsset(assetId, { isActive: !asset.isActive });
     }
+  };
+
+  const handleIconChange = (assetId: string, icon: string) => {
+    updateLiquidAsset(assetId, { icon });
   };
 
   // Recalculate crypto values when exchange rates change
@@ -284,116 +287,18 @@ export const LiquidAssetsCard = () => {
                     </DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
-                    <div>
-                      <Label className="font-mono text-xs uppercase">Asset Type</Label>
-                      <Select value={assetType} onValueChange={(value: 'manual' | 'crypto' | 'stock') => setAssetType(value)}>
-                        <SelectTrigger className="bg-input border-2 border-border font-mono">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="manual">Manual Entry</SelectItem>
-                          <SelectItem value="crypto">Crypto (Auto-Price)</SelectItem>
-                          <SelectItem value="stock">Stocks (Live Price)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="name" className="font-mono text-xs uppercase">Asset Name</Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        className="bg-input border-2 border-border font-mono"
-                        placeholder={assetType === 'crypto' ? "e.g., My Bitcoin" : assetType === 'stock' ? "e.g., Apple Stock" : "e.g., Cash, Savings Account"}
-                      />
-                    </div>
-
-                    {assetType === 'crypto' && (
-                      <>
-                        <div>
-                          <Label className="font-mono text-xs uppercase">Cryptocurrency</Label>
-                          <Select 
-                            value={formData.cryptoSymbol} 
-                            onValueChange={(value) => setFormData(prev => ({ ...prev, cryptoSymbol: value }))}
-                          >
-                            <SelectTrigger className="bg-input border-2 border-border font-mono">
-                              <SelectValue placeholder="Select crypto" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {CRYPTO_OPTIONS.map(crypto => (
-                                <SelectItem key={crypto.symbol} value={crypto.symbol}>
-                                  {crypto.symbol} - {crypto.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="quantity" className="font-mono text-xs uppercase">Quantity</Label>
-                          <Input
-                            id="quantity"
-                            type="number"
-                            step="0.00000001"
-                            value={formData.quantity}
-                            onChange={(e) => setFormData(prev => ({ ...prev, quantity: Number(e.target.value) }))}
-                            className="bg-input border-2 border-border font-mono"
-                            placeholder="0.0"
-                          />
-                          {formData.cryptoSymbol && formData.quantity > 0 && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              Value: {currency} {calculateCryptoValue(formData.cryptoSymbol, formData.quantity).toLocaleString()}
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    )}
-
-                    {assetType === 'stock' && (
-                      <>
-                        <div>
-                          <Label className="font-mono text-xs uppercase">Stock Symbol</Label>
-                          <StockSelector
-                            value={formData.stockSymbol}
-                            onChange={handleStockSelection}
-                            placeholder="Search stocks (e.g., AAPL, NVDA, PETR4.SA)"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="stockQuantity" className="font-mono text-xs uppercase">Shares</Label>
-                          <Input
-                            id="stockQuantity"
-                            type="number"
-                            step="0.01"
-                            value={formData.quantity}
-                            onChange={(e) => setFormData(prev => ({ ...prev, quantity: Number(e.target.value) }))}
-                            className="bg-input border-2 border-border font-mono"
-                            placeholder="0"
-                          />
-                          {formData.stockSymbol && formData.quantity > 0 && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              Estimated value will be calculated with live prices
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    )}
-
-                    {assetType === 'manual' && (
-                      <div>
-                        <Label htmlFor="value" className="font-mono text-xs uppercase">Value ({currency})</Label>
-                        <Input
-                          id="value"
-                          type="number"
-                          value={formData.value}
-                          onChange={(e) => setFormData(prev => ({ ...prev, value: Number(e.target.value) }))}
-                          className="bg-input border-2 border-border font-mono"
-                          placeholder="0"
-                        />
-                      </div>
-                    )}
+                    <AssetTypeSelector 
+                      value={assetType} 
+                      onChange={setAssetType} 
+                    />
+                    
+                    <AssetFormFields
+                      assetType={assetType}
+                      formData={formData}
+                      setFormData={setFormData}
+                      onStockSelection={handleStockSelection}
+                      currency={currency}
+                    />
 
                     <div>
                       <Label className="font-mono text-xs uppercase">Icon</Label>
@@ -403,6 +308,7 @@ export const LiquidAssetsCard = () => {
                         placeholder="Choose an icon"
                       />
                     </div>
+                    
                     <div className="flex items-center space-x-2">
                       <Switch
                         id="isActive"
@@ -411,6 +317,7 @@ export const LiquidAssetsCard = () => {
                       />
                       <Label htmlFor="isActive" className="font-mono text-xs uppercase">Active</Label>
                     </div>
+                    
                     <Button 
                       onClick={handleSubmit} 
                       className="w-full brutalist-button"
@@ -431,105 +338,17 @@ export const LiquidAssetsCard = () => {
               <span className="text-xs">Add your first asset to get started!</span>
             </div>
           ) : (
-            displayAssets.map((asset: any) => {
-              const Icon = iconMap[asset.icon] || iconMap['Wallet'];
-              
-              return (
-                <div 
-                  key={asset.id} 
-                  className={`flex items-center justify-between p-3 bg-muted border-2 border-border ${
-                    !asset.isActive ? 'opacity-50' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="flex-shrink-0">
-                      <Select value={asset.icon} onValueChange={(value) => updateLiquidAsset(asset.id, { icon: value })}>
-                        <SelectTrigger className="w-12 h-8 p-1 border-border bg-input">
-                          <Icon size={16} className={asset.color || 'text-foreground'} />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-80 bg-card border-border border-2">
-                          {Object.entries(groupedIcons).map(([category, icons]) => (
-                            <div key={category}>
-                              <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground bg-muted font-mono uppercase">
-                                {category}
-                              </div>
-                              {icons.map((iconOption) => {
-                                const IconComponent = iconMap[iconOption.value];
-                                return (
-                                  <SelectItem key={iconOption.value} value={iconOption.value} className="font-mono">
-                                    <div className="flex items-center gap-2">
-                                      <IconComponent size={16} />
-                                      <span>{iconOption.label}</span>
-                                    </div>
-                                  </SelectItem>
-                                );
-                              })}
-                            </div>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <div className="font-mono font-bold text-sm truncate" title={asset.name}>
-                          {asset.name}
-                        </div>
-                        {asset.isCrypto && (
-                          <Badge variant="outline" className="text-xs font-mono">
-                            <Bitcoin size={10} className="mr-1" />
-                            {asset.cryptoSymbol}
-                          </Badge>
-                        )}
-                        {asset.isStock && (
-                          <Badge variant="outline" className="text-xs font-mono">
-                            <TrendingUp size={10} className="mr-1" />
-                            {asset.stockSymbol}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted-foreground font-mono">
-                        {currency} {asset.value.toLocaleString()}
-                        {asset.isCrypto && asset.quantity && (
-                          <span className="ml-2">({asset.quantity} {asset.cryptoSymbol})</span>
-                        )}
-                        {asset.isStock && asset.quantity && (
-                          <span className="ml-2">({asset.quantity} shares)</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 ml-2 flex-shrink-0">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleToggleActive(asset.id)}
-                      className="brutalist-button p-1 h-8 w-8"
-                      title={asset.isActive ? 'Deactivate' : 'Activate'}
-                    >
-                      {asset.isActive ? <Eye size={12} /> : <EyeOff size={12} />}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(asset)}
-                      className="brutalist-button p-1 h-8 w-8"
-                      title="Edit"
-                    >
-                      <Edit size={12} />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(asset.id)}
-                      className="brutalist-button p-1 h-8 w-8 hover:bg-red-50 hover:border-red-200"
-                      title="Delete"
-                    >
-                      <Trash2 size={12} />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })
+            displayAssets.map((asset: any) => (
+              <AssetListItem
+                key={asset.id}
+                asset={asset}
+                currency={currency}
+                onToggleActive={handleToggleActive}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onIconChange={handleIconChange}
+              />
+            ))
           )}
           
           {inactiveAssets.length > 0 && !showInactive && (
