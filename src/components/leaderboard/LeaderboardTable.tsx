@@ -1,173 +1,117 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Trophy, Medal, Award, Star, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
-import { useAuth } from '@/contexts/AuthContext';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Crown, Medal, Award, Trophy } from 'lucide-react';
 
 interface LeaderboardEntry {
-  user_id: string;
-  user_name: string;
-  user_uid: string;
+  id: string;
+  profiles: {
+    name: string | null;
+    user_uid: string | null;
+  } | null;
   total_points: number;
   rank: number;
-  donation_count: number;
-  login_streak: number;
-  last_activity: string;
-  is_premium?: boolean;
 }
 
 interface LeaderboardTableProps {
   leaderboard: LeaderboardEntry[];
-  loading: boolean;
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  currentLeaderboard: LeaderboardEntry[];
 }
 
-export const LeaderboardTable = ({ 
-  leaderboard, 
-  loading, 
-  currentPage, 
-  totalPages, 
-  onPageChange,
-  currentLeaderboard 
-}: LeaderboardTableProps) => {
-  const { user } = useAuth();
-
+export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ leaderboard }) => {
   const getRankIcon = (rank: number) => {
     switch (rank) {
-      case 1: return <Trophy className="text-yellow-500" size={24} />;
-      case 2: return <Medal className="text-gray-400" size={24} />;
-      case 3: return <Award className="text-amber-600" size={24} />;
-      default: return <Star className="text-muted-foreground" size={16} />;
+      case 1:
+        return <Crown className="text-yellow-400" size={16} />;
+      case 2:
+        return <Medal className="text-gray-400" size={16} />;
+      case 3:
+        return <Award className="text-orange-400" size={16} />;
+      default:
+        return <Trophy className="text-muted-foreground" size={16} />;
     }
   };
 
-  const highlightCurrentUser = (userId: string) => {
-    return user?.id === userId ? "bg-accent/20 border-accent" : "bg-muted/20 border-border";
+  const getRankBadgeColor = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return "bg-yellow-500 text-black";
+      case 2:
+        return "bg-gray-400 text-black";
+      case 3:
+        return "bg-orange-500 text-white";
+      default:
+        return "bg-muted text-muted-foreground";
+    }
   };
 
-  const getUserTitle = (points: number) => {
-    const titles = [
-      { level: 50000, title: "WHALE", color: "text-purple-600" },
-      { level: 10000, title: "LEGEND", color: "text-purple-400" },
-      { level: 5000, title: "PATRON", color: "text-yellow-400" },
-      { level: 2000, title: "CHAMPION", color: "text-orange-400" },
-      { level: 1000, title: "SUPPORTER", color: "text-blue-400" },
-      { level: 500, title: "BACKER", color: "text-green-400" },
-      { level: 100, title: "DONOR", color: "text-cyan-400" },
-      { level: 50, title: "CONTRIBUTOR", color: "text-indigo-400" },
-      { level: 25, title: "HELPER", color: "text-pink-400" },
-      { level: 20, title: "FRIEND", color: "text-emerald-400" },
-      { level: 10, title: "SUPPORTER", color: "text-blue-300" },
-      { level: 0, title: "NEWCOMER", color: "text-slate-400" }
-    ];
-    
-    for (const title of titles) {
-      if (points >= title.level) {
-        return title;
-      }
+  const getDisplayName = (entry: LeaderboardEntry) => {
+    if (entry.profiles?.name) {
+      return entry.profiles.name;
     }
-    
-    return titles[titles.length - 1];
+    if (entry.profiles?.user_uid) {
+      return `User ${entry.profiles.user_uid}`;
+    }
+    return 'Anonymous User';
   };
 
   return (
-    <Card className="brutalist-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 font-mono">
-          <TrendingUp className="text-accent" size={20} />
-          TOP CONTRIBUTORS
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <div className="text-center py-8 text-muted-foreground font-mono">
-            Loading leaderboard...
-          </div>
-        ) : leaderboard.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground font-mono">
-            No data available. Be the first to earn points!
-          </div>
-        ) : (
-          <>
-            <div className="space-y-3">
-              {currentLeaderboard.map((entry) => {
-                const userTitle = getUserTitle(entry.total_points);
-                return (
-                  <div 
-                    key={entry.user_id} 
-                    className={`flex items-center justify-between p-3 border rounded transition-colors ${highlightCurrentUser(entry.user_id)}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {getRankIcon(entry.rank)}
-                      <div>
-                        <div className="font-mono font-bold text-sm flex items-center gap-2">
-                          {entry.user_name}
-                          <Badge variant="outline" className="text-xs px-1 py-0 h-4">
-                            UID:{entry.user_uid}
-                          </Badge>
-                          {user?.id === entry.user_id && (
-                            <Badge variant="secondary" className="text-xs px-2 py-0 h-4">
-                              YOU
-                            </Badge>
-                          )}
-                          {entry.is_premium && (
-                            <Badge variant="default" className="text-xs px-2 py-0 h-4 bg-green-600 text-white">
-                              DEGEN
-                            </Badge>
-                          )}
-                          <Badge variant="outline" className={`text-xs px-2 py-0 h-4 ${userTitle.color}`}>
-                            {userTitle.title}
-                          </Badge>
-                        </div>
-                        <div className="text-xs text-muted-foreground font-mono">
-                          Rank #{entry.rank}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <div className="font-bold text-accent font-mono">{entry.total_points.toLocaleString()} pts</div>
-                      <div className="text-xs text-muted-foreground font-mono">
-                        {entry.login_streak} logins • * donations
-                      </div>
-                    </div>
+    <div className="brutalist-card bg-card border-2 border-border p-6">
+      <h3 className="text-xl font-bold font-mono text-accent uppercase tracking-wider mb-6 flex items-center gap-2">
+        <Trophy size={20} />
+        Global Leaderboard
+      </h3>
+      
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-border">
+              <TableHead className="font-mono text-accent">Rank</TableHead>
+              <TableHead className="font-mono text-accent">User</TableHead>
+              <TableHead className="font-mono text-accent text-right">Points</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {leaderboard.map((entry) => (
+              <TableRow key={entry.id} className="border-border hover:bg-muted/50">
+                <TableCell className="font-mono">
+                  <div className="flex items-center gap-2">
+                    {getRankIcon(entry.rank)}
+                    <Badge 
+                      className={`font-mono text-xs px-2 py-1 ${getRankBadgeColor(entry.rank)}`}
+                    >
+                      #{entry.rank}
+                    </Badge>
                   </div>
-                );
-              })}
-            </div>
+                </TableCell>
+                <TableCell className="font-mono">
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-foreground">
+                      {getDisplayName(entry)}
+                    </span>
+                    {entry.profiles?.user_uid && (
+                      <span className="text-xs text-muted-foreground">
+                        UID: {entry.profiles.user_uid}
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="font-mono text-right font-semibold text-accent">
+                  {entry.total_points.toLocaleString()}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-6">
-                <Button
-                  onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  variant="outline"
-                  size="sm"
-                  className="brutalist-button"
-                >
-                  <ChevronLeft size={16} />
-                </Button>
-                <span className="text-sm font-mono px-3">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <Button
-                  onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
-                  variant="outline"
-                  size="sm"
-                  className="brutalist-button"
-                >
-                  <ChevronRight size={16} />
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-      </CardContent>
-    </Card>
+      {leaderboard.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground font-mono">
+          No leaderboard data available yet.
+          <br />
+          Start earning points to appear here!
+        </div>
+      )}
+    </div>
   );
 };

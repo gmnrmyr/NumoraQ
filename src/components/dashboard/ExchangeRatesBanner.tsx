@@ -1,115 +1,83 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, TrendingUp, Settings, Zap } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { EditableValue } from "@/components/ui/editable-value";
-import { useFinancialData } from "@/contexts/FinancialDataContext";
-import { useTranslation } from "@/contexts/TranslationContext";
-import { useLivePrices } from "@/hooks/useLivePrices";
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 
 export const ExchangeRatesBanner = () => {
-  const { data, updateExchangeRate, updateProjectionMonths, updateUserProfile } = useFinancialData();
-  const { t } = useTranslation();
-  const { timeSinceLastUpdate, isLiveDataEnabled } = useLivePrices();
-  const [liveEnabled, setLiveEnabled] = useState(data.userProfile?.liveDataEnabled ?? true);
+  const { data: prices, isLoading } = useQuery({
+    queryKey: ['live-prices'],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('fetch-live-prices');
+      if (error) throw error;
+      return data;
+    },
+    refetchInterval: 60000, // Refetch every minute
+    staleTime: 30000, // Consider data stale after 30 seconds
+  });
 
-  const handleLiveToggle = (enabled: boolean) => {
-    setLiveEnabled(enabled);
-    updateUserProfile({ liveDataEnabled: enabled });
-  };
-
-  return (
-    <Card className="bg-accent/10 border-accent border-2 backdrop-blur-sm">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-mono uppercase text-accent flex items-center gap-2">
-          <Zap size={16} />
-          Live Prices & Projection Settings
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-2 sm:p-3 md:p-4 pt-0">
-        <div className="space-y-3">
-          {/* Live Prices Section */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-muted-foreground uppercase">Market Data</span>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={liveEnabled}
-                  onCheckedChange={handleLiveToggle}
-                  className="scale-75"
-                />
-                <div className="flex items-center gap-2">
-                  <div className={`h-2 w-2 rounded-full ${liveEnabled ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`} />
-                  <span className="text-xs font-mono text-muted-foreground">
-                    Live: {liveEnabled ? 'ON' : 'OFF'}
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-3 gap-2 text-xs sm:text-sm">
-              <div className="flex items-center gap-1 justify-center">
-                <DollarSign size={12} className="text-accent" />
-                <span className="text-foreground font-mono">BRL/USD:</span>
-                <EditableValue
-                  value={data.exchangeRates.brlToUsd}
-                  onSave={(value) => updateExchangeRate('brlToUsd', Number(value))}
-                  type="number"
-                  disabled={liveEnabled}
-                  className="text-foreground bg-background/50 hover:bg-background/70 border-border text-xs w-16"
-                />
-              </div>
-              <div className="flex items-center gap-1 justify-center">
-                <TrendingUp size={12} className="text-accent" />
-                <span className="text-foreground font-mono">BTC:</span>
-                <EditableValue
-                  value={data.exchangeRates.btcPrice}
-                  onSave={(value) => updateExchangeRate('btcPrice', Number(value))}
-                  type="number"
-                  disabled={liveEnabled}
-                  className="text-foreground bg-background/50 hover:bg-background/70 border-border text-xs w-20"
-                />
-              </div>
-              <div className="flex items-center gap-1 justify-center">
-                <TrendingUp size={12} className="text-accent" />
-                <span className="text-foreground font-mono">ETH:</span>
-                <EditableValue
-                  value={data.exchangeRates.ethPrice}
-                  onSave={(value) => updateExchangeRate('ethPrice', Number(value))}
-                  type="number"
-                  disabled={liveEnabled}
-                  className="text-foreground bg-background/50 hover:bg-background/70 border-border text-xs w-16"
-                />
-              </div>
-            </div>
-
-            {data.exchangeRates.lastUpdated && (
-              <div className="text-xs font-mono text-muted-foreground text-center">
-                Updated: {timeSinceLastUpdate || 'just now'}
-              </div>
-            )}
-          </div>
-
-          {/* Projection Settings Section */}
-          <div className="border-t border-border/50 pt-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-muted-foreground uppercase">Projection Period</span>
-              <div className="flex items-center gap-1">
-                <Settings size={12} className="text-accent" />
-                <span className="text-foreground font-mono">{t.projection.substring(0, 4)}:</span>
-                <EditableValue
-                  value={data.projectionMonths}
-                  onSave={(value) => updateProjectionMonths(Number(value))}
-                  type="number"
-                  className="text-foreground bg-background/50 hover:bg-background/70 border-border text-xs w-8"
-                />
-                <span className="text-foreground font-mono">months</span>
-              </div>
-            </div>
+  if (isLoading || !prices) {
+    return (
+      <div className="bg-muted/20 border-2 border-border p-3 sm:p-4">
+        <div className="flex items-center justify-center">
+          <div className="font-mono text-xs sm:text-sm text-muted-foreground">
+            Loading live prices...
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    );
+  }
+
+  const cryptoData = [
+    { symbol: 'BTC', name: 'Bitcoin', price: prices.bitcoin?.usd, change: prices.bitcoin?.usd_24h_change },
+    { symbol: 'ETH', name: 'Ethereum', price: prices.ethereum?.usd, change: prices.ethereum?.usd_24h_change },
+    { symbol: 'SOL', name: 'Solana', price: prices.solana?.usd, change: prices.solana?.usd_24h_change },
+  ];
+
+  return (
+    <div className="bg-muted/20 border-2 border-border p-3 sm:p-4 overflow-hidden">
+      <div className="flex items-center gap-2 mb-2 sm:mb-3">
+        <DollarSign size={16} className="text-accent" />
+        <span className="font-mono text-xs sm:text-sm font-bold text-accent uppercase tracking-wider">
+          Live Crypto Prices
+        </span>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        {cryptoData.map((crypto) => (
+          <div key={crypto.symbol} className="flex items-center justify-between p-2 sm:p-3 bg-card/50 border border-border">
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <span className="font-mono text-xs sm:text-sm font-bold text-foreground">
+                  {crypto.symbol}
+                </span>
+                <span className="font-mono text-xs text-muted-foreground hidden sm:inline truncate">
+                  {crypto.name}
+                </span>
+              </div>
+              <span className="font-mono text-xs sm:text-sm font-semibold text-accent">
+                ${crypto.price?.toLocaleString(undefined, { 
+                  minimumFractionDigits: crypto.symbol === 'BTC' ? 0 : 2,
+                  maximumFractionDigits: crypto.symbol === 'BTC' ? 0 : 2
+                })}
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {crypto.change && crypto.change > 0 ? (
+                <TrendingUp size={12} className="text-green-500" />
+              ) : (
+                <TrendingDown size={12} className="text-red-500" />
+              )}
+              <span className={`font-mono text-xs font-semibold ${
+                crypto.change && crypto.change > 0 ? 'text-green-500' : 'text-red-500'
+              }`}>
+                {crypto.change ? `${crypto.change > 0 ? '+' : ''}${crypto.change.toFixed(1)}%` : 'N/A'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
