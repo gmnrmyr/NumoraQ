@@ -1,10 +1,13 @@
 
 import React from 'react';
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { StockSelector } from './StockSelector';
-import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { PreciousMetalSelector } from './PreciousMetalSelector';
+import { WalletAddressInput } from './WalletAddressInput';
+import { Bitcoin, Coins } from "lucide-react";
 
 const CRYPTO_OPTIONS = [
   { symbol: 'BTC', name: 'Bitcoin', key: 'btcPrice' },
@@ -12,9 +15,9 @@ const CRYPTO_OPTIONS = [
 ];
 
 interface AssetFormFieldsProps {
-  assetType: 'manual' | 'crypto' | 'stock' | 'reit';
+  assetType: 'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet';
   formData: any;
-  setFormData: (updater: (prev: any) => any) => void;
+  setFormData: (data: any) => void;
   onStockSelection: (symbol: string, name: string) => void;
   currency: string;
 }
@@ -23,34 +26,26 @@ export const AssetFormFields = ({
   assetType, 
   formData, 
   setFormData, 
-  onStockSelection, 
+  onStockSelection,
   currency 
 }: AssetFormFieldsProps) => {
-  const { data } = useFinancialData();
-
-  const calculateCryptoValue = (cryptoSymbol: string, quantity: number) => {
-    const crypto = CRYPTO_OPTIONS.find(c => c.symbol === cryptoSymbol);
-    if (!crypto) return 0;
-    
-    const price = data.exchangeRates[crypto.key as keyof typeof data.exchangeRates] as number;
-    return price * quantity;
+  const handleMetalSelection = (symbol: string, name: string) => {
+    setFormData((prev: any) => ({ 
+      ...prev, 
+      metalSymbol: symbol,
+      name: name
+    }));
   };
 
   return (
-    <>
+    <div className="space-y-4">
       <div>
-        <Label htmlFor="name" className="font-mono text-xs uppercase">Asset Name</Label>
+        <Label className="font-mono text-xs uppercase">Asset Name</Label>
         <Input
-          id="name"
           value={formData.name}
-          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+          onChange={(e) => setFormData((prev: any) => ({ ...prev, name: e.target.value }))}
+          placeholder="Enter asset name"
           className="bg-input border-2 border-border font-mono"
-          placeholder={
-            assetType === 'crypto' ? "e.g., My Bitcoin" : 
-            assetType === 'stock' ? "e.g., Apple Stock" : 
-            assetType === 'reit' ? "e.g., Real Estate Fund" :
-            "e.g., Cash, Savings Account"
-          }
         />
       </div>
 
@@ -58,39 +53,38 @@ export const AssetFormFields = ({
         <>
           <div>
             <Label className="font-mono text-xs uppercase">Cryptocurrency</Label>
-            <Select 
-              value={formData.cryptoSymbol} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, cryptoSymbol: value }))}
-            >
-              <SelectTrigger className="bg-input border-2 border-border font-mono">
-                <SelectValue placeholder="Select crypto" />
-              </SelectTrigger>
-              <SelectContent>
-                {CRYPTO_OPTIONS.map(crypto => (
-                  <SelectItem key={crypto.symbol} value={crypto.symbol}>
-                    {crypto.symbol} - {crypto.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-2 gap-2">
+              {CRYPTO_OPTIONS.map((crypto) => (
+                <button
+                  key={crypto.symbol}
+                  type="button"
+                  onClick={() => setFormData((prev: any) => ({ 
+                    ...prev, 
+                    cryptoSymbol: crypto.symbol,
+                    name: crypto.name
+                  }))}
+                  className={`p-3 border-2 font-mono text-sm flex items-center gap-2 ${
+                    formData.cryptoSymbol === crypto.symbol
+                      ? 'border-accent bg-accent/10'
+                      : 'border-border bg-input hover:border-accent/50'
+                  }`}
+                >
+                  <Bitcoin size={16} />
+                  {crypto.symbol}
+                </button>
+              ))}
+            </div>
           </div>
-
           <div>
-            <Label htmlFor="quantity" className="font-mono text-xs uppercase">Quantity</Label>
+            <Label className="font-mono text-xs uppercase">Quantity</Label>
             <Input
-              id="quantity"
               type="number"
               step="0.00000001"
               value={formData.quantity}
-              onChange={(e) => setFormData(prev => ({ ...prev, quantity: Number(e.target.value) }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, quantity: parseFloat(e.target.value) || 0 }))}
+              placeholder="0.00000000"
               className="bg-input border-2 border-border font-mono"
-              placeholder="0.0"
             />
-            {formData.cryptoSymbol && formData.quantity > 0 && (
-              <div className="text-xs text-muted-foreground mt-1">
-                Value: {currency} {calculateCryptoValue(formData.cryptoSymbol, formData.quantity).toLocaleString()}
-              </div>
-            )}
           </div>
         </>
       )}
@@ -104,50 +98,106 @@ export const AssetFormFields = ({
             <StockSelector
               value={formData.stockSymbol}
               onChange={onStockSelection}
-              placeholder={
-                assetType === 'reit' 
-                  ? "Search REITs/FIIs (e.g., HGLG11, VNQ, VTEB11)" 
-                  : "Search stocks (e.g., AAPL, NVDA, PETR4.SA)"
-              }
+              placeholder={assetType === 'reit' ? "Search REITs/FIIs (e.g., HGLG11, VNQ)" : "Search stocks (e.g., AAPL, NVDA)"}
               assetType={assetType}
             />
           </div>
-
           <div>
-            <Label htmlFor="stockQuantity" className="font-mono text-xs uppercase">
-              {assetType === 'reit' ? 'Shares/Quotas' : 'Shares'}
+            <Label className="font-mono text-xs uppercase">
+              {assetType === 'reit' ? 'Quotas' : 'Shares'}
             </Label>
             <Input
-              id="stockQuantity"
               type="number"
-              step="0.01"
               value={formData.quantity}
-              onChange={(e) => setFormData(prev => ({ ...prev, quantity: Number(e.target.value) }))}
-              className="bg-input border-2 border-border font-mono"
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, quantity: parseFloat(e.target.value) || 0 }))}
               placeholder="0"
+              className="bg-input border-2 border-border font-mono"
             />
-            {formData.stockSymbol && formData.quantity > 0 && (
-              <div className="text-xs text-muted-foreground mt-1">
-                Estimated value will be calculated with live prices
+          </div>
+          {assetType === 'reit' && (
+            <>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="autoCompound"
+                  checked={formData.autoCompound || false}
+                  onCheckedChange={(checked) => setFormData((prev: any) => ({ ...prev, autoCompound: checked }))}
+                />
+                <Label htmlFor="autoCompound" className="font-mono text-xs uppercase">
+                  Auto-Compound Monthly
+                </Label>
               </div>
-            )}
+              {formData.autoCompound && (
+                <div>
+                  <Label className="font-mono text-xs uppercase">Monthly Yield (%)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.monthlyYield || 0}
+                    onChange={(e) => setFormData((prev: any) => ({ ...prev, monthlyYield: parseFloat(e.target.value) || 0 }))}
+                    placeholder="0.50"
+                    className="bg-input border-2 border-border font-mono"
+                  />
+                  <div className="text-xs text-muted-foreground font-mono mt-1">
+                    Estimated monthly dividend yield percentage
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {assetType === 'metal' && (
+        <>
+          <div>
+            <Label className="font-mono text-xs uppercase">Precious Metal</Label>
+            <PreciousMetalSelector
+              value={formData.metalSymbol}
+              onChange={handleMetalSelection}
+            />
+          </div>
+          <div>
+            <Label className="font-mono text-xs uppercase">Quantity (oz)</Label>
+            <Input
+              type="number"
+              step="0.001"
+              value={formData.quantity}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, quantity: parseFloat(e.target.value) || 0 }))}
+              placeholder="0.000"
+              className="bg-input border-2 border-border font-mono"
+            />
+          </div>
+        </>
+      )}
+
+      {assetType === 'wallet' && (
+        <>
+          <WalletAddressInput
+            value={formData.walletAddress || ''}
+            onChange={(address) => setFormData((prev: any) => ({ 
+              ...prev, 
+              walletAddress: address,
+              name: address ? `Wallet ${address.slice(0, 6)}...${address.slice(-4)}` : ''
+            }))}
+          />
+          <div className="text-xs text-muted-foreground font-mono">
+            We'll automatically fetch and track the total USD value of tokens in this wallet
           </div>
         </>
       )}
 
       {assetType === 'manual' && (
         <div>
-          <Label htmlFor="value" className="font-mono text-xs uppercase">Value ({currency})</Label>
+          <Label className="font-mono text-xs uppercase">Value ({currency})</Label>
           <Input
-            id="value"
             type="number"
             value={formData.value}
-            onChange={(e) => setFormData(prev => ({ ...prev, value: Number(e.target.value) }))}
-            className="bg-input border-2 border-border font-mono"
+            onChange={(e) => setFormData((prev: any) => ({ ...prev, value: parseFloat(e.target.value) || 0 }))}
             placeholder="0"
+            className="bg-input border-2 border-border font-mono"
           />
         </div>
       )}
-    </>
+    </div>
   );
 };

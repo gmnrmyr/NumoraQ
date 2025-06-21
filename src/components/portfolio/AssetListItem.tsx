@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, Trash2, Eye, EyeOff, Bitcoin, TrendingUp, Building } from "lucide-react";
+import { Edit, Trash2, Eye, EyeOff, Bitcoin, TrendingUp, Building, Coins, Wallet } from "lucide-react";
 import { iconMap, groupedIcons } from './IconData';
 
 interface AssetListItemProps {
@@ -44,11 +43,50 @@ export const AssetListItem = ({
     }
     if (asset.isReit) {
       return (
+        <div className="flex gap-1">
+          <Badge variant="outline" className="text-xs font-mono">
+            <Building size={10} className="mr-1" />
+            {asset.stockSymbol}
+          </Badge>
+          {asset.autoCompound && (
+            <Badge variant="secondary" className="text-xs font-mono">
+              Auto-Compound
+            </Badge>
+          )}
+        </div>
+      );
+    }
+    if (asset.isPreciousMetal) {
+      return (
         <Badge variant="outline" className="text-xs font-mono">
-          <Building size={10} className="mr-1" />
-          {asset.stockSymbol}
+          <Coins size={10} className="mr-1" />
+          {asset.metalSymbol}
         </Badge>
       );
+    }
+    if (asset.isWalletTracked) {
+      return (
+        <Badge variant="outline" className="text-xs font-mono">
+          <Wallet size={10} className="mr-1" />
+          EVM
+        </Badge>
+      );
+    }
+    return null;
+  };
+
+  const getQuantityDisplay = () => {
+    if (asset.isCrypto && asset.quantity) {
+      return `(${asset.quantity} ${asset.cryptoSymbol})`;
+    }
+    if ((asset.isStock || asset.isReit) && asset.quantity) {
+      return `(${asset.quantity} ${asset.isReit ? 'quotas' : 'shares'})`;
+    }
+    if (asset.isPreciousMetal && asset.quantity) {
+      return `(${asset.quantity} oz)`;
+    }
+    if (asset.isWalletTracked && asset.walletAddress) {
+      return `(${asset.walletAddress.slice(0, 6)}...${asset.walletAddress.slice(-4)})`;
     }
     return null;
   };
@@ -96,11 +134,8 @@ export const AssetListItem = ({
           </div>
           <div className="text-xs text-muted-foreground font-mono">
             {currency} {asset.value.toLocaleString()}
-            {asset.isCrypto && asset.quantity && (
-              <span className="ml-2">({asset.quantity} {asset.cryptoSymbol})</span>
-            )}
-            {(asset.isStock || asset.isReit) && asset.quantity && (
-              <span className="ml-2">({asset.quantity} {asset.isReit ? 'quotas' : 'shares'})</span>
+            {getQuantityDisplay() && (
+              <span className="ml-2">{getQuantityDisplay()}</span>
             )}
           </div>
         </div>

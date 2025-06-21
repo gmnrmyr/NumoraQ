@@ -1,4 +1,3 @@
-
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 
 export const useProjectionCalculations = () => {
@@ -11,6 +10,15 @@ export const useProjectionCalculations = () => {
     // Get current liquid assets (only active ones)
     const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
     const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+    
+    // Calculate monthly dividend income from auto-compound REITs
+    const autoCompoundAssets = activeLiquidAssets.filter(asset => asset.isReit && asset.autoCompound);
+    const monthlyDividendIncome = autoCompoundAssets.reduce((sum, asset) => {
+      if (asset.monthlyYield && asset.value) {
+        return sum + (asset.value * (asset.monthlyYield / 100));
+      }
+      return sum;
+    }, 0);
     
     // Get monthly income and expenses (only active ones)
     const totalPassiveIncome = data.passiveIncome
@@ -29,47 +37,66 @@ export const useProjectionCalculations = () => {
       .filter(expense => expense.type === 'variable' && expense.status === 'active')
       .reduce((sum, expense) => sum + expense.amount, 0);
     
-    const monthlyNetIncome = totalPassiveIncome + totalActiveIncome - totalRecurringExpenses;
+    // Include dividend income in passive income
+    const totalPassiveIncomeWithDividends = totalPassiveIncome + monthlyDividendIncome;
+    const monthlyNetIncome = totalPassiveIncomeWithDividends + totalActiveIncome - totalRecurringExpenses;
     
     // Calculate projection for each month
     let runningBalance = totalLiquid;
+    let cumulativeDividends = 0;
     
     // Add current month (month 0)
     projectionData.push({
       month: 0,
       balance: Math.round(runningBalance),
-      monthlyIncome: totalPassiveIncome + totalActiveIncome,
+      monthlyIncome: totalPassiveIncomeWithDividends + totalActiveIncome,
       monthlyExpenses: totalRecurringExpenses,
       netChange: 0,
-      passiveIncome: totalPassiveIncome,
+      passiveIncome: totalPassiveIncomeWithDividends,
       activeIncome: totalActiveIncome,
       recurringExpenses: totalRecurringExpenses,
       cumulativeGrowth: 0,
-      balanceChange: 0
+      balanceChange: 0,
+      dividendIncome: monthlyDividendIncome
     });
     
-    // Calculate future months
+    // Calculate future months with compound growth for REITs
     for (let i = 1; i <= months; i++) {
       const previousBalance = runningBalance;
       
       // Apply monthly variable expenses only in month 1
       const variableExpensesThisMonth = i === 1 ? totalVariableExpenses : 0;
-      const monthlyChange = monthlyNetIncome - variableExpensesThisMonth;
+      
+      // Calculate compound growth for REIT dividends
+      const currentMonthDividendIncome = autoCompoundAssets.reduce((sum, asset) => {
+        if (asset.monthlyYield && asset.value) {
+          // Compound the REIT value with accumulated dividends
+          const currentValue = asset.value + (cumulativeDividends * (asset.value / totalLiquid));
+          return sum + (currentValue * (asset.monthlyYield / 100));
+        }
+        return sum;
+      }, 0);
+      
+      cumulativeDividends += currentMonthDividendIncome;
+      
+      const totalPassiveThisMonth = totalPassiveIncome + currentMonthDividendIncome;
+      const monthlyChange = totalPassiveThisMonth + totalActiveIncome - totalRecurringExpenses - variableExpensesThisMonth;
       
       runningBalance += monthlyChange;
       
       projectionData.push({
         month: i,
         balance: Math.round(runningBalance),
-        monthlyIncome: totalPassiveIncome + totalActiveIncome,
+        monthlyIncome: totalPassiveThisMonth + totalActiveIncome,
         monthlyExpenses: totalRecurringExpenses + variableExpensesThisMonth,
         netChange: monthlyChange,
-        passiveIncome: totalPassiveIncome,
+        passiveIncome: totalPassiveThisMonth,
         activeIncome: totalActiveIncome,
         recurringExpenses: totalRecurringExpenses,
         variableExpenses: variableExpensesThisMonth,
         cumulativeGrowth: runningBalance - totalLiquid,
-        balanceChange: runningBalance - previousBalance
+        balanceChange: runningBalance - previousBalance,
+        dividendIncome: currentMonthDividendIncome
       });
     }
     

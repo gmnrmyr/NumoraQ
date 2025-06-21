@@ -1,166 +1,140 @@
-
-interface StockData {
+export interface StockData {
   symbol: string;
   price: number;
-  name: string;
-  currency: string;
+  change: number;
+  changePercent: number;
+  lastUpdated: string;
 }
 
-interface StockSearchResult {
+interface StockInfo {
   symbol: string;
   name: string;
+  type: 'stock' | 'reit' | 'metal';
   exchange: string;
-  type: 'stock' | 'reit';
 }
 
-// Popular stock symbols for autocomplete
-const POPULAR_STOCKS = [
-  { symbol: 'AAPL', name: 'Apple Inc.', exchange: 'NASDAQ', type: 'stock' as const },
-  { symbol: 'NVDA', name: 'NVIDIA Corporation', exchange: 'NASDAQ', type: 'stock' as const },
-  { symbol: 'MSFT', name: 'Microsoft Corporation', exchange: 'NASDAQ', type: 'stock' as const },
-  { symbol: 'GOOGL', name: 'Alphabet Inc.', exchange: 'NASDAQ', type: 'stock' as const },
-  { symbol: 'AMZN', name: 'Amazon.com Inc.', exchange: 'NASDAQ', type: 'stock' as const },
-  { symbol: 'TSLA', name: 'Tesla Inc.', exchange: 'NASDAQ', type: 'stock' as const },
-  { symbol: 'META', name: 'Meta Platforms Inc.', exchange: 'NASDAQ', type: 'stock' as const },
-  { symbol: 'NFLX', name: 'Netflix Inc.', exchange: 'NASDAQ', type: 'stock' as const },
-  
-  // Brazilian stocks
-  { symbol: 'PETR4.SA', name: 'Petróleo Brasileiro S.A.', exchange: 'BMF', type: 'stock' as const },
-  { symbol: 'VALE3.SA', name: 'Vale S.A.', exchange: 'BMF', type: 'stock' as const },
-  { symbol: 'ITUB4.SA', name: 'Itaú Unibanco Holding S.A.', exchange: 'BMF', type: 'stock' as const },
-  { symbol: 'BBDC4.SA', name: 'Banco Bradesco S.A.', exchange: 'BMF', type: 'stock' as const },
-  { symbol: 'ABEV3.SA', name: 'Ambev S.A.', exchange: 'BMF', type: 'stock' as const },
-  { symbol: 'MGLU3.SA', name: 'Magazine Luiza S.A.', exchange: 'BMF', type: 'stock' as const },
-  { symbol: 'WEGE3.SA', name: 'WEG S.A.', exchange: 'BMF', type: 'stock' as const },
-  { symbol: 'RENT3.SA', name: 'Localiza Rent a Car S.A.', exchange: 'BMF', type: 'stock' as const },
+const STOCK_DATA: StockInfo[] = [
+  { symbol: 'AAPL', name: 'Apple Inc.', type: 'stock', exchange: 'NASDAQ' },
+  { symbol: 'NVDA', name: 'NVIDIA Corporation', type: 'stock', exchange: 'NASDAQ' },
+  { symbol: 'MSFT', name: 'Microsoft Corporation', type: 'stock', exchange: 'NASDAQ' },
+  { symbol: 'GOOGL', name: 'Alphabet Inc.', type: 'stock', exchange: 'NASDAQ' },
+  { symbol: 'AMZN', name: 'Amazon.com, Inc.', type: 'stock', exchange: 'NASDAQ' },
+  { symbol: 'TSLA', name: 'Tesla, Inc.', type: 'stock', exchange: 'NASDAQ' },
+  { symbol: 'META', name: 'Meta Platforms, Inc.', type: 'stock', exchange: 'NASDAQ' },
+  { symbol: 'NFLX', name: 'Netflix, Inc.', type: 'stock', exchange: 'NASDAQ' },
+  { symbol: 'CRM', name: 'Salesforce, Inc.', type: 'stock', exchange: 'NYSE' },
+  { symbol: 'UBER', name: 'Uber Technologies, Inc.', type: 'stock', exchange: 'NYSE' },
+  { symbol: 'VNQ', name: 'Vanguard Real Estate ETF', type: 'reit', exchange: 'NYSE' },
+  { symbol: 'SCHH', name: 'Schwab US REIT ETF', type: 'reit', exchange: 'NYSE' },
+  { symbol: 'IYR', name: 'iShares US Real Estate ETF', type: 'reit', exchange: 'NYSE' },
+  { symbol: 'XLRE', name: 'Real Estate Select Sector SPDR Fund', type: 'reit', exchange: 'NYSE' },
+  { symbol: 'HGLG11.SA', name: 'CSHG Logística - FII', type: 'reit', exchange: 'BM&FBOVESPA' },
+  { symbol: 'XPML11.SA', name: 'XP Malls FII', type: 'reit', exchange: 'BM&FBOVESPA' },
+  { symbol: 'BCFF11.SA', name: 'BTG Pactual Fundo de Fundos', type: 'reit', exchange: 'BM&FBOVESPA' },
+  { symbol: 'KNRI11.SA', name: 'Kinea Renda Imobiliária', type: 'reit', exchange: 'BM&FBOVESPA' },
+  { symbol: 'MXRF11.SA', name: 'Maxi Renda FII', type: 'reit', exchange: 'BM&FBOVESPA' }
 ];
 
-// Popular REITs and FIIs
-const POPULAR_REITS = [
-  // US REITs
-  { symbol: 'VNQ', name: 'Vanguard Real Estate ETF', exchange: 'NYSE', type: 'reit' as const },
-  { symbol: 'SCHH', name: 'Schwab US REIT ETF', exchange: 'NYSE', type: 'reit' as const },
-  { symbol: 'IYR', name: 'iShares US Real Estate ETF', exchange: 'NYSE', type: 'reit' as const },
-  { symbol: 'XLRE', name: 'Real Estate Select Sector SPDR Fund', exchange: 'NYSE', type: 'reit' as const },
-  { symbol: 'SPG', name: 'Simon Property Group Inc.', exchange: 'NYSE', type: 'reit' as const },
-  { symbol: 'PLD', name: 'Prologis Inc.', exchange: 'NYSE', type: 'reit' as const },
-  { symbol: 'AMT', name: 'American Tower Corporation', exchange: 'NYSE', type: 'reit' as const },
-  { symbol: 'CCI', name: 'Crown Castle Inc.', exchange: 'NYSE', type: 'reit' as const },
-  
-  // Brazilian FIIs (Real Estate Investment Funds)
-  { symbol: 'HGLG11.SA', name: 'CSHG Logística FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'BTLG11.SA', name: 'BTG Pactual Logística FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'XPLG11.SA', name: 'XP Log FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'KNCR11.SA', name: 'Kinea Rendimentos Imobiliários FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'MXRF11.SA', name: 'Maxi Renda FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'BCFF11.SA', name: 'Bradesco Fundos FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'VISC11.SA', name: 'Vinci Shopping Centers FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'XPML11.SA', name: 'XP Malls FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'VTEB11.SA', name: 'Votorantim FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'HGRE11.SA', name: 'CSHG Real Estate FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'ALZR11.SA', name: 'Alianza Trust FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'GGRC11.SA', name: 'General Shopping e Outlets FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'KNRI11.SA', name: 'Kinea Renda Imobiliária FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'HSML11.SA', name: 'HSI Malls FII', exchange: 'BMF', type: 'reit' as const },
-  { symbol: 'HCTR11.SA', name: 'Hectare CE FII', exchange: 'BMF', type: 'reit' as const },
+// Add precious metals data
+const PRECIOUS_METALS = [
+  { symbol: 'XAU', name: 'Gold', type: 'metal', exchange: 'COMEX' },
+  { symbol: 'XAG', name: 'Silver', type: 'metal', exchange: 'COMEX' },
+  { symbol: 'XPT', name: 'Platinum', type: 'metal', exchange: 'NYMEX' },
+  { symbol: 'XPD', name: 'Palladium', type: 'metal', exchange: 'NYMEX' }
 ];
 
-export const searchStocks = (query: string, assetType?: 'stock' | 'reit'): StockSearchResult[] => {
-  if (!query || query.length < 1) return [];
-  
-  const searchTerm = query.toLowerCase();
-  const searchPool = assetType === 'reit' ? POPULAR_REITS : 
-                    assetType === 'stock' ? POPULAR_STOCKS : 
-                    [...POPULAR_STOCKS, ...POPULAR_REITS];
-  
-  return searchPool
-    .filter(item => 
-      item.symbol.toLowerCase().includes(searchTerm) ||
-      item.name.toLowerCase().includes(searchTerm)
-    )
-    .slice(0, 8); // Limit to 8 results
+const STOCKS = [...STOCK_DATA, ...PRECIOUS_METALS];
+
+export const searchStocks = (query: string, assetType: 'stock' | 'reit' | 'metal' = 'stock'): StockInfo[] => {
+  const searchTerm = query.toUpperCase();
+  return STOCKS.filter(stock =>
+    (assetType === 'stock' ? stock.type === 'stock' : stock.type === assetType) &&
+    (stock.symbol.includes(searchTerm) || stock.name.toUpperCase().includes(searchTerm))
+  );
 };
 
 export const fetchStockPrice = async (symbol: string): Promise<StockData | null> => {
   try {
-    // Using Alpha Vantage API (free tier)
-    // In production, you'd want to use a proper API key
-    const response = await fetch(
-      `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=demo`
-    );
-    
-    if (!response.ok) {
-      console.warn(`Failed to fetch stock price for ${symbol}`);
-      return getMockStockPrice(symbol);
+    // Check if it's a precious metal
+    const metal = PRECIOUS_METALS.find(m => m.symbol === symbol);
+    if (metal) {
+      return fetchMetalPrice(symbol);
     }
-    
-    const data = await response.json();
-    const quote = data['Global Quote'];
-    
-    if (!quote || !quote['05. price']) {
-      console.warn(`No price data for ${symbol}`);
-      return getMockStockPrice(symbol);
-    }
+
+    // Mock stock price for demonstration
+    const mockPrices: { [key: string]: number } = {
+      'AAPL': 175.50,
+      'NVDA': 450.25,
+      'MSFT': 380.75,
+      'GOOGL': 140.25,
+      'AMZN': 145.80,
+      'TSLA': 250.30,
+      'META': 320.15,
+      'NFLX': 445.90,
+      'CRM': 210.40,
+      'UBER': 62.35,
+      'VNQ': 85.20,
+      'SCHH': 24.15,
+      'IYR': 78.90,
+      'XLRE': 38.45,
+      'HGLG11.SA': 165.50,
+      'XPML11.SA': 95.80,
+      'BCFF11.SA': 85.40,
+      'KNRI11.SA': 140.25,
+      'MXRF11.SA': 10.25
+    };
+
+    const price = mockPrices[symbol] || Math.random() * 200 + 50;
     
     return {
       symbol,
-      price: parseFloat(quote['05. price']),
-      name: getStockName(symbol),
-      currency: 'USD'
+      price,
+      change: (Math.random() - 0.5) * 10,
+      changePercent: (Math.random() - 0.5) * 5,
+      lastUpdated: new Date().toISOString()
     };
   } catch (error) {
-    console.warn(`Error fetching stock price for ${symbol}:`, error);
-    return getMockStockPrice(symbol);
+    console.error('Error fetching stock price:', error);
+    return null;
   }
 };
 
-const getMockStockPrice = (symbol: string): StockData => {
-  // Mock prices for demonstration
-  const mockPrices: Record<string, number> = {
-    'AAPL': 175.50,
-    'NVDA': 465.20,
-    'MSFT': 378.90,
-    'GOOGL': 142.30,
-    'AMZN': 155.80,
-    'TSLA': 248.40,
-    'META': 325.60,
-    'NFLX': 445.20,
-    'PETR4.SA': 38.50,
-    'VALE3.SA': 65.20,
-    'ITUB4.SA': 32.10,
-    'BBDC4.SA': 28.90,
-    // US REITs
-    'VNQ': 89.50,
-    'SCHH': 24.80,
-    'IYR': 87.30,
-    'XLRE': 42.60,
-    'SPG': 125.40,
-    'PLD': 135.20,
-    'AMT': 198.70,
-    'CCI': 184.50,
-    // Brazilian FIIs
-    'HGLG11.SA': 165.80,
-    'BTLG11.SA': 98.50,
-    'XPLG11.SA': 112.30,
-    'KNCR11.SA': 9.85,
-    'MXRF11.SA': 10.20,
-    'BCFF11.SA': 95.60,
-    'VISC11.SA': 89.40,
-    'XPML11.SA': 96.70,
-    'VTEB11.SA': 88.90,
-    'HGRE11.SA': 128.50,
-  };
-  
-  return {
-    symbol,
-    price: mockPrices[symbol] || Math.random() * 200 + 50,
-    name: getStockName(symbol),
-    currency: symbol.includes('.SA') ? 'BRL' : 'USD'
-  };
+export const fetchMetalPrice = async (symbol: string): Promise<StockData | null> => {
+  try {
+    // Mock precious metal prices (per oz in USD)
+    const mockMetalPrices: { [key: string]: number } = {
+      'XAU': 1950.25, // Gold
+      'XAG': 24.85,   // Silver
+      'XPT': 975.40,  // Platinum
+      'XPD': 1285.60  // Palladium
+    };
+
+    const price = mockMetalPrices[symbol] || 1000;
+    
+    return {
+      symbol,
+      price,
+      change: (Math.random() - 0.5) * 50,
+      changePercent: (Math.random() - 0.5) * 2,
+      lastUpdated: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('Error fetching metal price:', error);
+    return null;
+  }
 };
 
-const getStockName = (symbol: string): string => {
-  const allAssets = [...POPULAR_STOCKS, ...POPULAR_REITS];
-  const asset = allAssets.find(s => s.symbol === symbol);
-  return asset?.name || symbol;
+export const fetchWalletValue = async (walletAddress: string): Promise<number> => {
+  try {
+    // Mock wallet value for demonstration
+    // In production, this would call DeBank API, CoinMarketCap, or similar
+    const mockValue = Math.random() * 50000 + 1000;
+    
+    console.log(`Fetching wallet value for ${walletAddress}: $${mockValue.toFixed(2)}`);
+    
+    return mockValue;
+  } catch (error) {
+    console.error('Error fetching wallet value:', error);
+    return 0;
+  }
 };
