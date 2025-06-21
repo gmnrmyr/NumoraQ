@@ -131,3 +131,50 @@
     0 0 20px rgba(255, 255, 255, 0.1),
     inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
+
+/* DA Test Theme - Testing Environment */
+.theme-da-test {
+  --background: 0 0% 5%;
+  --foreground: 0 0% 95%;
+  --card: 0 0% 8%;
+  --accent: 120 100% 50%;
+  --border: 120 50% 30%;
+}
+
+.theme-da-test .dashboard-header {
+  position: relative;
+  background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+}
+
+.theme-da-test .test-video-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: 
+    radial-gradient(circle at 30% 30%, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
+    linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%);
+  background-size: 100px 100px, 20px 20px;
+  animation: test-pattern 4s linear infinite;
+  z-index: 0;
+}
+
+@keyframes test-pattern {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 100px 100px, 20px 20px; }
+}
+
+.theme-da-test .test-video-placeholder::before {
+  content: "🧪 DA TEST VIDEO PLACEHOLDER";
+  color: #00ff00;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 0 10px #00ff00;
+  z-index: 1;
+  position: relative;
+}
