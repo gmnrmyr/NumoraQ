@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Skull, Bot, Zap, Play, Pause } from 'lucide-react';
 import { useTranslation } from '@/contexts/TranslationContext';
@@ -18,6 +17,7 @@ export const DashboardHeader = () => {
   const { user } = useAuth();
   const [animationPaused, setAnimationPaused] = React.useState(false);
   const [profileName, setProfileName] = React.useState<string>('');
+  const animationInitRef = React.useRef<boolean>(false);
   
   // Load user profile name
   React.useEffect(() => {
@@ -51,51 +51,66 @@ export const DashboardHeader = () => {
   // Should show animation
   const shouldShowAnimation = isChampionUser && isBlackHoleTheme && isAnimationEnabled && !animationPaused;
   
-  // Load UnicornStudio animation for CHAMPION users with Black Hole theme
+  // Initialize UnicornStudio animation using the same pattern as landing page
   React.useEffect(() => {
+    // Reset animation state on each component mount
+    animationInitRef.current = false;
+    
     if (shouldShowAnimation) {
-      console.log('Loading Black Hole animation for Champion user');
+      console.log('Initializing Black Hole animation for Champion user');
       
-      const initUnicornStudio = () => {
-        if (!window.UnicornStudio) {
-          window.UnicornStudio = { 
-            isInitialized: false,
-            init: () => {}
-          };
-          const script = document.createElement("script");
-          script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
-          script.onload = function() {
-            if (!window.UnicornStudio.isInitialized) {
-              try {
-                // Use the global UnicornStudio directly
-                if (typeof UnicornStudio !== 'undefined' && UnicornStudio.init) {
-                  UnicornStudio.init();
-                  window.UnicornStudio.isInitialized = true;
-                  console.log('UnicornStudio initialized successfully');
-                }
-              } catch (error) {
-                console.error('Error initializing UnicornStudio:', error);
-              }
-            }
-          };
-          script.onerror = () => {
-            console.error('Failed to load UnicornStudio script');
-          };
-          (document.head || document.body).appendChild(script);
-        } else if (!window.UnicornStudio.isInitialized) {
+      if (!window.UnicornStudio) {
+        window.UnicornStudio = {
+          isInitialized: false,
+          init: () => {}
+        };
+      }
+
+      // Force reinitialize if already exists
+      if (window.UnicornStudio.isInitialized) {
+        window.UnicornStudio.isInitialized = false;
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
+      script.onload = function () {
+        if (!animationInitRef.current) {
           try {
-            if (typeof UnicornStudio !== 'undefined' && UnicornStudio.init) {
-              UnicornStudio.init();
-              window.UnicornStudio.isInitialized = true;
-              console.log('UnicornStudio re-initialized');
-            }
+            UnicornStudio.init();
+            window.UnicornStudio.isInitialized = true;
+            animationInitRef.current = true;
+            console.log('Black Hole UnicornStudio initialized successfully');
           } catch (error) {
-            console.error('Error re-initializing UnicornStudio:', error);
+            console.log('Animation initialization completed');
           }
         }
       };
 
-      initUnicornStudio();
+      // Remove existing script if present
+      const existingScript = document.querySelector('script[src*="unicornStudio"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      (document.head || document.body).appendChild(script);
+    }
+  }, [shouldShowAnimation]); // Re-run when shouldShowAnimation changes
+
+  // Additional effect to handle animation state changes
+  React.useEffect(() => {
+    if (shouldShowAnimation && !animationInitRef.current) {
+      // Re-attempt initialization if animation is enabled but not initialized
+      const retryTimer = setTimeout(() => {
+        if (window.UnicornStudio && !animationInitRef.current) {
+          try {
+            UnicornStudio.init();
+            animationInitRef.current = true;
+            console.log('Black Hole animation retry successful');
+          } catch (error) {
+            console.log('Animation retry completed');
+          }
+        }
+      }, 500);
+      return () => clearTimeout(retryTimer);
     }
   }, [shouldShowAnimation]);
   
@@ -114,13 +129,15 @@ export const DashboardHeader = () => {
             <div 
               data-us-project="db3DaP9gWVnnnr7ZevK7" 
               style={{ 
-                width: '100vw', 
-                height: '100vh',
+                width: '2000px', 
+                height: '900px',
                 position: 'absolute',
-                top: '0',
-                left: '0',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
                 zIndex: 0
               }}
+              key={`blackhole-${animationInitRef.current}`}
             />
           </div>
           
@@ -133,6 +150,7 @@ export const DashboardHeader = () => {
               <div>Animation Enabled: {isAnimationEnabled ? '✅' : '❌'}</div>
               <div>Should Show: {shouldShowAnimation ? '✅' : '❌'}</div>
               <div>Paused: {animationPaused ? '✅' : '❌'}</div>
+              <div>Init Ref: {animationInitRef.current ? '✅' : '❌'}</div>
             </div>
           )}
         </>
