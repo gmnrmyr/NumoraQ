@@ -18,16 +18,31 @@ export const DashboardHeader = () => {
   // Check if user has CHAMPION+ role (level 70+ OR whale/legend titles)
   const isChampionUser = userTitle.level >= 70 || ['WHALE', 'LEGEND', 'PATRON', 'CHAMPION'].includes(userTitle.title);
   
+  // Check if user is Whales+ (10,000+ points)
+  const isWhalesUser = userTitle.level >= 10000 || ['WHALE', 'LEGEND'].includes(userTitle.title);
+  
   // Check if Black Hole theme is active
   const isBlackHoleTheme = data.userProfile.theme === 'black-hole';
   
-  // Should show animation
-  const shouldShowAnimation = isChampionUser && isBlackHoleTheme && isAnimationEnabled;
+  // Check if Dark Dither theme is active
+  const isDarkDitherTheme = data.userProfile.theme === 'dark-dither';
+  
+  // Should show Black Hole animation
+  const shouldShowBlackHole = isChampionUser && isBlackHoleTheme && isAnimationEnabled;
+  
+  // Should show Dark Dither animation
+  const shouldShowDarkDither = isWhalesUser && isDarkDitherTheme && isAnimationEnabled;
 
   React.useEffect(() => {
-    if (!shouldShowAnimation) return;
+    if (!shouldShowBlackHole && !shouldShowDarkDither) return;
 
-    console.log('🕳️ BlackHole: Initializing for user:', userTitle.title, 'level:', userTitle.level);
+    if (shouldShowBlackHole) {
+      console.log('🕳️ BlackHole: Initializing for user:', userTitle.title, 'level:', userTitle.level);
+    }
+    
+    if (shouldShowDarkDither) {
+      console.log('🌊 DarkDither: Initializing for Whales+ user:', userTitle.title, 'level:', userTitle.level);
+    }
     
     // Simple script injection like your working code
     const script = document.createElement("script");
@@ -42,14 +57,14 @@ export const DashboardHeader = () => {
             if(!window.UnicornStudio.isInitialized){
               UnicornStudio.init();
               window.UnicornStudio.isInitialized=!0;
-              console.log('🕳️ BlackHole: Animation ready');
+              console.log('🎬 Animation ready');
             }
           };
           (document.head || document.body).appendChild(i);
         } else if (!window.UnicornStudio.isInitialized) {
           UnicornStudio.init();
           window.UnicornStudio.isInitialized = true;
-          console.log('🕳️ BlackHole: Animation ready (existing)');
+          console.log('🎬 Animation ready (existing)');
         }
       }();
     `;
@@ -64,13 +79,13 @@ export const DashboardHeader = () => {
         existingScript.remove();
       }
     };
-  }, [shouldShowAnimation]);
+  }, [shouldShowBlackHole, shouldShowDarkDither]);
 
   return (
     <div className="relative min-h-[400px] overflow-hidden">
       <div className="relative z-10">
         {/* Animation Controls - TOP RIGHT when animation is active */}
-        {shouldShowAnimation && animationReady && (
+        {(shouldShowBlackHole || shouldShowDarkDither) && animationReady && (
           <div className="absolute top-4 right-4 z-50">
             <Button 
               onClick={() => setAnimationPaused(!animationPaused)} 
@@ -87,11 +102,19 @@ export const DashboardHeader = () => {
           </div>
         )}
 
-        {/* Black Hole Theme Status - BOTTOM LEFT when animation is active */}
-        {shouldShowAnimation && animationReady && (
+        {/* Theme Status - BOTTOM LEFT when animation is active */}
+        {shouldShowBlackHole && animationReady && (
           <div className="absolute bottom-4 left-4 z-50">
             <div className="bg-black/90 border border-accent/50 px-3 py-2 font-mono text-xs text-accent uppercase tracking-wider">
               // BLACK_HOLE_THEME_ON
+            </div>
+          </div>
+        )}
+
+        {shouldShowDarkDither && animationReady && (
+          <div className="absolute bottom-4 left-4 z-50">
+            <div className="bg-black/90 border border-purple-400/50 px-3 py-2 font-mono text-xs text-purple-400 uppercase tracking-wider">
+              // DARK_DITHER_WHALES+
             </div>
           </div>
         )}
@@ -102,13 +125,29 @@ export const DashboardHeader = () => {
           
           <div className="relative">
             {/* Black Hole Animation - positioned behind the title */}
-            {shouldShowAnimation && animationReady && (
+            {shouldShowBlackHole && animationReady && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
                 <div 
                   data-us-project="db3DaP9gWVnnnr7ZevK7" 
                   style={{ 
                     width: '400px', 
                     height: '400px',
+                    opacity: animationPaused ? 0.3 : 1,
+                    transition: 'opacity 0.3s ease'
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Dark Dither Animation - positioned behind the title */}
+            {shouldShowDarkDither && animationReady && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                <div 
+                  data-us-project="h49sb4lMLFG1hJLyIzdq" 
+                  style={{ 
+                    width: '100%', 
+                    height: '400px',
+                    maxWidth: '1440px',
                     opacity: animationPaused ? 0.3 : 1,
                     transition: 'opacity 0.3s ease'
                   }}
@@ -131,15 +170,18 @@ export const DashboardHeader = () => {
       </div>
 
       {/* Debug Info */}
-      {process.env.NODE_ENV === 'development' && shouldShowAnimation && (
+      {process.env.NODE_ENV === 'development' && (shouldShowBlackHole || shouldShowDarkDither) && (
         <div className="fixed top-4 left-4 text-xs text-white bg-black/80 p-3 rounded z-50 border border-white/20">
-          <div className="font-bold mb-1">🕳️ BlackHole Debug</div>
+          <div className="font-bold mb-1">🎬 Animation Debug</div>
           <div>User Title: {userTitle.title}</div>
           <div>User Level: {userTitle.level}</div>
           <div>Champion Check: {isChampionUser ? '✅' : '❌'}</div>
+          <div>Whales+ Check: {isWhalesUser ? '✅' : '❌'}</div>
           <div>Black Hole Theme: {isBlackHoleTheme ? '✅' : '❌'}</div>
+          <div>Dark Dither Theme: {isDarkDitherTheme ? '✅' : '❌'}</div>
           <div>Animation Enabled: {isAnimationEnabled ? '✅' : '❌'}</div>
-          <div>Should Show: {shouldShowAnimation ? '✅' : '❌'}</div>
+          <div>Should Show BlackHole: {shouldShowBlackHole ? '✅' : '❌'}</div>
+          <div>Should Show DarkDither: {shouldShowDarkDither ? '✅' : '❌'}</div>
           <div>Animation Ready: {animationReady ? '✅' : '❌'}</div>
           <div>Paused: {animationPaused ? '✅' : '❌'}</div>
           <div>UnicornStudio: {typeof window !== 'undefined' && window.UnicornStudio ? '✅' : '❌'}</div>
