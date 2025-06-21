@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
-import { Task } from '@/contexts/financial-data/types';
+import { Task } from '@/contexts/financial-data/types/tasks';
 import { Button } from '@/components/ui/button';
 import { EditableValue } from '@/components/ui/editable-value';
 import { Badge } from '@/components/ui/badge';
