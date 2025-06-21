@@ -11,29 +11,12 @@ import { AccountLinking } from './profile/AccountLinking';
 import { DataManagementSection } from './DataManagementSection';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useUserTitle } from '@/hooks/useUserTitle';
 import { ChevronRight, ChevronDown, Cloud, Save, Mail, LogOut } from 'lucide-react';
 
 export const UserProfileSection = () => {
   const { data, saveToCloud, syncState, lastSync } = useFinancialData();
   const { user, signOut } = useAuth();
-  const { userTitle } = useUserTitle();
   const [isExpanded, setIsExpanded] = useState(true);
-
-  // Check if user has special animation themes
-  const isChampionUser = userTitle.level >= 70 || ['WHALE', 'LEGEND', 'PATRON', 'CHAMPION'].includes(userTitle.title);
-  const isWhalesUser = userTitle.level >= 10000 || ['WHALE', 'LEGEND'].includes(userTitle.title);
-  const isContributor = userTitle.level >= 50;
-
-  const isBlackHoleTheme = data.userProfile.theme === 'black-hole';
-  const isDarkDitherTheme = data.userProfile.theme === 'dark-dither';
-  const isDaTestTheme = data.userProfile.theme === 'da-test';
-
-  // Check if we should apply transparent styling
-  const shouldApplyTransparentStyling = 
-    (isChampionUser && isBlackHoleTheme) || 
-    (isWhalesUser && isDarkDitherTheme) || 
-    (isContributor && isDaTestTheme);
 
   const handleCloudSave = () => {
     if (user) {
@@ -76,14 +59,9 @@ export const UserProfileSection = () => {
     return email.substring(0, maxLength - 3) + '...';
   };
 
-  // Dynamic card styling based on animation themes
-  const cardClassName = shouldApplyTransparentStyling
-    ? "bg-card/70 backdrop-blur-md border-2 border-border/50 brutalist-card relative"
-    : "bg-card border-2 border-border brutalist-card relative";
-
   return (
     <div className="space-y-4">
-      <Card className={cardClassName}>
+      <Card className="bg-card border-2 border-border brutalist-card relative">
         <CardContent className="space-y-6">
           {/* Toggle Header */}
           <div className="flex items-center justify-between">
@@ -159,7 +137,7 @@ export const UserProfileSection = () => {
                 {/* Degen Mode Section */}
                 <DegenModeSection />
 
-                <div className="text-xs text-muted-foreground font-mono bg-muted/70 p-2 border-2 border-border rounded">
+                <div className="text-xs text-muted-foreground font-mono bg-muted p-2 border-2 border-border rounded">
                   👤 <strong>Profile:</strong> Customize your dashboard experience and preferences.
                 </div>
               </div>
