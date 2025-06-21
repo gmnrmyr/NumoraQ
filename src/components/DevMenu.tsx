@@ -45,6 +45,7 @@ export const DevMenu = () => {
       'theme-gold', 
       'theme-black-hole', 
       'theme-dark-dither',
+      'theme-dark-hole-2',
       'theme-da-test'
     );
     
@@ -75,6 +76,9 @@ export const DevMenu = () => {
         break;
       case 'dark-dither':
         root.classList.add('theme-dark-dither');
+        break;
+      case 'dark-hole-2':
+        root.classList.add('theme-dark-hole-2');
         break;
       case 'da-test':
         root.classList.add('theme-da-test');
