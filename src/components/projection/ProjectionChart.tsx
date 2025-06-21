@@ -14,15 +14,15 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
   currencySymbol
 }) => {
   return (
-    <div className="h-64 w-full mb-6">
+    <div className="h-64 w-full mb-6 py-4">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={projectionData}
           margin={{
-            top: 5,
+            top: 20,
             right: 30,
             left: 20,
-            bottom: 5,
+            bottom: 20,
           }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -31,7 +31,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
             label={{ 
               value: 'Months', 
               position: 'insideBottomRight', 
-              offset: -10,
+              offset: -5,
               fill: 'rgba(255,255,255,0.6)',
               fontSize: 12
             }}
