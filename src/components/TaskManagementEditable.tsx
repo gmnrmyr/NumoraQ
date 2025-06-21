@@ -1,266 +1,284 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { CheckSquare, Plus, Trash2, Filter, SortAsc } from "lucide-react";
-import { useFinancialData } from "@/contexts/FinancialDataContext";
-import TaskItem from "./TaskDragAndDrop";
-import { useTranslation } from "@/contexts/TranslationContext";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Plus, CheckCircle2, Circle, Trash2, Edit2, Save, X } from 'lucide-react';
+import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { Task } from '@/contexts/financial-data/types';
 
 export const TaskManagementEditable = () => {
-  const { data, updateTask, addTask, removeCompletedTasks } = useFinancialData();
-  const { t } = useTranslation();
-  const [newTask, setNewTask] = useState({
-    title: '',
-    description: '',
-    category: 'personal' as 'goal' | 'asset' | 'finance' | 'personal',
-    priority: 'medium' as 'high' | 'medium' | 'low',
-    dueDate: '',
-    completed: false
-  });
-  const [isAddingTask, setIsAddingTask] = useState(false);
-  const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<string>('priority');
+  const { data, updateTasks } = useFinancialData();
+  const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'medium' as 'low' | 'medium' | 'high' });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTask, setEditingTask] = useState<Partial<Task>>({});
 
-  const handleAddTask = () => {
-    if (newTask.title.trim()) {
-      const taskToAdd = {
-        // New enhanced fields
-        title: newTask.title,
-        description: newTask.description,
-        category: newTask.category,
-        dueDate: newTask.dueDate,
-        completed: newTask.completed,
-        // Legacy fields for compatibility
-        item: newTask.title,
-        date: newTask.dueDate,
-        priority: newTask.priority === 'high' ? 3 : newTask.priority === 'medium' ? 2 : 1,
-        icon: '📝'
-      };
-      
-      addTask(taskToAdd);
-      setNewTask({
-        title: '',
-        description: '',
-        category: 'personal',
-        priority: 'medium',
-        dueDate: '',
-        completed: false
-      });
-      setIsAddingTask(false);
+  const addTask = () => {
+    if (!newTask.title.trim()) return;
+    
+    const task: Task = {
+      id: Date.now().toString(),
+      title: newTask.title,
+      description: newTask.description,
+      completed: false,
+      priority: newTask.priority,
+      createdAt: new Date().toISOString(),
+    };
+    
+    updateTasks([...data.tasks, task]);
+    setNewTask({ title: '', description: '', priority: 'medium' });
+  };
+
+  const toggleTask = (id: string) => {
+    updateTasks(data.tasks.map(task => 
+      task.id === id ? { ...task, completed: !task.completed } : task
+    ));
+  };
+
+  const deleteTask = (id: string) => {
+    updateTasks(data.tasks.filter(task => task.id !== id));
+  };
+
+  const startEditing = (task: Task) => {
+    setEditingId(task.id);
+    setEditingTask(task);
+  };
+
+  const saveEdit = () => {
+    if (!editingTask.title?.trim()) return;
+    
+    updateTasks(data.tasks.map(task => 
+      task.id === editingId ? { ...task, ...editingTask } : task
+    ));
+    setEditingId(null);
+    setEditingTask({});
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingTask({});
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'low': return 'bg-green-500';
+      default: return 'bg-gray-500';
     }
   };
 
-  const handleReorderTasks = (dragIndex: number, hoverIndex: number) => {
-    // Create a new array with reordered tasks
-    const filteredTasks = getFilteredAndSortedTasks();
-    const draggedTask = filteredTasks[dragIndex];
-    const newTasks = [...filteredTasks];
-    newTasks.splice(dragIndex, 1);
-    newTasks.splice(hoverIndex, 0, draggedTask);
-    
-    // Update the original data with new order
-    // This is a simplified reordering - in a real app you'd want to persist order
-    newTasks.forEach((task, index) => {
-      updateTask(task.id, { ...task });
-    });
-  };
-
-  const getFilteredAndSortedTasks = (): Task[] => {
-    let filtered = data.tasks;
-    
-    if (filterCategory !== 'all') {
-      filtered = filtered.filter(task => {
-        const category = task.category || 'personal';
-        return category === filterCategory;
-      });
-    }
-    
-    return filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'priority':
-          const getPriorityValue = (task: Task) => {
-            if (typeof task.priority === 'number') return task.priority;
-            const priority = task.priority || 'medium';
-            return priority === 'high' ? 3 : priority === 'medium' ? 2 : 1;
-          };
-          return getPriorityValue(b) - getPriorityValue(a);
-        case 'dueDate':
-          const aDate = a.dueDate || a.date;
-          const bDate = b.dueDate || b.date;
-          if (!aDate && !bDate) return 0;
-          if (!aDate) return 1;
-          if (!bDate) return -1;
-          return new Date(aDate).getTime() - new Date(bDate).getTime();
-        case 'category':
-          const aCategory = a.category || 'personal';
-          const bCategory = b.category || 'personal';
-          return aCategory.localeCompare(bCategory);
-        case 'title':
-          const aTitle = a.title || a.item;
-          const bTitle = b.title || b.item;
-          return aTitle.localeCompare(bTitle);
-        default:
-          return 0;
-      }
-    });
-  };
-
-  const activeTasks = getFilteredAndSortedTasks().filter(task => !task.completed);
-  const completedTasks = getFilteredAndSortedTasks().filter(task => task.completed);
+  const activeTasks = data.tasks.filter(task => !task.completed);
+  const completedTasks = data.tasks.filter(task => task.completed);
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <Card className="bg-card/95 backdrop-blur-md border-2 border-accent brutalist-card">
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div>
-              <CardTitle className="text-accent text-sm sm:text-base font-mono uppercase flex items-center gap-2">
-                <CheckSquare size={20} />
-                {t.tasks || "TASK MANAGEMENT"} ({activeTasks.length} active)
-              </CardTitle>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Select value={filterCategory} onValueChange={setFilterCategory}>
-                <SelectTrigger className="w-32 bg-input border-2 border-border">
-                  <Filter size={16} className="mr-1" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-2 border-border">
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="goal">Goals</SelectItem>
-                  <SelectItem value="asset">Assets</SelectItem>
-                  <SelectItem value="finance">Finance</SelectItem>
-                  <SelectItem value="personal">Personal</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-32 bg-input border-2 border-border">
-                  <SortAsc size={16} className="mr-1" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-2 border-border">
-                  <SelectItem value="priority">Priority</SelectItem>
-                  <SelectItem value="dueDate">Due Date</SelectItem>
-                  <SelectItem value="category">Category</SelectItem>
-                  <SelectItem value="title">Title</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Button 
-                onClick={removeCompletedTasks}
-                variant="outline"
-                size="sm"
-                className="brutalist-button text-red-600"
-              >
-                <Trash2 size={16} className="mr-1" />
-                Clear Done
-              </Button>
-              
-              <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
-                <DialogTrigger asChild>
-                  <Button size="sm" className="brutalist-button">
-                    <Plus size={16} className="mr-1" />
-                    Add Task
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="w-[95vw] max-w-md bg-card border-2 border-border">
-                  <DialogHeader>
-                    <DialogTitle className="font-mono uppercase">Add New Task</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
+      {/* Add New Task */}
+      <Card className="brutalist-card bg-card border-2 border-border p-4 sm:p-6">
+        <h3 className="text-lg sm:text-xl font-bold font-mono text-accent uppercase tracking-wider mb-4">
+          Add New Task
+        </h3>
+        <div className="space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <Input
+              placeholder="Task title"
+              value={newTask.title}
+              onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+              className="font-mono bg-input border-2 border-border"
+            />
+            <select
+              value={newTask.priority}
+              onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as 'low' | 'medium' | 'high' })}
+              className="font-mono bg-input border-2 border-border px-3 py-2 rounded text-foreground"
+            >
+              <option value="low">Low Priority</option>
+              <option value="medium">Medium Priority</option>
+              <option value="high">High Priority</option>
+            </select>
+          </div>
+          <Textarea
+            placeholder="Task description (optional)"
+            value={newTask.description}
+            onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+            className="font-mono bg-input border-2 border-border"
+            rows={2}
+          />
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button 
+              onClick={addTask}
+              className="brutalist-button bg-accent text-accent-foreground hover:bg-accent/90 flex-1 sm:flex-none"
+            >
+              <Plus size={16} className="mr-2" />
+              Add Task
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Active Tasks */}
+      <Card className="brutalist-card bg-card border-2 border-border p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+          <h3 className="text-lg sm:text-xl font-bold font-mono text-accent uppercase tracking-wider">
+            Active Tasks ({activeTasks.length})
+          </h3>
+          {completedTasks.length > 0 && (
+            <Button
+              onClick={() => updateTasks(activeTasks)}
+              variant="outline"
+              size="sm"
+              className="brutalist-button text-xs w-full sm:w-auto"
+            >
+              <Trash2 size={12} className="mr-1" />
+              Clear Completed
+            </Button>
+          )}
+        </div>
+        
+        <div className="space-y-3">
+          {activeTasks.map((task) => (
+            <div key={task.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 bg-muted/20 border border-border">
+              {editingId === task.id ? (
+                <>
+                  <div className="flex-1 space-y-2">
                     <Input
-                      placeholder="Task title"
-                      value={newTask.title}
-                      onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                      className="brutalist-input"
+                      value={editingTask.title || ''}
+                      onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
+                      className="font-mono text-sm bg-input border border-border"
                     />
-                    <Input
-                      placeholder="Description (optional)"
-                      value={newTask.description}
-                      onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                      className="brutalist-input"
+                    <Textarea
+                      value={editingTask.description || ''}
+                      onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })}
+                      className="font-mono text-sm bg-input border border-border"
+                      rows={2}
                     />
-                    <div className="grid grid-cols-2 gap-2">
-                      <Select value={newTask.category} onValueChange={(value: any) => setNewTask({ ...newTask, category: value })}>
-                        <SelectTrigger className="bg-input border-2 border-border">
-                          <SelectValue placeholder="Category" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-card border-2 border-border">
-                          <SelectItem value="personal">Personal</SelectItem>
-                          <SelectItem value="goal">Goal</SelectItem>
-                          <SelectItem value="asset">Asset</SelectItem>
-                          <SelectItem value="finance">Finance</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Select value={newTask.priority} onValueChange={(value: any) => setNewTask({ ...newTask, priority: value })}>
-                        <SelectTrigger className="bg-input border-2 border-border">
-                          <SelectValue placeholder="Priority" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-card border-2 border-border">
-                          <SelectItem value="high">High</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="low">Low</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Input
-                      type="date"
-                      value={newTask.dueDate}
-                      onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                      className="brutalist-input"
-                    />
-                    <Button onClick={handleAddTask} className="w-full brutalist-button">
-                      Add Task
+                    <select
+                      value={editingTask.priority || 'medium'}
+                      onChange={(e) => setEditingTask({ ...editingTask, priority: e.target.value as 'low' | 'medium' | 'high' })}
+                      className="font-mono text-sm bg-input border border-border px-2 py-1 rounded w-full sm:w-auto"
+                    >
+                      <option value="low">Low Priority</option>
+                      <option value="medium">Medium Priority</option>
+                      <option value="high">High Priority</option>
+                    </select>
+                  </div>
+                  <div className="flex gap-2 justify-end sm:justify-start">
+                    <Button onClick={saveEdit} size="sm" className="brutalist-button bg-green-600 hover:bg-green-700">
+                      <Save size={12} />
+                    </Button>
+                    <Button onClick={cancelEdit} size="sm" variant="outline" className="brutalist-button">
+                      <X size={12} />
                     </Button>
                   </div>
-                </DialogContent>
-              </Dialog>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <Button
+                      onClick={() => toggleTask(task.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="p-0 h-auto hover:bg-transparent flex-shrink-0"
+                    >
+                      <Circle size={20} className="text-muted-foreground hover:text-accent" />
+                    </Button>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                        <h4 className="font-mono font-semibold text-foreground text-sm break-words">
+                          {task.title}
+                        </h4>
+                        <Badge className={`${getPriorityColor(task.priority)} text-white text-xs w-fit`}>
+                          {task.priority.toUpperCase()}
+                        </Badge>
+                      </div>
+                      {task.description && (
+                        <p className="font-mono text-xs text-muted-foreground break-words">
+                          {task.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2 justify-end sm:justify-start flex-shrink-0">
+                    <Button 
+                      onClick={() => startEditing(task)}
+                      size="sm" 
+                      variant="outline" 
+                      className="brutalist-button text-xs"
+                    >
+                      <Edit2 size={12} />
+                    </Button>
+                    <Button 
+                      onClick={() => deleteTask(task.id)}
+                      size="sm" 
+                      variant="outline" 
+                      className="brutalist-button text-xs text-red-500 hover:text-red-600"
+                    >
+                      <Trash2 size={12} />
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {/* Active Tasks */}
-          <div className="space-y-2">
-            <h3 className="font-mono text-sm uppercase text-muted-foreground">Active Tasks</h3>
-            {activeTasks.map((task, index) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                index={index}
-                onReorder={handleReorderTasks}
-              />
+          ))}
+          
+          {activeTasks.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground font-mono text-sm">
+              No active tasks. Add one above to get started!
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Completed Tasks */}
+      {completedTasks.length > 0 && (
+        <Card className="brutalist-card bg-card border-2 border-border p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold font-mono text-accent uppercase tracking-wider mb-4">
+            Completed Tasks ({completedTasks.length})
+          </h3>
+          <div className="space-y-3">
+            {completedTasks.map((task) => (
+              <div key={task.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 bg-muted/20 border border-border opacity-60">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <Button
+                    onClick={() => toggleTask(task.id)}
+                    variant="ghost"
+                    size="sm"
+                    className="p-0 h-auto hover:bg-transparent flex-shrink-0"
+                  >
+                    <CheckCircle2 size={20} className="text-green-500" />
+                  </Button>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                      <h4 className="font-mono font-semibold text-foreground text-sm line-through break-words">
+                        {task.title}
+                      </h4>
+                      <Badge className={`${getPriorityColor(task.priority)} text-white text-xs w-fit`}>
+                        {task.priority.toUpperCase()}
+                      </Badge>
+                    </div>
+                    {task.description && (
+                      <p className="font-mono text-xs text-muted-foreground line-through break-words">
+                        {task.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2 justify-end sm:justify-start flex-shrink-0">
+                  <Button 
+                    onClick={() => deleteTask(task.id)}
+                    size="sm" 
+                    variant="outline" 
+                    className="brutalist-button text-xs text-red-500 hover:text-red-600"
+                  >
+                    <Trash2 size={12} />
+                  </Button>
+                </div>
+              </div>
             ))}
           </div>
-          
-          {/* Completed Tasks */}
-          {completedTasks.length > 0 && (
-            <div className="space-y-2 mt-6">
-              <h3 className="font-mono text-sm uppercase text-muted-foreground">Completed Tasks</h3>
-              {completedTasks.map((task, index) => (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  index={index + activeTasks.length}
-                  onReorder={handleReorderTasks}
-                />
-              ))}
-            </div>
-          )}
-          
-          {data.tasks.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground font-mono">
-              No tasks yet. Add one to get started!
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        </Card>
+      )}
     </div>
   );
 };

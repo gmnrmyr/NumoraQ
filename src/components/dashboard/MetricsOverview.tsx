@@ -1,147 +1,77 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { DollarSign, TrendingUp, TrendingDown, CreditCard, BarChart3, Eye, EyeOff } from "lucide-react";
-import { useFinancialData } from "@/contexts/FinancialDataContext";
-import { useTranslation } from "@/contexts/TranslationContext";
+
+import React from 'react';
+import { Card } from '@/components/ui/card';
+import { useFinancialData } from '@/contexts/FinancialDataContext';
+import { TrendingUp, TrendingDown, DollarSign, Target, PiggyBank, CreditCard } from 'lucide-react';
 
 export const MetricsOverview = () => {
   const { data } = useFinancialData();
-  const { t } = useTranslation();
-  const [isExpanded, setIsExpanded] = useState(true);
 
-  // Calculate metrics
-  const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
-  const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  const totalAssets = data.liquidAssets.reduce((sum, asset) => sum + (asset.currentValue || 0), 0) +
+                     data.illiquidAssets.reduce((sum, asset) => sum + (asset.currentValue || 0), 0);
   
-  const activeIlliquidAssets = data.illiquidAssets.filter(asset => asset.isActive);
-  const totalIlliquid = activeIlliquidAssets.reduce((sum, asset) => sum + asset.value, 0);
-  
-  const activePassiveIncome = data.passiveIncome.filter(income => income.status === 'active');
-  const totalPassiveIncome = activePassiveIncome.reduce((sum, income) => sum + income.amount, 0);
-  
-  const activeActiveIncome = data.activeIncome.filter(income => income.status === 'active');
-  const totalActiveIncome = activeActiveIncome.reduce((sum, income) => sum + income.amount, 0);
-  
-  // Calculate monthly expenses correctly: only recurring + unscheduled variable expenses
-  const recurringExpenses = data.expenses.filter(expense => 
-    expense.type === 'recurring' && expense.status === 'active'
-  );
-  const totalRecurringExpenses = recurringExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-  
-  // Only include variable expenses that are active AND have no specific date (unscheduled)
-  const unscheduledVariableExpenses = data.expenses.filter(expense => 
-    expense.type === 'variable' && 
-    expense.status === 'active' && 
-    !expense.specificDate
-  );
-  const totalUnscheduledVariableExpenses = unscheduledVariableExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-  
-  const totalExpenses = totalRecurringExpenses + totalUnscheduledVariableExpenses;
-  
-  const activeDebts = data.debts.filter(debt => debt.isActive && debt.status !== 'paid');
-  const totalActiveDebts = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
-  
-  const totalIncome = totalPassiveIncome + totalActiveIncome;
-  const availableNow = totalLiquid; // Available liquid assets
-  const monthlyBalance = totalIncome - totalExpenses;
+  const totalIncome = data.income.reduce((sum, item) => sum + item.amount, 0);
+  const totalExpenses = data.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const totalDebt = data.debts.reduce((sum, debt) => sum + debt.amount, 0);
+  const netWorth = totalAssets - totalDebt;
+  const monthlyCashFlow = totalIncome - totalExpenses;
 
-  const formatCurrency = (amount: number) => {
-    const currency = data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$';
-    return `${currency} ${Math.abs(amount).toLocaleString()}`;
-  };
+  const currencySymbol = data.userProfile.currency === 'EUR' ? '€' : '$';
 
   const metrics = [
     {
-      title: "Available Now",
-      value: availableNow,
-      icon: DollarSign,
-      description: `${activeLiquidAssets.length} liquid assets`,
-      color: "text-blue-500",
-      borderColor: "border-blue-500"
-    },
-    {
-      title: "Monthly Income",
-      value: totalIncome,
+      title: 'Net Worth',
+      value: netWorth,
       icon: TrendingUp,
-      description: `${formatCurrency(totalPassiveIncome)} passive + ${formatCurrency(totalActiveIncome)} active`,
-      color: "text-green-500",
-      borderColor: "border-green-500"
+      color: 'text-green-500',
+      bgColor: 'bg-green-500/10'
     },
     {
-      title: "Monthly Expenses",
-      value: totalExpenses,
-      icon: TrendingDown,
-      description: `${recurringExpenses.length + unscheduledVariableExpenses.length} active expenses`,
-      color: "text-red-500",
-      borderColor: "border-red-500"
+      title: 'Total Assets',
+      value: totalAssets,
+      icon: PiggyBank,
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-500/10'
     },
     {
-      title: "Active Debts",
-      value: totalActiveDebts,
+      title: 'Monthly Cash Flow',
+      value: monthlyCashFlow,
+      icon: monthlyCashFlow >= 0 ? TrendingUp : TrendingDown,
+      color: monthlyCashFlow >= 0 ? 'text-green-500' : 'text-red-500',
+      bgColor: monthlyCashFlow >= 0 ? 'bg-green-500/10' : 'bg-red-500/10'
+    },
+    {
+      title: 'Total Debt',
+      value: totalDebt,
       icon: CreditCard,
-      description: `${activeDebts.length} pending debts`,
-      color: "text-orange-500",
-      borderColor: "border-orange-500"
-    },
-    {
-      title: "Monthly Balance",
-      value: monthlyBalance,
-      icon: BarChart3,
-      description: `${formatCurrency(totalIncome)} in - ${formatCurrency(totalExpenses)} out`,
-      color: monthlyBalance >= 0 ? "text-green-500" : "text-red-500",
-      borderColor: monthlyBalance >= 0 ? "border-green-500" : "border-red-500"
+      color: 'text-red-500',
+      bgColor: 'bg-red-500/10'
     }
   ];
 
   return (
-    <div className="space-y-4">
-      {/* Header with toggle */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold font-mono uppercase text-foreground">
-          OVERVIEW
-        </h2>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="border-2 border-border hover:bg-accent"
-        >
-          {isExpanded ? <EyeOff size={16} /> : <Eye size={16} />}
-          <span className="ml-2 font-mono text-xs">
-            {isExpanded ? 'HIDE' : 'SHOW'}
-          </span>
-        </Button>
-      </div>
-
-      {/* Metrics Grid */}
-      {isExpanded && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {metrics.map((metric, index) => {
-            const Icon = metric.icon;
-            return (
-              <Card key={index} className={`bg-card/80 backdrop-blur-sm border-2 ${metric.borderColor} hover:shadow-lg transition-all duration-300`}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className={`text-sm font-medium font-mono uppercase ${metric.color}`}>
-                    {metric.title}
-                  </CardTitle>
-                  <Icon className={`h-5 w-5 ${metric.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className={`text-xl sm:text-2xl font-bold font-mono ${metric.color}`}>
-                    {metric.value >= 0 && metric.title === "Monthly Balance" ? '+' : ''}
-                    {metric.value < 0 && metric.title === "Monthly Balance" ? '-' : ''}
-                    {formatCurrency(metric.value)}
-                  </div>
-                  <p className="text-xs text-muted-foreground font-mono mt-1">
-                    {metric.description}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {metrics.map((metric, index) => {
+        const Icon = metric.icon;
+        return (
+          <Card key={index} className="brutalist-card bg-card border-2 border-border p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className={`p-2 rounded ${metric.bgColor}`}>
+                <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${metric.color}`} />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs sm:text-sm font-mono text-muted-foreground uppercase tracking-wider">
+                {metric.title}
+              </p>
+              <p className={`text-lg sm:text-xl lg:text-2xl font-bold font-mono ${metric.color}`}>
+                {currencySymbol}{Math.abs(metric.value).toLocaleString()}
+                {metric.value < 0 && <span className="text-red-500 ml-1">-</span>}
+              </p>
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
 };
