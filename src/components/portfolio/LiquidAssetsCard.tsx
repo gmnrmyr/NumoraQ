@@ -13,7 +13,7 @@ import { AssetFormFields } from './AssetFormFields';
 import { AssetListItem } from './AssetListItem';
 import { DevelopmentTooltip } from './DevelopmentTooltip';
 import { useFinancialData } from "@/contexts/FinancialDataContext";
-import { fetchStockPrice } from '@/services/stockService';
+import { fetchStockPrice, fetchMetalPrice, fetchWalletValue } from '@/services/stockService';
 import { toast } from "@/hooks/use-toast";
 
 const CRYPTO_OPTIONS = [
@@ -26,7 +26,7 @@ export const LiquidAssetsCard = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<any>(null);
   const [showInactive, setShowInactive] = useState(true);
-  const [assetType, setAssetType] = useState<'manual' | 'crypto' | 'stock' | 'reit'>('manual');
+  const [assetType, setAssetType] = useState<'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet'>('manual');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -36,7 +36,11 @@ export const LiquidAssetsCard = () => {
     cryptoSymbol: '',
     stockSymbol: '',
     stockName: '',
-    quantity: 0
+    quantity: 0,
+    metalSymbol: '',
+    walletAddress: '',
+    autoCompound: false,
+    monthlyYield: 0
   });
 
   const resetForm = () => {
@@ -48,7 +52,11 @@ export const LiquidAssetsCard = () => {
       cryptoSymbol: '',
       stockSymbol: '',
       stockName: '',
-      quantity: 0
+      quantity: 0,
+      metalSymbol: '',
+      walletAddress: '',
+      autoCompound: false,
+      monthlyYield: 0
     });
     setEditingAsset(null);
     setAssetType('manual');
@@ -75,6 +83,28 @@ export const LiquidAssetsCard = () => {
     }
   };
 
+  const calculateMetalValue = async (metalSymbol: string, quantity: number) => {
+    try {
+      const metalData = await fetchMetalPrice(metalSymbol);
+      if (metalData) {
+        return metalData.price * quantity;
+      }
+      return 0;
+    } catch (error) {
+      console.error('Error calculating metal value:', error);
+      return 0;
+    }
+  };
+
+  const calculateWalletValue = async (walletAddress: string) => {
+    try {
+      return await fetchWalletValue(walletAddress);
+    } catch (error) {
+      console.error('Error calculating wallet value:', error);
+      return 0;
+    }
+  };
+
   const handleStockSelection = (symbol: string, name: string) => {
     setFormData(prev => ({ 
       ...prev, 
@@ -85,7 +115,7 @@ export const LiquidAssetsCard = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name.trim()) {
+    if (!formData.name.trim() && assetType !== 'wallet') {
       toast({
         title: "Error",
         description: "Please enter an asset name.",
@@ -131,13 +161,48 @@ export const LiquidAssetsCard = () => {
         isReit: assetType === 'reit',
         stockSymbol: formData.stockSymbol,
         stockName: formData.stockName,
-        quantity: formData.quantity
+        quantity: formData.quantity,
+        autoCompound: assetType === 'reit' ? formData.autoCompound : false,
+        monthlyYield: assetType === 'reit' && formData.autoCompound ? formData.monthlyYield : 0
       };
 
       if (editingAsset) {
         updateLiquidAsset(editingAsset.id, stockAssetData);
       } else {
         addLiquidAsset(stockAssetData);
+      }
+    }
+    else if (assetType === 'metal' && formData.metalSymbol && formData.quantity > 0) {
+      finalValue = await calculateMetalValue(formData.metalSymbol, formData.quantity);
+      
+      const metalAssetData = {
+        ...baseAssetData,
+        value: finalValue,
+        isPreciousMetal: true,
+        metalSymbol: formData.metalSymbol,
+        quantity: formData.quantity
+      };
+
+      if (editingAsset) {
+        updateLiquidAsset(editingAsset.id, metalAssetData);
+      } else {
+        addLiquidAsset(metalAssetData);
+      }
+    }
+    else if (assetType === 'wallet' && formData.walletAddress) {
+      finalValue = await calculateWalletValue(formData.walletAddress);
+      
+      const walletAssetData = {
+        ...baseAssetData,
+        value: finalValue,
+        isWalletTracked: true,
+        walletAddress: formData.walletAddress
+      };
+
+      if (editingAsset) {
+        updateLiquidAsset(editingAsset.id, walletAssetData);
+      } else {
+        addLiquidAsset(walletAssetData);
       }
     }
     else {
@@ -165,6 +230,10 @@ export const LiquidAssetsCard = () => {
       setAssetType('reit');
     } else if (asset.isStock) {
       setAssetType('stock');
+    } else if (asset.isPreciousMetal) {
+      setAssetType('metal');
+    } else if (asset.isWalletTracked) {
+      setAssetType('wallet');
     } else {
       setAssetType('manual');
     }
@@ -177,7 +246,11 @@ export const LiquidAssetsCard = () => {
       cryptoSymbol: asset.cryptoSymbol || '',
       stockSymbol: asset.stockSymbol || '',
       stockName: asset.stockName || '',
-      quantity: asset.quantity || 0
+      quantity: asset.quantity || 0,
+      metalSymbol: asset.metalSymbol || '',
+      walletAddress: asset.walletAddress || '',
+      autoCompound: asset.autoCompound || false,
+      monthlyYield: asset.monthlyYield || 0
     });
     setIsDialogOpen(true);
   };
@@ -201,7 +274,7 @@ export const LiquidAssetsCard = () => {
     updateLiquidAsset(assetId, { icon });
   };
 
-  // Recalculate crypto values when exchange rates change
+  // Update price recalculation effects
   React.useEffect(() => {
     data.liquidAssets.forEach(asset => {
       if (asset.isCrypto && asset.cryptoSymbol && asset.quantity) {
@@ -213,27 +286,36 @@ export const LiquidAssetsCard = () => {
     });
   }, [data.exchangeRates.btcPrice, data.exchangeRates.ethPrice]);
 
-  // Periodically update stock prices
+  // Periodically update all live-priced assets
   React.useEffect(() => {
-    const updateStockPrices = async () => {
-      const stockAssets = data.liquidAssets.filter(asset => asset.isStock);
+    const updateLivePrices = async () => {
+      const assetsToUpdate = data.liquidAssets.filter(asset => 
+        asset.isStock || asset.isPreciousMetal || asset.isWalletTracked
+      );
       
-      for (const asset of stockAssets) {
-        if (asset.stockSymbol && asset.quantity) {
-          try {
-            const newValue = await calculateStockValue(asset.stockSymbol, asset.quantity);
-            if (Math.abs(newValue - asset.value) > 0.01) {
-              updateLiquidAsset(asset.id, { value: newValue });
-            }
-          } catch (error) {
-            console.error(`Error updating stock price for ${asset.stockSymbol}:`, error);
+      for (const asset of assetsToUpdate) {
+        try {
+          let newValue = 0;
+          
+          if (asset.isStock && asset.stockSymbol && asset.quantity) {
+            newValue = await calculateStockValue(asset.stockSymbol, asset.quantity);
+          } else if (asset.isPreciousMetal && asset.metalSymbol && asset.quantity) {
+            newValue = await calculateMetalValue(asset.metalSymbol, asset.quantity);
+          } else if (asset.isWalletTracked && asset.walletAddress) {
+            newValue = await calculateWalletValue(asset.walletAddress);
           }
+          
+          if (newValue > 0 && Math.abs(newValue - asset.value) > 0.01) {
+            updateLiquidAsset(asset.id, { value: newValue });
+          }
+        } catch (error) {
+          console.error(`Error updating asset price for ${asset.name}:`, error);
         }
       }
     };
 
-    // Update stock prices every 5 minutes
-    const interval = setInterval(updateStockPrices, 5 * 60 * 1000);
+    // Update live prices every 5 minutes
+    const interval = setInterval(updateLivePrices, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [data.liquidAssets]);
 

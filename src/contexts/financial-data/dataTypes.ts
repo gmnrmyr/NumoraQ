@@ -1,4 +1,3 @@
-
 export interface LiquidAsset {
   id: string;
   name: string;
@@ -14,6 +13,12 @@ export interface LiquidAsset {
   isReit?: boolean;
   stockSymbol?: string;
   stockName?: string;
+  isPreciousMetal?: boolean;
+  metalSymbol?: string;
+  isWalletTracked?: boolean;
+  walletAddress?: string;
+  autoCompound?: boolean;
+  monthlyYield?: number;
 }
 
 export interface IlliquidAsset {
