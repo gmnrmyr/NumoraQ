@@ -45,50 +45,39 @@ export const ProjectionCard = () => {
     .filter(expense => expense.type === 'recurring' && expense.status === 'active')
     .reduce((sum, expense) => sum + expense.amount, 0);
 
-  // Calculate variable expenses that count in the projection (current month + no-date expenses)
-  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
-  const currentMonthVariableExpenses = data.expenses
-    .filter(expense => {
-      if (expense.type !== 'variable' || expense.status !== 'active') return false;
-      
-      // If no specific date, it's a monthly variable expense
-      if (!expense.specificDate) return true;
-      
-      // If specific date is in current month, include it
-      const expenseMonth = expense.specificDate.slice(0, 7);
-      return expenseMonth === currentMonth;
-    })
-    .reduce((sum, expense) => sum + expense.amount, 0);
-
-  // Calculate total variable expenses for the ENTIRE projection period (only once per expense)
-  const getAllVariableExpensesForProjection = () => {
-    let totalVariableForPeriod = 0;
+  // Calculate variable expenses for the entire projection period
+  const calculateVariableExpensesForPeriod = () => {
     const currentDate = new Date();
+    let totalVariableExpenses = 0;
     
-    // Get all variable expenses that will trigger during the projection period
-    const variableExpenses = data.expenses.filter(expense => 
+    // Get all active variable expenses
+    const activeVariableExpenses = data.expenses.filter(expense => 
       expense.type === 'variable' && expense.status === 'active'
     );
     
-    variableExpenses.forEach(expense => {
-      if (!expense.specificDate) {
-        // No specific date = monthly variable expense (triggers every month)
-        totalVariableForPeriod += expense.amount * data.projectionMonths;
-      } else {
-        // Has specific date = triggers only once if within projection period
-        const expenseDate = new Date(expense.specificDate);
-        const endProjectionDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + data.projectionMonths, 0);
-        
-        if (expenseDate >= currentDate && expenseDate <= endProjectionDate) {
-          totalVariableForPeriod += expense.amount;
+    // For each month in the projection
+    for (let month = 1; month <= data.projectionMonths; month++) {
+      const projectionDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + month, 1);
+      const projectionMonth = projectionDate.toISOString().slice(0, 7); // YYYY-MM
+      
+      activeVariableExpenses.forEach(expense => {
+        if (!expense.specificDate) {
+          // No specific date = monthly variable expense (triggers every month)
+          totalVariableExpenses += expense.amount;
+        } else {
+          // Has specific date = only triggers in that specific month
+          const expenseMonth = expense.specificDate.slice(0, 7);
+          if (expenseMonth === projectionMonth) {
+            totalVariableExpenses += expense.amount;
+          }
         }
-      }
-    });
+      });
+    }
     
-    return totalVariableForPeriod;
+    return totalVariableExpenses;
   };
 
-  const totalVariableExpenses = getAllVariableExpensesForProjection();
+  const totalVariableExpenses = calculateVariableExpensesForPeriod();
 
   const activeDebts = data.debts.filter(debt => debt.isActive);
   const totalActiveDebt = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
