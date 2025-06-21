@@ -12,8 +12,8 @@ interface AssetDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   editingAsset: any;
-  assetType: 'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet';
-  setAssetType: (type: 'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet') => void;
+  assetType: 'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet' | 'nft';
+  setAssetType: (type: 'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet' | 'nft') => void;
   formData: any;
   setFormData: (data: any) => void;
   onStockSelection: (symbol: string, name: string) => void;
@@ -56,14 +56,16 @@ export const AssetDialog = ({
           currency={currency}
         />
 
-        <div>
-          <Label className="font-mono text-xs uppercase">Icon</Label>
-          <IconSelector
-            value={formData.icon}
-            onChange={(icon) => setFormData((prev: any) => ({ ...prev, icon }))}
-            placeholder="Choose an icon"
-          />
-        </div>
+        {assetType !== 'nft' && (
+          <div>
+            <Label className="font-mono text-xs uppercase">Icon</Label>
+            <IconSelector
+              value={formData.icon}
+              onChange={(icon) => setFormData((prev: any) => ({ ...prev, icon }))}
+              placeholder="Choose an icon"
+            />
+          </div>
+        )}
         
         <div className="flex items-center space-x-2">
           <Switch

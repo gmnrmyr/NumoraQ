@@ -4,8 +4,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface AssetTypeSelectorProps {
-  value: 'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet';
-  onChange: (value: 'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet') => void;
+  value: 'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet' | 'nft';
+  onChange: (value: 'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet' | 'nft') => void;
 }
 
 export const AssetTypeSelector = ({ value, onChange }: AssetTypeSelectorProps) => {
@@ -23,6 +23,7 @@ export const AssetTypeSelector = ({ value, onChange }: AssetTypeSelectorProps) =
           <SelectItem value="reit">REITs/FIIs (Real Estate)</SelectItem>
           <SelectItem value="metal">Precious Metals</SelectItem>
           <SelectItem value="wallet">EVM Wallet Tracker</SelectItem>
+          <SelectItem value="nft">NFT (Ethereum)</SelectItem>
         </SelectContent>
       </Select>
     </div>

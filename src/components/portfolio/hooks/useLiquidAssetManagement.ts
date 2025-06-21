@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { fetchStockPrice, fetchMetalPrice, fetchWalletValue } from '@/services/stockService';
+import { WalletService } from '@/services/walletService';
 import { toast } from "@/hooks/use-toast";
 
 const CRYPTO_OPTIONS = [
@@ -13,7 +13,7 @@ export const useLiquidAssetManagement = () => {
   const { data, updateLiquidAsset, addLiquidAsset, removeLiquidAsset } = useFinancialData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<any>(null);
-  const [assetType, setAssetType] = useState<'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet'>('manual');
+  const [assetType, setAssetType] = useState<'manual' | 'crypto' | 'stock' | 'reit' | 'metal' | 'wallet' | 'nft'>('manual');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -27,7 +27,9 @@ export const useLiquidAssetManagement = () => {
     metalSymbol: '',
     walletAddress: '',
     autoCompound: false,
-    monthlyYield: 0
+    monthlyYield: 0,
+    nftContractAddress: '',
+    nftCollectionName: ''
   });
 
   const resetForm = () => {
@@ -43,7 +45,9 @@ export const useLiquidAssetManagement = () => {
       metalSymbol: '',
       walletAddress: '',
       autoCompound: false,
-      monthlyYield: 0
+      monthlyYield: 0,
+      nftContractAddress: '',
+      nftCollectionName: ''
     });
     setEditingAsset(null);
     setAssetType('manual');
@@ -92,6 +96,22 @@ export const useLiquidAssetManagement = () => {
     }
   };
 
+  const calculateNFTValue = async (contractAddress: string, quantity: number) => {
+    try {
+      const nftData = await WalletService.fetchNFTCollectionValue(contractAddress, quantity);
+      return {
+        value: nftData.totalValue,
+        collectionName: nftData.collectionName
+      };
+    } catch (error) {
+      console.error('Error calculating NFT value:', error);
+      return {
+        value: 0,
+        collectionName: 'Unknown Collection'
+      };
+    }
+  };
+
   const handleStockSelection = (symbol: string, name: string) => {
     setFormData(prev => ({ 
       ...prev, 
@@ -102,7 +122,7 @@ export const useLiquidAssetManagement = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name.trim() && assetType !== 'wallet') {
+    if (!formData.name.trim() && assetType !== 'wallet' && assetType !== 'nft') {
       toast({
         title: "Error",
         description: "Please enter an asset name.",
@@ -112,9 +132,10 @@ export const useLiquidAssetManagement = () => {
     }
 
     let finalValue = formData.value;
+    let finalName = formData.name;
     
     const baseAssetData = {
-      name: formData.name,
+      name: finalName,
       value: finalValue,
       icon: formData.icon,
       isActive: formData.isActive,
@@ -192,6 +213,28 @@ export const useLiquidAssetManagement = () => {
         addLiquidAsset(walletAssetData);
       }
     }
+    else if (assetType === 'nft' && formData.nftContractAddress && formData.quantity > 0) {
+      const nftResult = await calculateNFTValue(formData.nftContractAddress, formData.quantity);
+      finalValue = nftResult.value;
+      finalName = formData.nftCollectionName || nftResult.collectionName;
+      
+      const nftAssetData = {
+        ...baseAssetData,
+        name: finalName,
+        value: finalValue,
+        icon: 'Image', // Default NFT icon
+        isNFT: true,
+        nftContractAddress: formData.nftContractAddress,
+        nftCollectionName: finalName,
+        quantity: formData.quantity
+      };
+
+      if (editingAsset) {
+        updateLiquidAsset(editingAsset.id, nftAssetData);
+      } else {
+        addLiquidAsset(nftAssetData);
+      }
+    }
     else {
       if (editingAsset) {
         updateLiquidAsset(editingAsset.id, baseAssetData);
@@ -205,7 +248,7 @@ export const useLiquidAssetManagement = () => {
     
     toast({
       title: editingAsset ? "Asset Updated" : "Asset Added",
-      description: `${formData.name} has been ${editingAsset ? 'updated' : 'added'} successfully.`
+      description: `${finalName} has been ${editingAsset ? 'updated' : 'added'} successfully.`
     });
   };
 
@@ -221,6 +264,8 @@ export const useLiquidAssetManagement = () => {
       setAssetType('metal');
     } else if (asset.isWalletTracked) {
       setAssetType('wallet');
+    } else if (asset.isNFT) {
+      setAssetType('nft');
     } else {
       setAssetType('manual');
     }
@@ -237,7 +282,9 @@ export const useLiquidAssetManagement = () => {
       metalSymbol: asset.metalSymbol || '',
       walletAddress: asset.walletAddress || '',
       autoCompound: asset.autoCompound || false,
-      monthlyYield: asset.monthlyYield || 0
+      monthlyYield: asset.monthlyYield || 0,
+      nftContractAddress: asset.nftContractAddress || '',
+      nftCollectionName: asset.nftCollectionName || ''
     });
     setIsDialogOpen(true);
   };

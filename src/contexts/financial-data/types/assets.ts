@@ -1,4 +1,3 @@
-
 export interface LiquidAsset {
   id: string;
   name: string;
@@ -20,6 +19,9 @@ export interface LiquidAsset {
   walletAddress?: string;
   autoCompound?: boolean;
   monthlyYield?: number;
+  isNFT?: boolean;
+  nftContractAddress?: string;
+  nftCollectionName?: string;
 }
 
 export interface IlliquidAsset {
