@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +6,7 @@ import { Crown, Heart, Zap, Star, Gift, Copy, Check, Info, Twitter } from 'lucid
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { DonationInterface } from '@/components/dashboard/DonationInterface';
+import { ProductStateSection } from '@/components/donation/ProductStateSection';
 import { useCMSSettings } from '@/hooks/useCMSSettings';
 import { toast } from '@/hooks/use-toast';
 
@@ -225,6 +225,9 @@ const DonationPage = () => {
 
           {/* Donation Interface */}
           <DonationInterface isOpen={false} onClose={() => {}} />
+
+          {/* Product State Section - NEW */}
+          <ProductStateSection />
 
           {/* Title Requirements */}
           <Card className="border-2 border-border">
