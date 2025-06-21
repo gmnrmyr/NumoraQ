@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -54,7 +53,7 @@ export const ProjectionChart = () => {
           // If no specific date, it's a monthly variable expense (triggers every month)
           if (!expense.specificDate) return true;
           
-          // If specific date matches this month, include it
+          // If specific date matches this exact month, include it
           const expenseMonth = expense.specificDate.slice(0, 7);
           return expenseMonth === targetMonth;
         })
