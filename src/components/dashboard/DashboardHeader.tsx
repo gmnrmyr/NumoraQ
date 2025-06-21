@@ -1,46 +1,16 @@
+
 import React from 'react';
-import { Skull, Bot, Zap, Play, Pause } from 'lucide-react';
-import { useTranslation } from '@/contexts/TranslationContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
-import { UserTitleBadge } from './UserTitleBadge';
 import { useUserTitle } from '@/hooks/useUserTitle';
 import { useAnimationToggle } from '@/hooks/useAnimationToggle';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { BlackHoleAnimation } from './BlackHoleAnimation';
+import { DashboardIcons } from './DashboardIcons';
+import { DashboardTitle } from './DashboardTitle';
 
 export const DashboardHeader = () => {
-  const { t } = useTranslation();
   const { data } = useFinancialData();
   const { userTitle } = useUserTitle();
   const { isAnimationEnabled } = useAnimationToggle();
-  const { user } = useAuth();
-  const [animationPaused, setAnimationPaused] = React.useState(false);
-  const [profileName, setProfileName] = React.useState<string>('');
-  const [animationLoaded, setAnimationLoaded] = React.useState(false);
-  
-  // Load user profile name
-  React.useEffect(() => {
-    const loadProfileName = async () => {
-      if (user) {
-        try {
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('name')
-            .eq('id', user.id)
-            .single();
-
-          if (!error && profile?.name) {
-            setProfileName(profile.name);
-          }
-        } catch (error) {
-          console.error('Error loading profile name:', error);
-        }
-      }
-    };
-
-    loadProfileName();
-  }, [user]);
   
   // Check if user has CHAMPION role (level 50+)
   const isChampionUser = userTitle.level >= 50;
@@ -49,138 +19,17 @@ export const DashboardHeader = () => {
   const isBlackHoleTheme = data.userProfile.theme === 'black-hole';
   
   // Should show animation
-  const shouldShowAnimation = isChampionUser && isBlackHoleTheme && isAnimationEnabled && !animationPaused;
-  
-  // Load UnicornStudio animation with a completely fresh approach
-  React.useEffect(() => {
-    if (shouldShowAnimation && !animationLoaded) {
-      console.log('🕳️ Loading Black Hole animation for Champion user');
-      
-      // Clear any existing UnicornStudio state
-      if (window.UnicornStudio) {
-        delete window.UnicornStudio;
-      }
-      
-      // Remove any existing scripts
-      const existingScripts = document.querySelectorAll('script[src*="unicornStudio"]');
-      existingScripts.forEach(script => script.remove());
-      
-      // Wait a bit then load fresh
-      setTimeout(() => {
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.innerHTML = `
-          !function(){
-            if(!window.UnicornStudio){
-              window.UnicornStudio={isInitialized:!1};
-              var i=document.createElement("script");
-              i.src="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.25/dist/unicornStudio.umd.js";
-              i.onload=function(){
-                if(!window.UnicornStudio.isInitialized){
-                  UnicornStudio.init();
-                  window.UnicornStudio.isInitialized=!0;
-                  console.log('🕳️ Black Hole UnicornStudio initialized');
-                }
-              };
-              (document.head || document.body).appendChild(i);
-            } else if (!window.UnicornStudio.isInitialized) {
-              UnicornStudio.init();
-              window.UnicornStudio.isInitialized=!0;
-              console.log('🕳️ Black Hole UnicornStudio re-initialized');
-            }
-          }();
-        `;
-        
-        document.head.appendChild(script);
-        setAnimationLoaded(true);
-      }, 100);
-    }
-    
-    // Cleanup on unmount or when animation is disabled
-    return () => {
-      if (!shouldShowAnimation && animationLoaded) {
-        setAnimationLoaded(false);
-      }
-    };
-  }, [shouldShowAnimation, animationLoaded]);
+  const shouldShowAnimation = isChampionUser && isBlackHoleTheme && isAnimationEnabled;
   
   return (
     <>
-      {/* Black Hole Animation Background */}
-      {shouldShowAnimation && animationLoaded && (
-        <div 
-          className="fixed inset-0 pointer-events-none"
-          style={{ zIndex: -1 }}
-        >
-          <div 
-            data-us-project="db3DaP9gWVnnnr7ZevK7" 
-            style={{ 
-              width: '100vw', 
-              height: '100vh',
-              position: 'absolute',
-              top: 0,
-              left: 0
-            }}
-          />
-        </div>
-      )}
+      {/* Black Hole Animation */}
+      <BlackHoleAnimation isVisible={shouldShowAnimation} />
       
       <div className="relative">
-        {/* Debug overlay */}
-        {process.env.NODE_ENV === 'development' && shouldShowAnimation && (
-          <div className="fixed top-4 right-4 text-xs text-white bg-black/80 p-3 rounded z-50 border border-white/20">
-            <div className="font-bold mb-1">🕳️ Black Hole Debug</div>
-            <div>Champion: {isChampionUser ? '✅' : '❌'}</div>
-            <div>Theme: {data.userProfile.theme}</div>
-            <div>Animation Enabled: {isAnimationEnabled ? '✅' : '❌'}</div>
-            <div>Should Show: {shouldShowAnimation ? '✅' : '❌'}</div>
-            <div>Loaded: {animationLoaded ? '✅' : '❌'}</div>
-            <div>Paused: {animationPaused ? '✅' : '❌'}</div>
-          </div>
-        )}
-        
         <div className="text-center space-y-6 py-8 relative z-10">
-          {/* Animation Controls for CHAMPION users with Black Hole theme */}
-          {isChampionUser && isBlackHoleTheme && (
-            <div className="absolute top-2 right-2 z-20">
-              <Button
-                onClick={() => setAnimationPaused(!animationPaused)}
-                variant="outline"
-                size="sm"
-                className="brutalist-button bg-card/80 backdrop-blur-sm"
-              >
-                {animationPaused ? <Play size={16} /> : <Pause size={16} />}
-              </Button>
-            </div>
-          )}
-          
-          <div className="flex items-center justify-center gap-4 py-[13px]">
-            <div className="flex items-center gap-2">
-              <div className="p-3 border-2 border-accent bg-background">
-                <Skull className="text-accent" size={28} />
-              </div>
-              <div className="p-3 border-2 border-border bg-card">
-                <Bot className="text-foreground" size={28} />
-              </div>
-              <div className="p-3 border-2 border-accent bg-background">
-                <Zap className="text-accent" size={28} />
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-foreground brutalist-heading">
-              FINANCIAL COMMAND CENTER
-            </h1>
-            {profileName && (
-              <div className="flex items-center justify-center gap-2 text-lg font-mono flex-wrap">
-                <span className="text-accent">Welcome back, {profileName}</span>
-              </div>
-            )}
-            <p className="text-muted-foreground text-sm sm:text-base font-mono uppercase tracking-wider px-4">
-              COMPLETE OVERSIGHT // DATA DRIVEN DECISIONS
-            </p>
-          </div>
+          <DashboardIcons />
+          <DashboardTitle />
           
           <div className="flex justify-center items-center gap-4">
             <div className="w-8 h-1 bg-accent"></div>
