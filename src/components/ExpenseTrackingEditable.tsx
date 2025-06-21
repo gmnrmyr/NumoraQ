@@ -20,7 +20,7 @@ export const ExpenseTrackingEditable = () => {
     .filter(expense => expense.status === 'active')
     .reduce((sum, expense) => sum + expense.amount, 0);
     
-  // Calculate variable expenses (only those without specific dates or with current month dates count as monthly)
+  // Calculate variable expenses for CURRENT MONTH only (exclude future scheduled ones from monthly total)
   const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
   const totalVariable = variableExpenses
     .filter(expense => {
@@ -33,6 +33,11 @@ export const ExpenseTrackingEditable = () => {
       const expenseMonth = expense.specificDate.slice(0, 7);
       return expenseMonth === currentMonth;
     })
+    .reduce((sum, expense) => sum + expense.amount, 0);
+
+  // Calculate ALL active variable expenses for summary (including future scheduled ones)
+  const totalVariableForSummary = variableExpenses
+    .filter(expense => expense.status === 'active')
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   // Calculate future dated variable expenses separately - INCLUDE INACTIVE ONES
@@ -92,7 +97,7 @@ export const ExpenseTrackingEditable = () => {
           <ExpenseTabContent
             type="variable"
             expenses={variableExpenses.filter(e => !e.specificDate || e.specificDate.slice(0, 7) === currentMonth)}
-            total={totalVariable}
+            total={totalVariableForSummary}
             onUpdateExpense={updateExpense}
             onRemoveExpense={removeExpense}
             onAddExpense={addExpense}
@@ -147,7 +152,7 @@ export const ExpenseTrackingEditable = () => {
 
       <ExpenseSummaryCard 
         totalRecurring={totalRecurring}
-        totalVariable={totalVariable}
+        totalVariable={totalVariableForSummary}
       />
     </div>
   );
