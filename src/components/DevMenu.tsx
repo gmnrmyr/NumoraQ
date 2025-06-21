@@ -35,7 +35,18 @@ export const DevMenu = () => {
     const root = document.documentElement;
     
     // Reset all themes first
-    root.classList.remove('theme-neon', 'theme-monochrome', 'theme-dual-tone', 'theme-high-contrast', 'theme-cyberpunk', 'theme-matrix', 'theme-gold', 'theme-black-hole', 'theme-dark-dither');
+    root.classList.remove(
+      'theme-neon', 
+      'theme-monochrome', 
+      'theme-dual-tone', 
+      'theme-high-contrast', 
+      'theme-cyberpunk', 
+      'theme-matrix', 
+      'theme-gold', 
+      'theme-black-hole', 
+      'theme-dark-dither',
+      'theme-da-test'
+    );
     
     switch (theme) {
       case 'neon':
@@ -65,6 +76,9 @@ export const DevMenu = () => {
       case 'dark-dither':
         root.classList.add('theme-dark-dither');
         break;
+      case 'da-test':
+        root.classList.add('theme-da-test');
+        break;
       default:
         // Keep default theme
         break;
@@ -76,7 +90,7 @@ export const DevMenu = () => {
     
     toast({
       title: "Theme Applied",
-      description: `${theme.charAt(0).toUpperCase() + theme.slice(1)} theme activated.`
+      description: `${theme.charAt(0).toUpperCase() + theme.slice(1).replace('-', ' ')} theme activated.`
     });
   };
 
