@@ -35,27 +35,15 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
   const totalClass = type === 'recurring' ? "text-red-400" : "text-orange-400";
   const inactiveClass = type === 'recurring' ? "text-red-400/70" : "text-orange-400/70";
 
-  // Enhanced sorting for variable expenses with dates
+  // Enhanced sorting: dates first (chronological), then no dates (alphabetical)
   const sortedExpenses = React.useMemo(() => {
-    if (type === 'recurring') {
-      // Recurring expenses: simple sort by name or date if available
-      return expenses.sort((a, b) => {
-        if (a.date && b.date) {
-          return new Date(a.date).getTime() - new Date(b.date).getTime();
-        }
-        if (a.date && !b.date) return -1;
-        if (!a.date && b.date) return 1;
-        return a.name.localeCompare(b.name);
-      });
-    } else {
-      // Variable expenses: sort by date (chronological), then no dates in middle
-      const withDates = expenses.filter(e => e.date)
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      const withoutDates = expenses.filter(e => !e.date)
-        .sort((a, b) => a.name.localeCompare(b.name));
-      return [...withDates, ...withoutDates];
-    }
-  }, [expenses, type]);
+    const withDates = expenses.filter(e => e.specificDate)
+      .sort((a, b) => new Date(a.specificDate).getTime() - new Date(b.specificDate).getTime());
+    const withoutDates = expenses.filter(e => !e.specificDate)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    return [...withDates, ...withoutDates];
+  }, [expenses]);
 
   return (
     <Card className={`${cardClass} border-2 backdrop-blur-sm`}>
@@ -73,7 +61,7 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
             </div>
             {type === 'variable' && (
               <div className={`text-xs ${titleClass} font-mono mt-1`}>
-                💡 Tip: Set specific dates for better projections
+                💡 Set specific dates to control when expenses trigger in projections
               </div>
             )}
           </div>
