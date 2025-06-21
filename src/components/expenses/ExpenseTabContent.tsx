@@ -35,10 +35,10 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
   const totalClass = type === 'recurring' ? "text-red-400" : "text-orange-400";
   const inactiveClass = type === 'recurring' ? "text-red-400/70" : "text-orange-400/70";
 
-  // Sort expenses: with dates chronologically first, without dates in middle
+  // Sort expenses: with dates chronologically, without dates in middle
   const sortedExpenses = React.useMemo(() => {
-    const withDates = expenses.filter(e => e.specificDate).sort((a, b) => new Date(a.specificDate).getTime() - new Date(b.specificDate).getTime());
-    const withoutDates = expenses.filter(e => !e.specificDate);
+    const withDates = expenses.filter(e => e.date).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const withoutDates = expenses.filter(e => !e.date);
     return [...withDates, ...withoutDates];
   }, [expenses]);
 

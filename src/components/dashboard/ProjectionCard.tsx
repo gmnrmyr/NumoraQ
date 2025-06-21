@@ -44,45 +44,10 @@ export const ProjectionCard = () => {
   const totalRecurringExpenses = data.expenses
     .filter(expense => expense.type === 'recurring' && expense.status === 'active')
     .reduce((sum, expense) => sum + expense.amount, 0);
-
-  // Calculate variable expenses for the entire projection period
-  const calculateVariableExpensesForPeriod = () => {
-    const currentDate = new Date();
-    let totalVariableExpenses = 0;
-    
-    // Get all active variable expenses
-    const activeVariableExpenses = data.expenses.filter(expense => 
-      expense.type === 'variable' && expense.status === 'active'
-    );
-    
-    // Count undated expenses (these repeat monthly)
-    const undatedExpenses = activeVariableExpenses
-      .filter(expense => !expense.specificDate)
-      .reduce((sum, expense) => sum + expense.amount, 0);
-    
-    // Add undated expenses for all months in projection
-    totalVariableExpenses += undatedExpenses * data.projectionMonths;
-    
-    // Count dated expenses (these happen only once in their specific month)
-    const datedExpenses = activeVariableExpenses.filter(expense => expense.specificDate);
-    
-    // For each month in the projection, check if any dated expenses fall in that month
-    for (let month = 1; month <= data.projectionMonths; month++) {
-      const projectionDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + month, 1);
-      const projectionMonth = projectionDate.toISOString().slice(0, 7); // YYYY-MM
-      
-      datedExpenses.forEach(expense => {
-        const expenseMonth = expense.specificDate!.slice(0, 7);
-        if (expenseMonth === projectionMonth) {
-          totalVariableExpenses += expense.amount;
-        }
-      });
-    }
-    
-    return totalVariableExpenses;
-  };
-
-  const totalVariableExpenses = calculateVariableExpensesForPeriod();
+  
+  const totalVariableExpenses = data.expenses
+    .filter(expense => expense.type === 'variable' && expense.status === 'active')
+    .reduce((sum, expense) => sum + expense.amount, 0);
 
   const activeDebts = data.debts.filter(debt => debt.isActive);
   const totalActiveDebt = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
