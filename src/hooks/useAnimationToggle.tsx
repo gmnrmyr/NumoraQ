@@ -1,15 +1,15 @@
-
 import { useState, useEffect } from 'react';
 import { useViewport } from './useViewport';
 
 export function useAnimationToggle() {
   const { isMobile, isTablet, isDesktop } = useViewport();
+  // Start animations paused on all devices by default - too heavy for users
   const [isAnimationEnabled, setIsAnimationEnabled] = useState(false);
 
   useEffect(() => {
-    // Enable animations by default on desktop for better UX
-    // Users can still disable if needed
-    setIsAnimationEnabled(isDesktop);
+    // Keep animations disabled by default on all devices for better UX
+    // Users can manually enable if they want the eye candy
+    setIsAnimationEnabled(false);
   }, [isDesktop, isMobile, isTablet]);
 
   const toggleAnimation = () => {
