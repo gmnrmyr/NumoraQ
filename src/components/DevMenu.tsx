@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Settings, Palette, Zap, Crown, Lock } from "lucide-react";
+import { Settings } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { toast } from "@/hooks/use-toast";
 import { useUserTitle } from '@/hooks/useUserTitle';
+import { ThemeSelector } from './devmenu/ThemeSelector';
+import { DegenModePanel } from './devmenu/DegenModePanel';
 
 export const DevMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data, updateUserProfile } = useFinancialData();
   const { activatePremiumCode } = useAdminMode();
   const { userTitle } = useUserTitle();
-  const [degenCode, setDegenCode] = useState('');
 
   // Check if user has CHAMPION role (2000+ points)
   const isChampionUser = userTitle.level >= 2000 || userTitle.title === 'CHAMPION';
@@ -76,48 +76,7 @@ export const DevMenu = () => {
     });
   };
 
-  const handleActivateDegenCode = async () => {
-    const success = await activatePremiumCode(degenCode, data.userProfile.name);
-    if (success) {
-      toast({
-        title: "Degen Mode Activated!",
-        description: "You now have access to premium features."
-      });
-      setDegenCode('');
-    } else {
-      toast({
-        title: "Invalid Code",
-        description: "The code you entered is invalid or already used.",
-        variant: "destructive"
-      });
-    }
-  };
-
   const getDonationAmount = () => data.userProfile.totalDonated || 0;
-  const isThemeLocked = (requiredAmount: number) => getDonationAmount() < requiredAmount;
-
-  const ThemeButton = ({ theme, label, requiredAmount = 0, icon: Icon = Palette, championOnly = false }: { 
-    theme: string; 
-    label: string; 
-    requiredAmount?: number;
-    icon?: any;
-    championOnly?: boolean;
-  }) => {
-    const locked = isThemeLocked(requiredAmount) || (championOnly && !isChampionUser);
-    
-    return (
-      <Button
-        onClick={() => locked ? null : applyTheme(theme)}
-        disabled={locked}
-        className={`brutalist-button text-xs h-8 ${locked ? 'opacity-50 cursor-not-allowed' : ''}`}
-        variant="outline"
-      >
-        <Icon size={12} className="mr-1" />
-        {label}
-        {locked && <Lock size={10} className="ml-1" />}
-      </Button>
-    );
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -145,104 +104,19 @@ export const DevMenu = () => {
             <TabsTrigger value="degen">Degen Mode</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="themes" className="space-y-4">
-            <div className="text-sm text-muted-foreground font-mono">
-              Customize your dashboard appearance:
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-              <ThemeButton theme="default" label="Default" />
-              <ThemeButton theme="monochrome" label="Monochrome" />
-              <ThemeButton theme="neon" label="Neon" />
-              <ThemeButton theme="dual-tone" label="Dual Tone" />
-              <ThemeButton theme="high-contrast" label="High Contrast" />
-              <ThemeButton 
-                theme="cyberpunk" 
-                label="Cyberpunk" 
-                requiredAmount={100}
-                icon={Crown}
-              />
-              <ThemeButton 
-                theme="matrix" 
-                label="Matrix" 
-                requiredAmount={500}
-                icon={Crown}
-              />
-              <ThemeButton 
-                theme="gold" 
-                label="Gold Rush" 
-                requiredAmount={1000}
-                icon={Crown}
-              />
-              <ThemeButton 
-                theme="black-hole" 
-                label="Black Hole" 
-                championOnly={true}
-                icon={Zap}
-              />
-            </div>
-            
-            <div className="bg-muted p-3 border-2 border-border">
-              <div className="text-xs font-mono">
-                <div className="flex items-center gap-2 mb-1">
-                  <Crown size={12} className="text-yellow-400" />
-                  <span className="font-bold">Premium Themes</span>
-                </div>
-                <div>• Cyberpunk ($100+ donated)</div>
-                <div>• Matrix ($500+ donated)</div>
-                <div>• Gold Rush ($1000+ donated)</div>
-                <div className="flex items-center gap-1 mt-1">
-                  <Zap size={12} className="text-orange-400" />
-                  <span className="font-bold text-orange-400">Champion Only:</span>
-                </div>
-                <div>• Black Hole (CHAMPION role)</div>
-              </div>
-            </div>
+          <TabsContent value="themes">
+            <ThemeSelector 
+              onApplyTheme={applyTheme}
+              getDonationAmount={getDonationAmount}
+              isChampionUser={isChampionUser}
+            />
           </TabsContent>
 
-          <TabsContent value="degen" className="space-y-4">
-            <div className="text-sm text-muted-foreground font-mono">
-              Activate premium features:
-            </div>
-            
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Enter degen code"
-                value={degenCode}
-                onChange={(e) => setDegenCode(e.target.value)}
-                className="w-full p-2 bg-input border-2 border-border font-mono text-sm"
-              />
-              
-              <Button 
-                onClick={handleActivateDegenCode}
-                className="w-full brutalist-button"
-                disabled={!degenCode.trim()}
-              >
-                <Zap size={16} className="mr-2" />
-                Activate Code
-              </Button>
-              
-              <div className="text-center text-xs text-muted-foreground font-mono">
-                OR
-              </div>
-              
-              <div className="space-y-2">
-                <Button 
-                  onClick={() => toast({ title: "Coming Soon", description: "Crypto payment integration in development." })}
-                  className="w-full brutalist-button bg-orange-600 hover:bg-orange-700"
-                >
-                  Pay with Crypto
-                </Button>
-                
-                <Button 
-                  onClick={() => toast({ title: "Coming Soon", description: "PayPal integration in development." })}
-                  className="w-full brutalist-button bg-blue-600 hover:bg-blue-700"
-                >
-                  Pay with PayPal
-                </Button>
-              </div>
-            </div>
+          <TabsContent value="degen">
+            <DegenModePanel 
+              activatePremiumCode={activatePremiumCode}
+              userName={data.userProfile.name}
+            />
           </TabsContent>
         </Tabs>
       </DialogContent>
