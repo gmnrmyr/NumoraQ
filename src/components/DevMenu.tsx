@@ -16,8 +16,8 @@ export const DevMenu = () => {
   const { userTitle } = useUserTitle();
   const [degenCode, setDegenCode] = useState('');
 
-  // Check if user has CHAMPION role (2000+ donation points or level 80+)
-  const isChampionUser = userTitle.level >= 80 || userTitle.title === 'CHAMPION';
+  // Check if user has CHAMPION role (2000+ points)
+  const isChampionUser = userTitle.level >= 2000 || userTitle.title === 'CHAMPION';
 
   // Set monochrome as default theme on component mount and ensure it's applied from start
   React.useEffect(() => {

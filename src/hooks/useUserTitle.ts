@@ -7,38 +7,33 @@ interface UserTitle {
   title: string;
   color: string;
   level: number;
+  description: string;
 }
 
 const USER_TITLES: UserTitle[] = [
   // Donation-based titles (highest to lowest)
-  { level: 100, title: 'WHALE', color: 'text-purple-600' },
-  { level: 90, title: 'LEGEND', color: 'text-purple-400' },
-  { level: 80, title: 'PATRON', color: 'text-yellow-400' },
-  { level: 70, title: 'CHAMPION', color: 'text-orange-400' },
-  { level: 60, title: 'SUPPORTER', color: 'text-blue-400' },
-  { level: 50, title: 'BACKER', color: 'text-green-400' },
-  { level: 40, title: 'DONOR', color: 'text-cyan-400' },
-  { level: 30, title: 'CONTRIBUTOR', color: 'text-indigo-400' },
-  { level: 20, title: 'HELPER', color: 'text-pink-400' },
-  { level: 10, title: 'FRIEND', color: 'text-emerald-400' },
-  
-  // Activity-based titles (101-500)
-  { level: 500, title: 'MASTER TRADER', color: 'text-red-400' },
-  { level: 450, title: 'CRYPTO WIZARD', color: 'text-violet-400' },
-  { level: 400, title: 'PORTFOLIO GURU', color: 'text-amber-400' },
-  { level: 350, title: 'MARKET ANALYST', color: 'text-teal-400' },
-  { level: 300, title: 'HODLER ELITE', color: 'text-rose-400' },
-  { level: 250, title: 'DIAMOND HANDS', color: 'text-sky-400' },
-  { level: 200, title: 'ACTIVE TRADER', color: 'text-orange-300' },
-  { level: 150, title: 'INVESTOR', color: 'text-green-300' },
-  { level: 100, title: 'ENTHUSIAST', color: 'text-blue-300' },
-  { level: 50, title: 'BEGINNER', color: 'text-gray-400' },
-  { level: 1, title: 'NEWCOMER', color: 'text-slate-400' }
+  { level: 50000, title: 'WHALE', color: 'text-purple-600', description: '$50,000+ Exclusive Whale Badge' },
+  { level: 10000, title: 'LEGEND', color: 'text-purple-400', description: '$10,000+ Exclusive Legend Badge' },
+  { level: 5000, title: 'PATRON', color: 'text-yellow-400', description: '$5,000+ Patron Badge' },
+  { level: 2000, title: 'CHAMPION', color: 'text-orange-400', description: '$2,000+ Champion Badge' },
+  { level: 1000, title: 'SUPPORTER', color: 'text-blue-400', description: '$1,000+ Supporter Badge' },
+  { level: 500, title: 'BACKER', color: 'text-green-400', description: '$500+ Backer Badge' },
+  { level: 100, title: 'DONOR', color: 'text-cyan-400', description: '$100+ Donor Badge' },
+  { level: 50, title: 'CONTRIBUTOR', color: 'text-indigo-400', description: '$50+ Contributor Badge' },
+  { level: 25, title: 'HELPER', color: 'text-pink-400', description: '$25+ Helper Badge' },
+  { level: 20, title: 'FRIEND', color: 'text-emerald-400', description: '$20+ Friend Badge' },
+  { level: 10, title: 'SUPPORTER', color: 'text-blue-300', description: '$10+ Basic Supporter Badge' },
+  { level: 0, title: 'NEWCOMER', color: 'text-slate-400', description: '$0-9 Welcome Badge' }
 ];
 
 export const useUserTitle = () => {
   const { user } = useAuth();
-  const [userTitle, setUserTitle] = useState<UserTitle>({ title: 'NEWCOMER', color: 'text-slate-400', level: 1 });
+  const [userTitle, setUserTitle] = useState<UserTitle>({ 
+    title: 'NEWCOMER', 
+    color: 'text-slate-400', 
+    level: 0, 
+    description: '$0-9 Welcome Badge' 
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -62,10 +57,8 @@ export const useUserTitle = () => {
       if (pointsError) throw pointsError;
 
       const totalPoints = pointsData?.reduce((sum, entry) => sum + entry.points, 0) || 0;
-      const donationPoints = pointsData?.filter(p => p.activity_type === 'donation')
-        .reduce((sum, entry) => sum + entry.points, 0) || 0;
 
-      console.log('User points calculated:', { totalPoints, donationPoints });
+      console.log('User points calculated:', { totalPoints });
 
       // Check for admin-assigned title first
       const { data: profileData } = await supabase
@@ -76,50 +69,27 @@ export const useUserTitle = () => {
 
       if (profileData?.admin_level && profileData.admin_level !== 'standard') {
         const adminLevel = parseInt(profileData.admin_level);
-        if (adminLevel >= 1 && adminLevel <= 500) {
-          const title = USER_TITLES.find(t => t.level <= adminLevel) || USER_TITLES[USER_TITLES.length - 1];
+        if (adminLevel >= 1 && adminLevel <= 50000) {
+          const title = USER_TITLES.find(t => adminLevel >= t.level) || USER_TITLES[USER_TITLES.length - 1];
           setUserTitle(title);
           setLoading(false);
           return;
         }
       }
 
-      // Calculate title based on points and donations
-      let targetLevel = 1;
-      
-      if (donationPoints > 0) {
-        // Donation-based titles (higher priority) - corrected thresholds
-        if (donationPoints >= 50000) targetLevel = 100; // WHALE
-        else if (donationPoints >= 10000) targetLevel = 90; // LEGEND
-        else if (donationPoints >= 5000) targetLevel = 80; // PATRON
-        else if (donationPoints >= 2000) targetLevel = 70; // CHAMPION
-        else if (donationPoints >= 1000) targetLevel = 60; // SUPPORTER
-        else if (donationPoints >= 500) targetLevel = 50; // BACKER
-        else if (donationPoints >= 100) targetLevel = 40; // DONOR
-        else if (donationPoints >= 50) targetLevel = 30; // CONTRIBUTOR
-        else if (donationPoints >= 25) targetLevel = 20; // HELPER
-        else if (donationPoints >= 20) targetLevel = 10; // FRIEND
-        else targetLevel = 10; // SUPPORTER
-      } else {
-        // Activity-based titles
-        if (totalPoints >= 5000) targetLevel = 500;
-        else if (totalPoints >= 2500) targetLevel = 450;
-        else if (totalPoints >= 1000) targetLevel = 400;
-        else if (totalPoints >= 750) targetLevel = 350;
-        else if (totalPoints >= 500) targetLevel = 300;
-        else if (totalPoints >= 300) targetLevel = 250;
-        else if (totalPoints >= 200) targetLevel = 200;
-        else if (totalPoints >= 100) targetLevel = 150;
-        else if (totalPoints >= 50) targetLevel = 100;
-        else if (totalPoints >= 25) targetLevel = 50;
-        else targetLevel = 1;
+      // Calculate title based on total points using your specified thresholds
+      let selectedTitle = USER_TITLES[USER_TITLES.length - 1]; // Default to NEWCOMER
+
+      // Find the highest title the user qualifies for
+      for (const title of USER_TITLES) {
+        if (totalPoints >= title.level) {
+          selectedTitle = title;
+          break;
+        }
       }
 
-      console.log('Calculated target level:', targetLevel);
-
-      const title = USER_TITLES.find(t => t.level <= targetLevel) || USER_TITLES[USER_TITLES.length - 1];
-      console.log('Selected title:', title);
-      setUserTitle(title);
+      console.log('Calculated title:', selectedTitle, 'for points:', totalPoints);
+      setUserTitle(selectedTitle);
     } catch (error) {
       console.error('Error calculating user title:', error);
     } finally {
