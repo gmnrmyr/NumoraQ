@@ -35,8 +35,7 @@ const STOCK_DATA: StockInfo[] = [
   { symbol: 'MXRF11.SA', name: 'Maxi Renda FII', type: 'reit', exchange: 'BM&FBOVESPA' }
 ];
 
-// Add precious metals data
-const PRECIOUS_METALS = [
+const PRECIOUS_METALS: StockInfo[] = [
   { symbol: 'XAU', name: 'Gold', type: 'metal', exchange: 'COMEX' },
   { symbol: 'XAG', name: 'Silver', type: 'metal', exchange: 'COMEX' },
   { symbol: 'XPT', name: 'Platinum', type: 'metal', exchange: 'NYMEX' },

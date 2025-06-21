@@ -1,0 +1,63 @@
+
+export interface LiquidAsset {
+  id: string;
+  name: string;
+  value: number;
+  icon: string;
+  color: string;
+  isActive: boolean;
+  trackingMode?: 'manual' | 'wallet' | 'price';
+  isCrypto?: boolean;
+  cryptoSymbol?: string;
+  quantity?: number;
+  isStock?: boolean;
+  isReit?: boolean;
+  stockSymbol?: string;
+  stockName?: string;
+  isPreciousMetal?: boolean;
+  metalSymbol?: string;
+  isWalletTracked?: boolean;
+  walletAddress?: string;
+  autoCompound?: boolean;
+  monthlyYield?: number;
+}
+
+export interface IlliquidAsset {
+  id: string;
+  name: string;
+  value: number;
+  icon: string;
+  color: string;
+  isActive: boolean;
+}
+
+export interface Property {
+  id: string;
+  name: string;
+  value: number;
+  minValue?: number;
+  maxValue?: number;
+  status: 'rented' | 'renovating' | 'planned';
+  currentRent: number;
+  expectedRent?: number;
+  statusIcon: string;
+  statusText: string;
+  prediction: string;
+  rentRange: string;
+}
+
+export interface Stock {
+  id: string;
+  symbol: string;
+  name: string;
+  shares: number;
+  currentPrice: number;
+  totalValue: number;
+  status: 'yielding' | 'growth' | 'dividend';
+  yield?: number;
+  statusIcon: string;
+  statusText: string;
+}
+
+// Aliases for backward compatibility
+export type PropertyItem = Property;
