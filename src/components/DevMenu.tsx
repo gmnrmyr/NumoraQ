@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -34,7 +35,7 @@ export const DevMenu = () => {
     const root = document.documentElement;
     
     // Reset all themes first
-    root.classList.remove('theme-neon', 'theme-monochrome', 'theme-dual-tone', 'theme-high-contrast', 'theme-cyberpunk', 'theme-matrix', 'theme-gold', 'theme-black-hole');
+    root.classList.remove('theme-neon', 'theme-monochrome', 'theme-dual-tone', 'theme-high-contrast', 'theme-cyberpunk', 'theme-matrix', 'theme-gold', 'theme-black-hole', 'theme-dark-dither');
     
     switch (theme) {
       case 'neon':
@@ -60,6 +61,9 @@ export const DevMenu = () => {
         break;
       case 'black-hole':
         root.classList.add('theme-black-hole');
+        break;
+      case 'dark-dither':
+        root.classList.add('theme-dark-dither');
         break;
       default:
         // Keep default theme

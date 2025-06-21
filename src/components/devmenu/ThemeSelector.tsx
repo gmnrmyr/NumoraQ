@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Palette, Crown, Lock, Zap } from "lucide-react";
+import { Palette, Crown, Lock, Zap, Waves } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface ThemeSelectorProps {
@@ -14,14 +14,15 @@ interface ThemeSelectorProps {
 export const ThemeSelector = ({ onApplyTheme, getDonationAmount, isChampionUser }: ThemeSelectorProps) => {
   const isThemeLocked = (requiredAmount: number) => getDonationAmount() < requiredAmount;
 
-  const ThemeButton = ({ theme, label, requiredAmount = 0, icon: Icon = Palette, championOnly = false }: { 
+  const ThemeButton = ({ theme, label, requiredAmount = 0, icon: Icon = Palette, championOnly = false, whalesOnly = false }: { 
     theme: string; 
     label: string; 
     requiredAmount?: number;
     icon?: any;
     championOnly?: boolean;
+    whalesOnly?: boolean;
   }) => {
-    const locked = isThemeLocked(requiredAmount) || (championOnly && !isChampionUser);
+    const locked = isThemeLocked(requiredAmount) || (championOnly && !isChampionUser) || (whalesOnly && getDonationAmount() < 10000);
     
     return (
       <Button
@@ -73,6 +74,12 @@ export const ThemeSelector = ({ onApplyTheme, getDonationAmount, isChampionUser 
           championOnly={true}
           icon={Zap}
         />
+        <ThemeButton 
+          theme="dark-dither" 
+          label="Dark Dither" 
+          whalesOnly={true}
+          icon={Waves}
+        />
       </div>
       
       <div className="bg-muted p-3 border-2 border-border">
@@ -89,6 +96,11 @@ export const ThemeSelector = ({ onApplyTheme, getDonationAmount, isChampionUser 
             <span className="font-bold text-orange-400">Champion Only:</span>
           </div>
           <div>• Black Hole (CHAMPION role)</div>
+          <div className="flex items-center gap-1 mt-1">
+            <Waves size={12} className="text-purple-400" />
+            <span className="font-bold text-purple-400">Whales+ Only:</span>
+          </div>
+          <div>• Dark Dither (10,000+ points)</div>
         </div>
       </div>
     </div>
