@@ -22,12 +22,12 @@ export const DashboardHeader = () => {
   const shouldShowAnimation = isChampionUser && isBlackHoleTheme && isAnimationEnabled;
   
   return (
-    <>
+    <div className="relative min-h-[400px] overflow-hidden">
       {/* Black Hole Animation */}
       <BlackHoleAnimation isVisible={shouldShowAnimation} />
       
-      <div className="relative">
-        <div className="text-center space-y-6 py-8 relative z-10">
+      <div className="relative z-10">
+        <div className="text-center space-y-6 py-8">
           <DashboardIcons />
           <DashboardTitle />
           
@@ -38,6 +38,6 @@ export const DashboardHeader = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
