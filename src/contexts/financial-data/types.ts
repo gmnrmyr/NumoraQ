@@ -9,6 +9,9 @@ export interface LiquidAsset {
   isCrypto?: boolean;
   cryptoSymbol?: string;
   quantity?: number;
+  isStock?: boolean;
+  stockSymbol?: string;
+  stockName?: string;
 }
 
 export interface IlliquidAsset {
