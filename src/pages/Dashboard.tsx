@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { PortfolioOverview } from "@/components/PortfolioOverview";
@@ -16,6 +17,7 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ExchangeRatesBanner } from "@/components/dashboard/ExchangeRatesBanner";
 import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
+import { BackgroundAnimation } from "@/components/dashboard/BackgroundAnimation";
 import { AIAdvisor } from "@/components/ai/AIAdvisor";
 import { PWASetup } from "@/components/PWASetup";
 import { AdSenseAd } from "@/components/AdSenseAd";
@@ -72,7 +74,10 @@ const Dashboard = () => {
       <meta name="keywords" content="financial dashboard, crypto tracking, portfolio management, expense tracking, income analysis, net worth calculator" />
       <meta name="robots" content="noindex, nofollow" />
       
-      <div className="min-h-screen bg-background text-foreground font-mono">
+      {/* Background Animation */}
+      <BackgroundAnimation />
+      
+      <div className="min-h-screen bg-background text-foreground font-mono relative z-10">
         <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
         <div className="pt-20 sm:pt-32 pb-4">
           <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
