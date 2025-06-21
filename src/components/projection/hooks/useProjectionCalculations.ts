@@ -34,7 +34,7 @@ export const useProjectionCalculations = () => {
       .filter(expense => expense.type === 'recurring' && expense.status === 'active')
       .reduce((sum, expense) => sum + expense.amount, 0);
 
-    // Get variable expenses with proper date handling
+    // Get active variable expenses for proper date handling
     const activeVariableExpenses = data.expenses
       .filter(expense => expense.type === 'variable' && expense.status === 'active');
     
@@ -62,29 +62,27 @@ export const useProjectionCalculations = () => {
       variableExpenses: 0
     });
     
-    // Calculate future months with compound growth for REITs and specific date expenses
+    // Calculate future months with compound growth for REITs and proper variable expense handling
     for (let i = 1; i <= months; i++) {
       const previousBalance = runningBalance;
       
       // Calculate which variable expenses should trigger this month
       const currentDate = new Date();
       const targetMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+      const targetMonthStr = targetMonth.toISOString().slice(0, 7); // YYYY-MM format
       
       let variableExpensesThisMonth = 0;
       
       activeVariableExpenses.forEach(expense => {
         if (expense.specificDate) {
-          // If expense has a specific date, check if it matches this month
-          const expenseDate = new Date(expense.specificDate);
-          if (expenseDate.getFullYear() === targetMonth.getFullYear() && 
-              expenseDate.getMonth() === targetMonth.getMonth()) {
+          // If expense has a specific date, only trigger in that exact month
+          const expenseMonthStr = expense.specificDate.slice(0, 7); // YYYY-MM format
+          if (expenseMonthStr === targetMonthStr) {
             variableExpensesThisMonth += expense.amount;
           }
         } else {
-          // If no specific date, apply in month 1 only (legacy behavior)
-          if (i === 1) {
-            variableExpensesThisMonth += expense.amount;
-          }
+          // If no specific date, trigger every month (default behavior)
+          variableExpensesThisMonth += expense.amount;
         }
       });
       

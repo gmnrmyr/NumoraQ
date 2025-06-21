@@ -6,7 +6,7 @@ export interface Expense {
   category: string;
   type: 'recurring' | 'variable';
   status: 'active' | 'inactive';
-  specificDate?: string; // Added for variable expenses with specific dates
+  specificDate?: string; // YYYY-MM-DD format for variable expenses - only triggers in that month
 }
 
 export interface Debt {

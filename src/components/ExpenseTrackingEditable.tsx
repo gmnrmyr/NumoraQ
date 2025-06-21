@@ -19,7 +19,8 @@ export const ExpenseTrackingEditable = () => {
     .filter(expense => expense.status === 'active')
     .reduce((sum, expense) => sum + expense.amount, 0);
     
-  // Calculate variable expenses (only those without specific dates or with current month dates count as monthly)
+  // Calculate variable expenses for current month display
+  // Include all active variable expenses without dates, plus those with current month dates
   const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
   const totalVariable = variableExpenses
     .filter(expense => {
@@ -33,24 +34,6 @@ export const ExpenseTrackingEditable = () => {
       return expenseMonth === currentMonth;
     })
     .reduce((sum, expense) => sum + expense.amount, 0);
-
-  // Calculate future dated variable expenses separately
-  const futureVariableExpenses = variableExpenses
-    .filter(expense => {
-      if (expense.status !== 'active' || !expense.specificDate) return false;
-      
-      const expenseMonth = expense.specificDate.slice(0, 7);
-      return expenseMonth > currentMonth;
-    });
-
-  // Calculate past dated variable expenses separately  
-  const pastVariableExpenses = variableExpenses
-    .filter(expense => {
-      if (expense.status !== 'active' || !expense.specificDate) return false;
-      
-      const expenseMonth = expense.specificDate.slice(0, 7);
-      return expenseMonth < currentMonth;
-    });
 
   const categoryOptions = [
     { value: 'housing', label: t.housing },
@@ -90,7 +73,7 @@ export const ExpenseTrackingEditable = () => {
         <TabsContent value="variable" className="space-y-4">
           <ExpenseTabContent
             type="variable"
-            expenses={variableExpenses.filter(e => !e.specificDate || e.specificDate.slice(0, 7) === currentMonth)}
+            expenses={variableExpenses}
             total={totalVariable}
             onUpdateExpense={updateExpense}
             onRemoveExpense={removeExpense}
@@ -99,40 +82,6 @@ export const ExpenseTrackingEditable = () => {
             isAddingExpense={isAddingExpense}
             setIsAddingExpense={setIsAddingExpense}
           />
-          
-          {/* Show future expenses separately */}
-          {futureVariableExpenses.length > 0 && (
-            <div className="mt-4 p-3 bg-muted border-2 border-border">
-              <h4 className="font-mono font-bold text-sm mb-2 text-blue-400">
-                Future Scheduled Expenses:
-              </h4>
-              <div className="space-y-1 text-xs font-mono">
-                {futureVariableExpenses.map(expense => (
-                  <div key={expense.id} className="flex justify-between">
-                    <span>{expense.name}</span>
-                    <span className="text-blue-400">${expense.amount} on {expense.specificDate}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Show past expenses separately */}
-          {pastVariableExpenses.length > 0 && (
-            <div className="mt-4 p-3 bg-muted border-2 border-border">
-              <h4 className="font-mono font-bold text-sm mb-2 text-orange-400">
-                Past Scheduled Expenses:
-              </h4>
-              <div className="space-y-1 text-xs font-mono">
-                {pastVariableExpenses.map(expense => (
-                  <div key={expense.id} className="flex justify-between">
-                    <span>{expense.name}</span>
-                    <span className="text-orange-400">${expense.amount} on {expense.specificDate}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </TabsContent>
       </Tabs>
 
