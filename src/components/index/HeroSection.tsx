@@ -29,34 +29,6 @@ const onboardingOptions = [
 ];
 
 export const HeroSection = () => {
-  // Start landing page animation as paused on desktop
-  React.useEffect(() => {
-    const handleLandingAnimation = () => {
-      // Look for any UnicornStudio animations on the landing page
-      const animationElements = document.querySelectorAll('[data-us-project]');
-      
-      // Start them as paused on desktop for better UX
-      if (window.innerWidth >= 1024 && window.UnicornStudio) {
-        setTimeout(() => {
-          try {
-            // Pause any animations that might have auto-started
-            if (window.UnicornStudio.pause) {
-              window.UnicornStudio.pause();
-            }
-            console.log('🎬 Landing page animations started as paused');
-          } catch (error) {
-            console.log('🎬 Landing animation control not available');
-          }
-        }, 1000);
-      }
-    };
-
-    // Run after UnicornStudio might be loaded
-    const timer = setTimeout(handleLandingAnimation, 2000);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <div className="text-center space-y-8">
       <div className="space-y-6">
