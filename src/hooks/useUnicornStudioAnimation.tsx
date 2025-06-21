@@ -19,7 +19,11 @@ export function useUnicornStudioAnimation(config: AnimationConfig) {
 
     console.log('🎬 Initializing UnicornStudio for project:', config.projectId);
     
-    // Enhanced initialization for better reliability
+    // Clean up any existing scripts first
+    const existingScripts = document.querySelectorAll('script[src*="unicornStudio"]');
+    existingScripts.forEach(script => script.remove());
+
+    // Create the initialization script using the working pattern
     const script = document.createElement("script");
     script.type = "text/javascript";
     script.innerHTML = `
@@ -34,10 +38,7 @@ export function useUnicornStudioAnimation(config: AnimationConfig) {
                 UnicornStudio.init();
                 window.UnicornStudio.isInitialized=!0;
                 console.log('🎬 UnicornStudio initialized successfully');
-                // Force re-render after initialization
-                setTimeout(() => {
-                  window.dispatchEvent(new CustomEvent('unicornStudioReady', { detail: '${config.projectId}' }));
-                }, 200);
+                window.dispatchEvent(new CustomEvent('unicornStudioReady', { detail: '${config.projectId}' }));
               } catch (error) {
                 console.error('🎬 UnicornStudio initialization failed:', error);
                 window.dispatchEvent(new CustomEvent('unicornStudioError', { detail: error.message }));
@@ -54,25 +55,17 @@ export function useUnicornStudioAnimation(config: AnimationConfig) {
             UnicornStudio.init();
             window.UnicornStudio.isInitialized=!0;
             console.log('🎬 UnicornStudio re-initialized');
-            setTimeout(() => {
-              window.dispatchEvent(new CustomEvent('unicornStudioReady', { detail: '${config.projectId}' }));
-            }, 200);
+            window.dispatchEvent(new CustomEvent('unicornStudioReady', { detail: '${config.projectId}' }));
           } catch (error) {
             console.error('🎬 UnicornStudio re-initialization failed:', error);
             window.dispatchEvent(new CustomEvent('unicornStudioError', { detail: error.message }));
           }
         } else {
           console.log('🎬 UnicornStudio already ready');
-          setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('unicornStudioReady', { detail: '${config.projectId}' }));
-          }, 100);
+          window.dispatchEvent(new CustomEvent('unicornStudioReady', { detail: '${config.projectId}' }));
         }
       }();
     `;
-    
-    // Remove any existing animation scripts to prevent conflicts
-    const existingScripts = document.querySelectorAll('script[src*="unicornstudio"]');
-    existingScripts.forEach(script => script.remove());
     
     document.head.appendChild(script);
   }, [config.enabled, config.projectId]);
@@ -102,8 +95,8 @@ export function useUnicornStudioAnimation(config: AnimationConfig) {
     window.addEventListener('unicornStudioReady', handleReady as EventListener);
     window.addEventListener('unicornStudioError', handleError as EventListener);
 
-    // Initialize with proper delay for DOM readiness
-    const timer = setTimeout(initializeUnicornStudio, 300);
+    // Initialize after a small delay to ensure DOM is ready
+    const timer = setTimeout(initializeUnicornStudio, 100);
 
     return () => {
       clearTimeout(timer);
@@ -121,11 +114,8 @@ export function useUnicornStudioAnimation(config: AnimationConfig) {
     setError(null);
     setIsReady(false);
     setIsLoaded(false);
-    // Clean up before retry
-    const existingElements = document.querySelectorAll(`[data-us-project="${config.projectId}"]`);
-    existingElements.forEach(el => el.innerHTML = '');
-    setTimeout(initializeUnicornStudio, 500);
-  }, [initializeUnicornStudio, config.projectId]);
+    initializeUnicornStudio();
+  }, [initializeUnicornStudio]);
 
   return {
     isReady,

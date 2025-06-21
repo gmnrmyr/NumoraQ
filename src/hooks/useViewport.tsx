@@ -6,7 +6,6 @@ interface ViewportInfo {
   isTablet: boolean;
   isDesktop: boolean;
   width: number;
-  height: number;
 }
 
 const MOBILE_BREAKPOINT = 768;
@@ -17,42 +16,23 @@ export function useViewport(): ViewportInfo {
     isMobile: false,
     isTablet: false,
     isDesktop: true,
-    width: 1024,
-    height: 768
+    width: 1024
   });
 
   useEffect(() => {
     const updateViewport = () => {
       const width = window.innerWidth;
-      const height = window.innerHeight;
-      
       setViewport({
         isMobile: width < MOBILE_BREAKPOINT,
         isTablet: width >= MOBILE_BREAKPOINT && width < TABLET_BREAKPOINT,
         isDesktop: width >= TABLET_BREAKPOINT,
-        width,
-        height
+        width
       });
     };
 
-    // Initial update
     updateViewport();
-    
-    // Throttled resize handler for better performance
-    let timeoutId: NodeJS.Timeout;
-    const handleResize = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(updateViewport, 100);
-    };
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', updateViewport);
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', updateViewport);
-      clearTimeout(timeoutId);
-    };
+    window.addEventListener('resize', updateViewport);
+    return () => window.removeEventListener('resize', updateViewport);
   }, []);
 
   return viewport;

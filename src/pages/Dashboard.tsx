@@ -16,22 +16,15 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ExchangeRatesBanner } from "@/components/dashboard/ExchangeRatesBanner";
 import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
-import { BackgroundAnimation } from "@/components/dashboard/BackgroundAnimation";
 import { AIAdvisor } from "@/components/ai/AIAdvisor";
 import { PWASetup } from "@/components/PWASetup";
 import { AdSenseAd } from "@/components/AdSenseAd";
 import { useSecureAdminAuth } from "@/hooks/useSecureAdminAuth";
-import { DarkHole2Background } from "@/components/dashboard/DarkHole2Background";
-import { useFinancialData } from "@/contexts/FinancialDataContext";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const { isAdmin } = useSecureAdminAuth();
-  const { data } = useFinancialData();
-
-  // Check if dark-hole-2 theme is active
-  const isDarkHole2Theme = data.userProfile.theme === 'dark-hole-2';
 
   // Admin panel keyboard shortcut
   React.useEffect(() => {
@@ -79,112 +72,103 @@ const Dashboard = () => {
       <meta name="keywords" content="financial dashboard, crypto tracking, portfolio management, expense tracking, income analysis, net worth calculator" />
       <meta name="robots" content="noindex, nofollow" />
       
-      {/* Background Animation - Keep existing one for compatibility */}
-      <BackgroundAnimation />
-      
-      <div className={`min-h-screen bg-background text-foreground font-mono relative ${isDarkHole2Theme ? 'dashboard-container' : ''}`}>
-        
-        {/* Dark Hole 2 Background - Landing page style */}
-        {isDarkHole2Theme && <DarkHole2Background />}
-        
-        <div className={isDarkHole2Theme ? 'dashboard-content' : 'relative z-10'}>
-          <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
-          <div className="pt-20 sm:pt-32 pb-4">
-            <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
-              <DashboardHeader />
-              
-              {/* Consolidated User Profile Section with all panels */}
-              <UserProfileSection />
-              
-              <ExchangeRatesBanner />
-              <MetricsOverview />
-              <ProjectionCard />
-
-              {/* Ad placement only after substantial content is loaded */}
-              <AdSenseAd className="my-6" minContentRequired={true} />
-
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <div>
-                  <TabsContent value="portfolio" className="space-y-6" data-section="portfolio">
-                    <div className="text-center mb-6">
-                      <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                        {getSectionTitle('portfolio')}
-                      </h2>
-                      <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                    </div>
-                    <PortfolioOverview />
-                  </TabsContent>
-
-                  <TabsContent value="income" className="space-y-6" data-section="income">
-                    <div className="text-center mb-6">
-                      <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                        {getSectionTitle('income')}
-                      </h2>
-                      <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                    </div>
-                    <IncomeTracking />
-                    {/* Ad placement within content sections */}
-                    <AdSenseAd className="my-4" minContentRequired={true} />
-                  </TabsContent>
-
-                  <TabsContent value="expenses" className="space-y-6" data-section="expenses">
-                    <div className="text-center mb-6">
-                      <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                        {getSectionTitle('expenses')}
-                      </h2>
-                      <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                    </div>
-                    <ExpenseTrackingEditable />
-                  </TabsContent>
-
-                  <TabsContent value="assets" className="space-y-6" data-section="assets">
-                    <div className="text-center mb-6">
-                      <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                        {getSectionTitle('assets')}
-                      </h2>
-                      <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                    </div>
-                    <AssetManagementEditable />
-                  </TabsContent>
-
-                  <TabsContent value="tasks" className="space-y-6" data-section="tasks">
-                    <div className="text-center mb-6">
-                      <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                        {getSectionTitle('tasks')}
-                      </h2>
-                      <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                    </div>
-                    <TaskManagementEditable />
-                  </TabsContent>
-
-                  <TabsContent value="debt" className="space-y-6" data-section="debt">
-                    <div className="text-center mb-6">
-                      <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                        {getSectionTitle('debt')}
-                      </h2>
-                      <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                    </div>
-                    <DebtTrackingEditable />
-                  </TabsContent>
-                </div>
-              </Tabs>
-
-              <ProjectionChart />
-              
-              {/* Final ad placement after main content */}
-              <AdSenseAd className="my-4" minContentRequired={true} />
-            </div>
+      <div className="min-h-screen bg-background text-foreground font-mono">
+        <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="pt-20 sm:pt-32 pb-4">
+          <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
+            <DashboardHeader />
             
-            <DevMenu />
-            <AIAdvisor />
-            <PWASetup />
-            <SecureAdminPanel 
-              isOpen={showAdminPanel} 
-              onClose={() => setShowAdminPanel(false)} 
-            />
+            {/* Consolidated User Profile Section with all panels */}
+            <UserProfileSection />
+            
+            <ExchangeRatesBanner />
+            <MetricsOverview />
+            <ProjectionCard />
+
+            {/* Ad placement only after substantial content is loaded */}
+            <AdSenseAd className="my-6" minContentRequired={true} />
+
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <div>
+                <TabsContent value="portfolio" className="space-y-6" data-section="portfolio">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('portfolio')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <PortfolioOverview />
+                </TabsContent>
+
+                <TabsContent value="income" className="space-y-6" data-section="income">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('income')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <IncomeTracking />
+                  {/* Ad placement within content sections */}
+                  <AdSenseAd className="my-4" minContentRequired={true} />
+                </TabsContent>
+
+                <TabsContent value="expenses" className="space-y-6" data-section="expenses">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('expenses')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <ExpenseTrackingEditable />
+                </TabsContent>
+
+                <TabsContent value="assets" className="space-y-6" data-section="assets">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('assets')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <AssetManagementEditable />
+                </TabsContent>
+
+                <TabsContent value="tasks" className="space-y-6" data-section="tasks">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('tasks')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <TaskManagementEditable />
+                </TabsContent>
+
+                <TabsContent value="debt" className="space-y-6" data-section="debt">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
+                      {getSectionTitle('debt')}
+                    </h2>
+                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
+                  </div>
+                  <DebtTrackingEditable />
+                </TabsContent>
+              </div>
+            </Tabs>
+
+            <ProjectionChart />
+            
+            {/* Final ad placement after main content */}
+            <AdSenseAd className="my-4" minContentRequired={true} />
           </div>
-          <Footer />
+          
+          <DevMenu />
+          <AIAdvisor />
+          <PWASetup />
+          <SecureAdminPanel 
+            isOpen={showAdminPanel} 
+            onClose={() => setShowAdminPanel(false)} 
+          />
         </div>
+        <Footer />
       </div>
     </>
   );

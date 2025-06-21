@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Palette, Crown, Lock, Zap, Waves, TestTube, Disc } from "lucide-react";
+import { Palette, Crown, Lock, Zap, Waves, TestTube } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useUserTitle } from '@/hooks/useUserTitle';
 
@@ -100,12 +100,6 @@ export const ThemeSelector = ({ onApplyTheme, getDonationAmount, isChampionUser 
           label="Dark Dither" 
           whalesOnly={true}
           icon={Waves}
-        />
-        <ThemeButton 
-          theme="dark-hole-2" 
-          label="Dark Hole 2" 
-          whalesOnly={true}
-          icon={Disc}
         />
         <ThemeButton 
           theme="da-test" 
