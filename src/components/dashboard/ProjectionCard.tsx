@@ -60,30 +60,30 @@ export const ProjectionCard = () => {
     })
     .reduce((sum, expense) => sum + expense.amount, 0);
 
-  // Calculate total variable expenses for the entire projection period
+  // Calculate total variable expenses for the ENTIRE projection period (only once per expense)
   const getAllVariableExpensesForProjection = () => {
     let totalVariableForPeriod = 0;
     const currentDate = new Date();
     
-    for (let monthOffset = 0; monthOffset < data.projectionMonths; monthOffset++) {
-      const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthOffset, 1);
-      const targetMonth = targetDate.toISOString().slice(0, 7);
-      
-      const monthVariableExpenses = data.expenses
-        .filter(expense => {
-          if (expense.type !== 'variable' || expense.status !== 'active') return false;
-          
-          // If no specific date, it's a monthly variable expense (counts every month)
-          if (!expense.specificDate) return true;
-          
-          // If specific date matches this month, include it
-          const expenseMonth = expense.specificDate.slice(0, 7);
-          return expenseMonth === targetMonth;
-        })
-        .reduce((sum, expense) => sum + expense.amount, 0);
-      
-      totalVariableForPeriod += monthVariableExpenses;
-    }
+    // Get all variable expenses that will trigger during the projection period
+    const variableExpenses = data.expenses.filter(expense => 
+      expense.type === 'variable' && expense.status === 'active'
+    );
+    
+    variableExpenses.forEach(expense => {
+      if (!expense.specificDate) {
+        // No specific date = monthly variable expense (triggers every month)
+        totalVariableForPeriod += expense.amount * data.projectionMonths;
+      } else {
+        // Has specific date = triggers only once if within projection period
+        const expenseDate = new Date(expense.specificDate);
+        const endProjectionDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + data.projectionMonths, 0);
+        
+        if (expenseDate >= currentDate && expenseDate <= endProjectionDate) {
+          totalVariableForPeriod += expense.amount;
+        }
+      }
+    });
     
     return totalVariableForPeriod;
   };
