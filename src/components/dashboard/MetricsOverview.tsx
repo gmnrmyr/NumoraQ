@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,8 +23,21 @@ export const MetricsOverview = () => {
   const activeActiveIncome = data.activeIncome.filter(income => income.status === 'active');
   const totalActiveIncome = activeActiveIncome.reduce((sum, income) => sum + income.amount, 0);
   
-  const activeExpenses = data.expenses.filter(expense => expense.status === 'active');
-  const totalExpenses = activeExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+  // Calculate monthly expenses correctly: only recurring + unscheduled variable expenses
+  const recurringExpenses = data.expenses.filter(expense => 
+    expense.type === 'recurring' && expense.status === 'active'
+  );
+  const totalRecurringExpenses = recurringExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+  
+  // Only include variable expenses that are active AND have no specific date (unscheduled)
+  const unscheduledVariableExpenses = data.expenses.filter(expense => 
+    expense.type === 'variable' && 
+    expense.status === 'active' && 
+    !expense.specificDate
+  );
+  const totalUnscheduledVariableExpenses = unscheduledVariableExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+  
+  const totalExpenses = totalRecurringExpenses + totalUnscheduledVariableExpenses;
   
   const activeDebts = data.debts.filter(debt => debt.isActive && debt.status !== 'paid');
   const totalActiveDebts = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
@@ -60,7 +72,7 @@ export const MetricsOverview = () => {
       title: "Monthly Expenses",
       value: totalExpenses,
       icon: TrendingDown,
-      description: `${activeExpenses.length} active expenses`,
+      description: `${recurringExpenses.length + unscheduledVariableExpenses.length} active expenses`,
       color: "text-red-500",
       borderColor: "border-red-500"
     },
