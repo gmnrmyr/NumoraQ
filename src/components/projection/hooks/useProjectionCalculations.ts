@@ -73,9 +73,9 @@ export const useProjectionCalculations = () => {
       let variableExpensesThisMonth = 0;
       
       activeVariableExpenses.forEach(expense => {
-        if (expense.date) {
+        if (expense.specificDate) {
           // If expense has a specific date, check if it matches this month
-          const expenseDate = new Date(expense.date);
+          const expenseDate = new Date(expense.specificDate);
           if (expenseDate.getFullYear() === targetMonth.getFullYear() && 
               expenseDate.getMonth() === targetMonth.getMonth()) {
             variableExpensesThisMonth += expense.amount;
