@@ -1,10 +1,4 @@
-
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Palette, Crown, Lock, Zap, Waves, TestTube } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
-import { useUserTitle } from '@/hooks/useUserTitle';
 
 interface ThemeSelectorProps {
   onApplyTheme: (theme: string) => void;
@@ -13,135 +7,135 @@ interface ThemeSelectorProps {
 }
 
 export const ThemeSelector = ({ onApplyTheme, getDonationAmount, isChampionUser }: ThemeSelectorProps) => {
-  const { userTitle } = useUserTitle();
-  
-  // Check if user is Whales+ (10,000+ points)
-  const isWhalesUser = userTitle.level >= 10000 || ['WHALE', 'LEGEND'].includes(userTitle.title);
-  
-  // Check if user is Contributor (50+ points)
-  const isContributor = userTitle.level >= 50;
-  
-  const isThemeLocked = (requiredAmount: number) => getDonationAmount() < requiredAmount;
+  // Check if user has CHAMPION role (2000+ points)
+  const isContributor = getDonationAmount() >= 50; // 50+ points for Contributor+
+  const isWhalesUser = getDonationAmount() >= 10000; // 10,000+ points for Whales+
 
-  const ThemeButton = ({ 
-    theme, 
-    label, 
-    requiredAmount = 0, 
-    icon: Icon = Palette, 
-    championOnly = false, 
-    whalesOnly = false,
-    contributorOnly = false 
-  }: { 
-    theme: string; 
-    label: string; 
-    requiredAmount?: number;
-    icon?: any;
-    championOnly?: boolean;
-    whalesOnly?: boolean;
-    contributorOnly?: boolean;
-  }) => {
-    const locked = isThemeLocked(requiredAmount) || 
-                  (championOnly && !isChampionUser) || 
-                  (whalesOnly && !isWhalesUser) ||
-                  (contributorOnly && !isContributor);
+  const themes = [
+    {
+      id: 'neon',
+      name: 'Neon',
+      description: 'Vibrant and glowing neon style',
+      requirement: 'Basic',
+      locked: false,
+      category: 'basic'
+    },
+    {
+      id: 'monochrome',
+      name: 'Monochrome',
+      description: 'Classic black and white aesthetic',
+      requirement: 'Basic',
+      locked: false,
+      category: 'basic'
+    },
+    {
+      id: 'dual-tone',
+      name: 'Dual Tone',
+      description: 'Elegant two-color design',
+      requirement: 'Basic',
+      locked: false,
+      category: 'basic'
+    },
+    {
+      id: 'high-contrast',
+      name: 'High Contrast',
+      description: 'Maximum readability with stark contrasts',
+      requirement: 'Basic',
+      locked: false,
+      category: 'basic'
+    },
+    {
+      id: 'cyberpunk',
+      name: 'Cyberpunk',
+      description: 'Futuristic and gritty cyberpunk style',
+      requirement: 'Contributor+ (50+ pts)',
+      locked: !isContributor,
+      category: 'contributor'
+    },
+    {
+      id: 'matrix',
+      name: 'Matrix',
+      description: 'Digital rain and code-inspired design',
+      requirement: 'Contributor+ (50+ pts)',
+      locked: !isContributor,
+      category: 'contributor'
+    },
+    {
+      id: 'gold',
+      name: 'Gold',
+      description: 'Luxurious and opulent gold theme',
+      requirement: 'Contributor+ (50+ pts)',
+      locked: !isContributor,
+      category: 'contributor'
+    },
     
-    return (
-      <Button
-        onClick={() => locked ? null : onApplyTheme(theme)}
-        disabled={locked}
-        className={`brutalist-button text-xs h-8 ${locked ? 'opacity-50 cursor-not-allowed' : ''}`}
-        variant="outline"
-      >
-        <Icon size={12} className="mr-1" />
-        {label}
-        {locked && <Lock size={10} className="ml-1" />}
-      </Button>
-    );
-  };
+    // Premium themes for Champion+ users
+    {
+      id: 'black-hole',
+      name: 'Black Hole',
+      description: 'Cosmic void with gravitational animations',
+      requirement: 'Champion+ (2000+ pts)',
+      locked: !isChampionUser,
+      category: 'premium'
+    },
+    
+    // Ultra Premium themes for Whales+ users  
+    {
+      id: 'dark-dither',
+      name: 'Dark Dither',
+      description: 'Monochrome dithered aesthetic with flowing animations',
+      requirement: 'Whales+ (10000+ pts)',
+      locked: !isWhalesUser,
+      category: 'ultra'
+    },
+    {
+      id: 'leras', 
+      name: 'Leras',
+      description: 'Exclusive artistic theme with ethereal visuals',
+      requirement: 'Whales+ (10000+ pts)',
+      locked: !isWhalesUser,
+      category: 'ultra'
+    },
+
+    // Testing themes
+    {
+      id: 'da-test',
+      name: 'DA Test',
+      description: 'Development testing environment',
+      requirement: 'Contributor+ (50+ pts)',
+      locked: getDonationAmount() < 50,
+      category: 'testing'
+    }
+  ];
 
   return (
     <div className="space-y-4">
-      <div className="text-sm text-muted-foreground font-mono">
-        Customize your dashboard appearance:
-      </div>
-      
-      <div className="grid grid-cols-2 gap-2">
-        <ThemeButton theme="default" label="Default" />
-        <ThemeButton theme="monochrome" label="Monochrome" />
-        <ThemeButton theme="neon" label="Neon" />
-        <ThemeButton theme="dual-tone" label="Dual Tone" />
-        <ThemeButton theme="high-contrast" label="High Contrast" />
-        <ThemeButton 
-          theme="cyberpunk" 
-          label="Cyberpunk" 
-          requiredAmount={100}
-          icon={Crown}
-        />
-        <ThemeButton 
-          theme="matrix" 
-          label="Matrix" 
-          requiredAmount={500}
-          icon={Crown}
-        />
-        <ThemeButton 
-          theme="gold" 
-          label="Gold Rush" 
-          requiredAmount={1000}
-          icon={Crown}
-        />
-        <ThemeButton 
-          theme="black-hole" 
-          label="Black Hole" 
-          championOnly={true}
-          icon={Zap}
-        />
-        <ThemeButton 
-          theme="dark-dither" 
-          label="Dark Dither" 
-          whalesOnly={true}
-          icon={Waves}
-        />
-        <ThemeButton 
-          theme="da-test" 
-          label="DA Test" 
-          contributorOnly={true}
-          icon={TestTube}
-        />
-      </div>
-      
-      <div className="bg-muted p-3 border-2 border-border">
-        <div className="text-xs font-mono">
-          <div className="flex items-center gap-2 mb-1">
-            <Crown size={12} className="text-yellow-400" />
-            <span className="font-bold">Premium Themes</span>
+      {themes.map((theme) => (
+        <div
+          key={theme.id}
+          className={`p-4 border rounded-md cursor-pointer ${theme.locked
+            ? 'border-gray-700 bg-gray-900 text-gray-500 hover:bg-gray-800'
+            : 'border-accent hover:bg-accent/10 transition-colors duration-200'
+            }`}
+          onClick={() => {
+            if (!theme.locked) {
+              onApplyTheme(theme.id);
+            }
+          }}
+        >
+          <div className="flex justify-between items-center">
+            <div className="font-bold font-mono uppercase">{theme.name}</div>
+            {theme.locked && (
+              <span className="text-xs italic">
+                Locked ({theme.requirement})
+              </span>
+            )}
           </div>
-          <div>• Cyberpunk ($100+ donated)</div>
-          <div>• Matrix ($500+ donated)</div>
-          <div>• Gold Rush ($1000+ donated)</div>
-          <div className="flex items-center gap-1 mt-1">
-            <Zap size={12} className="text-orange-400" />
-            <span className="font-bold text-orange-400">Champion Only:</span>
-          </div>
-          <div>• Black Hole (CHAMPION role)</div>
-          <div className="flex items-center gap-1 mt-1">
-            <Waves size={12} className="text-purple-400" />
-            <span className="font-bold text-purple-400">Whales+ Only:</span>
-          </div>
-          <div>• Dark Dither (10,000+ points)</div>
-          <div className="flex items-center gap-1 mt-1">
-            <TestTube size={12} className="text-green-400" />
-            <span className="font-bold text-green-400">Contributor+ Only:</span>
-          </div>
-          <div>• DA Test (50+ points - Testing)</div>
-          
-          {/* Debug info for current user */}
-          <div className="mt-2 pt-2 border-t border-border text-xs text-muted-foreground">
-            <div>Your Status: {userTitle.title} ({userTitle.level} pts)</div>
-            <div>Contributor+: {isContributor ? '✅' : '❌'}</div>
-            <div>Whales+ Access: {isWhalesUser ? '✅' : '❌'}</div>
-          </div>
+          <p className="text-sm text-muted-foreground font-mono">
+            {theme.description}
+          </p>
         </div>
-      </div>
+      ))}
     </div>
   );
 };
