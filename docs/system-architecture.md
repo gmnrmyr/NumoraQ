@@ -13,7 +13,63 @@
 ## Main Site Functionality
 
 - **Personal Finance Dashboard:**  
-  Track assets, income, expenses, debts, projections, and more.
+  The dashboard is the core of Open Findash, providing a comprehensive overview and management of your financial life.  
+  **Main modules:**
+  - **Portfolio:**  
+    - *Liquid Assets*: Crypto (BTC, ETH, altcoins), stocks, REITs, precious metals, cash, NFTs, and more.  
+      - **Status:** Manual entry for all; live price updates only for BTC/ETH.  
+      - **Planned:** Auto-fetch for wallets (BTC, EVM, Solana), NFT floor prices, more asset types.
+    - *Illiquid Assets*: Real estate, collectibles, other non-liquid holdings.  
+      - **Status:** Manual entry; inactive asset handling.
+      - **Guidance:** Use Assets tab for real estate; advanced tracking for stocks in Liquid Assets.
+    - *Portfolio Summary*:  
+      - Total liquid, illiquid, and combined values.
+      - Percentage breakdowns.
+      - "Active Assets Only" toggle.
+  - **Income:**  
+    - Track all income sources, categorized as passive (e.g., dividends, staking) or active (salary, freelance).
+    - **Status:** Manual entry; breakdown shown in dashboard.
+    - **Planned:** Automated income detection from linked accounts.
+  - **Expenses:**  
+    - Track recurring and variable expenses.
+    - **Status:** Manual entry; monthly and total breakdowns.
+    - **Planned:** Smart categorization, AI suggestions.
+  - **Debts:**  
+    - Track all debts, due dates, and repayment status.
+    - **Status:** Manual entry; snowball/avalanche payoff methods.
+    - **Planned:** Debt payoff projections, reminders.
+  - **Tasks:**  
+    - Financial to-dos, reminders, and goals.
+    - **Status:** [[[]]] Planned for future release.
+  - **Assets:**  
+    - Unified view of all assets (liquid + illiquid).
+    - **Status:** Working; see Portfolio modules above.
+  - **Projections:**  
+    - Always shows a 12-month (or user-selected) projection of balances, income, expenses, and net worth.
+    - **Status:** Working; user can select projection period (e.g., 12, 24, 50 months).
+    - **Planned:** AI-powered forecasting, scenario analysis.
+
+  **Quick Reference Table:**
+
+  | Module         | Working? | Manual/Auto | Notes/Planned Improvements                  |
+  |----------------|----------|-------------|---------------------------------------------|
+  | Liquid Assets  | ✅       | Manual      | BTC/ETH live price; auto-fetch coming soon  |
+  | Illiquid Assets| ✅       | Manual      | Inactive asset handling                     |
+  | Income         | ✅       | Manual      | Passive/active breakdown                    |
+  | Expenses       | ✅       | Manual      | Recurring/variable; smart AI planned        |
+  | Debts          | ✅       | Manual      | Snowball/avalanche; projections planned     |
+  | Tasks          | 🚧       | -           | Planned: reminders, to-dos                  |
+  | Projections    | ✅       | Auto        | User-selectable period; AI planned          |
+
+  **User Experience:**
+  - All modules are accessible from the dashboard.
+  - Data can be imported/exported (CSV, PDF, JSON).
+  - Cloud sync via Supabase.
+  - Live market data (BTC, ETH, BRL/USD) shown with last update timestamp.
+  - Profile, language, and currency selection available.
+  - Linked accounts (email, wallet, Discord) planned for multi-auth.
+
+  [[[]] Expand each module section as new features are released. Use this structure for clarity and completeness.]
 - **Donation System:**  
   Users can donate via crypto or (soon) PayPal to unlock badges, titles, and premium features.
 - **Mobile-First, Brutalist/Modern UI:**  
@@ -218,4 +274,227 @@ The following features are planned or in active development. For the most up-to-
 
 ---
 
-*This documentation is a living document. Please update as features and architecture evolve!*
+# System Architecture & Platform Overview
+
+## Platform Status Overview
+
+- **Logo & Branding:**  
+  Open Findash branding is present throughout the UI.
+
+- **User Info & Config Panel:**  
+  - Avatar, username, UID, and donation tier (e.g., WHALE) are displayed.
+  - Language and currency selection (🇧🇷 BRL, 🇺🇸 EN).
+  - Degen Mode and Lifetime/Premium status indicators.
+  - Profile customization options.
+  - **Linked Accounts:**  
+    - Email (primary auth)
+    - Solana wallet (linking planned)
+    - Discord account (linking planned)
+    - Multi-auth support (planned)
+
+- **Data Management:**  
+  - Local operations: CSV import/export, reset.
+  - PDF export for financial reports.
+  - Cloud sync (Supabase backend).
+  - Live price/projection settings.
+
+- **Market Data:**  
+  - Live toggle (ON/OFF)
+  - Exchange rates: BRL/USD, BTC, ETH
+  - Last updated timestamp
+  - Projection period (user-selectable, e.g., 50 months)
+
+---
+
+## Dashboard Panels & Metrics
+
+- **Overview Panel:**  
+  - Available Now: Liquid assets total, count.
+  - Monthly Income: Total, passive/active breakdown.
+  - Monthly Expenses: Total, count.
+  - Active Debts: Total, count.
+  - Monthly Balance: Net flow.
+  - Projection summary (e.g., 50-month projection).
+
+- **Portfolio Overview:**  
+  - **Coming Soon:**  
+    - Auto-fetch wallet values (BTC, EVM, Solana)
+    - NFT floor price integration (OpenSea)
+    - BTC/ETH asset valuation (in development)
+    - Manual asset entry is current default
+
+- **Liquid Assets:**  
+  - List of all liquid assets (crypto, stocks, cash, wallets, NFTs, etc.)
+  - Hide/show inactive assets
+  - Add/edit/delete assets
+  - Asset details: name, value, type, quantity, wallet address, etc.
+
+- **Illiquid Assets:**  
+  - List of illiquid assets (real estate, collectibles, etc.)
+  - Inactive asset handling
+  - Guidance: Use Assets tab for real estate, advanced tracking for stocks
+
+- **Portfolio Summary:**  
+  - Total liquid, illiquid, and combined portfolio values
+  - Percentage breakdowns
+  - "Active Assets Only" toggle
+
+- **Advanced Financial Projection:**  
+  - Current balance, projected balance, total growth, monthly average
+  - Financial Independence (FI) ratio and status
+  - Income breakdown (passive, active, recurring expenses, net monthly)
+  - Monthly breakdown table/chart
+  - Risk assessment (emergency fund, income stability, growth trend)
+  - AI Insights (growth trajectory, net flow, FI progress)
+
+---
+
+## Core Features: Status
+
+| Feature                        | Status         | Notes/Planned Improvements                        |
+|--------------------------------|---------------|---------------------------------------------------|
+| Liquid Asset Tracking          | ✅ Working     | Manual entry, live price for BTC/ETH only         |
+| Illiquid Asset Tracking        | ✅ Working     | Manual entry, real estate via Assets tab          |
+| Wallet Tracking (BTC/EVM/SOL)  | 🚧 In Progress| Auto-fetch coming soon, manual for now            |
+| NFT Floor Price Integration    | 🚧 Planned    | OpenSea integration planned                       |
+| Income/Expense Tracking        | ✅ Working     | Passive/active income, recurring/variable expenses|
+| Debt Tracking                  | ✅ Working     | Status, due dates, snowball method                |
+| Financial Projections          | ✅ Working     | 12+ months, user-selectable period                |
+| AI Insights                    | ✅ Working     | Basic insights, more AI features planned          |
+| Data Export/Import             | ✅ Working     | CSV, PDF, JSON (import/export improvements planned)|
+| Cloud Sync                     | ✅ Working     | Supabase backend                                  |
+| Multi-auth/Linked Accounts     | 🚧 Planned    | Email, wallet, Discord                            |
+| Donation System                | ✅ Working     | Crypto, PayPal (PayPal coming soon)               |
+| Premium/Degen Mode             | ✅ Working     | No ads, extra features                            |
+| Theme System                   | ✅ Working     | Multiple themes, access by tier                   |
+| Leaderboard                    | ✅ Working     | Private by default, opt-in planned                |
+| Mobile Optimization            | 🚧 Improving  | Ongoing improvements                              |
+| Translation (PT/EN)            | ✅ Working     | Major overhaul in progress                        |
+
+---
+
+## What’s Not Working / Limitations
+
+- Live price updates only for BTC/ETH (other assets manual)
+- Wallet auto-fetch (BTC/EVM/SOL) not yet live
+- NFT floor price tracking not yet live
+- Multi-auth (wallet, Discord) not yet live
+- Some advanced analytics and AI features are planned but not yet implemented
+
+---
+
+## See Also
+
+- [src/components/portfolio/LiquidAssetsCard.tsx](../src/components/portfolio/LiquidAssetsCard.tsx)
+- [src/components/portfolio/IlliquidAssetsCard.tsx](../src/components/portfolio/IlliquidAssetsCard.tsx)
+- [src/components/portfolio/WalletTracker.tsx](../src/components/portfolio/WalletTracker.tsx)
+- [src/components/dashboard/MetricsOverview.tsx](../src/components/dashboard/MetricsOverview.tsx)
+- [src/components/projection/ProjectionChart.tsx](../src/components/projection/ProjectionChart.tsx)
+- [src/contexts/financial-data/initialState.ts](../src/contexts/financial-data/initialState.ts)
+- [src/hooks/useLivePriceUpdates.ts](../src/components/portfolio/hooks/useLivePriceUpdates.ts)
+
+---
+
+*Update this document as features are released or changed. Use [[[]]] or <----- for inline notes and TODOs as you iterate!*
+
+## Navigation & UI Structure
+
+### Dashboard Navbar
+
+The dashboard navigation is designed for simplicity and power, with a minimalist top bar and a feature-rich hamburger menu.
+
+- **Top Bar:**
+  - Open Findash Logo (always visible, links to dashboard home)
+  - Hamburger Menu (☰) – opens the main navigation drawer
+
+- **Hamburger Menu Contents:**
+  - **User Info:**  
+    - Username (or "Sign In" if logged out, prominent)
+    - User avatar and tier badge (e.g., WHALE)
+  - **Dashboard Links:**  
+    - Portfolio
+    - Income
+    - Expenses
+    - Assets
+    - Tasks & Debt
+  - **Community:**  
+    - Profile
+    - Leaderboard
+  - **Settings:**  
+    - Language selector (🇧🇷/🇺🇸)
+    - Currency selector (BRL/USD/etc.)
+  - **Support the Project:**  
+    - Link to donation page or modal
+  - **Sign Out / Sign In:**  
+    - Large, prominent button at the bottom
+    - Shows "Sign Out" if logged in, "Sign In" if logged out
+
+> **Note:** All navigation is accessible via keyboard and optimized for mobile/touch. The hamburger menu is the primary navigation hub for all dashboard features.
+
+---
+
+### Landing Page
+
+The landing page is the public face of Open Findash, focused on conversion, clarity, and showcasing the platform’s unique value. It is animated (Unicorn Studio, codename: `illusive_odyssey`) and will soon be fully CMS-driven for copy and feature control.
+
+- **Header:**
+  - Open Findash Logo
+  - Navigation: Features | About | Get Started | Play Anim (Heavy GPU)
+  - "100% Free & Open Source" badge
+
+- **Hero Section:**
+  - **Headline:**  
+    - "Your Money, Your Dashboard"
+  - **Subheadline:**  
+    - "Track crypto, manage expenses, and build wealth with the most privacy-focused financial dashboard. No tracking, just pure financial clarity."
+  - **CTAs:**  
+    - Start Building Wealth (primary)
+    - View Demo (secondary)
+
+- **Feature Highlights (Animated):**
+  - Portfolio Overview (sample data: Bitcoin, Cash, Real Estate)
+  - Income vs Expenses (sample data: Monthly In/Out, Net Growth)
+  - Visuals: Unicorn Studio animation (`illusive_odyssey`), dynamic charts
+
+- **Value Propositions:**
+  - Portfolio Tracking: Real-time crypto, stocks, and liquid assets with beautiful visualizations
+  - Privacy First: Data stays local, optional cloud sync with E2E encryption
+  - Lightning Fast: Modern web tech, no lag
+  - Built by Degens, for Degens: Open source, privacy-first, crypto-native
+
+- **Social Proof & Trust:**
+  - "100% Free Forever"
+  - "0 Data Tracking"
+  - Join the Revolution
+
+- **Footer:**
+  - Open Findash Logo
+  - Links: Privacy | Terms
+  - Copyright © 2024
+  - Version info (e.g., -12500)
+
+---
+
+### Planned / In Progress
+
+- **CMS-Driven Landing Page:**  
+  All landing page copy, feature lists, and CTAs will be editable via the CMS for rapid iteration and localization.
+- **More Animations:**  
+  Additional Unicorn Studio animations and interactive elements.
+- **Better Info Architecture:**  
+  Improved sectioning, testimonials, and community highlights.
+- **A/B Testing:**  
+  Planned for future growth and optimization.
+
+---
+
+### References
+
+- [`src/components/Navbar.tsx`](../src/components/Navbar.tsx) – Dashboard navbar logic
+- [`src/components/HamburgerMenu.tsx`](../src/components/HamburgerMenu.tsx) – Hamburger menu implementation
+- [`src/pages/LandingPage.tsx`](../src/pages/LandingPage.tsx) – Landing page structure and animation
+- [`src/components/landing/IllusiveOdyssey.tsx`](../src/components/landing/IllusiveOdyssey.tsx) – Unicorn Studio animation
+
+---
+
+> **[[[]]]** Expand this section as navigation or landing features evolve. Document all major UI/UX changes, especially those affecting onboarding, conversion, or accessibility.
