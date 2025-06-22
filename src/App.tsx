@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -15,6 +14,7 @@ import OnboardingPage from "./pages/OnboardingPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import DonationPage from "./pages/DonationPage";
 import UpcomingFeatures from "./pages/UpcomingFeatures";
+import TestInstances from "@/pages/TestInstances";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -61,6 +61,7 @@ const App: React.FC = () => {
                   <Route path="/leaderboard" element={<LeaderboardPage />} />
                   <Route path="/donation" element={<DonationPage />} />
                   <Route path="/upcoming-features" element={<UpcomingFeatures />} />
+                  <Route path="/test-instances" element={<TestInstances />} />
                   <Route path="*" element={<LandingPage />} />
                 </Routes>
               </BrowserRouter>

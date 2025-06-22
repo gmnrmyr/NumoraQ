@@ -12,6 +12,7 @@ import { DegenModePanel } from './devmenu/DegenModePanel';
 
 export const DevMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [tab, setTab] = useState("theme"); // <-- Add controlled tab state
   const { data, updateUserProfile } = useFinancialData();
   const { activatePremiumCode } = useAdminMode();
   const { userTitle } = useUserTitle();
@@ -110,18 +111,27 @@ export const DevMenu = () => {
           DEV
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-card border-2 border-border max-w-md">
+      <DialogContent
+        className="bg-card/80 border-2 border-white max-w-2xl w-full rounded-xl shadow-xl backdrop-blur-lg"
+        style={{
+          background: 'rgba(20, 20, 20, 0.80)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          border: '2px solid #fff',
+        }}
+      >
         <DialogHeader>
-          <DialogTitle className="font-mono uppercase flex items-center gap-2">
+          <DialogTitle className="font-mono uppercase flex items-center gap-2 text-[#00ff00]">
             <Settings size={16} />
             Developer Menu
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="theme">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="themes">Themes</TabsTrigger>
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList className="grid w-full grid-cols-3 mb-4">
+            <TabsTrigger value="theme">Themes</TabsTrigger>
             <TabsTrigger value="degen">Degen Mode</TabsTrigger>
+            <TabsTrigger value="testinstances">TestInstances</TabsTrigger>
           </TabsList>
           <TabsContent value="theme">
             <ThemeSelector 
@@ -148,6 +158,31 @@ export const DevMenu = () => {
               activatePremiumCode={activatePremiumCode}
               userName={data.userProfile.name}
             />
+          </TabsContent>
+
+          <TabsContent value="testinstances">
+            <div className="w-full flex flex-col items-center justify-center">
+              <div className="w-full max-w-xl bg-black/80 border border-[#00ff00] rounded-lg p-6 flex flex-col items-center shadow-lg backdrop-blur-md">
+                <div className="w-full flex flex-col sm:flex-row items-center justify-between mb-4 gap-2">
+                  <span className="font-mono text-lg text-[#00ff00] tracking-widest">// TestInstances</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="font-mono bg-black text-[#00ff00] border-[#00ff00] hover:bg-[#00ff00] hover:text-black transition-all"
+                    onClick={() => {
+                      setIsOpen(false);
+                      window.location.href = "/test-instances";
+                    }}
+                  >
+                    Open Terminal
+                  </Button>
+                </div>
+                <div className="w-full text-xs text-[#00ff00] opacity-80 font-mono text-center sm:text-left">
+                  For dev experiments and isolated feature tests.<br />
+                  No dashboard, panels, or animations yet.
+                </div>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </DialogContent>
