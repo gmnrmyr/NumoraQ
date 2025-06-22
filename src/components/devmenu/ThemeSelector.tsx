@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -107,6 +106,12 @@ export const ThemeSelector = ({ onApplyTheme, getDonationAmount, isChampionUser 
           contributorOnly={true}
           icon={TestTube}
         />
+        <ThemeButton 
+          theme="da-terminal" 
+          label="DA Terminal" 
+          whalesOnly={true}
+          icon={Zap}
+        />
       </div>
       
       <div className="bg-muted p-3 border-2 border-border">
@@ -127,7 +132,7 @@ export const ThemeSelector = ({ onApplyTheme, getDonationAmount, isChampionUser 
             <Waves size={12} className="text-purple-400" />
             <span className="font-bold text-purple-400">Whales+ Only:</span>
           </div>
-          <div>• Dark Dither (10,000+ points)</div>
+          <div>• DA Terminal (10,000+ points)</div>
           <div className="flex items-center gap-1 mt-1">
             <TestTube size={12} className="text-green-400" />
             <span className="font-bold text-green-400">Contributor+ Only:</span>

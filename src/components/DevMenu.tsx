@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings } from "lucide-react";
+import { Settings, RefreshCw } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { toast } from "@/hooks/use-toast";
@@ -79,6 +78,9 @@ export const DevMenu = () => {
       case 'da-test':
         root.classList.add('theme-da-test');
         break;
+      case 'da-terminal':
+        root.classList.add('theme-da-terminal');
+        break;
       default:
         // Keep default theme
         break;
@@ -116,18 +118,29 @@ export const DevMenu = () => {
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="themes" className="w-full">
+        <Tabs defaultValue="theme">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="themes">Themes</TabsTrigger>
             <TabsTrigger value="degen">Degen Mode</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="themes">
+          <TabsContent value="theme">
             <ThemeSelector 
               onApplyTheme={applyTheme}
               getDonationAmount={getDonationAmount}
               isChampionUser={isChampionUser}
             />
+            <div className="flex justify-end mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-2"
+                title="Refresh page (required for DA Terminal theme switch)"
+              >
+                <RefreshCw size={16} />
+                Refresh
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="degen">

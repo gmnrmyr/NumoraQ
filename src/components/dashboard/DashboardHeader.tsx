@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useUserTitle } from '@/hooks/useUserTitle';
 import { useAnimationToggle } from '@/hooks/useAnimationToggle';
@@ -15,6 +14,8 @@ export const DashboardHeader = () => {
   const { data } = useFinancialData();
   const { userTitle } = useUserTitle();
   const { isAnimationEnabled } = useAnimationToggle();
+  const [isTerminalAnimPaused, setIsTerminalAnimPaused] = useState(false);
+  const terminalAnimRef = useRef<HTMLDivElement>(null);
   
   // Check if user has CHAMPION+ role (level 70+ OR champion/legend titles)
   const isChampionUser = userTitle.level >= 70 || ['WHALE', 'LEGEND', 'PATRON', 'CHAMPION'].includes(userTitle.title);
@@ -29,7 +30,8 @@ export const DashboardHeader = () => {
   const isBlackHoleTheme = data.userProfile.theme === 'black-hole';
   const isDarkDitherTheme = data.userProfile.theme === 'dark-dither';
   const isDaTestTheme = data.userProfile.theme === 'da-test';
-  
+  const isDaTerminalTheme = data.userProfile.theme === 'da-terminal' && isWhalesUser;
+
   // Animation configurations
   const blackHoleConfig = {
     projectId: 'db3DaP9gWVnnnr7ZevK7',
@@ -58,6 +60,46 @@ export const DashboardHeader = () => {
 
   return (
     <div className={`relative min-h-[400px] overflow-hidden ${isDaTestTheme ? 'dashboard-header' : ''}`}>
+      {/* DA Terminal Theme Animation */}
+      {isDaTerminalTheme && (
+        <div className="absolute inset-0 w-full h-full z-0 pointer-events-none animation-bg" style={{ opacity: 0.5 }}>
+          <button
+            className="play-pause"
+            style={{
+              position: 'absolute',
+              top: 20,
+              left: 20,
+              background: 'rgba(0,255,0,0.5)',
+              color: '#000',
+              border: 'none',
+              padding: 5,
+              cursor: 'pointer',
+              zIndex: 10,
+              pointerEvents: 'auto'
+            }}
+            onClick={() => {
+              setIsTerminalAnimPaused((prev) => {
+                const paused = !prev;
+                const el = terminalAnimRef.current?.querySelector('div[data-us-project]');
+                if (el) {
+                  (el as HTMLElement).style.animationPlayState = paused ? 'paused' : 'running';
+                }
+                return paused;
+              });
+            }}
+            type="button"
+          >
+            {isTerminalAnimPaused ? 'Play' : 'Pause'}
+          </button>
+          <div
+            ref={terminalAnimRef}
+            style={{ width: '1440px', height: '900px', margin: '0 auto' }}
+          >
+            <div data-us-project="h49sb4lMLFG1hJLyIzdq" style={{ width: '1440px', height: '900px' }} />
+          </div>
+        </div>
+      )}
+
       {/* DA Test Theme Placeholder */}
       {isDaTestTheme && isContributor && (
         <div className="test-video-placeholder" />
