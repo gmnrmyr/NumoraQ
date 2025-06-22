@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -19,6 +18,7 @@ interface CMSSettings {
   twitter_link: string;
 }
 
+// useCMSSettings: Loads CMS settings for the app (see /docs/theme-and-cms-settings.md)
 export const useCMSSettings = () => {
   const [settings, setSettings] = useState<CMSSettings>({
     website_name: 'Open Findash',
