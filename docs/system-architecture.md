@@ -498,3 +498,21 @@ The landing page is the public face of Open Findash, focused on conversion, clar
 ---
 
 > **[[[]]]** Expand this section as navigation or landing features evolve. Document all major UI/UX changes, especially those affecting onboarding, conversion, or accessibility.
+
+---
+
+## Beta Dashboard Animation Integration (Role-Gated, Local-First)
+
+- Build and test the beta dashboard locally before deploying to production to avoid unnecessary Unicorn Studio credit usage.
+- Integrate Unicorn Studio animations using the exact embed code for each role:
+  - Champion+: Black Hole (`db3DaP9gWVnnnr7ZevK7`, 2000x900 or 400x400)
+  - Whales+: Dark Dither (`h49sb4lMLFG1hJLyIzdq`, 1440x900)
+  - Contributor 50+: DaTest (video placeholder)
+- Animations must be displayed behind the header text, with play/pause controls and the animation ID visible for debugging.
+- Role gating must be enforced in the hamburger menu and animation toggles (not just DevMenu).
+- The beta dashboard link should appear in the hamburger menu for Whale+ users only, without disrupting existing navigation.
+- Use minimal hacking nomenclature and subtle pixel art accents for the UI.
+- Panels and navbar must use the same user data as the main dashboard.
+- Refactor code to be modular (separate animation, UI, and data logic).
+- Test all animations locally on multiple devices and provide fallbacks (static PNGs or videos) if needed.
+- Track and minimize Unicorn Studio credit usage.
