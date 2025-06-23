@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings, RefreshCw } from "lucide-react";
+import { Settings, RefreshCw, Lock } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { toast } from "@/hooks/use-toast";
@@ -19,6 +19,7 @@ export const DevMenu = () => {
 
   // Check if user has CHAMPION role (2000+ points)
   const isChampionUser = userTitle.level >= 2000 || userTitle.title === 'CHAMPION';
+  const isWhaleUser = userTitle.level >= 10000 || userTitle.title === 'WHALE';
 
   // Set monochrome as default theme on component mount and ensure it's applied from start
   React.useEffect(() => {
@@ -131,7 +132,17 @@ export const DevMenu = () => {
           <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="theme">Themes</TabsTrigger>
             <TabsTrigger value="degen">Degen Mode</TabsTrigger>
-            <TabsTrigger value="testinstances">TestInstances</TabsTrigger>
+            <TabsTrigger
+              value="testinstances"
+              disabled={!isWhaleUser}
+              title={!isWhaleUser ? "Whale+ only (10,000+ points required)" : undefined}
+              className={!isWhaleUser ? "opacity-50 cursor-not-allowed flex items-center gap-1 relative" : ""}
+            >
+              <span>TestInstances</span>
+              {!isWhaleUser && (
+                <Lock size={16} className="ml-1 text-[#00ff00]" />
+              )}
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="theme">
             <ThemeSelector 
