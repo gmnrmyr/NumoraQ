@@ -50,6 +50,12 @@ export const DataToolbar = () => {
         title: "JSON exported successfully",
         description: "Your financial data has been downloaded as JSON."
       });
+    } else {
+      toast({
+        title: "No data to export",
+        description: "There's no financial data to export.",
+        variant: "destructive"
+      });
     }
   };
 

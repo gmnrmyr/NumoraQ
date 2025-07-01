@@ -13,7 +13,7 @@ const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [showEmailSent, setShowEmailSent] = useState(false);
-  const { user, signInWithEmail, signUpWithEmail } = useAuth();
+  const { user, signInWithEmail, signUpWithEmail, resetPassword } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -56,6 +56,12 @@ const AuthPage = () => {
     if (!error) {
       setShowEmailSent(true);
     }
+  };
+
+  const handleResetPassword = async (email: string) => {
+    setLoading(true);
+    await resetPassword(email);
+    setLoading(false);
   };
 
   return (
@@ -120,6 +126,7 @@ const AuthPage = () => {
                 <EmailAuthForms
                   onSignIn={handleEmailSignIn}
                   onSignUp={handleEmailSignUp}
+                  onResetPassword={handleResetPassword}
                   loading={loading}
                 />
               </>

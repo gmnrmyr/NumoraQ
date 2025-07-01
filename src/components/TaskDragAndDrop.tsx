@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { EditableValue } from '@/components/ui/editable-value';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { GripVertical, Trash2, Calendar } from 'lucide-react';
 
 interface TaskItemProps {
@@ -58,10 +59,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onReorder }) => {
 
   const getPriorityColor = (priority: string | number) => {
     const priorityStr = typeof priority === 'number' ? 
-      (priority >= 3 ? 'high' : priority >= 2 ? 'medium' : 'low') : 
+      (priority >= 5 ? 'critical' : priority >= 4 ? 'urgent' : priority >= 3 ? 'high' : priority >= 2 ? 'medium' : 'low') : 
       priority;
     
     switch (priorityStr) {
+      case 'critical': return 'bg-red-900 text-red-100 border-red-800';
+      case 'urgent': return 'bg-red-600 text-red-100 border-red-500';
       case 'high': return 'bg-red-100 text-red-800 border-red-200';
       case 'medium': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'low': return 'bg-green-100 text-green-800 border-green-200';
@@ -76,9 +79,21 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onReorder }) => {
   const getTaskDueDate = () => task.dueDate || task.date;
   const getTaskPriority = () => {
     if (typeof task.priority === 'number') {
-      return task.priority >= 3 ? 'high' : task.priority >= 2 ? 'medium' : 'low';
+      return task.priority >= 5 ? 'critical' : task.priority >= 4 ? 'urgent' : task.priority >= 3 ? 'high' : task.priority >= 2 ? 'medium' : 'low';
     }
     return task.priority || 'medium';
+  };
+
+  const handleCategoryChange = (newCategory: string) => {
+    updateTask(task.id, { category: newCategory as 'goal' | 'asset' | 'finance' | 'personal' });
+  };
+
+  const handlePriorityChange = (newPriority: string) => {
+    const priorityValue = newPriority === 'critical' ? 5 : 
+                         newPriority === 'urgent' ? 4 : 
+                         newPriority === 'high' ? 3 : 
+                         newPriority === 'medium' ? 2 : 1;
+    updateTask(task.id, { priority: priorityValue });
   };
 
   return (
@@ -131,28 +146,48 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onReorder }) => {
           )}
           
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge className={getCategoryColor(getTaskCategory())}>
-              {getTaskCategory()}
-            </Badge>
+            <Select value={getTaskCategory()} onValueChange={handleCategoryChange}>
+              <SelectTrigger className="w-auto h-6 bg-transparent border-0 p-0">
+                <Badge className={getCategoryColor(getTaskCategory())}>
+                  {getTaskCategory()}
+                </Badge>
+              </SelectTrigger>
+              <SelectContent className="bg-card border-2 border-border">
+                <SelectItem value="personal">Personal</SelectItem>
+                <SelectItem value="goal">Goal</SelectItem>
+                <SelectItem value="asset">Asset</SelectItem>
+                <SelectItem value="finance">Finance</SelectItem>
+              </SelectContent>
+            </Select>
             
-            <Badge className={getPriorityColor(getTaskPriority())}>
-              {getTaskPriority()}
-            </Badge>
+            <Select value={getTaskPriority()} onValueChange={handlePriorityChange}>
+              <SelectTrigger className="w-auto h-6 bg-transparent border-0 p-0">
+                <Badge className={getPriorityColor(getTaskPriority())}>
+                  {getTaskPriority()}
+                </Badge>
+              </SelectTrigger>
+              <SelectContent className="bg-card border-2 border-border">
+                <SelectItem value="critical">Critical</SelectItem>
+                <SelectItem value="urgent">Urgent</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+              </SelectContent>
+            </Select>
             
-            {getTaskDueDate() && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Calendar size={12} />
-                <EditableValue
-                  value={getTaskDueDate() || ''}
-                  onSave={(value) => updateTask(task.id, { 
-                    dueDate: String(value),
-                    date: String(value) // Update both for compatibility
-                  })}
-                  type="text"
-                  className="text-xs font-mono"
-                />
-              </div>
-            )}
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Calendar size={12} />
+              <EditableValue
+                value={getTaskDueDate() || ''}
+                onSave={(value) => updateTask(task.id, { 
+                  dueDate: String(value),
+                  date: String(value) // Update both for compatibility
+                })}
+                type="text"
+                className="text-xs font-mono"
+                placeholder="Add date..."
+              />
+            </div>
           </div>
         </div>
         

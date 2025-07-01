@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,7 @@ export const TaskManagementEditable = () => {
     title: '',
     description: '',
     category: 'personal' as 'goal' | 'asset' | 'finance' | 'personal',
-    priority: 'medium' as 'high' | 'medium' | 'low',
+    priority: 'medium' as 'critical' | 'urgent' | 'high' | 'medium' | 'low',
     dueDate: '',
     completed: false
   });
@@ -29,6 +28,11 @@ export const TaskManagementEditable = () => {
 
   const handleAddTask = () => {
     if (newTask.title.trim()) {
+      const priorityValue = newTask.priority === 'critical' ? 5 : 
+                           newTask.priority === 'urgent' ? 4 : 
+                           newTask.priority === 'high' ? 3 : 
+                           newTask.priority === 'medium' ? 2 : 1;
+      
       const taskToAdd = {
         // New enhanced fields
         title: newTask.title,
@@ -39,7 +43,7 @@ export const TaskManagementEditable = () => {
         // Legacy fields for compatibility
         item: newTask.title,
         date: newTask.dueDate,
-        priority: newTask.priority === 'high' ? 3 : newTask.priority === 'medium' ? 2 : 1,
+        priority: priorityValue,
         icon: '📝'
       };
       
@@ -87,12 +91,16 @@ export const TaskManagementEditable = () => {
           const getPriorityValue = (task: Task) => {
             if (typeof task.priority === 'number') return task.priority;
             const priority = task.priority || 'medium';
-            return priority === 'high' ? 3 : priority === 'medium' ? 2 : 1;
+            return priority === 'critical' ? 5 : 
+                   priority === 'urgent' ? 4 : 
+                   priority === 'high' ? 3 : 
+                   priority === 'medium' ? 2 : 1;
           };
           return getPriorityValue(b) - getPriorityValue(a);
         case 'dueDate':
           const aDate = a.dueDate || a.date;
           const bDate = b.dueDate || b.date;
+          // Tasks without dates go to the bottom
           if (!aDate && !bDate) return 0;
           if (!aDate) return 1;
           if (!bDate) return -1;
@@ -204,6 +212,8 @@ export const TaskManagementEditable = () => {
                           <SelectValue placeholder="Priority" />
                         </SelectTrigger>
                         <SelectContent className="bg-card border-2 border-border">
+                          <SelectItem value="critical">Critical</SelectItem>
+                          <SelectItem value="urgent">Urgent</SelectItem>
                           <SelectItem value="high">High</SelectItem>
                           <SelectItem value="medium">Medium</SelectItem>
                           <SelectItem value="low">Low</SelectItem>

@@ -4,7 +4,7 @@ export interface Task {
   // Legacy fields for backward compatibility
   item: string;
   date: string;
-  priority: number;
+  priority: number | 'critical' | 'urgent' | 'high' | 'medium' | 'low';
   icon: string;
   completed: boolean;
   // New enhanced fields

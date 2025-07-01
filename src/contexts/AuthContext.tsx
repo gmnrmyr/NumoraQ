@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +11,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<{ error: any }>;
   signUpWithEmail: (email: string, password: string) => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
   signInWithSolana: () => Promise<{ error: any }>;
   signInWithDiscord: () => Promise<{ error: any }>;
   linkAccount: (provider: 'solana' | 'discord') => Promise<{ error: any }>;
@@ -102,6 +102,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       toast({
         title: "Success",
         description: "Check your email for the confirmation link! Make sure to check your spam folder.",
+        duration: 8000,
+      });
+    }
+    
+    return { error };
+  };
+
+  const resetPassword = async (email: string) => {
+    secureLog('Attempting password reset');
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://openfindash.com/auth?confirmed=true',
+    });
+    
+    if (error) {
+      secureLog('Password reset error:', { errorMessage: error.message });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      secureLog('Password reset email sent successfully');
+      toast({
+        title: "Success",
+        description: "Check your email for the password reset link!",
         duration: 8000,
       });
     }
@@ -208,6 +234,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       signOut,
       signInWithEmail,
       signUpWithEmail,
+      resetPassword,
       signInWithSolana,
       signInWithDiscord,
       linkAccount,
