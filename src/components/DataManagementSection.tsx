@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,6 +57,31 @@ export const DataManagementSection = () => {
     }
   };
 
+  const exportToJSON = () => {
+    const data = localStorage.getItem('financialData');
+    if (data) {
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'financial-data.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({
+        title: "JSON exported successfully",
+        description: "Your financial data has been downloaded as JSON."
+      });
+    } else {
+      toast({
+        title: "No data to export",
+        description: "There's no financial data to export.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const formatLastSync = (timestamp: string | null) => {
     if (!timestamp) return 'Never';
     const date = new Date(timestamp);
@@ -83,7 +107,7 @@ export const DataManagementSection = () => {
             {/* Local Data Management */}
             <div>
               <h3 className="text-sm font-mono text-muted-foreground mb-2 uppercase">Local Operations</h3>
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                 <Button 
                   onClick={exportToCSV}
                   variant="outline"
@@ -92,6 +116,16 @@ export const DataManagementSection = () => {
                 >
                   <Download size={16} className="mr-1" />
                   CSV
+                </Button>
+                
+                <Button
+                  onClick={exportToJSON}
+                  variant="outline"
+                  size="sm"
+                  className="brutalist-button"
+                >
+                  <Download size={16} className="mr-1" />
+                  JSON
                 </Button>
                 
                 <Button
