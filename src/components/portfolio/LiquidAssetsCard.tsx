@@ -47,7 +47,7 @@ export const LiquidAssetsCard = () => {
 
   const activeAssets = data.liquidAssets.filter(asset => asset.isActive);
   const inactiveAssets = data.liquidAssets.filter(asset => !asset.isActive);
-  const displayAssets = showInactive ? data.liquidAssets : activeAssets;
+  const displayAssets = showInactive ? [...activeAssets, ...inactiveAssets] : activeAssets;
   const totalValue = activeAssets.reduce((sum, asset) => sum + asset.value, 0);
   const currency = data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$';
 

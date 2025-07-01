@@ -61,7 +61,7 @@ export const ProjectionCard = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-foreground flex items-center gap-2 text-sm sm:text-base font-mono uppercase">
             <PieChart size={16} className="text-accent" />
-            {data.projectionMonths}-{t.monthly?.toLowerCase() || 'month'} {t.projection || 'projection'}
+            {data.projectionMonths}-month {t.projection || 'projection'}
           </CardTitle>
           <Button
             variant="ghost"
@@ -77,19 +77,19 @@ export const ProjectionCard = () => {
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
             <div className="text-center">
-              <div className="text-xs text-muted-foreground font-mono uppercase">{t.income || 'Income'} ({data.projectionMonths}m)</div>
+              <div className="text-xs text-muted-foreground font-mono uppercase">Revenue ({data.projectionMonths}m)</div>
               <div className="text-xs sm:text-sm md:text-xl font-bold text-accent truncate font-mono">
                 {currencySymbol} {((totalPassiveIncome + totalActiveIncome) * data.projectionMonths).toLocaleString()}
               </div>
             </div>
             <div className="text-center">
-              <div className="text-xs text-muted-foreground font-mono uppercase">{t.expenses || 'Expenses'} ({data.projectionMonths}m)</div>
+              <div className="text-xs text-muted-foreground font-mono uppercase">Expenses ({data.projectionMonths}m)</div>
               <div className="text-xs sm:text-sm md:text-xl font-bold text-red-400 truncate font-mono">
                 {currencySymbol} {(totalRecurringExpenses * data.projectionMonths + totalVariableExpenses).toLocaleString()}
               </div>
             </div>
             <div className="text-center">
-              <div className="text-xs text-muted-foreground font-mono uppercase">{t.debt || 'Debt'}</div>
+              <div className="text-xs text-muted-foreground font-mono uppercase">Debt</div>
               <div className="text-xs sm:text-sm md:text-xl font-bold text-orange-400 truncate font-mono">
                 {currencySymbol} {totalActiveDebt.toLocaleString()}
               </div>

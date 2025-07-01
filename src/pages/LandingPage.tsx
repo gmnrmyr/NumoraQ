@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, TrendingUp, Shield, Zap, Menu, X, Github, Twitter, Linkedin, Play, Pause } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAnimationToggle } from '@/hooks/useAnimationToggle';
+import { UsageGuideSection } from '@/components/index/UsageGuideSection';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -244,6 +245,13 @@ const LandingPage = () => {
                 <div className="text-accent">└──────────────────────────────────────────┘</div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Usage Guide Section */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <UsageGuideSection />
           </div>
         </section>
 
