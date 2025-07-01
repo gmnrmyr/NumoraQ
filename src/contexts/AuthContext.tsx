@@ -83,7 +83,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       email,
       password,
       options: {
-        emailRedirectTo: 'https://openfindash.com/auth?confirmed=true',
+        emailRedirectTo: `${window.location.origin}/auth?confirmed=true`,
         data: {
           email: email
         }
@@ -113,7 +113,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     secureLog('Attempting password reset');
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://openfindash.com/auth?confirmed=true',
+      redirectTo: `${window.location.origin}/auth?type=recovery`,
     });
     
     if (error) {
