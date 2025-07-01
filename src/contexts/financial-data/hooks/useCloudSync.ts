@@ -112,6 +112,7 @@ export const useCloudSync = (
         // Use the server timestamp returned from the upsert and update data state
         const serverTimestamp = savedData?.updated_at || now;
         setLastSync(serverTimestamp);
+        localStorage.setItem('lastSync', serverTimestamp);
         
         // Also update the data state with the same timestamp to sync everything
         setData({ ...dataToSave, lastModified: serverTimestamp });
