@@ -1,3 +1,11 @@
+## 🚨 CRITICAL CONSTRAINTS
+- **DO NOT BREAK EXISTING FUNCTIONALITY** - Users are already using the app
+- **DO NOT CHANGE CURRENT DESIGN** - Maintain existing UI/UX
+- **DO NOT REMOVE ANY FEATURES** - Only add new functionality
+- **DO NOT LOSE USER DATA** - Preserve all existing user inputs
+- **MAINTAIN HIGH CODE QUALITY** - Refactor only if necessary and safe
+
+
 # Theme, CMS, Access, and Technology Guide
 
 ## Technology Stack
@@ -516,3 +524,18 @@ The landing page is the public face of Open Findash, focused on conversion, clar
 - Refactor code to be modular (separate animation, UI, and data logic).
 - Test all animations locally on multiple devices and provide fallbacks (static PNGs or videos) if needed.
 - Track and minimize Unicorn Studio credit usage.
+
+
+-------
+Admin notes (implement above pls)
+Ideas for new names: 
+- Numoraq (almost close on this one!)
+
+- Pivot from opensource to closed source. give users a demo (all newly regisered users) for 30 days
+- premium plans = degen plans (1month,2,3,6, yearly, 5years, lifetime acess for founders (like 1k usd or something) ). 
+- implement ai chat (we really need this, will use my gpt api key)
+- still need to improve unicorns studio working on the dashboard themes that they are supposed to be working on.
+- chart: we need to add more lines to chart like assets that are being compounded, allow users to hover and see what expenses it is triggering inside chart, and of course add more advanced features and maybe a toggle to allow users to see what is compounding in text as well.. (like for example, if you have fiis or reits with compound intrest active , it should reflect there in values as well)
+- option to set a debt or expense with a date of start and end date. (this is useful for brazilians who buy things in parcels which is comon.)
+- a super simple onboarding as well. we really need this for demo users
+- google auth (super hard to make it work) but we would love to implement that.
