@@ -326,7 +326,7 @@ The following features are planned or in active development. For the most up-to-
 
 - **Portfolio Overview:**  
   - **Coming Soon:**  
-    - Auto-fetch wallet values (BTC, EVM, Solana)
+    - Auto-fetch wallet values (BTC, EVM, Solana) (like debank, zapper, etc. - maybe using their api)
     - NFT floor price integration (OpenSea)
     - BTC/ETH asset valuation (in development)
     - Manual asset entry is current default
