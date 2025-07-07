@@ -32,7 +32,7 @@ export const UserFeedbackDialog = () => {
     
     toast({
       title: "Feedback Submitted! 🚀",
-      description: "Thanks for helping us improve FinDash! We'll review your feedback soon.",
+      description: "Thanks for helping us improve Numoraq! We'll review your feedback soon.",
     });
 
     setFeedback({ type: '', subject: '', message: '', email: '' });

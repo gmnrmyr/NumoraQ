@@ -13,7 +13,10 @@ import {
   CloudDownload, 
   AlertCircle,
   FileText,
-  Database
+  Database,
+  HelpCircle,
+  Sparkles,
+  ExternalLink
 } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -163,13 +166,46 @@ export const DataToolbar = () => {
                   Import JSON
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Import Financial Data</DialogTitle>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Upload size={20} />
+                    Import Financial Data
+                  </DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="file-upload">Upload JSON File</Label>
+                <div className="space-y-6">
+                  {/* Quick Start Tips */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                      <Sparkles size={16} />
+                      AI-Powered Data Conversion
+                    </h3>
+                    <div className="text-sm text-blue-800 space-y-2">
+                      <p>💡 <strong>Pro Tip:</strong> Use AI tools to convert your data!</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                        <div className="bg-white border border-blue-200 rounded p-2">
+                          <p className="font-mono text-xs text-blue-700">
+                            1. Export demo data first (JSON) <br/>
+                            2. Copy your Excel/CSV data <br/>
+                            3. Ask ChatGPT or Grok to convert it <br/>
+                            4. Import the converted JSON
+                          </p>
+                        </div>
+                        <div className="bg-white border border-blue-200 rounded p-2">
+                          <p className="font-mono text-xs text-blue-700">
+                            Example prompt: "Convert this Excel data to match this JSON format..."
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* File Upload Section */}
+                  <div className="space-y-2">
+                    <Label htmlFor="file-upload" className="flex items-center gap-2">
+                      <FileText size={16} />
+                      Upload JSON File
+                    </Label>
                     <Input
                       id="file-upload"
                       type="file"
@@ -177,20 +213,45 @@ export const DataToolbar = () => {
                       onChange={handleFileImport}
                       className="mt-1"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Select a JSON file exported from Numoraq or converted using AI tools
+                    </p>
                   </div>
                   
-                  <div>
-                    <Label htmlFor="json-data">Or paste JSON data directly</Label>
+                  {/* Direct Paste Section */}
+                  <div className="space-y-2">
+                    <Label htmlFor="json-data" className="flex items-center gap-2">
+                      <Database size={16} />
+                      Or paste JSON data directly
+                    </Label>
                     <textarea
                       id="json-data"
                       value={importData}
                       onChange={(e) => setImportData(e.target.value)}
-                      placeholder="Paste your JSON data here..."
+                      placeholder='Paste your JSON data here...\n\nExample:\n{\n  "liquidAssets": [\n    {"name": "Bitcoin", "value": 50000, "type": "crypto"}\n  ],\n  "expenses": [\n    {"name": "Rent", "amount": 1200, "frequency": "monthly"}\n  ]\n}'
                       className="w-full h-48 p-3 border border-gray-200 rounded-md text-sm font-mono"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Data should match the JSON structure used by Numoraq
+                    </p>
+                  </div>
+
+                  {/* Help Section */}
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h3 className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
+                      <HelpCircle size={16} />
+                      Need Help?
+                    </h3>
+                    <div className="text-sm text-yellow-800 space-y-2">
+                      <p>• First time? Export demo data to see the format</p>
+                      <p>• Have Excel/CSV data? Use AI tools like ChatGPT or Grok to convert it</p>
+                      <p>• Use the feedback button to report issues or request features</p>
+                      <p>• Pro tip: Start with small test imports to verify the format</p>
+                    </div>
                   </div>
                   
-                  <div className="flex justify-end gap-2">
+                  {/* Action Buttons */}
+                  <div className="flex justify-end gap-2 pt-4 border-t">
                     <Button variant="outline" onClick={() => setIsImportOpen(false)}>
                       Cancel
                     </Button>

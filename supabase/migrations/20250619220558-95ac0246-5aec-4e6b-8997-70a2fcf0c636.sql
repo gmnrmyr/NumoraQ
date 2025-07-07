@@ -88,7 +88,7 @@ CREATE POLICY "System can manage user points"
 
 -- Insert default CMS settings
 INSERT INTO public.cms_settings (setting_key, setting_value) VALUES
-('website_name', '"Open Findash"'),
+('website_name', '"Numoraq"'),
 ('project_wallet', '"0x6c21bB0Ef4b7d037aB6b124f372ae7705c6d74AD"'),
 ('crypto_donations_enabled', 'true'),
 ('paypal_donations_enabled', 'true'),

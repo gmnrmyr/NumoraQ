@@ -67,7 +67,7 @@ const Dashboard = () => {
   return (
     <>
       {/* SEO Meta Tags for Dashboard */}
-      <title>Dashboard - OPEN FINDASH | Financial Analysis & Crypto Tracking</title>
+      <title>Dashboard - NUMORAQ | Financial Analysis & Crypto Tracking</title>
       <meta name="description" content="Complete financial dashboard for tracking your crypto portfolio, income, expenses, and net worth. Real-time data analysis for smart financial decisions." />
       <meta name="keywords" content="financial dashboard, crypto tracking, portfolio management, expense tracking, income analysis, net worth calculator" />
       <meta name="robots" content="noindex, nofollow" />

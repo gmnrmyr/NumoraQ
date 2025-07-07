@@ -20,7 +20,7 @@ interface ProjectSettings {
 }
 
 const defaultSettings: ProjectSettings = {
-  website_name: 'Open Findash',
+      website_name: 'Numoraq',
   project_wallet_evm: '0x6c21bB0Ef4b7d037aB6b124f372ae7705c6d74AD',
   project_wallet_solana: '',
   project_wallet_btc: '',

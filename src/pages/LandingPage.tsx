@@ -6,6 +6,7 @@ import { ArrowRight, TrendingUp, Shield, Zap, Menu, X, Github, Twitter, Linkedin
 import { useNavigate } from 'react-router-dom';
 import { useAnimationToggle } from '@/hooks/useAnimationToggle';
 import { UsageGuideSection } from '@/components/index/UsageGuideSection';
+import { LogoText, HeroLogo } from '@/components/ui/logo';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -108,7 +109,7 @@ const LandingPage = () => {
   return (
     <>
       {/* SEO Meta Tags */}
-      <title>OPEN FINDASH | Free Financial Dashboard & Crypto Portfolio Tracker</title>
+      <title>NUMORAQ | Free Financial Dashboard & Crypto Portfolio Tracker</title>
       <meta name="description" content="Free, open-source financial dashboard for tracking crypto, assets, income & expenses. Privacy-first with optional cloud sync. Start building wealth today!" />
       <meta name="keywords" content="financial dashboard, crypto tracker, portfolio management, open source, privacy-first, wealth tracking, free finance app" />
       
@@ -117,13 +118,7 @@ const LandingPage = () => {
         <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-card/80 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
-              <div className="flex items-center gap-2">
-                <img 
-                  src="/lovable-uploads/a9b55d65-1fdb-426f-b462-5b057df47bd9.png" 
-                  alt="Open Findash Logo" 
-                  className="h-4 w-auto"
-                />
-              </div>
+              <LogoText size="sm" />
               
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-6">
@@ -316,11 +311,7 @@ const LandingPage = () => {
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-2">
-                <img 
-                  src="/lovable-uploads/a9b55d65-1fdb-426f-b462-5b057df47bd9.png" 
-                  alt="Open Findash Logo" 
-                  className="h-4 w-auto"
-                />
+                <LogoText size="sm" />
                 <span className="text-xs text-muted-foreground">© 2024</span>
               </div>
               

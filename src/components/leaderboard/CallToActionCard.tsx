@@ -10,10 +10,10 @@ export const CallToActionCard = () => {
   const navigate = useNavigate();
 
   const handleInviteFriends = () => {
-    navigator.clipboard.writeText('https://openfindash.com');
+    navigator.clipboard.writeText('https://numoraq.com');
     toast({
       title: "Link Copied!",
-      description: "OpenFindash.com has been copied to your clipboard",
+              description: "Numoraq.com has been copied to your clipboard",
     });
   };
 

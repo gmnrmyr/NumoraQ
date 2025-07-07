@@ -141,7 +141,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'github' as any,
       options: {
-        redirectTo: 'https://openfindash.com/dashboard',
+        redirectTo: 'https://numoraq.com/dashboard',
       },
     });
     
@@ -165,7 +165,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'discord',
       options: {
-        redirectTo: 'https://openfindash.com/dashboard',
+        redirectTo: 'https://numoraq.com/dashboard',
       },
     });
     

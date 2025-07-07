@@ -2,6 +2,7 @@ import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ErrorBoundary, AsyncErrorBoundary } from "@/components/ui/error-boundary";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -45,31 +46,35 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <FinancialDataProvider>
-          <TranslationProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/onboarding" element={<OnboardingPage />} />
-                  <Route path="/leaderboard" element={<LeaderboardPage />} />
-                  <Route path="/donation" element={<DonationPage />} />
-                  <Route path="/upcoming-features" element={<UpcomingFeatures />} />
-                  <Route path="/test-instances" element={<TestInstances />} />
-                  <Route path="*" element={<LandingPage />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </TranslationProvider>
-        </FinancialDataProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <AsyncErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <FinancialDataProvider>
+              <TranslationProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <Routes>
+                      <Route path="/" element={<LandingPage />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/auth" element={<AuthPage />} />
+                      <Route path="/onboarding" element={<OnboardingPage />} />
+                      <Route path="/leaderboard" element={<LeaderboardPage />} />
+                      <Route path="/donation" element={<DonationPage />} />
+                      <Route path="/upcoming-features" element={<UpcomingFeatures />} />
+                      <Route path="/test-instances" element={<TestInstances />} />
+                      <Route path="*" element={<LandingPage />} />
+                    </Routes>
+                  </BrowserRouter>
+                </TooltipProvider>
+              </TranslationProvider>
+            </FinancialDataProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </AsyncErrorBoundary>
+    </ErrorBoundary>
   );
 };
 

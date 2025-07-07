@@ -127,7 +127,7 @@ const AuthPage = () => {
               {isPasswordReset ? 'Reset Password' : showEmailSent ? 'Check Your Email' : isConfirmed ? 'Email Confirmed!' : 'Authentication'}
             </CardTitle>
             <p className="text-sm text-muted-foreground font-mono">
-              {isPasswordReset ? 'Enter your new password' : showEmailSent ? 'Confirmation link sent!' : isConfirmed ? 'Your email has been confirmed' : 'Welcome to OPEN FINDASH'}
+              {isPasswordReset ? 'Enter your new password' : showEmailSent ? 'Confirmation link sent!' : isConfirmed ? 'Your email has been confirmed' : 'Welcome to NUMORAQ'}
             </p>
           </CardHeader>
           <CardContent className="space-y-4">

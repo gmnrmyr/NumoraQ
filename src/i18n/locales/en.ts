@@ -2,7 +2,7 @@
 import { Translations } from '../types';
 
 export const en: Translations = {
-  appName: 'FinDash',
+  appName: 'Numoraq',
   appTagline: 'Smart Financial Dashboard',
   appDescription: 'Complete personal financial management dashboard for tracking assets, income, expenses, and financial projections.',
   

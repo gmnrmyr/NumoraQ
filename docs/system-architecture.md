@@ -1,4 +1,4 @@
-# Open Findash - System Architecture & Roadmap
+# Numoraq - System Architecture & Roadmap
 
 ## 🚨 CRITICAL CONSTRAINTS
 - **DO NOT BREAK EXISTING FUNCTIONALITY** - Users are already using the app
@@ -85,8 +85,8 @@
 - **Value Prop:** Advanced analytics, AI insights, automation
 
 #### Brand Evolution
-- **Current:** Open Findash
-- **Considering:** Numoraq (top candidate)
+- **Previous:** Open Findash  
+- **Current:** Numoraq (rebranded)
 - **Goal:** More professional, less "open source hobby"
 
 ---

@@ -10,6 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { CurrencySelector } from './CurrencySelector';
 import { DonationLinks } from './DonationLinks';
+import { UserFeedbackDialog } from '@/components/UserFeedbackDialog';
 import { supabase } from '@/integrations/supabase/client';
 
 export const UserSettingsPanel = () => {
@@ -236,8 +237,9 @@ export const UserSettingsPanel = () => {
         <DropdownMenuSeparator className="bg-border" />
         
         {/* Support */}
-        <div className="px-2 py-1.5">
+        <div className="px-2 py-1.5 space-y-2">
           <DonationLinks />
+          <UserFeedbackDialog />
         </div>
         
         <DropdownMenuSeparator className="bg-border" />

@@ -18,7 +18,7 @@ export const ProductStateSection = () => {
         {/* Product Description */}
         <div className="space-y-2">
           <p className="text-sm font-mono text-muted-foreground">
-            {settings.website_name || 'Open Findash'} is currently in active beta — stable, usable, and already helping early contributors track their personal finances.
+            {settings.website_name || 'Numoraq'} is currently in active beta — stable, usable, and already helping early contributors track their personal finances.
             Core features are functional and updated regularly.
           </p>
         </div>
@@ -114,7 +114,7 @@ export const ProductStateSection = () => {
           <h3 className="text-lg font-bold font-mono text-foreground">🌐 OPEN SOURCE COMMITMENT</h3>
           <div className="space-y-2">
             <p className="text-sm font-mono text-muted-foreground">
-              {settings.website_name || 'Open Findash'} aims to remain open source as long as it's feasible. 
+              {settings.website_name || 'Numoraq'} aims to remain open source as long as it's feasible. 
               While the GitHub repository is currently private for internal refactoring, it will be made public once we're ready.
             </p>
             <p className="text-xs font-mono text-muted-foreground">
