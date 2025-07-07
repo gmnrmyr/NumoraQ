@@ -7,6 +7,12 @@ interface LogoProps {
   onClick?: () => void;
 }
 
+interface IconProps {
+  size?: number;
+  className?: string;
+  onClick?: () => void;
+}
+
 export const Logo: React.FC<LogoProps> = ({ 
   variant = 'horizontal', 
   size = 'md',
@@ -102,6 +108,44 @@ export const Logo: React.FC<LogoProps> = ({
   );
 };
 
+// Icon component for favicons, app icons, etc.
+export const NumoraqIcon: React.FC<IconProps> = ({ 
+  size = 32, 
+  className = '',
+  onClick 
+}) => {
+  return (
+    <div 
+      className={`
+        inline-flex items-center justify-center
+        font-mono font-black text-accent
+        border-2 border-accent bg-background
+        relative overflow-hidden
+        ${onClick ? 'cursor-pointer hover:scale-105' : ''}
+        ${className}
+      `}
+      style={{ 
+        width: size, 
+        height: size,
+        fontSize: size * 0.6,
+        textShadow: '0 0 4px rgba(var(--accent), 0.5)'
+      }}
+      onClick={onClick}
+    >
+      <span className="relative z-10">N</span>
+      
+      {/* Pixel corners */}
+      <div className="absolute top-0 left-0 w-1 h-1 bg-accent" />
+      <div className="absolute top-0 right-0 w-1 h-1 bg-accent" />
+      <div className="absolute bottom-0 left-0 w-1 h-1 bg-accent" />
+      <div className="absolute bottom-0 right-0 w-1 h-1 bg-accent" />
+      
+      {/* Subtle glow effect */}
+      <div className="absolute inset-0 bg-accent/10 animate-pulse opacity-30" />
+    </div>
+  );
+};
+
 // Specialized logo components for specific use cases
 export const NavbarLogo: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
   <Logo variant="horizontal" size="md" onClick={onClick} />
@@ -117,6 +161,19 @@ export const AdminLogo: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
 
 export const HeroLogo: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
   <Logo variant="horizontal" size="lg" onClick={onClick} />
+);
+
+// Icon variants for different use cases
+export const AppIcon: React.FC<{ size?: number }> = ({ size = 64 }) => (
+  <NumoraqIcon size={size} />
+);
+
+export const FaviconIcon: React.FC<{ size?: number }> = ({ size = 32 }) => (
+  <NumoraqIcon size={size} />
+);
+
+export const TabIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+  <NumoraqIcon size={size} />
 );
 
 // Simple text-only version for minimal spaces

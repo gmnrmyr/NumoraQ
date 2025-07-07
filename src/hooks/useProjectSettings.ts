@@ -26,10 +26,10 @@ const defaultSettings: ProjectSettings = {
   project_wallet_btc: '',
   project_wallet_bch: '',
   project_paypal_email: '',
-  square_logo_url: '/lovable-uploads/7f9d8dfa-2b6c-4264-ba7b-992c9fcb71e5.png',
-  horizontal_logo_url: '/lovable-uploads/7f9d8dfa-2b6c-4264-ba7b-992c9fcb71e5.png',
-  vertical_logo_url: '/lovable-uploads/7f9d8dfa-2b6c-4264-ba7b-992c9fcb71e5.png',
-  symbol_logo_url: '/lovable-uploads/7f9d8dfa-2b6c-4264-ba7b-992c9fcb71e5.png',
+      square_logo_url: '/favicon.svg',
+    horizontal_logo_url: '/favicon.svg',
+    vertical_logo_url: '/favicon.svg',
+    symbol_logo_url: '/favicon.svg',
   version: 'v2.0.0',
   upcoming_features_text: 'Exciting new features coming soon!',
   main_color_scheme: 'default'
@@ -54,7 +54,12 @@ export const useProjectSettings = () => {
       const loadedSettings = { ...defaultSettings };
       data?.forEach(({ setting_key, setting_value }) => {
         if (setting_key in loadedSettings) {
-          (loadedSettings as any)[setting_key] = setting_value;
+          // Handle JSON string values from database
+          let parsedValue = setting_value;
+          if (typeof setting_value === 'string' && setting_value.startsWith('"') && setting_value.endsWith('"')) {
+            parsedValue = setting_value.slice(1, -1); // Remove quotes
+          }
+          (loadedSettings as any)[setting_key] = parsedValue;
         }
       });
 

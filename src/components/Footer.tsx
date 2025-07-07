@@ -21,7 +21,7 @@ export const Footer = () => {
               Advanced financial dashboard for crypto & traditional assets
             </p>
             <div className="text-xs text-muted-foreground font-mono">
-              © 2024 {settings.website_name.toUpperCase()}. All rights reserved.
+              © 2024 {(settings.website_name || 'NUMORAQ').toUpperCase()}. All rights reserved.
             </div>
           </div>
 

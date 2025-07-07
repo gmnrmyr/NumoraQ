@@ -11,34 +11,20 @@
   "scope": "/",
   "icons": [
     {
-      "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
-      "sizes": "192x192",
-      "type": "image/png",
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon",
       "purpose": "any"
-    },
-    {
-      "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
     }
   ],
   "categories": ["finance", "productivity", "business", "lifestyle"],
-  "screenshots": [
-    {
-      "src": "/lovable-uploads/89c457c6-e2ea-43c9-b3b5-7b544e95d75b.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Financial Dashboard Overview"
-    }
-  ],
+  "screenshots": [],
   "prefer_related_applications": false,
   "related_applications": [],
   "lang": "en-US",
