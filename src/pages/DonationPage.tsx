@@ -290,7 +290,7 @@ const DonationPage = () => {
           {/* Why Support Us */}
           <Card className="border-2 border-border">
             <CardHeader>
-              <CardTitle className="font-mono text-accent">WHY SUPPORT {settings.website_name?.toUpperCase() || 'OPEN FINDASH'}?</CardTitle>
+                              <CardTitle className="font-mono text-accent">WHY SUPPORT {settings.website_name?.toUpperCase() || 'NUMORAQ'}?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

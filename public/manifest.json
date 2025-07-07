@@ -1,7 +1,7 @@
 
 {
-  "name": "Open Findash - Financial Command Center",
-  "short_name": "Open Findash",
+  "name": "Numoraq - Financial Command Center",
+  "short_name": "Numoraq",
   "description": "Complete personal financial dashboard for tracking crypto portfolios, income, expenses, assets, and financial projections with AI insights.",
   "start_url": "/dashboard",
   "display": "standalone",

@@ -2,14 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from "@/contexts/TranslationContext";
 import { useProjectSettings } from "@/hooks/useProjectSettings";
-import { useCMSLogos } from "@/hooks/useCMSLogos";
+import { FooterLogo } from "@/components/ui/logo";
 import { DonationLinks } from "@/components/navbar/DonationLinks";
 import { Github, Twitter, ExternalLink, Zap } from 'lucide-react';
 
 export const Footer = () => {
   const { t, language } = useTranslation();
   const { settings } = useProjectSettings();
-  const { logos } = useCMSLogos();
 
   return (
     <footer className="border-t-2 border-border bg-card/50 backdrop-blur-sm mt-auto">
@@ -17,13 +16,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Company Info */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <img 
-                src={logos.horizontal_logo_url} 
-                alt="Open Findash Logo" 
-                className="h-6 w-auto"
-              />
-            </div>
+            <FooterLogo />
             <p className="text-xs text-muted-foreground font-mono">
               Advanced financial dashboard for crypto & traditional assets
             </p>
@@ -57,7 +50,7 @@ export const Footer = () => {
             <h4 className="font-mono font-semibold text-foreground uppercase">Community</h4>
             <div className="space-y-1">
               <a 
-                href="https://github.com/openfindash" 
+                href="https://github.com/numoraq" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-xs text-muted-foreground hover:text-accent font-mono"
@@ -67,7 +60,7 @@ export const Footer = () => {
                 <ExternalLink size={10} />
               </a>
               <a 
-                href="https://twitter.com/openfindash" 
+                href="https://twitter.com/numoraq" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-xs text-muted-foreground hover:text-accent font-mono"

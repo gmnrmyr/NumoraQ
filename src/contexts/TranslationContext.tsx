@@ -16,11 +16,11 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const setLanguage = (newLanguage: Language) => {
     setLanguageState(newLanguage);
     setT(getTranslation(newLanguage));
-    localStorage.setItem('findash-language', newLanguage);
+    localStorage.setItem('numoraq-language', newLanguage);
   };
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('findash-language') as Language;
+    const savedLanguage = localStorage.getItem('numoraq-language') as Language;
     if (savedLanguage && ['en', 'pt', 'es', 'fr', 'de'].includes(savedLanguage)) {
       setLanguage(savedLanguage);
     } else {

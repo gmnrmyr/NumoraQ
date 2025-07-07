@@ -21,7 +21,7 @@ interface CMSSettings {
 // useCMSSettings: Loads CMS settings for the app (see /docs/theme-and-cms-settings.md)
 export const useCMSSettings = () => {
   const [settings, setSettings] = useState<CMSSettings>({
-    website_name: 'Open Findash',
+    website_name: 'Numoraq',
     project_wallet: '0x6c21bB0Ef4b7d037aB6b124f372ae7705c6d74AD',
     project_wallet_evm: '0x6c21bB0Ef4b7d037aB6b124f372ae7705c6d74AD',
     project_wallet_solana: '',

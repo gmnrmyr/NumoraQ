@@ -25,8 +25,8 @@ const LeaderboardPage = () => {
 
   return (
     <>
-      <title>Leaderboard - OPEN FINDASH | Community Rankings</title>
-      <meta name="description" content="See how you rank among the OPEN FINDASH community. Track your fidelity points, donation contributions, and overall engagement." />
+      <title>Leaderboard - NUMORAQ | Community Rankings</title>
+      <meta name="description" content="See how you rank among the NUMORAQ community. Track your fidelity points, donation contributions, and overall engagement." />
       <meta name="robots" content="noindex, nofollow" />
       
       <div className="min-h-screen bg-background text-foreground font-mono">

@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DollarSign, TrendingUp, TrendingDown, CreditCard, BarChart3, Eye, EyeOff } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, CreditCard, BarChart3, Eye, EyeOff, Sparkles, Play } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { useToast } from "@/hooks/use-toast";
 
 export const MetricsOverview = () => {
-  const { data } = useFinancialData();
+  const { data, updateData } = useFinancialData();
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(true);
+
+  // Check if user has no significant data
+  const hasNoData = data.liquidAssets.length === 0 && 
+                   data.expenses.length === 0 && 
+                   data.passiveIncome.length === 0 && 
+                   data.activeIncome.length === 0;
 
   // Calculate metrics
   const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
@@ -49,6 +57,41 @@ export const MetricsOverview = () => {
   const formatCurrency = (amount: number) => {
     const currency = data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$';
     return `${currency} ${Math.abs(amount).toLocaleString()}`;
+  };
+
+  const addDemoData = () => {
+    const demoData = {
+      liquidAssets: [
+        { id: 'demo-1', name: 'Bitcoin', value: 45000, type: 'crypto', isActive: true },
+        { id: 'demo-2', name: 'Ethereum', value: 15000, type: 'crypto', isActive: true },
+        { id: 'demo-3', name: 'Cash Savings', value: 8000, type: 'cash', isActive: true },
+        { id: 'demo-4', name: 'S&P 500 ETF', value: 12000, type: 'stocks', isActive: true },
+      ],
+      expenses: [
+        { id: 'demo-exp-1', name: 'Rent', amount: 1200, type: 'recurring', status: 'active' },
+        { id: 'demo-exp-2', name: 'Food', amount: 600, type: 'recurring', status: 'active' },
+        { id: 'demo-exp-3', name: 'Utilities', amount: 200, type: 'recurring', status: 'active' },
+        { id: 'demo-exp-4', name: 'Entertainment', amount: 300, type: 'variable', status: 'active' },
+      ],
+      passiveIncome: [
+        { id: 'demo-inc-1', name: 'Dividend Income', amount: 400, frequency: 'monthly', status: 'active' },
+        { id: 'demo-inc-2', name: 'Rental Income', amount: 800, frequency: 'monthly', status: 'active' },
+      ],
+      activeIncome: [
+        { id: 'demo-inc-3', name: 'Salary', amount: 5000, frequency: 'monthly', status: 'active' },
+        { id: 'demo-inc-4', name: 'Freelance', amount: 1500, frequency: 'monthly', status: 'active' },
+      ],
+      debts: [
+        { id: 'demo-debt-1', name: 'Credit Card', amount: 2500, isActive: true, status: 'active' },
+        { id: 'demo-debt-2', name: 'Student Loan', amount: 15000, isActive: true, status: 'active' },
+      ]
+    };
+
+    updateData(demoData);
+    toast({
+      title: "Demo Data Added! 🎉",
+      description: "Explore the dashboard with sample financial data. You can edit or replace it anytime.",
+    });
   };
 
   const metrics = [
@@ -113,6 +156,45 @@ export const MetricsOverview = () => {
           </span>
         </Button>
       </div>
+
+      {/* Demo Data Section for New Users */}
+      {hasNoData && isExpanded && (
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 shadow-lg">
+          <CardContent className="p-6">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <Sparkles className="h-12 w-12 text-blue-500 animate-pulse" />
+              </div>
+              <h3 className="text-lg font-bold font-mono text-blue-900 uppercase">
+                Welcome to Numoraq!
+              </h3>
+              <p className="text-sm text-blue-800 font-mono max-w-md mx-auto">
+                Get started by adding some demo data to see how the dashboard works. 
+                You can always replace it with your real financial information later.
+              </p>
+              <div className="flex justify-center gap-3">
+                <Button
+                  onClick={addDemoData}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-mono"
+                >
+                  <Play size={16} className="mr-2" />
+                  Add Demo Data
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsExpanded(false)}
+                  className="border-blue-300 text-blue-700 font-mono"
+                >
+                  I'll Add My Own
+                </Button>
+              </div>
+              <p className="text-xs text-blue-600 font-mono">
+                💡 Pro tip: Use the portfolio section below to start adding your real assets
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Metrics Grid */}
       {isExpanded && (

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Smartphone, Download, Share } from "lucide-react";
+import { Smartphone, Download, Share, Wifi, WifiOff, Check } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export const PWASetup = () => {
@@ -11,6 +11,8 @@ export const PWASetup = () => {
   const [showInstallDialog, setShowInstallDialog] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [installSuccess, setInstallSuccess] = useState(false);
 
   useEffect(() => {
     // Check if app is already installed
@@ -25,35 +27,81 @@ export const PWASetup = () => {
       setDeferredPrompt(e);
     };
 
+    // Monitor online/offline status
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    // Listen for app installation
+    const handleAppInstalled = () => {
+      setInstallSuccess(true);
+      setIsInstalled(true);
+      toast({
+        title: "App Installed Successfully! 🎉",
+        description: "Numoraq is now available on your home screen.",
+      });
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          toast({
+            title: "Installing App...",
+            description: "Numoraq is being added to your home screen.",
+          });
+        } else {
+          toast({
+            title: "Installation Cancelled",
+            description: "You can install the app later from the menu.",
+          });
+        }
+        setDeferredPrompt(null);
+      } catch (error) {
         toast({
-          title: "App Installed!",
-          description: "Open Findash has been added to your home screen.",
+          title: "Installation Failed",
+          description: "There was an issue installing the app. Please try again.",
+          variant: "destructive"
         });
       }
-      setDeferredPrompt(null);
     } else if (isIOS) {
       setShowInstallDialog(true);
     }
   };
 
-  // Don't show anything if already installed
-  if (isInstalled) return null;
+  // Show offline indicator
+  const OfflineIndicator = () => {
+    if (isOnline) return null;
+    
+    return (
+      <div className="fixed bottom-4 left-4 z-50 bg-orange-500 text-white px-3 py-2 rounded-lg shadow-lg flex items-center gap-2 font-mono text-sm">
+        <WifiOff size={16} />
+        Offline Mode
+      </div>
+    );
+  };
 
   return (
     <>
-      {(deferredPrompt || isIOS) && (
+      {/* Offline Indicator */}
+      <OfflineIndicator />
+      
+      {/* Install Button - show if not installed and can be installed */}
+      {!isInstalled && (deferredPrompt || isIOS) && (
         <Button
           onClick={handleInstallClick}
           variant="outline"
@@ -65,12 +113,20 @@ export const PWASetup = () => {
         </Button>
       )}
 
+      {/* Success indicator for installed apps */}
+      {isInstalled && !installSuccess && (
+        <Badge variant="outline" className="text-green-600 border-green-600 bg-green-50">
+          <Check size={12} className="mr-1" />
+          Installed
+        </Badge>
+      )}
+
       <Dialog open={showInstallDialog} onOpenChange={setShowInstallDialog}>
         <DialogContent className="bg-card border-2 border-border">
           <DialogHeader>
             <DialogTitle className="font-mono uppercase flex items-center gap-2">
               <Smartphone size={20} />
-              Install Open Findash
+              Install Numoraq
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
@@ -93,6 +149,12 @@ export const PWASetup = () => {
             </div>
             <div className="text-xs text-muted-foreground font-mono">
               This will create a native app experience with offline capabilities.
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded p-3">
+              <div className="text-xs font-mono text-blue-800">
+                <strong>💡 Pro Tip:</strong> Once installed, you can use Numoraq offline! 
+                Your data is saved locally and will sync when you're back online.
+              </div>
             </div>
           </div>
         </DialogContent>

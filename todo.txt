@@ -1,5 +1,5 @@
 
-# FinDash Core Development TODO
+# Numoraq Core Development TODO
 
 ## COMPLETED ✅
 - ✅ Fixed ETH price display in exchange rates banner
@@ -22,7 +22,7 @@
 - 🔴 Disable auto-load from cloud (currently loads after few seconds of inactivity)
 
 ## MEDIUM PRIORITY 🟡
-- 🟡 Name change (FinDash already exists - consider OpenFinDash or similar)
+- ✅ Name change (FinDash already exists - completed rebrand to Numoraq)
 - 🟡 Add PWA capabilities for app-like experience
 - 🟡 Customize exchange rate display (let users choose BTC, ETH, etc.)
 - 🟡 Auto-sort and manual sort options for all panes
