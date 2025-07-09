@@ -24,7 +24,7 @@ export const useCryptoPaymentMonitor = () => {
     { minAmount: 24.99, plan: '3months', description: '3 Month Degen', durationMonths: 3 },
     { minAmount: 44.99, plan: '6months', description: '6 Month Degen', durationMonths: 6 },
     { minAmount: 79.99, plan: '1year', description: 'Yearly Degen', durationMonths: 12 },
-    { minAmount: 299.99, plan: 'lifetime', description: 'Lifetime Degen', durationMonths: null }
+    { minAmount: 299, plan: 'lifetime', description: 'Lifetime Degen', durationMonths: null }
   ];
 
   const determinePlanFromAmount = useCallback((usdAmount: number): PaymentTier | null => {

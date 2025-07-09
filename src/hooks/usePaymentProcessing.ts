@@ -67,14 +67,14 @@ export const usePaymentProcessing = () => {
     },
     '5years': {
       plan: '5years',
-      amount: 299.99,
+      amount: 199,
       currency: 'USD',
       description: '5 Year Premium',
       features: ['Ad-free experience', 'Premium themes', 'Advanced analytics', 'Priority support', '50% savings', 'Exclusive features']
     },
     'lifetime': {
       plan: 'lifetime',
-      amount: 999.99,
+      amount: 299,
       currency: 'USD',
       description: 'Lifetime Premium',
       features: ['Ad-free experience', 'Premium themes', 'Advanced analytics', 'Priority support', 'All future features', 'Founder badge', 'Early access']

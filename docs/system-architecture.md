@@ -388,3 +388,58 @@ Central hub providing comprehensive financial life management.
 ---
 
 *This document serves as both technical reference and strategic roadmap. Updated regularly as features are implemented and business strategy evolves.*
+
+Myr's notes:> IT's important.
+
+
+<---- Keep separated, will ask friends to help with this ---->
+
+Ask Thiaguim and Denis (friends devs) to:
+
+- Properly integrate, test and deploy payment systems for degen(premium plans) and badgets(badges+allowance animations on dev modes)>
+
+- IF possible, see if they can help with fetching proper crypto price from wallet like debank or integrate to debank or zapper api.
+[[[ this is only for COINS that users would have]]]
+   ->>>> Then, we would really need to have a way to fetch the NFT floor prices from openasea as well..... (via contract address) (we have frontend ready)
+
+- IF possible, see if they can help with the unicorn studio animation to have the same result as we have on landing page but on dashboard, cause our custom themes (black hole and dark ditther and etc.... those should have different animations from unicorns studio (including one that is the same as the one on landing page, and others that are different) on those themes but on dashboard.). Since this one has been so hard, we created Devmode -> Testinstances -> OpenTerminal which was a new dashboard we were building from scratch, making sure it had the animations working. But we didn't improve it, we just made it work.
+
+- if its not asking too much, they might be able to help with translation as well... the app really needs to be translated from english to other languages.
+
+- if its not asking too much as well... omg that will be asking too much, I know! But here we go: you know the brl;usd price we show on dashboard? would be AMAZING if users could change that as well.... to anything i would say... usd:euro, euro:brl, yen:usd, etc.....
+
+
+---------------------------------------------------------------------------------------------------------------------------
+
+unify payments page and payments system. also how we display that. user? degen? donor? thats it.
+and how we fetch it. 
+
+------------------------------------------------------------------------------------------------------------------------
+
+hardcore review on all core values, review, roadmap and etc. and copy.
+
+
+-----------------------------------------------------------------------------------------------------
+
+we ABSOLUTELLY need a simple mode. i can teach most ppl to use the app but a SIMPLE DUMB mode would be amazing to have. (with all the features we have, but in simple interface, simple to understand, simple to do for dumb people as my friend said lol)
+
+------------------------------------------------------------------------------------------------------
+
+still havnt been able to display ads. google ads is blocking us for some reason not allowing us saying ads.txt is missing and our content is not relevant enough or something.
+although we have the placeholder spaces working for non-degen users which is great.
+
+---------------------------------------
+
+we WILL at some point need to start tracking time left for trials to end. would be nice to be able to manually add more time for users (simply cause I want to). would be nice if this would be via our CMS (admin menu currently working)
+
+[[[ also time for degens to end maybe....]]]
+
+------------------------------------------------------
+
+
+links: we will at some point need to rework msot of the links like github for example, we dont have github yet and stuff like that.... 
+
+--------------------------------------------
+
+
+
