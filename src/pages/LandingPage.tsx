@@ -110,8 +110,8 @@ const LandingPage = () => {
     <>
       {/* SEO Meta Tags */}
       <title>NUMORAQ | Advanced Financial Dashboard & Crypto Portfolio Tracker</title>
-      <meta name="description" content="Professional financial dashboard for serious crypto enthusiasts and wealth builders. Start free with 30-day full access, upgrade when ready. Advanced analytics, AI insights, automation." />
-      <meta name="keywords" content="financial dashboard, crypto tracker, portfolio management, wealth tracking, fintech, degen analytics, AI insights, freemium" />
+      <meta name="description" content="Professional financial dashboard and crypto portfolio tracker for serious wealth builders. 30+ day free trial with advanced analytics, AI-powered insights, real-time price updates, privacy-first architecture. No hidden fees, no data selling. Built for crypto enthusiasts and serious investors." />
+      <meta name="keywords" content="financial dashboard, crypto portfolio tracker, portfolio management, wealth tracking, fintech, crypto analytics, AI insights, freemium, privacy-first, real-time prices, crypto dashboard, investment tracker, financial planning, bitcoin tracker, ethereum tracker, DeFi portfolio, wealth builder, financial freedom" />
       
       <div className="min-h-screen bg-background text-foreground font-mono overflow-x-hidden">
         {/* Navigation - Made sticky with backdrop blur */}
@@ -296,43 +296,46 @@ const LandingPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               {/* Free Trial */}
-              <Card className="brutalist-card hover:border-accent transition-colors">
+              <Card className="brutalist-card hover:border-accent transition-colors flex flex-col h-full">
                 <CardHeader className="text-center">
                   <Badge variant="outline" className="mb-4 text-accent border-accent">Extended Beta Trial</Badge>
                   <CardTitle className="text-2xl font-bold">Free Trial</CardTitle>
                   <div className="text-3xl font-bold text-accent">$0</div>
                   <p className="text-muted-foreground">3+ months access during beta</p>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <ul className="space-y-2 text-sm">
+                <CardContent className="flex-1 flex flex-col">
+                  <ul className="space-y-3 text-sm mb-6 flex-1">
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
-                      All degen features
+                      <Check size={16} className="text-accent flex-shrink-0" />
+                      Core degen features
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       Portfolio tracking
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       Advanced analytics
                     </li>
                     <li className="flex items-center gap-2 text-orange-400">
-                      <AlertCircle size={16} className="text-orange-400" />
+                      <AlertCircle size={16} className="text-orange-400 flex-shrink-0" />
                       Contains ads
                     </li>
+                    <li className="flex items-center gap-2 text-red-400">
+                      <X size={16} className="text-red-400 flex-shrink-0" />
+                      No AI chat assistant
+                    </li>
                   </ul>
-                  <Button onClick={() => navigate('/auth')} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                    Start Free Trial
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    🎁 Follow us on social media for degen code giveaways!
-                  </p>
+                  <div className="mt-auto">
+                    <Button onClick={() => navigate('/auth')} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                      Start Free Trial
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Monthly Plan */}
-              <Card className="brutalist-card hover:border-accent transition-colors border-2 border-accent relative">
+              <Card className="brutalist-card hover:border-accent transition-colors border-2 border-accent relative flex flex-col h-full">
                 <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent text-accent-foreground">
                   Most Popular
                 </Badge>
@@ -341,69 +344,73 @@ const LandingPage = () => {
                   <div className="text-3xl font-bold text-accent">$9.99</div>
                   <p className="text-muted-foreground">per month</p>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <ul className="space-y-2 text-sm">
+                <CardContent className="flex-1 flex flex-col">
+                  <ul className="space-y-3 text-sm mb-6 flex-1">
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       Everything in Free
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       No ads experience
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       AI-powered insights
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       Degen themes
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       Priority support
                     </li>
                   </ul>
-                  <Button onClick={() => navigate('/payment')} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                    Get Started
-                  </Button>
+                  <div className="mt-auto">
+                    <Button onClick={() => navigate('/payment')} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                      Get Started
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Lifetime Plan */}
-              <Card className="brutalist-card hover:border-accent transition-colors">
+              <Card className="brutalist-card hover:border-accent transition-colors flex flex-col h-full">
                 <CardHeader className="text-center">
-                  <Badge variant="outline" className="mb-4 text-yellow-400 border-yellow-400">Best Value</Badge>
+                  <Badge variant="outline" className="mb-4 text-green-400 border-green-400 mx-auto">Best Value</Badge>
                   <CardTitle className="text-2xl font-bold">Degen Lifetime</CardTitle>
                   <div className="text-3xl font-bold text-accent">$299</div>
                   <p className="text-muted-foreground">one-time payment</p>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <ul className="space-y-2 text-sm">
+                <CardContent className="flex-1 flex flex-col">
+                  <ul className="space-y-3 text-sm mb-6 flex-1">
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       Everything in Pro
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       Lifetime access
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       Founder badge
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       All future features
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check size={16} className="text-accent" />
+                      <Check size={16} className="text-accent flex-shrink-0" />
                       Direct developer access
                     </li>
                   </ul>
-                  <Button onClick={() => navigate('/payment')} className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white">
-                    Get Lifetime Access
-                  </Button>
+                  <div className="mt-auto">
+                    <Button onClick={() => navigate('/payment')} className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white">
+                      Get Lifetime Access
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -412,8 +419,11 @@ const LandingPage = () => {
               <p className="text-sm text-muted-foreground mb-2">
                 All plans include money-back guarantee. No hidden fees, cancel anytime.
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground mb-2">
                 💝 Donor badges available through support tiers alongside degen plans
+              </p>
+              <p className="text-xs text-muted-foreground">
+                🎁 Follow us on social media for degen code giveaways!
               </p>
             </div>
           </div>
@@ -428,27 +438,52 @@ const LandingPage = () => {
             
             <p className="text-base sm:text-lg text-muted-foreground mb-8">
               We're tired of financial apps that sell your data, charge hidden fees, and don't understand crypto. 
-              So we built something better. Professional-grade analytics, privacy-first, and built for real wealth building.
+              So we built something better. Professional-grade portfolio tracking, real-time crypto analytics, AI-powered insights, 
+              and comprehensive wealth management tools. Privacy-first architecture with optional cloud sync, no data selling, 
+              and built specifically for serious investors and crypto enthusiasts who demand transparency.
             </p>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               <Card className="brutalist-card">
                 <CardContent className="p-4 sm:p-6 text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-accent mb-2">30</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-accent mb-2">30+</div>
                   <div className="text-sm sm:text-base text-muted-foreground">Days Free Trial</div>
                 </CardContent>
               </Card>
               <Card className="brutalist-card">
                 <CardContent className="p-4 sm:p-6 text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-accent mb-2">0</div>
-                  <div className="text-sm sm:text-base text-muted-foreground">Data Tracking</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-accent mb-2">24/7</div>
+                  <div className="text-sm sm:text-base text-muted-foreground">Live Price Updates</div>
+                </CardContent>
+              </Card>
+              <Card className="brutalist-card">
+                <CardContent className="p-4 sm:p-6 text-center">
+                  <div className="text-2xl sm:text-3xl font-bold text-accent mb-2">$0</div>
+                  <div className="text-sm sm:text-base text-muted-foreground">Hidden Fees</div>
+                </CardContent>
+              </Card>
+              <Card className="brutalist-card">
+                <CardContent className="p-4 sm:p-6 text-center">
+                  <div className="text-2xl sm:text-3xl font-bold text-accent mb-2">100%</div>
+                  <div className="text-sm sm:text-base text-muted-foreground">Privacy First</div>
                 </CardContent>
               </Card>
             </div>
             
-            <Button size="lg" onClick={() => navigate('/auth')} className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 text-lg px-8 py-3">
-              Start Your Free Trial <ArrowRight size={20} className="ml-2" />
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button size="lg" onClick={() => navigate('/auth')} className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 text-lg px-8 py-3">
+                Start Your Free Trial <ArrowRight size={20} className="ml-2" />
+              </Button>
+              <span className="text-sm text-muted-foreground">or</span>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                onClick={() => navigate('/auth?mode=signin')} 
+                className="w-full sm:w-auto border-accent text-accent hover:bg-accent hover:text-accent-foreground text-lg px-8 py-3"
+              >
+                Login to Existing Account
+              </Button>
+            </div>
           </div>
         </section>
 

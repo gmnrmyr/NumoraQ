@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Crown, Heart, Zap, Star, Gift, Copy, Check, Info, Twitter } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { DonationInterface } from '@/components/dashboard/DonationInterface';
-import { ProductStateSection } from '@/components/donation/ProductStateSection';
+
 import { PremiumSubscriptionPanel } from '@/components/premium/PremiumSubscriptionPanel';
 import { SimplePaymentProcessor } from '@/components/premium/SimplePaymentProcessor';
 import { SolanaPaymentPanel } from '@/components/payment/SolanaPaymentPanel';
@@ -29,21 +28,7 @@ const PaymentPage = () => {
     });
   };
 
-  // Hardcoded title requirements for display
-  const titleRequirements = [
-    { title: 'WHALE', amount: '$50,000+', points: 50000, color: 'text-purple-600', features: ['Exclusive Whale Badge', 'Ultra VIP Access', 'All Degen Features', 'Direct Developer Contact'] },
-    { title: 'LEGEND', amount: '$10,000+', points: 10000, color: 'text-purple-400', features: ['Exclusive Legend Badge', 'Priority Support', 'All Degen Features'] },
-    { title: 'PATRON', amount: '$5,000+', points: 5000, color: 'text-yellow-400', features: ['Patron Badge', 'Degen Themes', 'Advanced Features'] },
-    { title: 'CHAMPION', amount: '$2,000+', points: 2000, color: 'text-orange-400', features: ['Champion Badge', 'Black Hole Animation', 'Degen Themes'] },
-    { title: 'SUPPORTER', amount: '$1,000+', points: 1000, color: 'text-blue-400', features: ['Supporter Badge', 'Degen Access'] },
-    { title: 'BACKER', amount: '$500+', points: 500, color: 'text-green-400', features: ['Backer Badge', 'Special Recognition'] },
-    { title: 'DONOR', amount: '$100+', points: 100, color: 'text-cyan-400', features: ['Donor Badge', 'Thank You Message'] },
-    { title: 'CONTRIBUTOR', amount: '$50+', points: 50, color: 'text-indigo-400', features: ['Contributor Badge'] },
-    { title: 'HELPER', amount: '$25+', points: 25, color: 'text-pink-400', features: ['Helper Badge'] },
-    { title: 'FRIEND', amount: '$20+', points: 20, color: 'text-emerald-400', features: ['Friend Badge'] },
-    { title: 'SUPPORTER', amount: '$10+', points: 10, color: 'text-lime-400', features: ['Basic Supporter Badge'] },
-    { title: 'NEWCOMER', amount: '$0-9', points: 0, color: 'text-slate-400', features: ['Welcome Badge', '1 point daily login'] }
-  ];
+
 
   // Wallet options with CMS data and status
   const walletOptions = [
@@ -53,7 +38,7 @@ const PaymentPage = () => {
       label: 'Ethereum / BSC / Polygon', 
       icon: '⚡', 
       status: 'active',
-      description: 'Active - Tracks donation tiers'
+      description: 'Active - Tracks payment tiers'
     },
     { 
       type: 'Solana', 
@@ -106,10 +91,10 @@ const PaymentPage = () => {
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold font-mono text-accent uppercase tracking-wider">
-              DEGEN PLANS & SUPPORT
+              DEGEN PLANS & SUBSCRIPTIONS
             </h1>
             <p className="text-muted-foreground text-lg font-mono">
-              Choose your degen plan and support the platform
+              Choose your degen plan and unlock premium features
             </p>
             <div className="flex justify-center items-center gap-4">
               <div className="w-8 h-1 bg-accent"></div>
@@ -127,11 +112,11 @@ const PaymentPage = () => {
                   <h3 className="font-mono font-bold text-accent">DEGEN FINANCIAL PLATFORM</h3>
                   <p className="text-sm font-mono text-muted-foreground">
                     Numoraq is a degen financial platform for serious wealth builders. All new users get extended beta trial access. 
-                    Choose a degen plan to continue with advanced features, or support us through donations for exclusive donor badges.
+                    Choose a degen plan to unlock advanced features, AI-powered insights, and premium themes.
                   </p>
                   <div className="p-3 bg-orange-500/10 border border-orange-500/30 rounded mt-3">
                     <p className="text-sm font-mono text-orange-600">
-                      ⚠️ <strong>Beta Status:</strong> Payments are in implementation. Feel free to send donations to our EVM address with a message to numoraq@gmail.com while in beta.
+                      ⚠️ <strong>Beta Status:</strong> Payments are in implementation. Feel free to send payments to our EVM address with a message to numoraq@gmail.com while in beta.
                     </p>
                   </div>
                 </div>
@@ -172,24 +157,13 @@ const PaymentPage = () => {
           {/* Degen Subscription Panel */}
           <PremiumSubscriptionPanel />
 
-          {/* Donation Interface for Badges */}
-          <Card className="border-2 border-border">
-            <CardHeader>
-              <CardTitle className="font-mono text-accent">SUPPORT & DONOR BADGES</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm font-mono text-muted-foreground mb-4">
-                Show your support and earn exclusive donor badges! Donations go directly to development and operations.
-              </p>
-              <DonationInterface isOpen={false} onClose={() => {}} />
-            </CardContent>
-          </Card>
+
 
           {/* Crypto Wallets Section */}
           <Card className="border-2 border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-mono text-accent">
-                💰 CRYPTO PAYMENTS & DONATIONS
+                💰 CRYPTO PAYMENTS
                 {isMonitoring && (
                   <Badge className="bg-green-600 text-white text-xs">
                     <div className="w-2 h-2 bg-white rounded-full animate-pulse mr-1"></div>
@@ -279,73 +253,13 @@ const PaymentPage = () => {
                 <div className="text-sm font-mono text-muted-foreground">
                   <Gift size={16} className="inline mr-2" />
                   <strong>Note:</strong> EVM wallet has automatic payment detection for instant premium activation. 
-                  Other networks (Solana, Bitcoin, Bitcoin Cash) are for donations and future tier tracking.
+                  Other networks (Solana, Bitcoin, Bitcoin Cash) are for payments and future tier tracking.
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Title Requirements */}
-          <Card className="border-2 border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-mono text-accent">
-                <Crown size={24} />
-                DONOR RECOGNITION TIERS
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm font-mono text-muted-foreground mb-4">
-                <strong>Limited Time:</strong> Donor badges remain available alongside degen plans. 
-                Support the platform and earn exclusive recognition!
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {titleRequirements.map((tier, index) => (
-                  <Card key={index} className="border border-border bg-card/50">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <Badge className={`${tier.color} bg-transparent border font-mono`}>
-                          {tier.title}
-                        </Badge>
-                        <span className="text-sm font-mono text-muted-foreground">
-                          {tier.points > 0 ? `${tier.points} pts` : '0-9 pts'}
-                        </span>
-                      </div>
-                      <div className="text-xl font-bold font-mono text-accent">
-                        {tier.amount}
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <ul className="space-y-1">
-                        {tier.features.map((feature, fIndex) => (
-                          <li key={fIndex} className="text-sm font-mono text-muted-foreground flex items-center gap-2">
-                            <Star size={12} className="text-accent" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                      {tier.title === 'CHAMPION' && (
-                        <div className="mt-2 p-2 bg-accent/10 border border-accent rounded">
-                          <div className="text-xs font-mono text-accent flex items-center gap-1">
-                            <Zap size={12} />
-                            Unlocks Black Hole Animation
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              
-              <div className="mt-6 p-4 bg-muted border border-border rounded">
-                <div className="text-sm font-mono text-muted-foreground">
-                  <Gift size={16} className="inline mr-2" />
-                  <strong>Note:</strong> All donations directly support development and server costs. 
-                  Titles are automatically assigned based on total donation amount and grant access to exclusive features.
-                  Daily login rewards: 1 point per day.
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+
 
           {/* Why Choose Degen */}
           <Card className="border-2 border-border">

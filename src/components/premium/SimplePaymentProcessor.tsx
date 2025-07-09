@@ -56,7 +56,7 @@ const paymentPlans: PaymentPlan[] = [
   {
     id: 'degen-lifetime',
     name: 'Degen Lifetime',
-    price: 299.99,
+    price: 299,
     duration: 'Lifetime',
     features: ['All Premium Features', 'Ad-Free Experience', 'Priority Support', 'Lifetime Access', 'Founder Badge'],
     code: 'DEGENLIFE'

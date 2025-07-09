@@ -7,8 +7,6 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { DonationInterface } from '@/components/dashboard/DonationInterface';
 import { ProductStateSection } from '@/components/donation/ProductStateSection';
-import { PremiumSubscriptionPanel } from '@/components/premium/PremiumSubscriptionPanel';
-import { SimplePaymentProcessor } from '@/components/premium/SimplePaymentProcessor';
 import { useCMSSettings } from '@/hooks/useCMSSettings';
 import { useCryptoPaymentMonitor } from '@/hooks/useCryptoPaymentMonitor';
 import { toast } from '@/hooks/use-toast';
@@ -105,10 +103,10 @@ const DonationPage = () => {
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold font-mono text-accent uppercase tracking-wider">
-              DEGEN PLANS & SUPPORT
+              SUPPORT & DONOR BADGES
             </h1>
             <p className="text-muted-foreground text-lg font-mono">
-              Choose your degen plan and support the platform
+              Support the platform and earn exclusive donor badges
             </p>
             <div className="flex justify-center items-center gap-4">
               <div className="w-8 h-1 bg-accent"></div>
@@ -123,10 +121,9 @@ const DonationPage = () => {
               <div className="flex items-start gap-3">
                 <Info className="text-accent mt-1" size={20} />
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-accent">DEGEN FINANCIAL PLATFORM</h3>
+                  <h3 className="font-mono font-bold text-accent">PLATFORM SUPPORT</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Numoraq is a degen financial platform for serious wealth builders. All new users get extended beta trial access. 
-                    Choose a degen plan to continue with advanced features, or support us through donations for exclusive donor badges.
+                    Support Numoraq development and earn exclusive donor badges. Your donations help us build better features and maintain the platform.
                   </p>
                   <div className="p-3 bg-orange-500/10 border border-orange-500/30 rounded mt-3">
                     <p className="text-sm font-mono text-orange-600">
@@ -288,11 +285,7 @@ const DonationPage = () => {
           {/* Product State Section - NEW */}
           <ProductStateSection />
 
-          {/* Simple Payment Processor - Easy Premium Purchase */}
-          <SimplePaymentProcessor />
 
-          {/* Premium Subscription Panel */}
-          <PremiumSubscriptionPanel />
 
           {/* Title Requirements */}
           <Card className="border-2 border-border">
@@ -352,35 +345,35 @@ const DonationPage = () => {
             </CardContent>
           </Card>
 
-          {/* Why Choose Degen */}
+          {/* Why Support Us */}
           <Card className="border-2 border-border">
             <CardHeader>
-              <CardTitle className="font-mono text-accent">WHY CHOOSE {settings.website_name?.toUpperCase() || 'NUMORAQ'} DEGEN?</CardTitle>
+              <CardTitle className="font-mono text-accent">WHY SUPPORT {settings.website_name?.toUpperCase() || 'NUMORAQ'}?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-foreground">🚀 ADVANCED FEATURES</h3>
+                  <h3 className="font-mono font-bold text-foreground">🚀 INDEPENDENT DEVELOPMENT</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Access AI-powered insights, advanced analytics, degen themes, and cutting-edge financial tools.
+                    Your donations keep us independent and focused on building the best financial platform possible.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-foreground">💰 PROFESSIONAL GRADE</h3>
+                  <h3 className="font-mono font-bold text-foreground">💰 TRANSPARENT FUNDING</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Built for serious wealth builders with enterprise-level infrastructure and reliability.
+                    All donations go directly to development costs, server maintenance, and new feature development.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-foreground">🔒 PRIVACY FIRST</h3>
+                  <h3 className="font-mono font-bold text-foreground">🔒 NO ADS, NO TRACKING</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    We don't sell your data. Degen subscriptions keep us independent and user-focused.
+                    Donations help us maintain a clean, ad-free experience without selling your data.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-foreground">🌟 CONTINUOUS INNOVATION</h3>
+                  <h3 className="font-mono font-bold text-foreground">🌟 EXCLUSIVE RECOGNITION</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Degen users get early access to new features and direct input on product development.
+                    Donors get exclusive badges, early access to features, and direct input on development priorities.
                   </p>
                 </div>
               </div>
