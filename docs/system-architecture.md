@@ -422,7 +422,6 @@ and how we fetch it.
 
 hardcore review on all core values, review, roadmap and etc. and copy.
 
-
 -----------------------------------------------------------------------------------------------------
 
 we ABSOLUTELLY need a simple mode. i can teach most ppl to use the app but a SIMPLE DUMB mode would be amazing to have. (with all the features we have, but in simple interface, simple to understand, simple to do for dumb people as my friend said lol)
@@ -441,7 +440,7 @@ we WILL at some point need to start tracking time left for trials to end. would 
 ------------------------------------------------------
 
 
-links: we will at some point need to rework msot of the links like github for example, we dont have github yet and stuff like that.... 
+links: we will at some point need to rework most of the links like github for example, we dont have github yet and stuff like that.... 
 
 --------------------------------------------
 
