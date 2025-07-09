@@ -14,6 +14,9 @@ import AuthPage from "./pages/AuthPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import DonationPage from "./pages/DonationPage";
+import PaymentPage from "./pages/PaymentPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
 import UpcomingFeatures from "./pages/UpcomingFeatures";
 import TestInstances from "@/pages/TestInstances";
 
@@ -63,6 +66,9 @@ const App: React.FC = () => {
                       <Route path="/onboarding" element={<OnboardingPage />} />
                       <Route path="/leaderboard" element={<LeaderboardPage />} />
                       <Route path="/donation" element={<DonationPage />} />
+                      <Route path="/payment" element={<PaymentPage />} />
+                      <Route path="/privacy" element={<PrivacyPage />} />
+                      <Route path="/terms" element={<TermsPage />} />
                       <Route path="/upcoming-features" element={<UpcomingFeatures />} />
                       <Route path="/test-instances" element={<TestInstances />} />
                       <Route path="*" element={<LandingPage />} />

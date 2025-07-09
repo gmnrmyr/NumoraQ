@@ -95,8 +95,7 @@ export const ProductStateSection = () => {
               { icon: '🌊', title: 'OpenSea integration', desc: 'See real-time offer values for NFTs in your collection.' },
               { icon: '🎁', title: 'NFT airdrops for donors', desc: 'Receive limited collectibles shown under your avatar (UI ready, backend coming).' },
               { icon: '🏆', title: 'Leaderboard opt-in', desc: 'Rank among top contributors — completely optional and privacy-respecting.' },
-              { icon: '📱', title: 'Improved mobile layout', desc: 'Responsive redesign with better animation handling on small screens.' },
-              { icon: '💡', title: 'Rebrand in progress', desc: 'A new, abstract name is coming soon. All current users will retain full access and donor status.' }
+              { icon: '📱', title: 'Improved mobile layout', desc: 'Responsive redesign with better animation handling on small screens.' }
             ].map((feature, index) => (
               <div key={index} className="flex gap-3 p-2 bg-card/30 border border-border rounded">
                 <span className="text-lg">{feature.icon}</span>
@@ -109,24 +108,10 @@ export const ProductStateSection = () => {
           </div>
         </div>
 
-        {/* Open Source Commitment */}
-        <div className="space-y-3">
-          <h3 className="text-lg font-bold font-mono text-foreground">🌐 OPEN SOURCE COMMITMENT</h3>
-          <div className="space-y-2">
-            <p className="text-sm font-mono text-muted-foreground">
-              {settings.website_name || 'Numoraq'} aims to remain open source as long as it's feasible. 
-              While the GitHub repository is currently private for internal refactoring, it will be made public once we're ready.
-            </p>
-            <p className="text-xs font-mono text-muted-foreground">
-              In the event of a pivot, all current open-source users will receive full premium access for at least 5 years.
-            </p>
-          </div>
-        </div>
-
         {/* Call to Action */}
         <div className="border-t border-border pt-4">
           <p className="text-xs font-mono text-muted-foreground">
-            🎁 Want early access to premium features? <strong>Follow us on Twitter</strong> for exclusive codes and giveaways!
+            🎁 Want early access to premium features? <strong>Follow us on social media</strong> for exclusive degen codes and giveaways!
           </p>
         </div>
       </CardContent>

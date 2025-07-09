@@ -20,8 +20,13 @@ export const Footer = () => {
             <p className="text-xs text-muted-foreground font-mono">
               Advanced financial dashboard for crypto & traditional assets
             </p>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="px-2 py-1 bg-accent/20 border border-accent/30 rounded text-xs font-mono text-accent">
+                BETA
+              </div>
+            </div>
             <div className="text-xs text-muted-foreground font-mono">
-              © 2024 {(settings.website_name || 'NUMORAQ').toUpperCase()}. All rights reserved.
+              © 2024 NUMORAQ. All rights reserved.
             </div>
           </div>
 

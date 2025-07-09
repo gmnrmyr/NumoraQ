@@ -13,9 +13,10 @@ interface EmailAuthFormsProps {
   onResetPassword: (email: string) => Promise<void>;
   onGoogleSignIn: () => Promise<void>;
   loading: boolean;
+  defaultMode?: 'signin' | 'signup';
 }
 
-export const EmailAuthForms = ({ onSignIn, onSignUp, onResetPassword, onGoogleSignIn, loading }: EmailAuthFormsProps) => {
+export const EmailAuthForms = ({ onSignIn, onSignUp, onResetPassword, onGoogleSignIn, loading, defaultMode = 'signin' }: EmailAuthFormsProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
@@ -39,7 +40,7 @@ export const EmailAuthForms = ({ onSignIn, onSignUp, onResetPassword, onGoogleSi
   };
 
   return (
-    <Tabs defaultValue="signin" className="w-full">
+    <Tabs defaultValue={defaultMode} className="w-full">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="signin">Login</TabsTrigger>
         <TabsTrigger value="signup">Register</TabsTrigger>

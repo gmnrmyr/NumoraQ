@@ -12,7 +12,7 @@ import { SimplePaymentProcessor } from '@/components/premium/SimplePaymentProces
 import { useCMSSettings } from '@/hooks/useCMSSettings';
 import { toast } from '@/hooks/use-toast';
 
-const DonationPage = () => {
+const PaymentPage = () => {
   const { settings, loading } = useCMSSettings();
   const [copiedWallet, setCopiedWallet] = React.useState<string>('');
 
@@ -28,11 +28,11 @@ const DonationPage = () => {
 
   // Hardcoded title requirements for display
   const titleRequirements = [
-    { title: 'WHALE', amount: '$50,000+', points: 50000, color: 'text-purple-600', features: ['Exclusive Whale Badge', 'Ultra VIP Access', 'All Premium Features', 'Direct Developer Contact'] },
-    { title: 'LEGEND', amount: '$10,000+', points: 10000, color: 'text-purple-400', features: ['Exclusive Legend Badge', 'Priority Support', 'All Premium Features'] },
-    { title: 'PATRON', amount: '$5,000+', points: 5000, color: 'text-yellow-400', features: ['Patron Badge', 'Premium Themes', 'Advanced Features'] },
-    { title: 'CHAMPION', amount: '$2,000+', points: 2000, color: 'text-orange-400', features: ['Champion Badge', 'Black Hole Animation', 'Premium Themes'] },
-    { title: 'SUPPORTER', amount: '$1,000+', points: 1000, color: 'text-blue-400', features: ['Supporter Badge', 'Premium Access'] },
+    { title: 'WHALE', amount: '$50,000+', points: 50000, color: 'text-purple-600', features: ['Exclusive Whale Badge', 'Ultra VIP Access', 'All Degen Features', 'Direct Developer Contact'] },
+    { title: 'LEGEND', amount: '$10,000+', points: 10000, color: 'text-purple-400', features: ['Exclusive Legend Badge', 'Priority Support', 'All Degen Features'] },
+    { title: 'PATRON', amount: '$5,000+', points: 5000, color: 'text-yellow-400', features: ['Patron Badge', 'Degen Themes', 'Advanced Features'] },
+    { title: 'CHAMPION', amount: '$2,000+', points: 2000, color: 'text-orange-400', features: ['Champion Badge', 'Black Hole Animation', 'Degen Themes'] },
+    { title: 'SUPPORTER', amount: '$1,000+', points: 1000, color: 'text-blue-400', features: ['Supporter Badge', 'Degen Access'] },
     { title: 'BACKER', amount: '$500+', points: 500, color: 'text-green-400', features: ['Backer Badge', 'Special Recognition'] },
     { title: 'DONOR', amount: '$100+', points: 100, color: 'text-cyan-400', features: ['Donor Badge', 'Thank You Message'] },
     { title: 'CONTRIBUTOR', amount: '$50+', points: 50, color: 'text-indigo-400', features: ['Contributor Badge'] },
@@ -85,7 +85,7 @@ const DonationPage = () => {
         <div className="pt-20 sm:pt-32 pb-8">
           <div className="max-w-6xl mx-auto px-4">
             <div className="text-center">
-              <div className="animate-pulse">Loading donation information...</div>
+              <div className="animate-pulse">Loading payment information...</div>
             </div>
           </div>
         </div>
@@ -103,10 +103,10 @@ const DonationPage = () => {
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold font-mono text-accent uppercase tracking-wider">
-              PREMIUM PLANS & SUPPORT
+              DEGEN PLANS & SUPPORT
             </h1>
             <p className="text-muted-foreground text-lg font-mono">
-              Choose your plan and support the platform
+              Choose your degen plan and support the platform
             </p>
             <div className="flex justify-center items-center gap-4">
               <div className="w-8 h-1 bg-accent"></div>
@@ -115,19 +115,60 @@ const DonationPage = () => {
             </div>
           </div>
 
-          {/* Premium Notice */}
+          {/* Beta Payment Notice */}
           <Card className="border-2 border-accent/30 bg-accent/5">
             <CardContent className="pt-4">
               <div className="flex items-start gap-3">
                 <Info className="text-accent mt-1" size={20} />
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-accent">PREMIUM FINANCIAL PLATFORM</h3>
+                  <h3 className="font-mono font-bold text-accent">DEGEN FINANCIAL PLATFORM</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Numoraq is now a premium financial platform for serious wealth builders. All new users get 30 days full access. 
-                    Choose a premium plan to continue with advanced features, or support us through donations for exclusive benefits.
+                    Numoraq is a degen financial platform for serious wealth builders. All new users get extended beta trial access. 
+                    Choose a degen plan to continue with advanced features, or support us through donations for exclusive donor badges.
                   </p>
+                  <div className="p-3 bg-orange-500/10 border border-orange-500/30 rounded mt-3">
+                    <p className="text-sm font-mono text-orange-600">
+                      ⚠️ <strong>Beta Status:</strong> Payments are in implementation. Feel free to send donations to our EVM address with a message to numoraq@gmail.com while in beta.
+                    </p>
+                  </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Contact Information */}
+          <Card className="border-2 border-border">
+            <CardHeader>
+              <CardTitle className="font-mono text-accent">CONTACT & SUPPORT</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm font-mono text-muted-foreground">
+                <p className="mb-2">
+                  <strong>Email:</strong> numoraq@gmail.com
+                </p>
+                <p>
+                  For payment issues, degen support, or general inquiries, please contact us via email or social media.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Simple Payment Processor - Easy Degen Purchase */}
+          <SimplePaymentProcessor />
+
+          {/* Degen Subscription Panel */}
+          <PremiumSubscriptionPanel />
+
+          {/* Donation Interface for Badges */}
+          <Card className="border-2 border-border">
+            <CardHeader>
+              <CardTitle className="font-mono text-accent">SUPPORT & DONOR BADGES</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm font-mono text-muted-foreground mb-4">
+                Show your support and earn exclusive donor badges! Donations go directly to development and operations.
+              </p>
+              <DonationInterface isOpen={false} onClose={() => {}} />
             </CardContent>
           </Card>
 
@@ -196,45 +237,6 @@ const DonationPage = () => {
             </CardContent>
           </Card>
 
-          {/* PayPal Section */}
-          <Card className="border-2 border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-mono text-accent">
-                💳 PAYPAL DONATIONS
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="p-4 border border-border rounded bg-muted/30">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-foreground">PayPal Email:</span>
-                  <div className="flex items-center gap-2">
-                    <code className="p-2 bg-muted rounded font-mono text-sm text-muted-foreground">
-                      {settings.project_paypal_email}
-                    </code>
-                    <Badge variant="outline" className="text-xs text-orange-400 border-orange-400">
-                      Coming Soon
-                    </Badge>
-                  </div>
-                </div>
-                <div className="mt-2 text-xs font-mono text-muted-foreground">
-                  PayPal donations will be available soon and will enable tier tracking. Stay tuned for updates!
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Donation Interface */}
-          <DonationInterface isOpen={false} onClose={() => {}} />
-
-          {/* Product State Section - NEW */}
-          <ProductStateSection />
-
-          {/* Simple Payment Processor - Easy Premium Purchase */}
-          <SimplePaymentProcessor />
-
-          {/* Premium Subscription Panel */}
-          <PremiumSubscriptionPanel />
-
           {/* Title Requirements */}
           <Card className="border-2 border-border">
             <CardHeader>
@@ -244,6 +246,10 @@ const DonationPage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="text-sm font-mono text-muted-foreground mb-4">
+                <strong>Limited Time:</strong> Donor badges remain available alongside degen plans. 
+                Support the platform and earn exclusive recognition!
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {titleRequirements.map((tier, index) => (
                   <Card key={index} className="border border-border bg-card/50">
@@ -293,17 +299,17 @@ const DonationPage = () => {
             </CardContent>
           </Card>
 
-          {/* Why Support Us */}
+          {/* Why Choose Degen */}
           <Card className="border-2 border-border">
             <CardHeader>
-                              <CardTitle className="font-mono text-accent">WHY CHOOSE {settings.website_name?.toUpperCase() || 'NUMORAQ'} PREMIUM?</CardTitle>
+              <CardTitle className="font-mono text-accent">WHY CHOOSE {settings.website_name?.toUpperCase() || 'NUMORAQ'} DEGEN?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <h3 className="font-mono font-bold text-foreground">🚀 ADVANCED FEATURES</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Access AI-powered insights, advanced analytics, premium themes, and cutting-edge financial tools.
+                    Access AI-powered insights, advanced analytics, degen themes, and cutting-edge financial tools.
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -315,13 +321,13 @@ const DonationPage = () => {
                 <div className="space-y-2">
                   <h3 className="font-mono font-bold text-foreground">🔒 PRIVACY FIRST</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    We don't sell your data. Premium subscriptions keep us independent and user-focused.
+                    We don't sell your data. Degen subscriptions keep us independent and user-focused.
                   </p>
                 </div>
                 <div className="space-y-2">
                   <h3 className="font-mono font-bold text-foreground">🌟 CONTINUOUS INNOVATION</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Premium users get early access to new features and direct input on product development.
+                    Degen users get early access to new features and direct input on product development.
                   </p>
                 </div>
               </div>
@@ -335,4 +341,4 @@ const DonationPage = () => {
   );
 };
 
-export default DonationPage;
+export default PaymentPage; 
