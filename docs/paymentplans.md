@@ -42,8 +42,6 @@ The third way would be via EVM wallets, like metamask, walletconnect, etc.
 And the fourth way would be to fetch via ethereum transaction for example. (we have started). Where user saves his wallet adress and confirms he have sent the payment,  we fetch the eth transaction and the user gets credits where he can spend to buy degen plans or donation tiers.
 
 --------------------------------------------------------------
-
-
 @paymentplans.md 
 
 so heres our stripe api key (public)
