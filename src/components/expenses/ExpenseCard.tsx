@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Trash2, Calendar } from "lucide-react";
+import { Trash2, Calendar, Check, X } from "lucide-react";
 import { EditableValue } from "@/components/ui/editable-value";
 import { StatusToggle } from "@/components/ui/status-toggle";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -27,19 +27,93 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
   const { t } = useTranslation();
   const Icon = getCategoryIcon(expense.category);
   
+  // Mobile-friendly editing state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editingName, setEditingName] = useState(expense.name);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  
+  // Update editing name when expense name changes
+  useEffect(() => {
+    if (!isEditingName) {
+      setEditingName(expense.name);
+    }
+  }, [expense.name, isEditingName]);
+  
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+      nameInputRef.current.select();
+    }
+  }, [isEditingName]);
+  
+  const handleSaveName = () => {
+    if (editingName !== expense.name) {
+      onUpdate(expense.id, { name: editingName });
+    }
+    setIsEditingName(false);
+  };
+  
+  const handleCancelName = () => {
+    setEditingName(expense.name);
+    setIsEditingName(false);
+  };
+  
+  const handleNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveName();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelName();
+    }
+  };
+  
   return (
     <div className={`p-2 sm:p-3 bg-card border-2 border-border brutalist-card font-mono ${!expense.status || expense.status === 'inactive' ? 'opacity-60' : ''}`}>
       <div className="flex flex-col gap-2">
         {/* Top row - Icon, Name, Amount */}
         <div className="flex items-center gap-2">
           <Icon size={16} className="text-muted-foreground flex-shrink-0" />
+          
+          {/* Mobile-friendly expense name editing */}
           <div className="flex-1 min-w-0">
-            <Input
-              value={expense.name}
-              onChange={(e) => onUpdate(expense.id, { name: e.target.value })}
-              className="border-none p-0 font-medium bg-transparent text-sm h-auto font-mono bg-input border-2 border-border"
-            />
+            {isEditingName ? (
+              <div className="flex items-center gap-1">
+                <Input
+                  ref={nameInputRef}
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  onKeyDown={handleNameKeyDown}
+                  className="flex-1 text-sm font-mono bg-input border-2 border-border"
+                  placeholder="Enter expense name"
+                />
+                <Button
+                  onClick={handleSaveName}
+                  size="sm"
+                  className="h-6 w-6 p-0 bg-green-600 hover:bg-green-700"
+                >
+                  <Check size={12} />
+                </Button>
+                <Button
+                  onClick={handleCancelName}
+                  size="sm"
+                  variant="outline"
+                  className="h-6 w-6 p-0"
+                >
+                  <X size={12} />
+                </Button>
+              </div>
+            ) : (
+              <div
+                onClick={() => setIsEditingName(true)}
+                className="text-sm font-medium cursor-pointer hover:bg-muted p-1 rounded transition-colors font-mono"
+              >
+                {expense.name || 'Click to edit'}
+              </div>
+            )}
           </div>
+          
           <div className="flex items-center gap-1 flex-shrink-0">
             <span className="font-medium text-sm">$</span>
             <EditableValue

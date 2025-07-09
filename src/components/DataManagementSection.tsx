@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { PDFExport } from "./PDFExport";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { BackupManager } from "./backup/BackupManager";
 
 export const DataManagementSection = () => {
   const { 
@@ -169,6 +170,11 @@ export const DataManagementSection = () => {
               <p className="text-xs text-muted-foreground font-mono text-center mt-2">
                 Generate a comprehensive financial report for printing or sharing
               </p>
+            </div>
+
+            {/* Backup Management */}
+            <div>
+              <BackupManager />
             </div>
 
             {/* Cloud Data Management */}

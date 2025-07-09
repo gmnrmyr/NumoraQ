@@ -126,58 +126,65 @@ export const TaskManagementEditable = () => {
     <div className="space-y-4 sm:space-y-6">
       <Card className="bg-card/95 backdrop-blur-md border-2 border-accent brutalist-card">
         <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex flex-col gap-3">
             <div>
               <CardTitle className="text-accent text-sm sm:text-base font-mono uppercase flex items-center gap-2">
                 <CheckSquare size={20} />
                 {t.tasks || "TASK MANAGEMENT"} ({activeTasks.length} active)
               </CardTitle>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Select value={filterCategory} onValueChange={setFilterCategory}>
-                <SelectTrigger className="w-32 bg-input border-2 border-border">
-                  <Filter size={16} className="mr-1" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-2 border-border">
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="goal">Goals</SelectItem>
-                  <SelectItem value="asset">Assets</SelectItem>
-                  <SelectItem value="finance">Finance</SelectItem>
-                  <SelectItem value="personal">Personal</SelectItem>
-                </SelectContent>
-              </Select>
+            
+            {/* Mobile-friendly layout: filters and actions on separate rows */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              {/* Filter controls */}
+              <div className="flex flex-wrap gap-2">
+                <Select value={filterCategory} onValueChange={setFilterCategory}>
+                  <SelectTrigger className="w-32 bg-input border-2 border-border">
+                    <Filter size={16} className="mr-1" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-2 border-border">
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="goal">Goals</SelectItem>
+                    <SelectItem value="asset">Assets</SelectItem>
+                    <SelectItem value="finance">Finance</SelectItem>
+                    <SelectItem value="personal">Personal</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-32 bg-input border-2 border-border">
+                    <SortAsc size={16} className="mr-1" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-2 border-border">
+                    <SelectItem value="priority">Priority</SelectItem>
+                    <SelectItem value="dueDate">Due Date</SelectItem>
+                    <SelectItem value="category">Category</SelectItem>
+                    <SelectItem value="title">Title</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-32 bg-input border-2 border-border">
-                  <SortAsc size={16} className="mr-1" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-2 border-border">
-                  <SelectItem value="priority">Priority</SelectItem>
-                  <SelectItem value="dueDate">Due Date</SelectItem>
-                  <SelectItem value="category">Category</SelectItem>
-                  <SelectItem value="title">Title</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Button 
-                onClick={removeCompletedTasks}
-                variant="outline"
-                size="sm"
-                className="brutalist-button text-red-600"
-              >
-                <Trash2 size={16} className="mr-1" />
-                Clear Done
-              </Button>
-              
-              <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
-                <DialogTrigger asChild>
-                  <Button size="sm" className="brutalist-button">
-                    <Plus size={16} className="mr-1" />
-                    Add Task
-                  </Button>
-                </DialogTrigger>
+              {/* Action buttons - separate row on mobile */}
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Button 
+                  onClick={removeCompletedTasks}
+                  variant="outline"
+                  size="sm"
+                  className="brutalist-button text-red-600 w-full sm:w-auto"
+                >
+                  <Trash2 size={16} className="mr-1" />
+                  Clear Done
+                </Button>
+                
+                <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="brutalist-button w-full sm:w-auto">
+                      <Plus size={16} className="mr-1" />
+                      Add Task
+                    </Button>
+                  </DialogTrigger>
                 <DialogContent className="w-[95vw] max-w-md bg-card border-2 border-border">
                   <DialogHeader>
                     <DialogTitle className="font-mono uppercase">Add New Task</DialogTitle>
@@ -232,6 +239,7 @@ export const TaskManagementEditable = () => {
                   </div>
                 </DialogContent>
               </Dialog>
+              </div>
             </div>
           </div>
         </CardHeader>

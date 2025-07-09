@@ -13,39 +13,86 @@ export const UnsavedChangesIndicator = () => {
   
   // Check if data has been modified since last sync, excluding automatic updates
   const hasUnsavedChanges = () => {
-    if (!lastSync) return true; // No sync yet
+    if (!lastSync) {
+      // Only show unsaved changes if there's actual user content
+      return data.liquidAssets.length > 0 || 
+             data.expenses.length > 0 || 
+             data.passiveIncome.length > 0 || 
+             data.activeIncome.length > 0 ||
+             data.debts.length > 0 || 
+             data.properties.length > 0 ||
+             data.tasks.length > 0 ||
+             data.userProfile.name !== "User"; // User changed their name
+    }
+    
     if (!data.lastModified) return false; // No modifications tracked
     
     const lastSyncTime = new Date(lastSync).getTime();
     const lastModifiedTime = new Date(data.lastModified).getTime();
+    const exchangeRateUpdateTime = new Date(data.exchangeRates.lastUpdated).getTime();
     
-    // Only consider as unsaved if modified more than 10 seconds after sync
-    // This filters out automatic exchange rate updates
-    return lastModifiedTime > (lastSyncTime + 10000);
+    // If the last modification is very close to the exchange rate update, it's likely an automatic update
+    const isLikelyExchangeRateUpdate = Math.abs(lastModifiedTime - exchangeRateUpdateTime) < 5000; // 5 seconds
+    
+    // Only consider as unsaved if:
+    // 1. Modified more than 30 seconds after sync (bigger buffer)
+    // 2. NOT likely an exchange rate update
+    // 3. AND there's actual user content
+    const hasUserContent = data.liquidAssets.length > 0 || 
+                          data.expenses.length > 0 || 
+                          data.passiveIncome.length > 0 || 
+                          data.activeIncome.length > 0 ||
+                          data.debts.length > 0 || 
+                          data.properties.length > 0 ||
+                          data.tasks.length > 0 ||
+                          data.userProfile.name !== "User";
+    
+    return lastModifiedTime > (lastSyncTime + 30000) && 
+           !isLikelyExchangeRateUpdate && 
+           hasUserContent;
   };
 
   const getChangeSummary = () => {
     const changes = [];
     
     if (!lastSync) {
-      changes.push(t.noDataYet);
+      // Only show unsaved changes message if there's actual user content
+      const hasUserContent = data.liquidAssets.length > 0 || 
+                            data.expenses.length > 0 || 
+                            data.passiveIncome.length > 0 || 
+                            data.activeIncome.length > 0 ||
+                            data.debts.length > 0 || 
+                            data.properties.length > 0 ||
+                            data.tasks.length > 0 ||
+                            data.userProfile.name !== "User";
+      
+      if (hasUserContent) {
+        changes.push("Data not yet synced to cloud");
+      }
       return changes;
     }
 
     // More specific change detection based on actual user data
     const lastSyncTime = new Date(lastSync).getTime();
     const dataTime = new Date(data.lastModified || 0).getTime();
+    const exchangeRateUpdateTime = new Date(data.exchangeRates.lastUpdated).getTime();
     
-    if (dataTime > lastSyncTime + 10000) { // 10 second buffer for auto-updates
+    // Check if this is likely an exchange rate update
+    const isLikelyExchangeRateUpdate = Math.abs(dataTime - exchangeRateUpdateTime) < 5000;
+    
+    if (dataTime > lastSyncTime + 30000 && !isLikelyExchangeRateUpdate) {
       // Only show changes if there's actual user content
-      if (data.liquidAssets.length > 0 || 
-          data.expenses.length > 0 || 
-          data.passiveIncome.length > 0 || 
-          data.activeIncome.length > 0 ||
-          data.debts.length > 0 || 
-          data.properties.length > 0 ||
-          data.tasks.length > 0) {
-        changes.push("User data has been modified");
+      const hasUserContent = data.liquidAssets.length > 0 || 
+                            data.expenses.length > 0 || 
+                            data.passiveIncome.length > 0 || 
+                            data.activeIncome.length > 0 ||
+                            data.debts.length > 0 || 
+                            data.properties.length > 0 ||
+                            data.tasks.length > 0 ||
+                            data.userProfile.name !== "User";
+      
+      if (hasUserContent) {
+        changes.push("Local changes not yet synced");
       }
     }
     

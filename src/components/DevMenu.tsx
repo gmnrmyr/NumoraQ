@@ -46,7 +46,8 @@ export const DevMenu = () => {
       'theme-gold', 
       'theme-black-hole', 
       'theme-dark-dither',
-      'theme-da-test'
+      'theme-da-test',
+      'theme-da-terminal'
     );
     
     switch (theme) {

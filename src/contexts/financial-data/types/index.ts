@@ -30,6 +30,15 @@ export interface FinancialData {
   lastModified: string;
 }
 
+export interface BackupItem {
+  id: string;
+  name: string;
+  timestamp: string;
+  data: FinancialData;
+  size: number;
+  isAutomatic: boolean;
+}
+
 export interface FinancialDataContextType {
   data: FinancialData;
   updateUserProfile: (updates: Partial<UserProfile>) => void;
@@ -68,4 +77,11 @@ export interface FinancialDataContextType {
   loadFromCloud: (isSilent?: boolean) => Promise<void>;
   syncState: 'idle' | 'loading' | 'saving' | 'error';
   lastSync: string | null;
+  // Backup functionality
+  backups: BackupItem[];
+  createBackup: (name?: string) => string;
+  restoreBackup: (backupId: string) => void;
+  deleteBackup: (backupId: string) => void;
+  getBackupStats: () => { totalBackups: number; manualBackups: number; automaticBackups: number; totalSize: number; latestBackup: string | null };
+  formatBackupSize: (size: number) => string;
 }

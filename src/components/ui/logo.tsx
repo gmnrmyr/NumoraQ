@@ -94,9 +94,7 @@ export const Logo: React.FC<LogoProps> = ({
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/10 to-transparent animate-pulse opacity-50" />
       
       <span className="relative z-10">
-        <span className="text-accent">NUM</span>
-        <span className="text-foreground">O</span>
-        <span className="text-accent">RAQ</span>
+        <span className="text-accent">NUMORAQ</span>
       </span>
       
       {/* Pixel corners for tech aesthetic */}
