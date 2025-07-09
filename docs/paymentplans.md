@@ -44,4 +44,14 @@ And the fourth way would be to fetch via ethereum transaction for example. (we h
 --------------------------------------------------------------
 
 
+@paymentplans.md 
 
+so heres our stripe api key (public)
+
+pk_test_51Rj4WJQ1mqL18ilaTi6cnAHjmz2FiunvwKXGmfloi5mxLprgnLxDvKlseLVvNv6gzhTM8tSj5V86FaXGjcOJd5sg00LR7GM48y
+
+
+secret api key
+sk_test_51Rj4WJQ1mqL18ila4Vv7ZXXOWrlxMhfklCiBE1xp4Gx5TVHelY2PQ6OL450GIGePG3MeFqtu5AkRC96327MkEOmw00hhDYbW0t
+
+can you check paymentplans.md and proceed? also system-architecture.md to make sure we dont break anything. thanks

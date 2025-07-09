@@ -156,42 +156,58 @@ export const usePaymentProcessing = () => {
   }, [user]);
 
   const processStripePayment = useCallback(async (sessionId: string): Promise<boolean> => {
-    // In a real implementation, this would integrate with Stripe
-    // For now, we'll simulate the process
     setLoading(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Update session status
-      const { error } = await supabase
+      // Get the current session details
+      const { data: sessionData, error: sessionError } = await supabase
         .from('payment_sessions')
-        .update({ status: 'completed' })
-        .eq('id', sessionId);
+        .select('*')
+        .eq('id', sessionId)
+        .single();
 
-      if (error) throw error;
+      if (sessionError || !sessionData) {
+        throw new Error('Payment session not found');
+      }
 
-      await activatePremiumAccess(sessionId);
-      
-      toast({
-        title: "Payment Successful! 🎉",
-        description: "Your premium access has been activated",
+      // Call the Stripe Edge Function to create checkout session
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-payment/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          sessionId: sessionId,
+          plan: sessionData.subscription_plan,
+          userEmail: user?.email,
+          userId: user?.id
+        })
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      
+      // Redirect to Stripe Checkout
+      window.location.href = url;
+      
       return true;
     } catch (error) {
       console.error('Stripe payment error:', error);
       toast({
         title: "Payment Failed",
-        description: "Payment could not be processed. Please try again.",
+        description: error instanceof Error ? error.message : "Payment could not be processed. Please try again.",
         variant: "destructive"
       });
       return false;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   const processPayPalPayment = useCallback(async (sessionId: string): Promise<boolean> => {
     // In a real implementation, this would integrate with PayPal
@@ -358,12 +374,12 @@ export const usePaymentProcessing = () => {
     // Return available payment methods based on configuration
     const methods: PaymentMethod[] = ['stripe'];
     
-    // Add PayPal if enabled
+    // Add PayPal if enabled (for future implementation)
     if (import.meta.env.VITE_PAYPAL_ENABLED === 'true') {
       methods.push('paypal');
     }
     
-    // Add crypto if enabled
+    // Add crypto if enabled (for future implementation)
     if (import.meta.env.VITE_CRYPTO_PAYMENTS_ENABLED === 'true') {
       methods.push('crypto');
     }
