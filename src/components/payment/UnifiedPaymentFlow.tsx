@@ -328,10 +328,10 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
 
              {/* Payment Method Selection */}
        {selectedTier && (
-         <Card className="border-2 border-border">
+         <Card className="border-2 border-border bg-transparent">
            <CardContent className="space-y-8 pt-6">
              <Tabs value={selectedMethod} onValueChange={setSelectedMethod}>
-                            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
+                            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-3 gap-2 mb-6 bg-transparent">
                {paymentMethods.map((method) => (
                  <TabsTrigger 
                    key={method.id} 
@@ -346,9 +346,9 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
              </TabsList>
                
                {paymentMethods.map((method) => (
-                 <TabsContent key={method.id} value={method.id}>
+                 <TabsContent key={method.id} value={method.id} className="bg-transparent">
                    <div className="space-y-8">
-                     <div className="flex items-center justify-end mb-4">
+                     <div className="flex items-center justify-end">
                        {getStatusBadge(method.status)}
                      </div>
                      
