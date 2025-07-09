@@ -459,6 +459,26 @@ const LandingPage = () => {
               <div className="flex items-center gap-2">
                 <LogoText size="sm" />
                 <span className="text-xs text-muted-foreground">© 2024</span>
+                <div className="relative group">
+                  <Badge 
+                    variant="outline" 
+                    className="ml-2 text-xs text-orange-400 border-orange-400 bg-orange-400/10 cursor-help"
+                    title="Beta Information"
+                  >
+                    BETA
+                  </Badge>
+                  {/* Hover tooltip */}
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-xs bg-black/90 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50 border border-orange-400/30">
+                    <div className="font-semibold mb-1">🚧 BETA STATUS</div>
+                    <div className="space-y-1 text-left">
+                      <div>✅ Most features working</div>
+                      <div>⚠️ Errors can occur</div>
+                      <div>📧 numoraq@gmail.com</div>
+                      <div>🐦 @numoraq (X/Twitter)</div>
+                    </div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black/90"></div>
+                  </div>
+                </div>
               </div>
               
               <div className="flex gap-4 text-sm">

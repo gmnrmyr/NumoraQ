@@ -76,7 +76,7 @@ export const SimplePaymentProcessor = () => {
     bsc: '0x6c21bB0Ef4b7d037aB6b124f372ae7705c6d74AD', // BSC/ETH
     usdc: '0x6c21bB0Ef4b7d037aB6b124f372ae7705c6d74AD', // USDC on BSC
     usdt: '0x6c21bB0Ef4b7d037aB6b124f372ae7705c6d74AD', // USDT on BSC
-    paypal: 'payments@numoraq.com'
+    paypal: 'numoraq@gmail.com'
   };
 
   const copyToClipboard = (text: string, type: string) => {

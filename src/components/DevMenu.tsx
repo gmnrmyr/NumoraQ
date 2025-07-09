@@ -114,7 +114,7 @@ export const DevMenu = () => {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="bg-card/80 border-2 border-white max-w-2xl w-full rounded-xl shadow-xl backdrop-blur-lg"
+        className="bg-card/80 border-2 border-white w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl shadow-xl backdrop-blur-lg"
         style={{
           background: 'rgba(20, 20, 20, 0.80)',
           backdropFilter: 'blur(24px)',
@@ -126,22 +126,31 @@ export const DevMenu = () => {
           <DialogTitle className="font-mono uppercase flex items-center gap-2 text-[#00ff00]">
             <Settings size={16} />
             Developer Menu
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOpen(false)}
+              className="ml-auto text-[#00ff00] hover:bg-[#00ff00]/20 sm:hidden"
+            >
+              ✕
+            </Button>
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="grid w-full grid-cols-3 mb-4">
-            <TabsTrigger value="theme">Themes</TabsTrigger>
-            <TabsTrigger value="degen">Degen Mode</TabsTrigger>
+        <Tabs value={tab} onValueChange={setTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-4 h-auto">
+            <TabsTrigger value="theme" className="text-xs sm:text-sm py-2">Themes</TabsTrigger>
+            <TabsTrigger value="degen" className="text-xs sm:text-sm py-2">Degen Mode</TabsTrigger>
             <TabsTrigger
               value="testinstances"
               disabled={!isWhaleUser}
               title={!isWhaleUser ? "Whale+ only (10,000+ points required)" : undefined}
-              className={!isWhaleUser ? "opacity-50 cursor-not-allowed flex items-center gap-1 relative" : ""}
+              className={`text-xs sm:text-sm py-2 ${!isWhaleUser ? "opacity-50 cursor-not-allowed flex items-center gap-1 relative" : ""}`}
             >
-              <span>TestInstances</span>
+              <span className="hidden sm:inline">TestInstances</span>
+              <span className="sm:hidden">Tests</span>
               {!isWhaleUser && (
-                <Lock size={16} className="ml-1 text-[#00ff00]" />
+                <Lock size={12} className="ml-1 text-[#00ff00]" />
               )}
             </TabsTrigger>
           </TabsList>
@@ -174,13 +183,13 @@ export const DevMenu = () => {
 
           <TabsContent value="testinstances">
             <div className="w-full flex flex-col items-center justify-center">
-              <div className="w-full max-w-xl bg-black/80 border border-[#00ff00] rounded-lg p-6 flex flex-col items-center shadow-lg backdrop-blur-md">
-                <div className="w-full flex flex-col sm:flex-row items-center justify-between mb-4 gap-2">
-                  <span className="font-mono text-lg text-[#00ff00] tracking-widest">// TestInstances</span>
+              <div className="w-full bg-black/80 border border-[#00ff00] rounded-lg p-4 sm:p-6 flex flex-col items-center shadow-lg backdrop-blur-md">
+                <div className="w-full flex flex-col items-center justify-between mb-4 gap-3">
+                  <span className="font-mono text-sm sm:text-lg text-[#00ff00] tracking-widest text-center">// TestInstances</span>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="font-mono bg-black text-[#00ff00] border-[#00ff00] hover:bg-[#00ff00] hover:text-black transition-all"
+                    className="w-full sm:w-auto font-mono bg-black text-[#00ff00] border-[#00ff00] hover:bg-[#00ff00] hover:text-black transition-all"
                     onClick={() => {
                       setIsOpen(false);
                       window.location.href = "/test-instances";
@@ -189,7 +198,7 @@ export const DevMenu = () => {
                     Open Terminal
                   </Button>
                 </div>
-                <div className="w-full text-xs text-[#00ff00] opacity-80 font-mono text-center sm:text-left">
+                <div className="w-full text-xs text-[#00ff00] opacity-80 font-mono text-center">
                   For dev experiments and isolated feature tests.<br />
                   No dashboard, panels, or animations yet.
                 </div>

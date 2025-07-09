@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Send, Copy, Mail } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export const UserFeedbackDialog = () => {
@@ -27,16 +27,89 @@ export const UserFeedbackDialog = () => {
       return;
     }
 
-    // For now, we'll just log to console and show success
-    console.log('Feedback submitted:', feedback);
+    // Format feedback for email
+    const emailSubject = `[NUMORAQ FEEDBACK] ${feedback.subject || feedback.type}`;
+    const emailBody = `
+Feedback Type: ${feedback.type}
+Subject: ${feedback.subject || 'None'}
+User Email: ${feedback.email || 'Not provided'}
+
+Message:
+${feedback.message}
+
+---
+Sent from Numoraq Dashboard
+Timestamp: ${new Date().toLocaleString()}
+    `.trim();
+
+    // Try to open email client
+    const mailtoLink = `mailto:numoraq@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
     
-    toast({
-      title: "Feedback Submitted! 🚀",
-      description: "Thanks for helping us improve Numoraq! We'll review your feedback soon.",
-    });
+    try {
+      window.location.href = mailtoLink;
+      
+      toast({
+        title: "Email Client Opened! 📧",
+        description: "Your feedback has been prepared for numoraq@gmail.com. Send the email to submit your feedback.",
+      });
+    } catch (error) {
+      // Fallback: copy to clipboard
+      const feedbackText = `Subject: ${emailSubject}\n\n${emailBody}`;
+      navigator.clipboard.writeText(feedbackText).then(() => {
+        toast({
+          title: "Feedback Copied! 📋",
+          description: "Your feedback has been copied to clipboard. Email it to numoraq@gmail.com",
+        });
+      }).catch(() => {
+        toast({
+          title: "Feedback Prepared! 📝",
+          description: "Please manually send your feedback to numoraq@gmail.com",
+        });
+      });
+    }
 
     setFeedback({ type: '', subject: '', message: '', email: '' });
     setIsOpen(false);
+  };
+
+  const copyToClipboard = () => {
+    if (!feedback.type || !feedback.message.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in feedback type and message first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const emailSubject = `[NUMORAQ FEEDBACK] ${feedback.subject || feedback.type}`;
+    const emailBody = `
+Feedback Type: ${feedback.type}
+Subject: ${feedback.subject || 'None'}
+User Email: ${feedback.email || 'Not provided'}
+
+Message:
+${feedback.message}
+
+---
+Sent from Numoraq Dashboard
+Timestamp: ${new Date().toLocaleString()}
+    `.trim();
+
+    const feedbackText = `Subject: ${emailSubject}\n\n${emailBody}`;
+    
+    navigator.clipboard.writeText(feedbackText).then(() => {
+      toast({
+        title: "Feedback Copied! 📋",
+        description: "Your feedback has been copied to clipboard. Email it to numoraq@gmail.com",
+      });
+    }).catch(() => {
+      toast({
+        title: "Copy Failed",
+        description: "Unable to copy to clipboard. Please manually copy your feedback.",
+        variant: "destructive"
+      });
+    });
   };
 
   return (
@@ -60,12 +133,12 @@ export const UserFeedbackDialog = () => {
               <SelectValue placeholder="Select feedback type" />
             </SelectTrigger>
             <SelectContent className="bg-card border-border border-2">
-              <SelectItem value="bug">🐛 Bug Report</SelectItem>
-              <SelectItem value="feature">✨ Feature Request</SelectItem>
-              <SelectItem value="improvement">⚡ Improvement</SelectItem>
-              <SelectItem value="question">❓ Question</SelectItem>
-              <SelectItem value="praise">🎉 Praise</SelectItem>
-              <SelectItem value="other">📝 Other</SelectItem>
+              <SelectItem value="Bug Report">🐛 Bug Report</SelectItem>
+              <SelectItem value="Feature Request">✨ Feature Request</SelectItem>
+              <SelectItem value="Improvement">⚡ Improvement</SelectItem>
+              <SelectItem value="Question">❓ Question</SelectItem>
+              <SelectItem value="Praise">🎉 Praise</SelectItem>
+              <SelectItem value="Other">📝 Other</SelectItem>
             </SelectContent>
           </Select>
           
@@ -96,20 +169,29 @@ export const UserFeedbackDialog = () => {
               onClick={handleSubmit} 
               className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 font-mono uppercase text-xs"
             >
-              <Send size={14} className="mr-1" />
-              Send Feedback
+              <Mail size={14} className="mr-1" />
+              Send via Email
             </Button>
             <Button 
-              onClick={() => setIsOpen(false)} 
+              onClick={copyToClipboard} 
               variant="outline" 
               className="border-border font-mono uppercase text-xs"
             >
-              Cancel
+              <Copy size={14} className="mr-1" />
+              Copy
             </Button>
           </div>
           
+          <Button 
+            onClick={() => setIsOpen(false)} 
+            variant="outline" 
+            className="w-full border-border font-mono uppercase text-xs"
+          >
+            Cancel
+          </Button>
+          
           <div className="text-xs text-muted-foreground font-mono bg-muted p-2 border-2 border-border rounded">
-            💡 <strong>Pro tip:</strong> Your feedback helps us build better features. Thanks for being awesome! 🚀
+            📧 <strong>Feedback goes to:</strong> numoraq@gmail.com - We read every message and respond to most within 24-48 hours! 🚀
           </div>
         </div>
       </DialogContent>

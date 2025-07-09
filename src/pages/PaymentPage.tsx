@@ -9,11 +9,14 @@ import { DonationInterface } from '@/components/dashboard/DonationInterface';
 import { ProductStateSection } from '@/components/donation/ProductStateSection';
 import { PremiumSubscriptionPanel } from '@/components/premium/PremiumSubscriptionPanel';
 import { SimplePaymentProcessor } from '@/components/premium/SimplePaymentProcessor';
+import { SolanaPaymentPanel } from '@/components/payment/SolanaPaymentPanel';
 import { useCMSSettings } from '@/hooks/useCMSSettings';
+import { useCryptoPaymentMonitor } from '@/hooks/useCryptoPaymentMonitor';
 import { toast } from '@/hooks/use-toast';
 
 const PaymentPage = () => {
   const { settings, loading } = useCMSSettings();
+  const { isMonitoring, getWalletAddress, getPaymentTiers } = useCryptoPaymentMonitor();
   const [copiedWallet, setCopiedWallet] = React.useState<string>('');
 
   const copyWallet = (wallet: string, type: string) => {
@@ -156,6 +159,16 @@ const PaymentPage = () => {
           {/* Simple Payment Processor - Easy Degen Purchase */}
           <SimplePaymentProcessor />
 
+          {/* Solana Direct Payment */}
+          <SolanaPaymentPanel 
+            onPaymentSuccess={(tier, transactionHash) => {
+              toast({
+                title: "Payment Successful!",
+                description: `Your ${tier} tier is now active. Transaction: ${transactionHash}`,
+              });
+            }}
+          />
+
           {/* Degen Subscription Panel */}
           <PremiumSubscriptionPanel />
 
@@ -176,7 +189,13 @@ const PaymentPage = () => {
           <Card className="border-2 border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-mono text-accent">
-                💰 CRYPTO DONATIONS
+                💰 CRYPTO PAYMENTS & DONATIONS
+                {isMonitoring && (
+                  <Badge className="bg-green-600 text-white text-xs">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse mr-1"></div>
+                    Auto-Detection Active
+                  </Badge>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -227,11 +246,40 @@ const PaymentPage = () => {
                 ))}
               </div>
               
+              {/* Automatic Payment Tiers */}
+              {isMonitoring && (
+                <div className="mt-4 p-4 bg-green-500/10 border-2 border-green-500/30 rounded-lg backdrop-blur-sm">
+                  <div className="text-sm font-mono text-green-400 mb-3 flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                      <Zap size={16} className="text-green-400" />
+                      <strong>🚀 Automatic Premium Activation</strong>
+                    </div>
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/40 text-xs">
+                      LIVE
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+                    {getPaymentTiers().map((tier, index) => (
+                      <div key={index} className="flex justify-between p-2 bg-background/30 rounded border border-green-500/20">
+                        <span className="text-green-300">${tier.minAmount}+ USD:</span>
+                        <span className="text-green-400 font-semibold">{tier.description}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-xs font-mono text-green-300 mt-3 p-2 bg-background/20 rounded border-l-2 border-green-500">
+                    💡 <strong>Send ETH to our wallet and get instant premium activation!</strong> 
+                    <span className="block mt-1 text-green-400">
+                      Received: <span className="text-accent font-bold">∞</span> automatic payments detected
+                    </span>
+                  </div>
+                </div>
+              )}
+              
               <div className="mt-4 p-3 bg-muted border border-border rounded">
                 <div className="text-sm font-mono text-muted-foreground">
                   <Gift size={16} className="inline mr-2" />
-                  <strong>Note:</strong> Currently, only the EVM wallet actively tracks donation tiers. 
-                  Other networks (Solana, Bitcoin, Bitcoin Cash) will enable tier tracking in future updates.
+                  <strong>Note:</strong> EVM wallet has automatic payment detection for instant premium activation. 
+                  Other networks (Solana, Bitcoin, Bitcoin Cash) are for donations and future tier tracking.
                 </div>
               </div>
             </CardContent>

@@ -65,13 +65,13 @@ export const Footer = () => {
                 <ExternalLink size={10} />
               </a>
               <a 
-                href="https://twitter.com/numoraq" 
+                href="https://x.com/numoraq" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-xs text-muted-foreground hover:text-accent font-mono"
               >
                 <Twitter size={12} />
-                Twitter
+                X (Twitter)
                 <ExternalLink size={10} />
               </a>
               <DonationLinks />

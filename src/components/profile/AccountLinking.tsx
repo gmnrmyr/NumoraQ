@@ -16,7 +16,7 @@ export const AccountLinking = () => {
   const identities = user.identities || [];
   const connectedProviders = identities.map(identity => identity.provider);
 
-  const handleLinkAccount = async (provider: 'solana' | 'discord') => {
+  const handleLinkAccount = async (provider: 'discord' | 'google') => {
     setLoading(provider);
     await linkAccount(provider);
     setLoading(null);
@@ -26,10 +26,10 @@ export const AccountLinking = () => {
     switch (provider) {
       case 'email':
         return <Mail size={14} />;
+      case 'google':
+        return <Mail size={14} />;
       case 'discord':
         return <MessageCircle size={14} />;
-      case 'web3':
-        return <Wallet size={14} />;
       default:
         return <Link size={14} />;
     }
@@ -39,10 +39,10 @@ export const AccountLinking = () => {
     switch (provider) {
       case 'email':
         return `Email: ${user.email || 'Connected'}`;
+      case 'google':
+        return 'Gmail (Google)';
       case 'discord':
         return 'Discord';
-      case 'web3':
-        return 'Solana';
       default:
         return provider.charAt(0).toUpperCase() + provider.slice(1);
     }
@@ -91,16 +91,16 @@ export const AccountLinking = () => {
         <div className="space-y-2">
           <h4 className="text-xs font-mono uppercase text-muted-foreground">Link More:</h4>
           <div className="flex flex-col gap-2">
-            {!connectedProviders.includes('web3') && (
+            {!connectedProviders.includes('google') && (
               <Button
-                onClick={() => handleLinkAccount('solana')}
+                onClick={() => handleLinkAccount('google')}
                 variant="outline"
                 size="sm"
-                disabled={loading === 'solana'}
+                disabled={loading === 'google'}
                 className="justify-start font-mono"
               >
-                <Wallet size={14} className="mr-2" />
-                {loading === 'solana' ? 'Linking...' : 'Link Solana Wallet'}
+                <Mail size={14} className="mr-2" />
+                {loading === 'google' ? 'Linking...' : 'Link Gmail Account'}
               </Button>
             )}
             
@@ -120,7 +120,7 @@ export const AccountLinking = () => {
         </div>
 
         <div className="text-xs text-muted-foreground font-mono bg-muted p-2 border-2 border-border rounded">
-          🔗 <strong>Account Linking:</strong> Connect multiple authentication methods to your account for easier access.
+          🔗 <strong>Account Linking:</strong> Connect multiple authentication methods to your account for easier access. For wallet connections, use the dedicated Wallet Linking section below.
         </div>
       </CardContent>
     </Card>
