@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
+import { useUserTitle } from '@/hooks/useUserTitle';
 import { toast } from '@/hooks/use-toast';
 
 export interface PaymentTier {
@@ -49,10 +50,22 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
   onPaymentComplete
 }) => {
   const { user } = useAuth();
-  const { isPremiumUser } = usePremiumStatus();
+  const { isPremiumUser, premiumDetails } = usePremiumStatus();
+  const { userTitle } = useUserTitle();
   const [selectedTier, setSelectedTier] = useState<PaymentTier | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<string>('stripe');
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Get premium status display text
+  const getPremiumStatusText = () => {
+    if (!isPremiumUser || !premiumDetails) return 'Active';
+    
+    if (premiumDetails.type === 'lifetime') return 'Lifetime';
+    if (premiumDetails.type === '1year') return '1 Year';
+    if (premiumDetails.type === '5years') return '5 Years';
+    
+    return premiumDetails.type || 'Active';
+  };
 
   const paymentMethods: PaymentMethod[] = [
     {
@@ -196,6 +209,50 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
 
      return (
      <div className="space-y-8">
+       {/* User Status */}
+       {user && (
+         <Card className="border-2 border-border bg-muted/20">
+           <CardContent className="pt-4 pb-4">
+             <div className="flex items-center justify-between">
+               <div className="flex items-center gap-3">
+                 <span className="font-mono text-sm text-muted-foreground">Current Status:</span>
+                 {flowType === 'degen' ? (
+                   // Payment page - show degen status
+                   <>
+                     {isPremiumUser ? (
+                       <>
+                         <Badge className="bg-green-600 text-white font-mono">
+                           <Crown size={12} className="mr-1" />
+                           DEGEN: {getPremiumStatusText()}
+                         </Badge>
+                       </>
+                     ) : (
+                       <Badge className="bg-orange-600 text-white font-mono">
+                         <Crown size={12} className="mr-1" />
+                         DEGEN: No
+                       </Badge>
+                     )}
+                   </>
+                 ) : (
+                   // Donation page - show tier and points
+                   <>
+                     <Badge className={`${userTitle.color} bg-transparent border font-mono`}>
+                       {userTitle.title}
+                     </Badge>
+                     <span className="text-xs font-mono text-muted-foreground">
+                       {userTitle.level} points
+                     </span>
+                   </>
+                 )}
+               </div>
+               <div className="text-xs font-mono text-muted-foreground">
+                 {flowType === 'degen' ? 'Payment Status' : 'Donation Status'}
+               </div>
+             </div>
+           </CardContent>
+         </Card>
+       )}
+
        {/* Header */}
        <Card className="border-2 border-accent/30 bg-accent/5">
          <CardContent className="pt-6 pb-6">
@@ -228,19 +285,26 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
                  key={tier.id}
                  className={`cursor-pointer transition-all ${
                    selectedTier?.id === tier.id 
-                     ? 'border-accent bg-accent/10 ring-2 ring-accent/30' 
+                     ? 'border-accent bg-accent/20 ring-4 ring-accent shadow-xl scale-105' 
                      : 'border-border hover:border-accent/50 hover:bg-accent/5'
-                 } ${tier.popular ? 'ring-2 ring-accent' : ''}`}
+                 } ${tier.popular && selectedTier?.id !== tier.id ? 'ring-1 ring-accent/50' : ''}`}
                  onClick={() => handleTierSelect(tier)}
                >
                  <CardHeader className="pb-4">
                    <div className="flex items-center justify-between mb-3">
                      <CardTitle className="text-xl">{tier.name}</CardTitle>
-                     {tier.popular && (
-                       <Badge className="bg-accent text-accent-foreground">
-                         Popular
-                       </Badge>
-                     )}
+                     <div className="flex items-center gap-2">
+                       {selectedTier?.id === tier.id && (
+                         <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
+                           <Check size={12} className="text-white" />
+                         </div>
+                       )}
+                       {tier.popular && (
+                         <Badge className="bg-accent text-accent-foreground">
+                           Popular
+                         </Badge>
+                       )}
+                     </div>
                    </div>
                    <div className="text-3xl font-bold text-accent">
                      ${tier.price}
@@ -273,7 +337,7 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
                    key={method.id} 
                    value={method.id}
                    disabled={method.status === 'disabled'}
-                   className="flex flex-col items-center gap-1 p-2 text-xs"
+                   className="flex flex-col items-center gap-1 p-2 text-xs data-[state=active]:ring-4 data-[state=active]:ring-accent data-[state=active]:border-accent data-[state=active]:bg-accent/20 data-[state=active]:scale-105 data-[state=active]:shadow-lg"
                  >
                    {method.icon}
                    <span className="text-center leading-tight">{getShortName(method.name)}</span>
@@ -284,15 +348,13 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
                {paymentMethods.map((method) => (
                  <TabsContent key={method.id} value={method.id}>
                    <div className="space-y-8">
-                     <div className="flex items-center justify-end">
+                     <div className="flex items-center justify-end mb-4">
                        {getStatusBadge(method.status)}
                      </div>
                      
-                     <div className="p-4 bg-card/30 rounded-lg border border-border">
-                       <p className="text-sm text-muted-foreground font-mono leading-relaxed">
-                         {method.description}
-                       </p>
-                     </div>
+                     <p className="text-sm text-muted-foreground font-mono leading-relaxed">
+                       {method.description}
+                     </p>
 
                      {method.status === 'coming-soon' && (
                        <Alert className="bg-orange-500/10 border-orange-500/20">
