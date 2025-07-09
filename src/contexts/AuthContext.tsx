@@ -12,9 +12,10 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<{ error: any }>;
   signUpWithEmail: (email: string, password: string) => Promise<{ error: any }>;
   resetPassword: (email: string) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   signInWithSolana: () => Promise<{ error: any }>;
   signInWithDiscord: () => Promise<{ error: any }>;
-  linkAccount: (provider: 'solana' | 'discord') => Promise<{ error: any }>;
+  linkAccount: (provider: 'solana' | 'discord' | 'google') => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -135,6 +136,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    secureLog('Attempting Google sign in');
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    
+    if (error) {
+      secureLog('Google sign in error:', { errorMessage: error.message });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      secureLog('Google sign in initiated');
+    }
+    
+    return { error };
+  };
+
   const signInWithSolana = async () => {
     secureLog('Attempting Solana sign in');
     
@@ -183,12 +208,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { error };
   };
 
-  const linkAccount = async (provider: 'solana' | 'discord') => {
+  const linkAccount = async (provider: 'solana' | 'discord' | 'google') => {
     secureLog(`Attempting to link ${provider} account`);
     
     const providerMap = {
       solana: 'github' as any,
-      discord: 'discord'
+      discord: 'discord',
+      google: 'google'
     };
     
     const { error } = await supabase.auth.linkIdentity({
@@ -235,6 +261,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       signInWithEmail,
       signUpWithEmail,
       resetPassword,
+      signInWithGoogle,
       signInWithSolana,
       signInWithDiscord,
       linkAccount,

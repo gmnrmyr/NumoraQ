@@ -6,6 +6,7 @@ import { FinancialData, FinancialDataContextType, LiquidAsset, IlliquidAsset, Pa
 import { defaultData } from './initialState';
 import { useDataPersistence } from './hooks/useDataPersistence';
 import { useDataMigration } from './hooks/useDataMigration';
+import { useBackupManager } from '@/hooks/useBackupManager';
 
 const FinancialDataContext = createContext<FinancialDataContextType | undefined>(undefined);
 
@@ -24,6 +25,14 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
   const { user } = useAuth();
   const { syncState, lastSync, loadFromCloud, saveToCloud } = useCloudSync(data, setData, importFromJSON, user);
   const { saveData } = useDataPersistence(data);
+  const { 
+    backups, 
+    createBackup: createBackupInternal, 
+    restoreBackup: restoreBackupInternal, 
+    deleteBackup, 
+    getBackupStats, 
+    formatBackupSize 
+  } = useBackupManager();
 
   useEffect(() => {
     saveData();
@@ -357,6 +366,18 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     console.log('Data reset to default values');
   };
 
+  // Backup functionality
+  const createBackup = (name?: string) => {
+    return createBackupInternal(data, name, false);
+  };
+
+  const restoreBackup = (backupId: string) => {
+    const backupData = restoreBackupInternal(backupId);
+    if (backupData) {
+      setData(backupData);
+    }
+  };
+
   const contextValue = {
     data,
     updateUserProfile,
@@ -395,6 +416,13 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     loadFromCloud,
     syncState,
     lastSync,
+    // Backup functionality
+    backups,
+    createBackup,
+    restoreBackup,
+    deleteBackup,
+    getBackupStats,
+    formatBackupSize,
   };
 
   return (

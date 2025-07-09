@@ -7,6 +7,8 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { DonationInterface } from '@/components/dashboard/DonationInterface';
 import { ProductStateSection } from '@/components/donation/ProductStateSection';
+import { PremiumSubscriptionPanel } from '@/components/premium/PremiumSubscriptionPanel';
+import { SimplePaymentProcessor } from '@/components/premium/SimplePaymentProcessor';
 import { useCMSSettings } from '@/hooks/useCMSSettings';
 import { toast } from '@/hooks/use-toast';
 
@@ -229,6 +231,12 @@ const DonationPage = () => {
           {/* Product State Section - NEW */}
           <ProductStateSection />
 
+          {/* Simple Payment Processor - Easy Premium Purchase */}
+          <SimplePaymentProcessor />
+
+          {/* Premium Subscription Panel */}
+          <PremiumSubscriptionPanel />
+
           {/* Title Requirements */}
           <Card className="border-2 border-border">
             <CardHeader>
@@ -313,9 +321,9 @@ const DonationPage = () => {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-foreground">🌟 OPEN SOURCE</h3>
+                  <h3 className="font-mono font-bold text-foreground">🌟 COMMUNITY DRIVEN</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Supporting an open-source project that benefits the entire community.
+                    Supporting a community-driven project that benefits the entire financial tracking ecosystem.
                   </p>
                 </div>
               </div>

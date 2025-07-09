@@ -18,7 +18,7 @@ const AuthPage = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetError, setResetError] = useState('');
-  const { user, signInWithEmail, signUpWithEmail, resetPassword } = useAuth();
+  const { user, signInWithEmail, signUpWithEmail, resetPassword, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -68,6 +68,17 @@ const AuthPage = () => {
     setLoading(true);
     await resetPassword(email);
     setLoading(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    const { error } = await signInWithGoogle();
+    setLoading(false);
+    
+    if (!error) {
+      // User will be redirected by OAuth flow
+      // navigate('/dashboard') will be handled by the auth state change
+    }
   };
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
@@ -196,6 +207,8 @@ const AuthPage = () => {
                   <AlertDescription className="text-xs font-mono">
                     📧 Email authentication available
                     <br />
+                    🔵 Google sign-in ready to use
+                    <br />
                     🔜 Solana, Discord and other social logins coming soon!
                   </AlertDescription>
                 </Alert>
@@ -204,6 +217,7 @@ const AuthPage = () => {
                   onSignIn={handleEmailSignIn}
                   onSignUp={handleEmailSignUp}
                   onResetPassword={handleResetPassword}
+                  onGoogleSignIn={handleGoogleSignIn}
                   loading={loading}
                 />
               </>
