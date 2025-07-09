@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Crown, Gift, Timer } from 'lucide-react';
+import { Crown, Gift, Timer, CreditCard, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
+import { useNavigate } from 'react-router-dom';
 
 export const DegenModeSection = () => {
   const [showDegenDialog, setShowDegenDialog] = useState(false);
@@ -15,6 +16,7 @@ export const DegenModeSection = () => {
   const { user } = useAuth();
   const { activatePremiumCode } = useAdminMode();
   const { isPremiumUser } = usePremiumStatus();
+  const navigate = useNavigate();
 
   const handleActivateDegenCode = async () => {
     const success = await activatePremiumCode(degenCode, user?.email);
@@ -72,8 +74,33 @@ export const DegenModeSection = () => {
                   className="w-full" 
                   disabled={!degenCode.trim()}
                 >
-                  Activate
+                  Activate Code
                 </Button>
+                
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground font-mono">OR</span>
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={() => {
+                    setShowDegenDialog(false);
+                    navigate('/payment');
+                  }}
+                  variant="outline"
+                  className="w-full"
+                >
+                  <CreditCard size={16} className="mr-2" />
+                  Buy Degen Plan
+                </Button>
+                
+                <p className="text-xs text-muted-foreground font-mono text-center">
+                  Don't have a code? Purchase a degen plan to unlock premium features
+                </p>
               </div>
             </DialogContent>
           </Dialog>

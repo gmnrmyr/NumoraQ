@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Zap } from "lucide-react";
+import { Zap, CreditCard } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useNavigate } from 'react-router-dom';
 
 interface DegenModePanelProps {
   activatePremiumCode: (code: string, userName: string) => Promise<boolean>;
@@ -11,6 +12,7 @@ interface DegenModePanelProps {
 
 export const DegenModePanel = ({ activatePremiumCode, userName }: DegenModePanelProps) => {
   const [degenCode, setDegenCode] = useState('');
+  const navigate = useNavigate();
 
   const handleActivateDegenCode = async () => {
     const success = await activatePremiumCode(degenCode, userName);
@@ -59,17 +61,18 @@ export const DegenModePanel = ({ activatePremiumCode, userName }: DegenModePanel
         
         <div className="space-y-2">
           <Button 
-            onClick={() => toast({ title: "Coming Soon", description: "Crypto payment integration in development." })}
+            onClick={() => navigate('/payment')}
             className="w-full brutalist-button bg-orange-600 hover:bg-orange-700"
           >
-            Pay with Crypto
+            <CreditCard size={16} className="mr-2" />
+            Buy Degen Plan
           </Button>
           
           <Button 
-            onClick={() => toast({ title: "Coming Soon", description: "PayPal integration in development." })}
+            onClick={() => navigate('/donate')}
             className="w-full brutalist-button bg-blue-600 hover:bg-blue-700"
           >
-            Pay with PayPal
+            Support Platform
           </Button>
         </div>
       </div>

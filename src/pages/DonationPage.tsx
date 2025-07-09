@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Crown, Heart, Zap, Star, Gift, Copy, Check, Info, Twitter } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { DonationInterface } from '@/components/dashboard/DonationInterface';
-import { ProductStateSection } from '@/components/donation/ProductStateSection';
+import { UnifiedPaymentFlow, type PaymentTier } from '@/components/payment/UnifiedPaymentFlow';
 import { useCMSSettings } from '@/hooks/useCMSSettings';
 import { useCryptoPaymentMonitor } from '@/hooks/useCryptoPaymentMonitor';
 import { toast } from '@/hooks/use-toast';
@@ -15,6 +14,106 @@ const DonationPage = () => {
   const { settings, loading } = useCMSSettings();
   const { isMonitoring, getWalletAddress, getPaymentTiers } = useCryptoPaymentMonitor();
   const [copiedWallet, setCopiedWallet] = React.useState<string>('');
+
+  // Donation tiers configuration
+  const donationTiers: PaymentTier[] = [
+    {
+      id: 'whale',
+      name: 'Whale',
+      price: 50000,
+      description: 'Ultra VIP access',
+      features: ['Exclusive Whale Badge', 'Ultra VIP Access', 'All Degen Features', 'Direct Developer Contact'],
+      type: 'donation'
+    },
+    {
+      id: 'legend',
+      name: 'Legend',
+      price: 10000,
+      description: 'Priority support',
+      features: ['Exclusive Legend Badge', 'Priority Support', 'All Degen Features'],
+      type: 'donation'
+    },
+    {
+      id: 'patron',
+      name: 'Patron',
+      price: 5000,
+      description: 'Advanced features',
+      features: ['Patron Badge', 'Degen Themes', 'Advanced Features'],
+      type: 'donation'
+    },
+    {
+      id: 'champion',
+      name: 'Champion',
+      price: 2000,
+      description: 'Black hole animation',
+      features: ['Champion Badge', 'Black Hole Animation', 'Degen Themes'],
+      type: 'donation'
+    },
+    {
+      id: 'supporter',
+      name: 'Supporter',
+      price: 1000,
+      description: 'Degen access',
+      features: ['Supporter Badge', 'Degen Access'],
+      type: 'donation'
+    },
+    {
+      id: 'backer',
+      name: 'Backer',
+      price: 500,
+      description: 'Special recognition',
+      features: ['Backer Badge', 'Special Recognition'],
+      type: 'donation'
+    },
+    {
+      id: 'donor',
+      name: 'Donor',
+      price: 100,
+      description: 'Thank you message',
+      features: ['Donor Badge', 'Thank You Message'],
+      type: 'donation'
+    },
+    {
+      id: 'contributor',
+      name: 'Contributor',
+      price: 50,
+      description: 'Contributor badge',
+      features: ['Contributor Badge'],
+      type: 'donation'
+    },
+    {
+      id: 'helper',
+      name: 'Helper',
+      price: 25,
+      description: 'Helper badge',
+      features: ['Helper Badge'],
+      type: 'donation'
+    },
+    {
+      id: 'friend',
+      name: 'Friend',
+      price: 20,
+      description: 'Friend badge',
+      features: ['Friend Badge'],
+      type: 'donation'
+    },
+    {
+      id: 'supporter-basic',
+      name: 'Supporter',
+      price: 10,
+      description: 'Basic supporter badge',
+      features: ['Basic Supporter Badge'],
+      type: 'donation'
+    },
+    {
+      id: 'newcomer',
+      name: 'Newcomer',
+      price: 0,
+      description: 'Welcome badge',
+      features: ['Welcome Badge', '1 point daily login'],
+      type: 'donation'
+    }
+  ];
 
   const copyWallet = (wallet: string, type: string) => {
     navigator.clipboard.writeText(wallet);
@@ -26,21 +125,7 @@ const DonationPage = () => {
     });
   };
 
-  // Hardcoded title requirements for display
-  const titleRequirements = [
-    { title: 'WHALE', amount: '$50,000+', points: 50000, color: 'text-purple-600', features: ['Exclusive Whale Badge', 'Ultra VIP Access', 'All Degen Features', 'Direct Developer Contact'] },
-    { title: 'LEGEND', amount: '$10,000+', points: 10000, color: 'text-purple-400', features: ['Exclusive Legend Badge', 'Priority Support', 'All Degen Features'] },
-    { title: 'PATRON', amount: '$5,000+', points: 5000, color: 'text-yellow-400', features: ['Patron Badge', 'Degen Themes', 'Advanced Features'] },
-    { title: 'CHAMPION', amount: '$2,000+', points: 2000, color: 'text-orange-400', features: ['Champion Badge', 'Black Hole Animation', 'Degen Themes'] },
-    { title: 'SUPPORTER', amount: '$1,000+', points: 1000, color: 'text-blue-400', features: ['Supporter Badge', 'Degen Access'] },
-    { title: 'BACKER', amount: '$500+', points: 500, color: 'text-green-400', features: ['Backer Badge', 'Special Recognition'] },
-    { title: 'DONOR', amount: '$100+', points: 100, color: 'text-cyan-400', features: ['Donor Badge', 'Thank You Message'] },
-    { title: 'CONTRIBUTOR', amount: '$50+', points: 50, color: 'text-indigo-400', features: ['Contributor Badge'] },
-    { title: 'HELPER', amount: '$25+', points: 25, color: 'text-pink-400', features: ['Helper Badge'] },
-    { title: 'FRIEND', amount: '$20+', points: 20, color: 'text-emerald-400', features: ['Friend Badge'] },
-    { title: 'SUPPORTER', amount: '$10+', points: 10, color: 'text-lime-400', features: ['Basic Supporter Badge'] },
-    { title: 'NEWCOMER', amount: '$0-9', points: 0, color: 'text-slate-400', features: ['Welcome Badge', '1 point daily login'] }
-  ];
+
 
   // Wallet options with CMS data and status
   const walletOptions = [
@@ -106,28 +191,33 @@ const DonationPage = () => {
               SUPPORT & DONOR BADGES
             </h1>
             <p className="text-muted-foreground text-lg font-mono">
-              Support the platform and earn exclusive donor badges
+              Support platform development and earn exclusive donor badges (separate from premium access)
             </p>
             <div className="flex justify-center items-center gap-4">
               <div className="w-8 h-1 bg-accent"></div>
-              <Crown className="text-accent" size={24} />
+              <Heart className="text-accent" size={24} />
               <div className="w-8 h-1 bg-accent"></div>
             </div>
           </div>
 
-          {/* Beta Payment Notice */}
+          {/* Donation Notice */}
           <Card className="border-2 border-accent/30 bg-accent/5">
             <CardContent className="pt-4">
               <div className="flex items-start gap-3">
-                <Info className="text-accent mt-1" size={20} />
+                <Heart className="text-accent mt-1" size={20} />
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-accent">PLATFORM SUPPORT</h3>
+                  <h3 className="font-mono font-bold text-accent">PLATFORM SUPPORT - DONOR BADGES</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Support Numoraq development and earn exclusive donor badges. Your donations help us build better features and maintain the platform.
+                    Support Numoraq development and earn exclusive donor badges. This is separate from premium access - for degen plans, visit the <a href="/payment" className="text-accent underline">payment page</a>.
                   </p>
-                  <div className="p-3 bg-orange-500/10 border border-orange-500/30 rounded mt-3">
-                    <p className="text-sm font-mono text-orange-600">
-                      ⚠️ <strong>Beta Status:</strong> Payments are in implementation. Feel free to send donations to our EVM address with a message to numoraq@gmail.com while in beta.
+                  <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded">
+                    <p className="text-sm font-mono text-blue-600">
+                      💙 <strong>Simple Flow:</strong> Choose your donation tier → Select payment method → Complete donation → Get donor badge
+                    </p>
+                  </div>
+                  <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded mt-3">
+                    <p className="text-sm font-mono text-blue-600">
+                      💙 <strong>Support Development:</strong> Your donations help us build better features and maintain the platform
                     </p>
                   </div>
                 </div>
@@ -152,11 +242,27 @@ const DonationPage = () => {
             </CardContent>
           </Card>
 
-          {/* Crypto Wallets Section */}
+
+
+
+
+          {/* Unified Payment Flow for Donation Tiers */}
+          <UnifiedPaymentFlow 
+            tiers={donationTiers}
+            flowType="donation"
+            onPaymentComplete={(tier, method) => {
+              toast({
+                title: "Donation Initiated!",
+                description: `Processing ${tier.name} donation via ${method}`,
+              });
+            }}
+          />
+
+          {/* Advanced Crypto Options - Collapsible */}
           <Card className="border-2 border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-mono text-accent">
-                💰 CRYPTO PAYMENTS & DONATIONS
+                💰 ADVANCED CRYPTO OPTIONS
                 {isMonitoring && (
                   <Badge className="bg-green-600 text-white text-xs">
                     <div className="w-2 h-2 bg-white rounded-full animate-pulse mr-1"></div>
@@ -166,6 +272,10 @@ const DonationPage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="text-sm font-mono text-muted-foreground mb-4">
+                Direct wallet transfers for advanced users. These methods are separate from the main payment flow above.
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {walletOptions.map((wallet) => (
                   <div key={wallet.type} className={`p-4 border border-border rounded ${wallet.status === 'upcoming' ? 'bg-muted/30' : 'bg-card/50'}`}>
@@ -252,98 +362,9 @@ const DonationPage = () => {
             </CardContent>
           </Card>
 
-          {/* PayPal Section */}
-          <Card className="border-2 border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-mono text-accent">
-                💳 PAYPAL DONATIONS
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="p-4 border border-border rounded bg-muted/30">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-foreground">PayPal Email:</span>
-                  <div className="flex items-center gap-2">
-                    <code className="p-2 bg-muted rounded font-mono text-sm text-muted-foreground">
-                      {settings.project_paypal_email}
-                    </code>
-                    <Badge variant="outline" className="text-xs text-orange-400 border-orange-400">
-                      Coming Soon
-                    </Badge>
-                  </div>
-                </div>
-                <div className="mt-2 text-xs font-mono text-muted-foreground">
-                  PayPal donations will be available soon and will enable tier tracking. Stay tuned for updates!
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Donation Interface */}
-          <DonationInterface isOpen={false} onClose={() => {}} />
-
-          {/* Product State Section - NEW */}
-          <ProductStateSection />
 
 
 
-          {/* Title Requirements */}
-          <Card className="border-2 border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-mono text-accent">
-                <Crown size={24} />
-                DONOR RECOGNITION TIERS
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {titleRequirements.map((tier, index) => (
-                  <Card key={index} className="border border-border bg-card/50">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <Badge className={`${tier.color} bg-transparent border font-mono`}>
-                          {tier.title}
-                        </Badge>
-                        <span className="text-sm font-mono text-muted-foreground">
-                          {tier.points > 0 ? `${tier.points} pts` : '0-9 pts'}
-                        </span>
-                      </div>
-                      <div className="text-xl font-bold font-mono text-accent">
-                        {tier.amount}
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <ul className="space-y-1">
-                        {tier.features.map((feature, fIndex) => (
-                          <li key={fIndex} className="text-sm font-mono text-muted-foreground flex items-center gap-2">
-                            <Star size={12} className="text-accent" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                      {tier.title === 'CHAMPION' && (
-                        <div className="mt-2 p-2 bg-accent/10 border border-accent rounded">
-                          <div className="text-xs font-mono text-accent flex items-center gap-1">
-                            <Zap size={12} />
-                            Unlocks Black Hole Animation
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              
-              <div className="mt-6 p-4 bg-muted border border-border rounded">
-                <div className="text-sm font-mono text-muted-foreground">
-                  <Gift size={16} className="inline mr-2" />
-                  <strong>Note:</strong> All donations directly support development and server costs. 
-                  Titles are automatically assigned based on total donation amount and grant access to exclusive features.
-                  Daily login rewards: 1 point per day.
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Why Support Us */}
           <Card className="border-2 border-border">
