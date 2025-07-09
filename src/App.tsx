@@ -15,6 +15,7 @@ import OnboardingPage from "./pages/OnboardingPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import DonationPage from "./pages/DonationPage";
 import PaymentPage from "./pages/PaymentPage";
+import SupportPage from "./pages/SupportPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
 import UpcomingFeatures from "./pages/UpcomingFeatures";
@@ -67,6 +68,7 @@ const App: React.FC = () => {
                       <Route path="/leaderboard" element={<LeaderboardPage />} />
                       <Route path="/donation" element={<DonationPage />} />
                       <Route path="/payment" element={<PaymentPage />} />
+                      <Route path="/support" element={<SupportPage />} />
                       <Route path="/privacy" element={<PrivacyPage />} />
                       <Route path="/terms" element={<TermsPage />} />
                       <Route path="/upcoming-features" element={<UpcomingFeatures />} />

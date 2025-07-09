@@ -8,6 +8,7 @@ import { UserPreferences } from './profile/UserPreferences';
 import { DegenModeSection } from './profile/DegenModeSection';
 import { CloudSyncStatus } from './profile/CloudSyncStatus';
 import { AccountLinking } from './profile/AccountLinking';
+import { WalletLinking } from './profile/WalletLinking';
 import { DataManagementSection } from './DataManagementSection';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -146,6 +147,21 @@ export const UserProfileSection = () => {
               {user && (
                 <div className="border-t border-border pt-4">
                   <AccountLinking />
+                </div>
+              )}
+
+              {/* Wallet Linking Panel - Only show for authenticated users */}
+              {user && (
+                <div className="border-t border-border pt-4">
+                  <WalletLinking 
+                    onWalletLinked={(wallet) => {
+                      // Could add analytics or notifications here
+                      console.log('Wallet linked:', wallet);
+                    }}
+                    onWalletUnlinked={(type) => {
+                      console.log('Wallet unlinked:', type);
+                    }}
+                  />
                 </div>
               )}
 

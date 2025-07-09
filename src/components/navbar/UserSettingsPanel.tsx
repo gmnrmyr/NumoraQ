@@ -157,6 +157,25 @@ export const UserSettingsPanel = () => {
     { id: 'debt', label: 'Debt', icon: CreditCard }
   ];
 
+  // Auth Action Component for reuse
+  const AuthActionItem = () => (
+    <>
+      <DropdownMenuItem 
+        onClick={handleAuthAction}
+        className="text-primary hover:text-primary-foreground hover:bg-primary font-mono"
+      >
+        {user ? <LogOut size={16} className="mr-2" /> : <LogIn size={16} className="mr-2" />}
+        {user ? 'Sign Out' : 'Sign In'}
+      </DropdownMenuItem>
+      
+      {!user && (
+        <p className="text-xs text-muted-foreground font-mono text-center px-2 py-1">
+          Demo Mode - Sign in for cloud sync
+        </p>
+      )}
+    </>
+  );
+
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
@@ -164,7 +183,16 @@ export const UserSettingsPanel = () => {
           <Menu size={16} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 bg-card border-2 border-border z-50">
+      <DropdownMenuContent 
+        align="end" 
+        className="w-64 bg-card border-2 border-border z-50 max-h-[80vh] overflow-y-auto md:max-h-none md:overflow-y-visible"
+      >
+        {/* Mobile: Auth Action at top */}
+        <div className="block md:hidden">
+          <AuthActionItem />
+          <DropdownMenuSeparator className="bg-border" />
+        </div>
+
         {/* User Info */}
         {user && (
           <>
@@ -242,22 +270,11 @@ export const UserSettingsPanel = () => {
           <UserFeedbackDialog />
         </div>
         
-        <DropdownMenuSeparator className="bg-border" />
-        
-        {/* Auth Action */}
-        <DropdownMenuItem 
-          onClick={handleAuthAction}
-          className="text-primary hover:text-primary-foreground hover:bg-primary font-mono"
-        >
-          {user ? <LogOut size={16} className="mr-2" /> : <LogIn size={16} className="mr-2" />}
-          {user ? 'Sign Out' : 'Sign In'}
-        </DropdownMenuItem>
-        
-        {!user && (
-          <p className="text-xs text-muted-foreground font-mono text-center px-2 py-1">
-            Demo Mode - Sign in for cloud sync
-          </p>
-        )}
+        {/* Desktop: Auth Action at bottom */}
+        <div className="hidden md:block">
+          <DropdownMenuSeparator className="bg-border" />
+          <AuthActionItem />
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

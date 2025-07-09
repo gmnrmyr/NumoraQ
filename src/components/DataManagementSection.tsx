@@ -200,34 +200,36 @@ export const DataManagementSection = () => {
                   </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2">
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Button
                       onClick={() => saveToCloud()}
                       disabled={syncState === 'saving' || syncState === 'loading'}
                       variant="outline"
                       size="sm"
-                      className="brutalist-button flex-1"
+                      className="brutalist-button flex-1 text-xs sm:text-sm"
                     >
                       {syncState === 'saving' ? (
-                        <CloudOff size={16} className="mr-1 animate-spin" />
+                        <CloudOff size={14} className="mr-1 animate-spin" />
                       ) : (
-                        <Save size={16} className="mr-1" />
+                        <Save size={14} className="mr-1" />
                       )}
-                      Save to Cloud
+                      <span className="hidden sm:inline">Save to Cloud</span>
+                      <span className="sm:hidden">Save</span>
                     </Button>
                     <Button
                       onClick={() => loadFromCloud()}
                       disabled={syncState === 'saving' || syncState === 'loading'}
                       variant="outline"
                       size="sm"
-                      className="brutalist-button flex-1"
+                      className="brutalist-button flex-1 text-xs sm:text-sm"
                     >
                       {syncState === 'loading' ? (
-                        <CloudOff size={16} className="mr-1 animate-spin" />
+                        <CloudOff size={14} className="mr-1 animate-spin" />
                       ) : (
-                        <Cloud size={16} className="mr-1" />
+                        <Cloud size={14} className="mr-1" />
                       )}
-                      Load from Cloud
+                      <span className="hidden sm:inline">Load from Cloud</span>
+                      <span className="sm:hidden">Load</span>
                     </Button>
                   </div>
                   

@@ -5,6 +5,7 @@
 - **DO NOT CHANGE CURRENT DESIGN** - Maintain existing UI/UX
 - **DO NOT REMOVE ANY FEATURES** - Only add new functionality
 - **DO NOT LOSE USER DATA** - Preserve all existing user inputs
+- **FOCUS ON ADDING FEATURES** - Avoid removing features unless absolutely necessary or asked
 - **MAINTAIN HIGH CODE QUALITY** - Refactor only if necessary and safe
 
 ---
@@ -60,43 +61,103 @@
 
 ## 🎯 Product Strategy & Business Model
 
-### Current Model: Open Source & Donations
-- **100% Free & Open Source** - Current positioning
-- **Donation-based** - Users donate to unlock premium features
-- **Privacy-first** - No tracking, local-first data
+### ✅ **COMPLETED: Freemium SaaS Model Implementation**
 
-### 🔄 **PLANNED PIVOT: Freemium SaaS Model**
+#### Business Model Changes ✅ **COMPLETED**
+- **Extended Beta Trial:** 3+ months full access for new users
+- **Freemium Tiers:** Free trial with ads, Degen plans without ads
+- **Degen Plans (Unified Premium):**
+  - **Degen Pro:** $9.99/month - No ads, full features
+  - **Degen Lifetime:** $299 - Best value, lifetime access
+- **Donor System:** Separate badge/tier system alongside degen plans
 
-#### New Business Model Strategy
-- **Demo Period:** 30 days full access for new users
-- **Freemium Tiers:** Basic free tier with limitations
-- **Premium Plans (Degen Plans):**
-  - 1 Month: $X
-  - 3 Months: $X
-  - 6 Months: $X
-  - 1 Year: $X
-  - 5 Years: $X
-  - **Lifetime Access (Founders):** ~$1,000 USD
-
-#### Positioning Changes
-- **From:** "100% Free Forever"
-- **To:** "Start Free, Upgrade When Ready"
-- **Target:** Serious financial planners and crypto enthusiasts
-- **Value Prop:** Advanced analytics, AI insights, automation
-
-#### Brand Evolution
+#### Brand Evolution ✅ **COMPLETED**
 - **Previous:** Open Findash  
 - **Current:** Numoraq ✅ **COMPLETED**
-- **Goal:** More professional, less "open source hobby"
+- **Positioning:** "Start Free, Upgrade When Ready" ✅ **COMPLETED**
+- **Target:** Serious wealth builders and crypto enthusiasts ✅ **COMPLETED**
+- **Footer Updated:** Beta status, NUMORAQ branding ✅ **COMPLETED**
+
+#### Landing Page Updates ✅ **COMPLETED**
+- **Hero Messaging:** "Professional Financial Intelligence" ✅ **COMPLETED**
+- **Pricing Section:** Free Trial, Degen Pro, Degen Lifetime ✅ **COMPLETED**
+- **Value Props:** Updated for freemium model ✅ **COMPLETED**
+- **CTAs:** Route to /payment instead of /donation ✅ **COMPLETED**
+- **Sign In Button:** Added for existing users ✅ **COMPLETED**
+
+#### New Pages Created ✅ **COMPLETED**
+- **PaymentPage:** Unified degen plans + donor badges ✅ **COMPLETED**
+- **PrivacyPage:** GDPR-compliant privacy policy ✅ **COMPLETED**
+- **TermsPage:** Complete terms of service ✅ **COMPLETED**
+- **App Routing:** /payment, /privacy, /terms routes ✅ **COMPLETED**
+
+#### Email & Contact Updates ✅ **COMPLETED**
+- **Email:** numoraq@gmail.com across all pages ✅ **COMPLETED**
+- **Contact Info:** Standardized contact information ✅ **COMPLETED**
+- **Support References:** Updated to "degen support" ✅ **COMPLETED**
+
+#### Mobile Responsiveness ✅ **COMPLETED**
+- **DevMenu:** Fixed mobile close button and responsive tabs ✅ **COMPLETED**
+- **Cloud Sync:** Fixed mobile bleeding, responsive button layout ✅ **COMPLETED**
+- **DataToolbar:** Improved mobile layout with shorter button text ✅ **COMPLETED**
+
+---
+
+## 🔄 **CURRENT PRIORITY: Payment Integration**
+
+### 🚧 **Payment System Architecture (In Development)**
+
+#### Current Beta Status
+- **Manual Processing:** Donations via EVM address + email to numoraq@gmail.com
+- **CMS Management:** Manual premium activation for direct payments
+- **User Communication:** Beta notice explaining payment implementation status
+
+#### Required Payment Integration
+- **Seamless Integration Goal:** 
+  - PayPal integration from numoraq@gmail.com
+  - Stripe integration from numoraq@gmail.com
+  - Automated subscription management
+  - Real-time premium activation
+
+#### Technical Requirements
+1. **Payment Gateway Setup:**
+   - Stripe Connect/Standard integration
+   - PayPal Business account API integration
+   - Webhook handling for payment confirmations
+   - Subscription management (create, update, cancel)
+
+2. **Database Integration:**
+   - `payment_sessions` table (already created)
+   - User subscription status tracking
+   - Payment history and receipts
+   - Automatic premium flag updates
+
+3. **User Experience:**
+   - One-click payment flow
+   - Immediate premium activation
+   - Email confirmations and receipts
+   - Subscription management in user profile
+
+4. **Security & Compliance:**
+   - PCI DSS compliance considerations
+   - Payment data encryption
+   - Failed payment handling
+   - Refund processing capabilities
+
+#### Implementation Phases
+1. **Phase 1:** Stripe integration with basic subscription handling
+2. **Phase 2:** PayPal integration for broader payment options
+3. **Phase 3:** Advanced subscription management (pausing, upgrading)
+4. **Phase 4:** Payment analytics and financial reporting
 
 ---
 
 ## 🏗️ Core Platform Features
 
-### Dashboard Overview
+### Dashboard Overview ✅ **WORKING**
 Central hub providing comprehensive financial life management.
 
-#### Portfolio Management
+#### Portfolio Management ✅ **WORKING**
 | Feature | Status | Details |
 |---------|--------|---------|
 | **Liquid Assets** | ✅ Working | Crypto, stocks, REITs, precious metals, cash, NFTs |
@@ -106,7 +167,7 @@ Central hub providing comprehensive financial life management.
 | **NFT Floor Prices** | 🚧 Planned | OpenSea integration |
 | **Portfolio Summary** | ✅ Working | Total values, percentages, active/inactive toggle |
 
-#### Financial Tracking
+#### Financial Tracking ✅ **WORKING**
 | Feature | Status | Details |
 |---------|--------|---------|
 | **Income Tracking** | ✅ Working | Passive/active categorization |
@@ -115,25 +176,23 @@ Central hub providing comprehensive financial life management.
 | **Task Management** | 🚧 Planned | Financial to-dos, reminders |
 
 #### 📊 **Enhanced Projections & Analytics**
-- **Current:** 12-month projections with user-selectable periods
+- **Current:** 12-month projections with user-selectable periods ✅ **WORKING**
+- **Completed Enhancements:**
+  - ✅ **Advanced Chart Hover:** Comprehensive financial data with expense triggers
+  - ✅ **Variable Expense Visualization:** See what's causing big expense months
+  - ✅ **Professional Styling:** Dark tooltips with backdrop blur and proper spacing
+  - ✅ **Financial Breakdown:** Income/expense/debt breakdown in hover tooltips
 - **Planned Enhancements:**
   - **Advanced Charts:** Multiple projection lines for different scenarios
   - **Compound Interest Visualization:** Show assets that compound over time
-  - **Interactive Hover:** See specific expenses/income triggering chart points
   - **Compounding Text Toggle:** Show what's compounding in text format
   - **Scenario Analysis:** Best/worst case projections
-
-#### 📅 **Advanced Date-based Features**
-- **Debt/Expense Scheduling:** Set start and end dates for payments
-- **Brazilian Installment Support:** Common "parcelas" system
-- **Recurring Transaction Management:** Better handling of scheduled payments
-- **Date-based Projections:** Account for known future changes
 
 ---
 
 ## 🎨 User Interface & Navigation
 
-### Dashboard Navigation
+### Dashboard Navigation ✅ **WORKING**
 - **Top Bar:** Minimalist with logo and hamburger menu
 - **Hamburger Menu:** Feature-rich navigation drawer
   - User info and tier badges
@@ -142,12 +201,12 @@ Central hub providing comprehensive financial life management.
   - Settings and preferences
   - Support/donation links
 
-### Landing Page
-- **Current:** Animated with Unicorn Studio (`illusive_odyssey`)
-- **Structure:** Hero, features, value props, social proof
-- **Planned:** CMS-driven content management
+### Landing Page ✅ **COMPLETED**
+- **Current:** Animated with Unicorn Studio (`illusive_odyssey`) ✅ **WORKING**
+- **Structure:** Hero, features, pricing, value props ✅ **COMPLETED**
+- **CMS Integration:** Dynamic content management ✅ **WORKING**
 
-### 🎮 **Premium Dashboard Animations (Role-Gated)**
+### 🎮 **Degen Dashboard Animations (Role-Gated)** ✅ **WORKING**
 | User Tier | Animation | Unicorn Studio ID | Resolution |
 |-----------|-----------|-------------------|------------|
 | Champion+ | Black Hole | `db3DaP9gWVnnnr7ZevK7` | 2000x900 |
@@ -155,166 +214,95 @@ Central hub providing comprehensive financial life management.
 | Contributor 50+ | DaTest | Video placeholder | Various |
 
 **Implementation Notes:**
-- Animations display behind header text
-- Play/pause controls with animation ID for debugging
-- Role gating enforced in hamburger menu
-- Beta dashboard link for Whale+ users only
-- Minimal hacking nomenclature and pixel art accents
+- Animations display behind header text ✅ **WORKING**
+- Play/pause controls with animation ID for debugging ✅ **WORKING**
+- Role gating enforced in hamburger menu ✅ **WORKING**
+- Beta dashboard link for Whale+ users only ✅ **WORKING**
 
----
-
-## 🎨 Theme & Customization System
-
-### Theme Architecture
-- **Theme Classes:** Applied to `<html>` element (e.g., `theme-monochrome`)
-- **Default Theme:** CSS variables in `src/index.css`
-- **Storage:** `localStorage.selectedTheme`
-- **Initialization:** Applied on app load via `src/main.tsx`
-
-### Access Control
-- **Public Themes:** Available to all users
-- **Premium Themes:** Require specific donation tiers
-- **Dev Override:** Testing access via Dev Menu
-
-### Adding New Themes
-1. Add `.theme-<name>` block in `src/index.css`
-2. Update theme selectors in Dev Menu and CMS
-3. Set access requirements if premium
-
----
-
-## 🔐 Authentication & User Management
-
-### Current Authentication
-- **Primary:** Email/password via Supabase Auth
-- **Storage:** User data in Supabase + localStorage
-- **Roles:** User, Admin, Superadmin
-
-### 🚀 **Planned Authentication Enhancements**
-- **Google Auth:** High priority but technically challenging
-- **Multi-auth Support:** 
-  - Email (current)
-  - Solana wallet linking
-  - Discord account linking
-- **Enhanced Profile Management:**
-  - Avatar customization
-  - Nickname/display name
-  - Privacy settings
-
-### User Tiers & Access
-- **Free Users:** Basic features, 30-day demo
-- **Premium Users:** Full feature access, no ads
-- **Donation Tiers:** Legacy system (transitioning)
-- **Role-based Access:** Admin panel, premium themes
-
----
-
-## 💾 Data Management & Backend
-
-### Data Architecture
-- **Local-First:** Data stored in localStorage for speed
-- **Cloud Sync:** Optional Supabase synchronization
-- **Export Options:** CSV, PDF, JSON formats
-- **Import Support:** JSON data import/export
-
-### 🔄 **Enhanced Data Management**
-- **AI-powered Data Conversion:** Guide users to use ChatGPT/Grok for data formatting
-- **Excel Integration:** Better import from spreadsheets
-- **Demo Data:** Pre-populated examples for new users
-- **Data Migration:** Smooth transitions between versions
-
-### CMS & Settings
-- **CMS Settings:** Managed via `useCMSSettings` hook
-- **Project Settings:** `useProjectSettings` for project-level config
-- **Live Updates:** Real-time settings changes via Supabase
+### Mobile Responsiveness ✅ **IMPROVED**
+- **DevMenu:** Responsive design with mobile close button ✅ **COMPLETED**
+- **Cloud Sync:** Fixed button bleeding, stacked layout on mobile ✅ **COMPLETED**
+- **Button Text:** Shortened text for mobile screens ✅ **COMPLETED**
+- **Touch Targets:** Improved button sizing for mobile ✅ **COMPLETED**
 
 ---
 
 ## 💰 Donation System & Monetization
 
-### Current Donation System
-- **Crypto Donations:** Multiple wallet support
-- **Tier System:** Based on donation amounts
-- **Rewards:** Badges, titles, premium themes
-- **PayPal:** Coming soon
+### Current Dual System ✅ **WORKING**
+- **Degen Plans:** Monthly/lifetime subscriptions for premium features
+- **Donor Badges:** Separate recognition system for platform support
+- **Crypto Donations:** Multiple wallet support (EVM active)
+- **Payment Processing:** Manual during beta, automated system in development
 
-### 🎯 **Planned Premium Monetization**
-- **Subscription Tiers:** Monthly/yearly premium plans
-- **Founder Packages:** Lifetime access for early adopters
-- **Feature Gating:** Advanced analytics, AI features
-- **Ad-free Experience:** Premium users see no ads
+### ✅ **Completed Monetization Features**
+- **Pricing Pages:** PaymentPage with unified degen + donor systems ✅ **COMPLETED**
+- **Subscription UI:** PremiumSubscriptionPanel with degen terminology ✅ **COMPLETED**
+- **Payment Flow:** Basic structure ready for integration ✅ **COMPLETED**
+- **User Messaging:** Beta payment status communicated ✅ **COMPLETED**
 
-### Revenue Streams
-1. **Premium Subscriptions:** Primary revenue
-2. **Founder Packages:** One-time high-value sales
-3. **Enterprise:** Future B2B opportunities
-4. **Donations:** Legacy support system
+### ✅ **Wallet Linking & Direct Payments (Completed)**
+- **Profile-Based Linking:** Users can link Solana & EVM wallets to their accounts
+- **Persistent Storage:** Wallet connections saved locally with session management
+- **Direct Payments:** One-click tier payments through linked wallets
+- **Multi-Wallet Support:** Phantom, Solflare (Solana), MetaMask (EVM)
+- **Payment Tiers:** All degen plans available through wallet payments
+- **Live Pricing:** Real-time SOL price integration from CoinGecko
+- **User Experience:** Seamless wallet connection → payment → tier activation
 
----
-
-## 🛠️ Development & Admin Tools
-
-### Dev Menu
-- **Access:** DEV button (bottom left)
-- **Features:** Theme switching, code activation, debug info
-- **Implementation:** `src/components/DevMenu.tsx`
-
-### Admin Panel (CMS)
-- **Access:** Admin/Superadmin roles only
-- **Features:** Site settings, user management, premium codes
-- **Security:** Role-based access control
-
-### 🔧 **Enhanced Development Tools**
-- **Beta Dashboard:** Local testing environment
-- **Animation Testing:** Unicorn Studio credit management
-- **User Research Tools:** Feedback compilation
-- **AI Documentation:** Automated doc updates
+### 🚧 **Payment Integration (Backend Priority)**
+- **Stripe Integration:** Automated subscription processing
+- **PayPal Integration:** Alternative payment method
+- **Subscription Management:** User self-service portal
+- **Revenue Analytics:** MRR tracking and financial reporting
 
 ---
 
 ## 🚀 Roadmap & Upcoming Features
 
-### Phase 1: Foundation (Current)
+### Phase 1: Foundation ✅ **COMPLETED**
 - ✅ Basic portfolio tracking
 - ✅ Income/expense management
 - ✅ Theme system
 - ✅ Donation system
 - ✅ Basic projections
+- ✅ Business model pivot
+- ✅ Landing page redesign
+- ✅ Mobile responsiveness improvements
 
-### Phase 2: Enhanced Analytics (In Progress)
-- 🚧 Advanced chart interactions
-- 🚧 Compound interest visualization
-- 🚧 Date-based scheduling
-- 🚧 Beta dashboard animations
-- 🚧 Improved mobile layout
+### Phase 2: Payment Integration ✅ **FRONTEND COMPLETE**
+- ✅ Solana wallet payment integration (direct tier payments)
+- ✅ Wallet linking system for profile-based connections
+- ✅ Direct wallet payments (one-click through linked wallets)
+- ✅ Payment UI improvements (dark mode, better styling)
+- 🚧 Stripe payment integration (backend processing)
+- 🚧 PayPal payment integration (backend processing)
+- 🚧 Automated subscription management (webhooks)
+- 🚧 Premium activation workflow (backend automation)
+- 🚧 Payment analytics dashboard
 
-### Phase 3: Automation & AI (Planned)
+### Phase 3: Enhanced Analytics ✅ **COMPLETED**
+- ✅ Advanced chart hover interactions with comprehensive financial data
+- ✅ Variable expense triggers display (shows what's causing big expense months)
+- ✅ Enhanced mobile responsiveness
+- ✅ AI Chat Assistant integration with maximize feature
+- ✅ Rich text formatting in AI responses
+- 🔄 Compound interest visualization
+- 🔄 Date-based scheduling
+
+### Phase 4: Automation & AI (Future)
 - 🔄 **AI Chat Assistant:** GPT API integration for financial guidance
 - 🔄 Wallet auto-fetch (BTC, EVM, Solana)
 - 🔄 NFT floor price tracking
 - 🔄 AI-powered forecasting
 - 🔄 Smart expense categorization
 
-### Phase 4: Business Model Pivot (Strategic)
-- 🎯 **Freemium Model:** 30-day demo + premium tiers
-- 🎯 **Brand Rebrand:** New name (Numoraq consideration)
-- 🎯 Google Auth integration
-- 🎯 Enterprise features
-- 🎯 Advanced user onboarding
-
-### Phase 5: Advanced Features (Future)
-- 🔮 Multi-language platform integration
-- 🔮 Community features and social elements
-- 🔮 API for third-party integrations
-- 🔮 Mobile app development
-- 🔮 Advanced security features
-
-### 🎯 **Immediate Priorities**
-1. **AI Chat Integration** - High impact, user-requested
-2. **Simple Onboarding** - Critical for demo users
-3. **Advanced Chart Features** - Differentiation from competitors
-4. **Date-based Expense/Debt Tracking** - Brazilian market need
-5. **Beta Dashboard Finalization** - Premium user experience
+### 🎯 **Current Priorities**
+1. **Payment System Integration** - Stripe/PayPal integration (Solana ✅ completed)
+2. **Subscription Management** - User self-service capabilities
+3. **Advanced Features Polish** - Chart interactions ✅, AI chat ✅ completed
+4. **Backend Payment Processing** - Webhook handling and automation
+5. **Performance Optimization** - Loading times and responsiveness
 
 ---
 
@@ -362,21 +350,41 @@ Central hub providing comprehensive financial life management.
 
 ## 🔄 Update Log
 
-**Last Updated:** [Current Date]
-**Version:** -12500
-**Status:** Active Development
+**Last Updated:** January 2025
+**Version:** v2.1.0
+**Status:** Active Development - Payment Integration Focus
 
-### Recent Changes
-- Integrated admin notes into comprehensive roadmap
-- Added business model pivot strategy
-- Enhanced feature prioritization
-- Added success metrics framework
+### Recent Completed Changes ✅
+- ✅ Complete business model pivot to freemium SaaS
+- ✅ Landing page redesign with pricing tiers
+- ✅ PaymentPage creation with unified degen + donor systems
+- ✅ Privacy and Terms pages implementation
+- ✅ Email standardization to numoraq@gmail.com
+- ✅ Mobile responsiveness improvements (DevMenu, cloud sync)
+- ✅ Terminology unification (Premium → Degen)
+- ✅ Footer beta status and branding updates
+- ✅ **Enhanced Chart Hover Tooltips** - Comprehensive financial data display with expense triggers
+- ✅ **Solana Wallet Payment Integration** - Direct tier payments with live pricing
+- ✅ **AI Chat Maximize Feature** - Full-screen and mobile-optimized interface
+- ✅ **AI Rich Text Formatting** - Bold, italics, currency highlighting
+- ✅ **AI Financial Context Fix** - Accurate data calculations and projections
+- ✅ **Payment UI Dark Mode Fix** - Automatic premium activation section styling
+- ✅ **Landing Page Beta Badge** - Hover tooltip with contact information
+- ✅ **Wallet Linking System** - Profile-based Solana & EVM wallet connections
+- ✅ **Direct Wallet Payments** - One-click tier payments through linked wallets
+
+### Current Focus 🚧
+- Payment system integration (Stripe + PayPal backend completion)
+- Automated subscription management and webhooks
+- Backend integration for wallet payment verification
+- Performance optimization and loading improvements
+- Migration path: Manual EVM payments → Direct wallet payments (making manual sends obsolete)
 
 ### Next Review
-- **When:** After Phase 2 completion
-- **Focus:** Business model transition planning
-- **Stakeholders:** Development team, product strategy
+- **When:** After payment integration completion
+- **Focus:** Advanced analytics and AI features
+- **Stakeholders:** Development team, business operations
 
 ---
 
-*This document serves as both technical reference and strategic roadmap. Update regularly as features are implemented and business strategy evolves.*
+*This document serves as both technical reference and strategic roadmap. Updated regularly as features are implemented and business strategy evolves.*

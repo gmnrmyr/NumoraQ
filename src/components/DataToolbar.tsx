@@ -97,13 +97,13 @@ export const DataToolbar = () => {
   return (
     <Card className="bg-white/70 backdrop-blur-sm border-gray-200/50">
       <CardContent className="p-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Database size={20} className="text-blue-600" />
-            <span className="font-medium text-gray-700">Data Management</span>
+            <span className="font-medium text-gray-700 text-sm sm:text-base">Data Management</span>
           </div>
           
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
             {/* Unsaved Changes Indicator */}
             <UnsavedChangesIndicator />
             
@@ -114,14 +114,15 @@ export const DataToolbar = () => {
                   onClick={() => saveToCloud()}
                   disabled={syncState === 'saving'}
                   size="sm"
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm"
                 >
                   {syncState === 'saving' ? (
-                    <RefreshCw size={14} className="mr-1 animate-spin" />
+                    <RefreshCw size={12} className="mr-1 animate-spin" />
                   ) : (
-                    <Cloud size={14} className="mr-1" />
+                    <Cloud size={12} className="mr-1" />
                   )}
-                  Save to Cloud
+                  <span className="hidden sm:inline">Save to Cloud</span>
+                  <span className="sm:hidden">Save</span>
                 </Button>
                 
                 <Button
@@ -129,13 +130,15 @@ export const DataToolbar = () => {
                   disabled={syncState === 'loading'}
                   variant="outline"
                   size="sm"
+                  className="text-xs sm:text-sm"
                 >
                   {syncState === 'loading' ? (
-                    <RefreshCw size={14} className="mr-1 animate-spin" />
+                    <RefreshCw size={12} className="mr-1 animate-spin" />
                   ) : (
-                    <CloudDownload size={14} className="mr-1" />
+                    <CloudDownload size={12} className="mr-1" />
                   )}
-                  Load from Cloud
+                  <span className="hidden sm:inline">Load from Cloud</span>
+                  <span className="sm:hidden">Load</span>
                 </Button>
               </>
             )}
