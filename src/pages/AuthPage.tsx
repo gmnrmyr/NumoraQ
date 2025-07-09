@@ -25,6 +25,7 @@ const AuthPage = () => {
   // Check if user was redirected after email confirmation
   const isConfirmed = searchParams.get('confirmed') === 'true';
   const isPasswordReset = searchParams.get('type') === 'recovery';
+  const authMode = searchParams.get('mode') === 'signin' ? 'signin' : 'signup';
 
   useEffect(() => {
     if (user && !isPasswordReset) {
@@ -219,6 +220,7 @@ const AuthPage = () => {
                   onResetPassword={handleResetPassword}
                   onGoogleSignIn={handleGoogleSignIn}
                   loading={loading}
+                  defaultMode={authMode}
                 />
               </>
             )}

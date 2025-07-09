@@ -48,7 +48,7 @@ export const PremiumSubscriptionPanel = () => {
     if (!user) {
       toast({
         title: "Sign In Required",
-        description: "Please sign in to subscribe to premium",
+        description: "Please sign in to subscribe to degen",
         variant: "destructive"
       });
       return;
@@ -56,8 +56,8 @@ export const PremiumSubscriptionPanel = () => {
 
     if (isPremiumUser) {
       toast({
-        title: "Already Premium",
-        description: "You already have premium access",
+        title: "Already Degen",
+        description: "You already have degen access",
         variant: "destructive"
       });
       return;
@@ -160,7 +160,7 @@ export const PremiumSubscriptionPanel = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-green-400">
             <Crown size={20} />
-            Premium Active
+            Degen Active
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -168,10 +168,10 @@ export const PremiumSubscriptionPanel = () => {
             <div>
               <Badge className="bg-green-600 text-white">
                 <Zap size={12} className="mr-1" />
-                PREMIUM USER
+                DEGEN USER
               </Badge>
               <p className="text-sm text-muted-foreground mt-2">
-                You have access to all premium features
+                You have access to all degen features
               </p>
             </div>
             <Shield size={48} className="text-green-400" />
@@ -187,7 +187,7 @@ export const PremiumSubscriptionPanel = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-purple-400">
             <Crown size={20} />
-            Upgrade to Premium
+            Upgrade to Degen
           </CardTitle>
           <p className="text-sm text-muted-foreground">
             Unlock all features and support development
@@ -282,7 +282,7 @@ export const PremiumSubscriptionPanel = () => {
               ) : (
                 <>
                   <Crown size={16} className="mr-2" />
-                  Subscribe to Premium
+                  Subscribe to Degen
                 </>
               )}
             </Button>

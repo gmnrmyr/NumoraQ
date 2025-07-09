@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, TrendingUp, Shield, Zap, Menu, X, Github, Twitter, Linkedin, Play, Pause } from "lucide-react";
+import { ArrowRight, TrendingUp, Shield, Zap, Menu, X, Github, Twitter, Linkedin, Play, Pause, Check, AlertCircle } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAnimationToggle } from '@/hooks/useAnimationToggle';
 import { UsageGuideSection } from '@/components/index/UsageGuideSection';
@@ -95,23 +95,23 @@ const LandingPage = () => {
 
   const features = [{
     icon: <TrendingUp className="h-6 w-6" />,
-    title: "Portfolio Tracking",
-    description: "Track your crypto, stocks, and liquid assets in real-time with beautiful visualizations."
+    title: "Advanced Analytics",
+    description: "Professional-grade portfolio tracking with AI insights, compound interest visualization, and advanced projections."
   }, {
     icon: <Shield className="h-6 w-6" />,
     title: "Privacy First",
-    description: "Your data stays local. Optional cloud sync with end-to-end encryption for peace of mind."
+    description: "Your data stays secure with optional cloud sync and end-to-end encryption. No tracking, just results."
   }, {
     icon: <Zap className="h-6 w-6" />,
-    title: "Lightning Fast",
-    description: "Built for speed with modern web technologies. No lag, just pure performance."
+    title: "Degen Features",
+    description: "Automation, real-time data, wallet integrations, and exclusive themes for serious wealth builders."
   }];
   return (
     <>
       {/* SEO Meta Tags */}
-      <title>NUMORAQ | Free Financial Dashboard & Crypto Portfolio Tracker</title>
-      <meta name="description" content="Free, open-source financial dashboard for tracking crypto, assets, income & expenses. Privacy-first with optional cloud sync. Start building wealth today!" />
-      <meta name="keywords" content="financial dashboard, crypto tracker, portfolio management, open source, privacy-first, wealth tracking, free finance app" />
+      <title>NUMORAQ | Advanced Financial Dashboard & Crypto Portfolio Tracker</title>
+      <meta name="description" content="Professional financial dashboard for serious crypto enthusiasts and wealth builders. Start free with 30-day full access, upgrade when ready. Advanced analytics, AI insights, automation." />
+      <meta name="keywords" content="financial dashboard, crypto tracker, portfolio management, wealth tracking, fintech, degen analytics, AI insights, freemium" />
       
       <div className="min-h-screen bg-background text-foreground font-mono overflow-x-hidden">
         {/* Navigation - Made sticky with backdrop blur */}
@@ -123,9 +123,13 @@ const LandingPage = () => {
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-6">
                 <a href="#features" className="hover:text-accent transition-colors">Features</a>
+                <a href="#pricing" className="hover:text-accent transition-colors">Pricing</a>
                 <a href="#about" className="hover:text-accent transition-colors">About</a>
+                <Button onClick={() => navigate('/auth?mode=signin')} variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
+                  Sign In
+                </Button>
                 <Button onClick={() => navigate('/auth')} className="bg-accent text-accent-foreground hover:bg-accent/90">
-                  Get Started <ArrowRight size={16} className="ml-1" />
+                  Start Free Trial <ArrowRight size={16} className="ml-1" />
                 </Button>
               </div>
 
@@ -141,11 +145,17 @@ const LandingPage = () => {
                   <a href="#features" className="block py-2 hover:text-accent transition-colors" onClick={() => setIsMenuOpen(false)}>
                     Features
                   </a>
+                  <a href="#pricing" className="block py-2 hover:text-accent transition-colors" onClick={() => setIsMenuOpen(false)}>
+                    Pricing
+                  </a>
                   <a href="#about" className="block py-2 hover:text-accent transition-colors" onClick={() => setIsMenuOpen(false)}>
                     About
                   </a>
+                  <Button onClick={() => navigate('/auth?mode=signin')} variant="outline" className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground mt-2">
+                    Sign In
+                  </Button>
                   <Button onClick={() => navigate('/auth')} className="w-full bg-accent text-accent-foreground hover:bg-accent/90 mt-2">
-                    Get Started <ArrowRight size={16} className="ml-1" />
+                    Start Free Trial <ArrowRight size={16} className="ml-1" />
                   </Button>
                 </div>
               </div>}
@@ -207,19 +217,18 @@ const LandingPage = () => {
           
           <div className="max-w-7xl mx-auto text-center relative z-10">
             <Badge variant="outline" className="mb-6 text-accent border-accent font-mono bg-background/80 backdrop-blur-sm">
-              100% Free & Open Source
+              Start Free, Upgrade When Ready
             </Badge>
             
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              Your Money,<br />
-              <span className="text-accent ascii-animation">Your Dashboard</span>
+              Professional <span className="text-accent ascii-animation">Financial Intelligence</span>
             </h1>
             
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">Track crypto, manage expenses, and build wealth with the most privacy-focused financial dashboard. No tracking, just pure financial clarity.</p>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">Advanced financial dashboard for serious crypto enthusiasts and wealth builders. Get 30 days full access, then choose your plan. Privacy-first with AI insights.</p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Button size="lg" onClick={() => navigate('/auth')} className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 text-lg px-8 py-3">
-                Start Building Wealth <ArrowRight size={20} className="ml-2" />
+                Start 30-Day Free Trial <ArrowRight size={20} className="ml-2" />
               </Button>
               <Button size="lg" variant="outline" onClick={() => navigate('/dashboard')} className="w-full sm:w-auto border-accent text-accent hover:bg-accent hover:text-accent-foreground text-lg px-8 py-3">
                 View Demo
@@ -273,23 +282,160 @@ const LandingPage = () => {
           </div>
         </section>
 
+        {/* Pricing Section */}
+        <section id="pricing" className="py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
+                Simple, <span className="text-accent">Transparent</span> Pricing
+              </h2>
+              <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto">
+                Start with extended trial access during beta. Follow us on socials for giveaways!
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+              {/* Free Trial */}
+              <Card className="brutalist-card hover:border-accent transition-colors">
+                <CardHeader className="text-center">
+                  <Badge variant="outline" className="mb-4 text-accent border-accent">Extended Beta Trial</Badge>
+                  <CardTitle className="text-2xl font-bold">Free Trial</CardTitle>
+                  <div className="text-3xl font-bold text-accent">$0</div>
+                  <p className="text-muted-foreground">3+ months access during beta</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      All degen features
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      Portfolio tracking
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      Advanced analytics
+                    </li>
+                    <li className="flex items-center gap-2 text-orange-400">
+                      <AlertCircle size={16} className="text-orange-400" />
+                      Contains ads
+                    </li>
+                  </ul>
+                  <Button onClick={() => navigate('/auth')} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                    Start Free Trial
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center">
+                    🎁 Follow us on social media for degen code giveaways!
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Monthly Plan */}
+              <Card className="brutalist-card hover:border-accent transition-colors border-2 border-accent relative">
+                <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent text-accent-foreground">
+                  Most Popular
+                </Badge>
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl font-bold">Degen Pro</CardTitle>
+                  <div className="text-3xl font-bold text-accent">$9.99</div>
+                  <p className="text-muted-foreground">per month</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      Everything in Free
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      No ads experience
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      AI-powered insights
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      Degen themes
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      Priority support
+                    </li>
+                  </ul>
+                  <Button onClick={() => navigate('/payment')} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                    Get Started
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Lifetime Plan */}
+              <Card className="brutalist-card hover:border-accent transition-colors">
+                <CardHeader className="text-center">
+                  <Badge variant="outline" className="mb-4 text-yellow-400 border-yellow-400">Best Value</Badge>
+                  <CardTitle className="text-2xl font-bold">Degen Lifetime</CardTitle>
+                  <div className="text-3xl font-bold text-accent">$299</div>
+                  <p className="text-muted-foreground">one-time payment</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      Everything in Pro
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      Lifetime access
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      Founder badge
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      All future features
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check size={16} className="text-accent" />
+                      Direct developer access
+                    </li>
+                  </ul>
+                  <Button onClick={() => navigate('/payment')} className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white">
+                    Get Lifetime Access
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="text-center mt-12">
+              <p className="text-sm text-muted-foreground mb-2">
+                All plans include money-back guarantee. No hidden fees, cancel anytime.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                💝 Donor badges available through support tiers alongside degen plans
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* About Section */}
         <section id="about" className="py-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8">
-              Built by <span className="text-accent">Degens</span>, for <span className="text-accent">Degens</span>
+              Built for <span className="text-accent">Serious</span> Financial <span className="text-accent">Builders</span>
             </h2>
             
             <p className="text-base sm:text-lg text-muted-foreground mb-8">
-              We're tired of financial apps that sell your data, charge monthly fees, and don't understand crypto. 
-              So we built something better. Open source, privacy-first, and actually useful.
+              We're tired of financial apps that sell your data, charge hidden fees, and don't understand crypto. 
+              So we built something better. Professional-grade analytics, privacy-first, and built for real wealth building.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
               <Card className="brutalist-card">
                 <CardContent className="p-4 sm:p-6 text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-accent mb-2">100%</div>
-                  <div className="text-sm sm:text-base text-muted-foreground">Free Forever</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-accent mb-2">30</div>
+                  <div className="text-sm sm:text-base text-muted-foreground">Days Free Trial</div>
                 </CardContent>
               </Card>
               <Card className="brutalist-card">
@@ -301,7 +447,7 @@ const LandingPage = () => {
             </div>
             
             <Button size="lg" onClick={() => navigate('/auth')} className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 text-lg px-8 py-3">
-              Join the Revolution <ArrowRight size={20} className="ml-2" />
+              Start Your Free Trial <ArrowRight size={20} className="ml-2" />
             </Button>
           </div>
         </section>

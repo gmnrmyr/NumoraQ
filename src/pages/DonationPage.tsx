@@ -103,30 +103,28 @@ const DonationPage = () => {
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold font-mono text-accent uppercase tracking-wider">
-              SUPPORT THE PROJECT
+              PREMIUM PLANS & SUPPORT
             </h1>
             <p className="text-muted-foreground text-lg font-mono">
-              Help us build the future of financial tracking
+              Choose your plan and support the platform
             </p>
             <div className="flex justify-center items-center gap-4">
               <div className="w-8 h-1 bg-accent"></div>
-              <Heart className="text-accent" size={24} />
+              <Crown className="text-accent" size={24} />
               <div className="w-8 h-1 bg-accent"></div>
             </div>
           </div>
 
-          {/* Auto Badge Assignment Notice */}
+          {/* Premium Notice */}
           <Card className="border-2 border-accent/30 bg-accent/5">
             <CardContent className="pt-4">
               <div className="flex items-start gap-3">
                 <Info className="text-accent mt-1" size={20} />
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-accent">AUTOMATIC BADGE ASSIGNMENT</h3>
+                  <h3 className="font-mono font-bold text-accent">PREMIUM FINANCIAL PLATFORM</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Donor badges are automatically assigned to your profile upon receiving donations. 
-                    If you experience any issues with badge assignment, please contact us via{' '}
-                    <Twitter className="inline mx-1" size={14} />
-                    <span className="text-accent">Twitter</span> for assistance.
+                    Numoraq is now a premium financial platform for serious wealth builders. All new users get 30 days full access. 
+                    Choose a premium plan to continue with advanced features, or support us through donations for exclusive benefits.
                   </p>
                 </div>
               </div>
@@ -298,32 +296,32 @@ const DonationPage = () => {
           {/* Why Support Us */}
           <Card className="border-2 border-border">
             <CardHeader>
-                              <CardTitle className="font-mono text-accent">WHY SUPPORT {settings.website_name?.toUpperCase() || 'NUMORAQ'}?</CardTitle>
+                              <CardTitle className="font-mono text-accent">WHY CHOOSE {settings.website_name?.toUpperCase() || 'NUMORAQ'} PREMIUM?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-foreground">🚀 DEVELOPMENT</h3>
+                  <h3 className="font-mono font-bold text-foreground">🚀 ADVANCED FEATURES</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Your support helps us build new features, improve performance, and maintain the platform.
+                    Access AI-powered insights, advanced analytics, premium themes, and cutting-edge financial tools.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-foreground">💰 SERVER COSTS</h3>
+                  <h3 className="font-mono font-bold text-foreground">💰 PROFESSIONAL GRADE</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Keep the lights on with reliable hosting, database infrastructure, and third-party services.
+                    Built for serious wealth builders with enterprise-level infrastructure and reliability.
                   </p>
                 </div>
                 <div className="space-y-2">
                   <h3 className="font-mono font-bold text-foreground">🔒 PRIVACY FIRST</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    We don't sell your data. Donations help us stay independent and user-focused.
+                    We don't sell your data. Premium subscriptions keep us independent and user-focused.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-foreground">🌟 COMMUNITY DRIVEN</h3>
+                  <h3 className="font-mono font-bold text-foreground">🌟 CONTINUOUS INNOVATION</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Supporting a community-driven project that benefits the entire financial tracking ecosystem.
+                    Premium users get early access to new features and direct input on product development.
                   </p>
                 </div>
               </div>
