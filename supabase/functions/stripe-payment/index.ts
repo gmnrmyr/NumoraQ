@@ -33,47 +33,163 @@ interface SubscriptionPlan {
   currency: string;
   description: string;
   duration_days: number;
+  type: 'degen' | 'donation';
 }
 
-const subscriptionPlans: Record<string, SubscriptionPlan> = {
+interface DonationTier {
+  tier: string;
+  amount: number;
+  currency: string;
+  description: string;
+  points: number;
+  type: 'donation';
+}
+
+// Degen Plans (Premium Access)
+const degenPlans: Record<string, SubscriptionPlan> = {
   '1month': {
     plan: '1month',
     amount: 9.99,
     currency: 'USD',
     description: 'Monthly Premium',
-    duration_days: 30
+    duration_days: 30,
+    type: 'degen'
   },
   '3months': {
     plan: '3months',
     amount: 24.99,
     currency: 'USD',
     description: '3 Month Premium',
-    duration_days: 90
+    duration_days: 90,
+    type: 'degen'
   },
   '6months': {
     plan: '6months',
     amount: 44.99,
     currency: 'USD',
     description: '6 Month Premium',
-    duration_days: 180
+    duration_days: 180,
+    type: 'degen'
   },
   '1year': {
     plan: '1year',
     amount: 79.99,
     currency: 'USD',
     description: 'Yearly Premium',
-    duration_days: 365
+    duration_days: 365,
+    type: 'degen'
   },
   'lifetime': {
     plan: 'lifetime',
     amount: 299,
     currency: 'USD',
     description: 'Lifetime Premium',
-    duration_days: 36500 // ~100 years
+    duration_days: 36500, // ~100 years
+    type: 'degen'
   }
 };
 
-async function createStripeCheckoutSession(sessionId: string, plan: SubscriptionPlan, userEmail: string) {
+// Donation Tiers (Support Badges)
+const donationTiers: Record<string, DonationTier> = {
+  'whale': {
+    tier: 'whale',
+    amount: 50000,
+    currency: 'USD',
+    description: 'Ultra VIP access',
+    points: 50000,
+    type: 'donation'
+  },
+  'legend': {
+    tier: 'legend',
+    amount: 10000,
+    currency: 'USD',
+    description: 'Priority support',
+    points: 10000,
+    type: 'donation'
+  },
+  'patron': {
+    tier: 'patron',
+    amount: 5000,
+    currency: 'USD',
+    description: 'Advanced features',
+    points: 5000,
+    type: 'donation'
+  },
+  'champion': {
+    tier: 'champion',
+    amount: 2000,
+    currency: 'USD',
+    description: 'Black hole animation',
+    points: 2000,
+    type: 'donation'
+  },
+  'supporter': {
+    tier: 'supporter',
+    amount: 1000,
+    currency: 'USD',
+    description: 'Degen access',
+    points: 1000,
+    type: 'donation'
+  },
+  'backer': {
+    tier: 'backer',
+    amount: 500,
+    currency: 'USD',
+    description: 'Special recognition',
+    points: 500,
+    type: 'donation'
+  },
+  'donor': {
+    tier: 'donor',
+    amount: 100,
+    currency: 'USD',
+    description: 'Thank you message',
+    points: 100,
+    type: 'donation'
+  },
+  'contributor': {
+    tier: 'contributor',
+    amount: 50,
+    currency: 'USD',
+    description: 'Contributor badge',
+    points: 50,
+    type: 'donation'
+  },
+  'helper': {
+    tier: 'helper',
+    amount: 25,
+    currency: 'USD',
+    description: 'Helper badge',
+    points: 25,
+    type: 'donation'
+  },
+  'friend': {
+    tier: 'friend',
+    amount: 20,
+    currency: 'USD',
+    description: 'Friend badge',
+    points: 20,
+    type: 'donation'
+  },
+  'supporter-basic': {
+    tier: 'supporter-basic',
+    amount: 10,
+    currency: 'USD',
+    description: 'Basic supporter badge',
+    points: 10,
+    type: 'donation'
+  },
+  'newcomer': {
+    tier: 'newcomer',
+    amount: 0,
+    currency: 'USD',
+    description: 'Welcome badge',
+    points: 0,
+    type: 'donation'
+  }
+};
+
+async function createStripeCheckoutSession(sessionId: string, plan: SubscriptionPlan | DonationTier, userEmail: string, paymentType: 'degen' | 'donation') {
   const stripe = await import('https://esm.sh/stripe@14.21.0?target=deno')
   
   const stripeClient = stripe.default(STRIPE_SECRET_KEY, {
@@ -89,7 +205,9 @@ async function createStripeCheckoutSession(sessionId: string, plan: Subscription
           currency: plan.currency.toLowerCase(),
           product_data: {
             name: plan.description,
-            description: `Degen Premium Access - ${plan.description}`,
+            description: paymentType === 'degen' 
+              ? `Degen Premium Access - ${plan.description}`
+              : `Donation Tier - ${plan.description}`,
           },
           unit_amount: Math.round(plan.amount * 100), // Convert to cents
         },
@@ -97,12 +215,13 @@ async function createStripeCheckoutSession(sessionId: string, plan: Subscription
       },
     ],
     mode: 'payment',
-    success_url: `${Deno.env.get('SITE_URL') || 'https://numoraq.online'}/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${Deno.env.get('SITE_URL') || 'https://numoraq.online'}/payment?canceled=true`,
+    success_url: `${Deno.env.get('SITE_URL') || 'https://numoraq.online'}/${paymentType === 'degen' ? 'payment' : 'donation'}?success=true&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${Deno.env.get('SITE_URL') || 'https://numoraq.online'}/${paymentType === 'degen' ? 'payment' : 'donation'}?canceled=true`,
     metadata: {
       session_id: sessionId,
-      plan: plan.plan,
+              plan: 'plan' in plan ? plan.plan : plan.tier,
       user_email: userEmail,
+      payment_type: paymentType,
     },
   })
 
@@ -119,8 +238,9 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
     .upsert({
       user_id: userId,
       is_premium: true,
-      premium_plan: plan.plan,
-      premium_expires_at: expirationDate.toISOString(),
+      premium_type: plan.plan,
+      activated_at: new Date().toISOString(),
+      expires_at: expirationDate.toISOString(),
       payment_session_id: sessionId,
       updated_at: new Date().toISOString()
     })
@@ -128,6 +248,40 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
   if (premiumError) {
     console.error('Error updating premium status:', premiumError)
     throw premiumError
+  }
+
+  // Update payment session status
+  const { error: sessionError } = await supabase
+    .from('payment_sessions')
+    .update({ 
+      status: 'completed',
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', sessionId)
+
+  if (sessionError) {
+    console.error('Error updating payment session:', sessionError)
+    throw sessionError
+  }
+
+  return true
+}
+
+async function activateDonationTier(userId: string, tier: DonationTier, sessionId: string) {
+  // Add points to user's account
+  const { error: pointsError } = await supabase
+    .from('user_points')
+    .upsert({
+      user_id: userId,
+      points: tier.points,
+      activity_type: 'donation',
+      activity_date: new Date().toISOString().split('T')[0],
+      created_at: new Date().toISOString()
+    })
+
+  if (pointsError) {
+    console.error('Error updating user points:', pointsError)
+    throw pointsError
   }
 
   // Update payment session status
@@ -158,24 +312,31 @@ serve(async (req) => {
 
     if (path === '/create-checkout-session' && req.method === 'POST') {
       const body = await req.json()
-      const { sessionId, plan, userEmail, userId } = body
+      const { sessionId, plan, userEmail, userId, paymentType } = body
 
-      if (!sessionId || !plan || !userEmail || !userId) {
+      if (!sessionId || !plan || !userEmail || !userId || !paymentType) {
         return new Response(
           JSON.stringify({ error: 'Missing required parameters' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
         )
       }
 
-      const planInfo = subscriptionPlans[plan]
+      let planInfo: SubscriptionPlan | DonationTier | null = null;
+      
+      if (paymentType === 'degen') {
+        planInfo = degenPlans[plan];
+      } else if (paymentType === 'donation') {
+        planInfo = donationTiers[plan];
+      }
+
       if (!planInfo) {
         return new Response(
-          JSON.stringify({ error: 'Invalid plan' }),
+          JSON.stringify({ error: 'Invalid plan or tier' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
         )
       }
 
-      const checkoutSession = await createStripeCheckoutSession(sessionId, planInfo, userEmail)
+      const checkoutSession = await createStripeCheckoutSession(sessionId, planInfo, userEmail, paymentType)
 
       return new Response(
         JSON.stringify({ 
@@ -216,7 +377,7 @@ serve(async (req) => {
 
       if (event.type === 'checkout.session.completed') {
         const session = event.data.object
-        const { session_id, plan, user_email } = session.metadata
+        const { session_id, plan, user_email, payment_type } = session.metadata
 
         // Get user ID from the session
         const { data: sessionData, error: sessionError } = await supabase
@@ -233,18 +394,31 @@ serve(async (req) => {
           )
         }
 
-        const planInfo = subscriptionPlans[plan]
-        if (!planInfo) {
-          console.error('Invalid plan:', plan)
-          return new Response(
-            JSON.stringify({ error: 'Invalid plan' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-          )
+        if (payment_type === 'degen') {
+          const planInfo = degenPlans[plan]
+          if (!planInfo) {
+            console.error('Invalid degen plan:', plan)
+            return new Response(
+              JSON.stringify({ error: 'Invalid plan' }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+            )
+          }
+
+          await activatePremiumAccess(sessionData.user_id, planInfo, session_id)
+          console.log(`Premium access activated for user ${sessionData.user_id}, plan: ${plan}`)
+        } else if (payment_type === 'donation') {
+          const tierInfo = donationTiers[plan]
+          if (!tierInfo) {
+            console.error('Invalid donation tier:', plan)
+            return new Response(
+              JSON.stringify({ error: 'Invalid tier' }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+            )
+          }
+
+          await activateDonationTier(sessionData.user_id, tierInfo, session_id)
+          console.log(`Donation tier activated for user ${sessionData.user_id}, tier: ${plan}`)
         }
-
-        await activatePremiumAccess(sessionData.user_id, planInfo, session_id)
-
-        console.log(`Premium access activated for user ${sessionData.user_id}, plan: ${plan}`)
       }
 
       return new Response(
