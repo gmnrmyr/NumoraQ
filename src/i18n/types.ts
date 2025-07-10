@@ -221,4 +221,97 @@ export interface Translations {
   activeAssetsOnly: string;
   blockchainWallets: string;
   trackCryptoPortfolios: string;
+  
+  // Payment and Donation pages
+  supportDonorBadges: string;
+  supportPlatformDevelopment: string;
+  degenPlansPremiumAccess: string;
+  purchasePremiumAccess: string;
+  premiumAccessNotice: string;
+  premiumAccessDescription: string;
+  simpleFlow: string;
+  stripeIntegrationActive: string;
+  securePaymentProcessing: string;
+  loadingDonationInfo: string;
+  loadingPaymentInfo: string;
+  copied: string;
+  walletAddressCopied: string;
+  paymentSuccessful: string;
+  welcomeToDegenClub: string;
+  paymentCancelled: string;
+  paymentCancelledDescription: string;
+  comingSoon: string;
+  willBeAvailableSoon: string;
+  manualPaymentRequired: string;
+  sendPaymentContactActivation: string;
+  manualTransfer: string;
+  sendExactAmountContact: string;
+  paymentError: string;
+  paymentCouldNotBeProcessed: string;
+  currentStatus: string;
+  paymentStatus: string;
+  donationStatus: string;
+  degenNo: string;
+  selectDegenPlan: string;
+  selectDonationTier: string;
+  chooseDegenPlan: string;
+  supportPlatformEarnBadges: string;
+  popular: string;
+  activateDegenPlan: string;
+  completeDonation: string;
+  processing: string;
+  howItWorks: string;
+  step1: string;
+  step2: string;
+  step3: string;
+  step4: string;
+  step5: string;
+  selectPreferredPlan: string;
+  selectPreferredTier: string;
+  choosePaymentMethod: string;
+  completePaymentProcess: string;
+  premiumFeaturesActivated: string;
+  donorBadgeApplied: string;
+  contactSupportHelp: string;
+  thisPaymentMethodComingSoon: string;
+  chooseAnotherOption: string;
+  
+  // Payment methods
+  creditCardStripe: string;
+  solanaWallet: string;
+  paypal: string;
+  evmDirectTransfer: string;
+  evmWalletConnect: string;
+  pix: string;
+  boleto: string;
+  secureCreditCardPayments: string;
+  directSolPayments: string;
+  paypalAccountPayments: string;
+  sendEthBscDirectly: string;
+  connectMetamaskWallets: string;
+  instantBrazilianPayments: string;
+  brazilianBankSlip: string;
+  active: string;
+  disabled: string;
+  
+  // Navigation between payment pages
+  switchToDonations: string;
+  switchToPayments: string;
+  currentlyOnPayments: string;
+  currentlyOnDonations: string;
+  
+  // Footer
+  advancedFinancialDashboard: string;
+  beta: string;
+  allRightsReserved: string;
+  quickLinks: string;
+  dashboard: string;
+  home: string;
+  leaderboard: string;
+  upcomingFeatures: string;
+  community: string;
+  github: string;
+  xTwitter: string;
+  status: string;
+  allSystemsOperational: string;
 }

@@ -18,41 +18,41 @@ export const Footer = () => {
           <div className="space-y-2">
             <FooterLogo />
             <p className="text-xs text-muted-foreground font-mono">
-              Advanced financial dashboard for crypto & traditional assets
+              {t.advancedFinancialDashboard}
             </p>
             <div className="flex items-center gap-2 mb-1">
               <div className="px-2 py-1 bg-accent/20 border border-accent/30 rounded text-xs font-mono text-accent">
-                BETA
+                {t.beta}
               </div>
             </div>
             <div className="text-xs text-muted-foreground font-mono">
-              © 2024 NUMORAQ. All rights reserved.
+              {t.allRightsReserved}
             </div>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-2">
-            <h4 className="font-mono font-semibold text-foreground uppercase">Quick Links</h4>
+            <h4 className="font-mono font-semibold text-foreground uppercase">{t.quickLinks}</h4>
             <div className="space-y-1">
               <Link to="/dashboard" className="block text-xs text-muted-foreground hover:text-accent font-mono">
-                Dashboard
+                {t.dashboard}
               </Link>
               <Link to="/" className="block text-xs text-muted-foreground hover:text-accent font-mono">
-                Home
+                {t.home}
               </Link>
               <Link to="/leaderboard" className="block text-xs text-muted-foreground hover:text-accent font-mono">
-                Leaderboard
+                {t.leaderboard}
               </Link>
               <Link to="/upcoming-features" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-accent font-mono">
                 <Zap size={10} />
-                Upcoming Features
+                {t.upcomingFeatures}
               </Link>
             </div>
           </div>
 
           {/* Social & Community */}
           <div className="space-y-2">
-            <h4 className="font-mono font-semibold text-foreground uppercase">Community</h4>
+            <h4 className="font-mono font-semibold text-foreground uppercase">{t.community}</h4>
             <div className="space-y-1">
               <a 
                 href="https://github.com/numoraq" 
@@ -61,7 +61,7 @@ export const Footer = () => {
                 className="flex items-center gap-2 text-xs text-muted-foreground hover:text-accent font-mono"
               >
                 <Github size={12} />
-                GitHub
+                {t.github}
                 <ExternalLink size={10} />
               </a>
               <a 
@@ -71,7 +71,7 @@ export const Footer = () => {
                 className="flex items-center gap-2 text-xs text-muted-foreground hover:text-accent font-mono"
               >
                 <Twitter size={12} />
-                X (Twitter)
+                {t.xTwitter}
                 <ExternalLink size={10} />
               </a>
               <DonationLinks />
@@ -80,10 +80,10 @@ export const Footer = () => {
 
           {/* Status & Version */}
           <div className="space-y-2">
-            <h4 className="font-mono font-semibold text-foreground uppercase">Status</h4>
+            <h4 className="font-mono font-semibold text-foreground uppercase">{t.status}</h4>
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-xs text-muted-foreground font-mono">All systems operational</span>
+              <span className="text-xs text-muted-foreground font-mono">{t.allSystemsOperational}</span>
             </div>
             <div className="text-xs text-muted-foreground font-mono">
               {settings.version} - {language || 'en'}

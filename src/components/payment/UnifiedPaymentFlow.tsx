@@ -18,6 +18,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useUserTitle } from '@/hooks/useUserTitle';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { toast } from '@/hooks/use-toast';
 
 export interface PaymentTier {
@@ -52,6 +53,7 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
   const { user } = useAuth();
   const { isPremiumUser, premiumDetails } = usePremiumStatus();
   const { userTitle } = useUserTitle();
+  const { t } = useTranslation();
   const [selectedTier, setSelectedTier] = useState<PaymentTier | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<string>('stripe');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -70,38 +72,52 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
   const paymentMethods: PaymentMethod[] = [
     {
       id: 'stripe',
-      name: 'Credit Card (Stripe)',
+      name: t.creditCardStripe,
       icon: <CreditCard size={16} />,
       status: 'active',
-      description: 'Secure credit card payments with automatic activation'
+      description: t.secureCreditCardPayments
+    },
+    {
+      id: 'pix',
+      name: t.pix,
+      icon: <Zap size={16} />,
+      status: 'coming-soon',
+      description: t.instantBrazilianPayments
+    },
+    {
+      id: 'boleto',
+      name: t.boleto,
+      icon: <Wallet size={16} />,
+      status: 'coming-soon',
+      description: t.brazilianBankSlip
     },
     {
       id: 'solana',
-      name: 'Solana Wallet',
+      name: t.solanaWallet,
       icon: <Zap size={16} />,
       status: 'coming-soon',
-      description: 'Direct SOL payments for instant activation'
+      description: t.directSolPayments
     },
     {
       id: 'paypal',
-      name: 'PayPal',
+      name: t.paypal,
       icon: <Wallet size={16} />,
       status: 'coming-soon',
-      description: 'PayPal account payments'
+      description: t.paypalAccountPayments
     },
     {
       id: 'evm-direct',
-      name: 'EVM Direct Transfer',
+      name: t.evmDirectTransfer,
       icon: <Wallet size={16} />,
       status: 'active',
-      description: 'Send ETH/BSC directly to our wallet'
+      description: t.sendEthBscDirectly
     },
     {
       id: 'evm-wallet',
-      name: 'EVM Wallet Connect',
+      name: t.evmWalletConnect,
       icon: <Wallet size={16} />,
       status: 'coming-soon',
-      description: 'Connect MetaMask or other EVM wallets'
+      description: t.connectMetamaskWallets
     }
   ];
 
@@ -124,8 +140,8 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
 
       if (method.status === 'coming-soon') {
         toast({
-          title: "Coming Soon",
-          description: `${method.name} will be available soon!`,
+          title: t.comingSoon,
+          description: `${method.name} ${t.willBeAvailableSoon}`,
           variant: "destructive"
         });
         return;
@@ -141,8 +157,8 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
           } else {
             // For donations, show manual payment info
             toast({
-              title: "Manual Payment Required",
-              description: "Please send payment to our wallet and contact us for activation",
+              title: t.manualPaymentRequired,
+              description: t.sendPaymentContactActivation,
             });
           }
           break;
@@ -150,15 +166,15 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
         case 'evm-direct':
           // Show wallet address for manual transfer
           toast({
-            title: "Manual Transfer",
-            description: "Please send the exact amount to our EVM wallet and contact us",
+            title: t.manualTransfer,
+            description: t.sendExactAmountContact,
           });
           break;
 
         default:
           toast({
-            title: "Coming Soon",
-            description: "This payment method will be available soon!",
+            title: t.comingSoon,
+            description: t.thisPaymentMethodComingSoon,
             variant: "destructive"
           });
       }
@@ -166,8 +182,8 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
       onPaymentComplete?.(selectedTier, selectedMethod);
     } catch (error) {
       toast({
-        title: "Payment Error",
-        description: "Payment could not be processed. Please try again.",
+        title: t.paymentError,
+        description: t.paymentCouldNotBeProcessed,
         variant: "destructive"
       });
     } finally {
@@ -178,11 +194,11 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-500 text-white text-xs">Active</Badge>;
+        return <Badge className="bg-green-500 text-white text-xs">{t.active}</Badge>;
       case 'coming-soon':
-        return <Badge className="bg-orange-500 text-white text-xs">Coming Soon</Badge>;
+        return <Badge className="bg-orange-500 text-white text-xs">{t.comingSoon}</Badge>;
       case 'disabled':
-        return <Badge className="bg-gray-500 text-white text-xs">Disabled</Badge>;
+        return <Badge className="bg-gray-500 text-white text-xs">{t.disabled}</Badge>;
       default:
         return null;
     }
@@ -193,16 +209,18 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
   };
 
   const getFlowTitle = () => {
-    return flowType === 'degen' ? 'Degen Plans' : 'Donation Tiers';
+    return flowType === 'degen' ? t.selectDegenPlan : t.selectDonationTier;
   };
 
   const getShortName = (fullName: string) => {
     const shortNames: { [key: string]: string } = {
-      'Credit Card (Stripe)': 'Stripe',
-      'Solana Wallet': 'Solana',
-      'PayPal': 'PayPal',
-      'EVM Direct Transfer': 'EVM Direct',
-      'EVM Wallet Connect': 'EVM Connect'
+      [t.creditCardStripe]: 'Stripe',
+      [t.solanaWallet]: 'Solana',
+      [t.paypal]: 'PayPal',
+      [t.evmDirectTransfer]: 'EVM Direct',
+      [t.evmWalletConnect]: 'EVM Connect',
+      [t.pix]: 'PIX',
+      [t.boleto]: 'Boleto'
     };
     return shortNames[fullName] || fullName;
   };
@@ -215,7 +233,7 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
            <CardContent className="pt-4 pb-4">
              <div className="flex items-center justify-between">
                <div className="flex items-center gap-3">
-                 <span className="font-mono text-sm text-muted-foreground">Current Status:</span>
+                 <span className="font-mono text-sm text-muted-foreground">{t.currentStatus}</span>
                  {flowType === 'degen' ? (
                    // Payment page - show degen status
                    <>
@@ -229,7 +247,7 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
                      ) : (
                        <Badge className="bg-orange-600 text-white font-mono">
                          <Crown size={12} className="mr-1" />
-                         DEGEN: No
+                         {t.degenNo}
                        </Badge>
                      )}
                    </>
@@ -246,7 +264,7 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
                  )}
                </div>
                <div className="text-xs font-mono text-muted-foreground">
-                 {flowType === 'degen' ? 'Payment Status' : 'Donation Status'}
+                 {flowType === 'degen' ? t.paymentStatus : t.donationStatus}
                </div>
              </div>
            </CardContent>
@@ -262,8 +280,8 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
                <h3 className="font-mono font-bold text-accent text-xl">{getFlowTitle()}</h3>
                <p className="text-sm font-mono text-muted-foreground leading-relaxed">
                  {flowType === 'degen' 
-                   ? 'Choose your degen plan to unlock premium features and ad-free experience'
-                   : 'Support the platform and earn exclusive donor badges'
+                   ? t.chooseDegenPlan
+                   : t.supportPlatformEarnBadges
                  }
                </p>
              </div>
@@ -275,7 +293,7 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
        <Card className="border-2 border-border">
          <CardHeader className="pb-6">
            <CardTitle className="font-mono text-accent">
-             {flowType === 'degen' ? 'SELECT DEGEN PLAN' : 'SELECT DONATION TIER'}
+             {flowType === 'degen' ? t.selectDegenPlan : t.selectDonationTier}
            </CardTitle>
          </CardHeader>
          <CardContent className="space-y-6">
@@ -301,7 +319,7 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
                        )}
                        {tier.popular && (
                          <Badge className="bg-accent text-accent-foreground">
-                           Popular
+                           {t.popular}
                          </Badge>
                        )}
                      </div>
@@ -351,19 +369,6 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
                      <div className="flex items-center justify-end">
                        {getStatusBadge(method.status)}
                      </div>
-                     
-                     <p className="text-sm text-muted-foreground font-mono leading-relaxed">
-                       {method.description}
-                     </p>
-
-                     {method.status === 'coming-soon' && (
-                       <Alert className="bg-orange-500/10 border-orange-500/20">
-                         <AlertCircle className="h-4 w-4 text-orange-500" />
-                         <AlertDescription className="text-orange-400 font-mono text-sm">
-                           This payment method is coming soon. Please choose another option.
-                         </AlertDescription>
-                       </Alert>
-                     )}
 
                      {method.status === 'active' && (
                        <div className="pt-2">
@@ -375,12 +380,12 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
                            {isProcessing ? (
                              <>
                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-3"></div>
-                               Processing...
+                               {t.processing}
                              </>
                            ) : (
                              <>
                                {flowType === 'degen' ? <Crown size={18} className="mr-3" /> : <Heart size={18} className="mr-3" />}
-                               {flowType === 'degen' ? 'Activate Degen Plan' : 'Complete Donation'}
+                               {flowType === 'degen' ? t.activateDegenPlan : t.completeDonation}
                              </>
                            )}
                          </Button>
@@ -394,30 +399,44 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
          </Card>
        )}
 
+       {/* Coming Soon Alert - Moved outside tabs to avoid layout conflicts */}
+       {selectedTier && paymentMethods.find(m => m.id === selectedMethod)?.status === 'coming-soon' && (
+         <Card className="border-2 border-orange-500/20 bg-orange-500/5">
+           <CardContent className="pt-4 pb-4">
+             <div className="flex items-center gap-3">
+               <AlertCircle className="h-5 w-5 text-orange-500" />
+               <div className="text-orange-400 font-mono text-sm">
+                 {t.thisPaymentMethodComingSoon}
+               </div>
+             </div>
+           </CardContent>
+         </Card>
+       )}
+
              {/* Instructions */}
        <Card className="border-2 border-border bg-muted/30">
          <CardContent className="pt-8 pb-8">
            <div className="text-sm text-muted-foreground font-mono space-y-3">
-             <div className="font-bold text-foreground mb-4">How it works:</div>
+             <div className="font-bold text-foreground mb-4">{t.howItWorks}</div>
              <div className="flex items-center gap-3">
-               <div className="w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-xs font-bold">1</div>
-               <span>Select your preferred {flowType === 'degen' ? 'degen plan' : 'donation tier'} above</span>
+               <div className="w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-xs font-bold">{t.step1}</div>
+               <span>{flowType === 'degen' ? t.selectPreferredPlan : t.selectPreferredTier}</span>
              </div>
              <div className="flex items-center gap-3">
-               <div className="w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-xs font-bold">2</div>
-               <span>Choose your preferred payment method</span>
+               <div className="w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-xs font-bold">{t.step2}</div>
+               <span>{t.choosePaymentMethod}</span>
              </div>
              <div className="flex items-center gap-3">
-               <div className="w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-xs font-bold">3</div>
-               <span>Complete the payment process</span>
+               <div className="w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-xs font-bold">{t.step3}</div>
+               <span>{t.completePaymentProcess}</span>
              </div>
              <div className="flex items-center gap-3">
-               <div className="w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-xs font-bold">4</div>
-               <span>{flowType === 'degen' ? 'Premium features will be activated automatically' : 'Donor badge will be applied to your profile'}</span>
+               <div className="w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-xs font-bold">{t.step4}</div>
+               <span>{flowType === 'degen' ? t.premiumFeaturesActivated : t.donorBadgeApplied}</span>
              </div>
              <div className="flex items-center gap-3">
-               <div className="w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-xs font-bold">5</div>
-               <span>Contact support if you need help: <span className="text-accent underline">numoraq@gmail.com</span></span>
+               <div className="w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-xs font-bold">{t.step5}</div>
+               <span>{t.contactSupportHelp}</span>
              </div>
            </div>
          </CardContent>
