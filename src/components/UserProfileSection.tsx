@@ -12,11 +12,13 @@ import { WalletLinking } from './profile/WalletLinking';
 import { DataManagementSection } from './DataManagementSection';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { ChevronRight, ChevronDown, Cloud, Save, Mail, LogOut } from 'lucide-react';
 
 export const UserProfileSection = () => {
   const { data, saveToCloud, syncState, lastSync } = useFinancialData();
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(true);
 
   const handleCloudSave = () => {
@@ -34,15 +36,15 @@ export const UserProfileSection = () => {
   };
 
   const formatLastSync = (timestamp: string | null) => {
-    if (!timestamp) return 'Never synced';
+    if (!timestamp) return t.neverSynced;
     
     const date = new Date(timestamp);
     const now = new Date();
     const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
-    if (diffMinutes < 1) return 'Just now';
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
+    if (diffMinutes < 1) return t.justNow;
+    if (diffMinutes < 60) return `${diffMinutes}m ${t.updatedAgo}`;
+    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ${t.updatedAgo}`;
     
     // Format as DD/MM/YYYY, HH:MM:SS with current timezone
     const day = date.getDate().toString().padStart(2, '0');
@@ -73,7 +75,7 @@ export const UserProfileSection = () => {
               className="flex items-center gap-2 p-2"
             >
               {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-              <span className="font-mono text-sm">USER_INFO_CONFIG_UI</span>
+              <span className="font-mono text-sm">{t.userInfoConfigUI}</span>
             </Button>
             
             {/* When collapsed, show functional cloud save button and user info */}
@@ -110,7 +112,7 @@ export const UserProfileSection = () => {
                     ) : (
                       <Cloud size={14} />
                     )}
-                    <span className="text-xs hidden sm:inline">Save</span>
+                    <span className="text-xs hidden sm:inline">{t.save}</span>
                   </Button>
                 </div>
               </div>
@@ -139,7 +141,7 @@ export const UserProfileSection = () => {
                 <DegenModeSection />
 
                 <div className="text-xs text-muted-foreground font-mono bg-muted p-2 border-2 border-border rounded">
-                  👤 <strong>Profile:</strong> Customize your dashboard experience and preferences.
+                  👤 <strong>{t.userProfile}:</strong> {t.profileCustomizeDesc}
                 </div>
               </div>
 

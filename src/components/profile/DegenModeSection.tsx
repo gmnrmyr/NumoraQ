@@ -8,6 +8,7 @@ import { Crown, Gift, Timer, CreditCard, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { useNavigate } from 'react-router-dom';
 
 export const DegenModeSection = () => {
@@ -16,6 +17,7 @@ export const DegenModeSection = () => {
   const { user } = useAuth();
   const { activatePremiumCode } = useAdminMode();
   const { isPremiumUser } = usePremiumStatus();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleActivateDegenCode = async () => {
@@ -35,12 +37,12 @@ export const DegenModeSection = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Crown size={16} className={isPremiumUser ? "text-yellow-400" : "text-muted-foreground"} />
-          <span className="font-mono text-sm">Degen Mode</span>
+          <span className="font-mono text-sm">{t.degenMode}</span>
           {isPremiumUser && (
             <Badge 
               variant="outline" 
               className="bg-green-600/20 border-green-600 text-green-400 font-mono cursor-pointer hover:bg-green-600/30 transition-colors"
-              title="Lifetime access - Click to view payment options"
+              title={`${t.lifetimeAccess} - Click to view payment options`}
               onClick={() => navigate('/payment')}
             >
               <Timer size={12} className="mr-1" />
@@ -54,7 +56,7 @@ export const DegenModeSection = () => {
               <DialogTrigger asChild>
                 <Button size="sm" variant="outline" className="text-xs font-mono">
                   <Gift size={12} className="mr-1" />
-                  Activate Code
+                  {t.activateCode}
                 </Button>
               </DialogTrigger>
             <DialogContent className="bg-card border-2 border-border">
@@ -113,13 +115,13 @@ export const DegenModeSection = () => {
             onClick={() => navigate('/payment')}
           >
             <CreditCard size={12} className="mr-1" />
-            Buy Degen
+            {t.buyDegen}
           </Button>
           </div>
         )}
       </div>
       <div className="text-xs text-muted-foreground font-mono mt-2">
-        {isPremiumUser ? '🚀 No ads! Premium experience activated' : '📺 Future: Activate for ad-free experience'}
+        {isPremiumUser ? `🚀 ${t.noAdsEnabled}` : `📺 ${t.activateForAdFree}`}
       </div>
     </div>
   );

@@ -139,4 +139,68 @@ export const en: Translations = {
   partial: 'Partial',
   paid: 'Paid',
   due: 'Due',
+  
+  // Dashboard interface
+  userInfoConfigUI: 'USER_INFO_CONFIG_UI',
+  profileCustomizeDesc: 'Customize your dashboard experience and preferences.',
+  customizeExperience: 'Customize Experience',
+  accountLinking: 'Account Linking',
+  walletLinking: 'Wallet Linking',
+  directPayments: 'Direct Payments',
+  connectWallets: 'Connect your wallets to enable direct payments',
+  linkedWallets: 'Linked Wallets',
+  payForTier: 'Pay for Tier',
+  payForDegen: 'Pay for Degen',
+  
+  // Sync and time
+  neverSynced: 'Never synced',
+  justNow: 'Just now',
+  minutesAgo: 'minutes ago',
+  hoursAgo: 'hours ago',
+  
+  // Degen mode
+  degenMode: 'Degen Mode',
+  lifetimeAccess: 'Lifetime',
+  noAdsEnabled: 'No ads! Premium experience activated',
+  activateForAdFree: 'Future: Activate for ad-free experience',
+  activateCode: 'Activate Code',
+  buyDegen: 'Buy Degen',
+  premiumExperience: 'Premium Experience',
+  
+  // Wallet connection
+  solanaWallet: 'Solana Wallet',
+  evmWallet: 'EVM Wallet',
+  connectSolana: 'Connect Solana',
+  connectMetamask: 'Connect MetaMask',
+  reconnectSolana: 'Reconnect Solana',
+  reconnectEVM: 'Reconnect EVM',
+  connecting: 'Connecting...',
+  
+  // Navigation sections
+  dashboardSections: 'Dashboard Sections',
+  communityFeatures: 'Community Features',
+  settingsPreferences: 'Settings & Preferences',
+  supportDonation: 'Support & Donation',
+  
+  // Dashboard sections
+  overview: 'Overview',
+  welcome: 'Welcome',
+  getStarted: 'Get Started',
+  addDemoData: 'Add Demo Data',
+  addMyOwn: 'I\'ll Add My Own',
+  proTip: 'Pro tip',
+  welcomeToNumoraq: 'Welcome to Numoraq!',
+  demoDataDescription: 'Get started by adding some demo data to see how the dashboard works. You can always replace it with your real financial information later.',
+  hide: 'Hide',
+  show: 'Show',
+  
+  // Portfolio section
+  portfolioSummary: 'Portfolio Summary',
+  totalLiquidActive: 'Total Liquid (Active)',
+  totalIlliquidActive: 'Total Illiquid (Active)',
+  totalPortfolioActive: 'Total Portfolio (Active)',
+  ofPortfolio: 'of portfolio',
+  activeAssetsOnly: 'Active Assets Only',
+  blockchainWallets: 'Blockchain Wallets',
+  trackCryptoPortfolios: 'Track your crypto portfolios across multiple blockchains',
 };

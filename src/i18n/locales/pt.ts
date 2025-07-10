@@ -139,4 +139,68 @@ export const pt: Translations = {
   partial: 'Parcial',
   paid: 'Pago',
   due: 'Vencimento',
+  
+  // Dashboard interface
+  userInfoConfigUI: 'CONFIG_UI_INFO_USUÁRIO',
+  profileCustomizeDesc: 'Personalize sua experiência no painel e preferências.',
+  customizeExperience: 'Personalizar Experiência',
+  accountLinking: 'Vinculação de Conta',
+  walletLinking: 'Vinculação de Carteira',
+  directPayments: 'Pagamentos Diretos',
+  connectWallets: 'Conecte suas carteiras para habilitar pagamentos diretos',
+  linkedWallets: 'Carteiras Vinculadas',
+  payForTier: 'Pagar por Nível',
+  payForDegen: 'Pagar por Degen',
+  
+  // Sync and time
+  neverSynced: 'Nunca sincronizado',
+  justNow: 'Agora mesmo',
+  minutesAgo: 'minutos atrás',
+  hoursAgo: 'horas atrás',
+  
+  // Degen mode
+  degenMode: 'Modo Degen',
+  lifetimeAccess: 'Vitalício',
+  noAdsEnabled: 'Sem anúncios! Experiência premium ativada',
+  activateForAdFree: 'Futuro: Ative para experiência sem anúncios',
+  activateCode: 'Ativar Código',
+  buyDegen: 'Comprar Degen',
+  premiumExperience: 'Experiência Premium',
+  
+  // Wallet connection
+  solanaWallet: 'Carteira Solana',
+  evmWallet: 'Carteira EVM',
+  connectSolana: 'Conectar Solana',
+  connectMetamask: 'Conectar MetaMask',
+  reconnectSolana: 'Reconectar Solana',
+  reconnectEVM: 'Reconectar EVM',
+  connecting: 'Conectando...',
+  
+  // Navigation sections
+  dashboardSections: 'Seções do Painel',
+  communityFeatures: 'Recursos da Comunidade',
+  settingsPreferences: 'Configurações e Preferências',
+  supportDonation: 'Suporte e Doação',
+  
+  // Dashboard sections
+  overview: 'Visão Geral',
+  welcome: 'Bem-vindo',
+  getStarted: 'Começar',
+  addDemoData: 'Adicionar Dados Demo',
+  addMyOwn: 'Vou Adicionar os Meus',
+  proTip: 'Dica profissional',
+  welcomeToNumoraq: 'Bem-vindo ao Numoraq!',
+  demoDataDescription: 'Comece adicionando alguns dados de demonstração para ver como o painel funciona. Você sempre pode substituí-los por suas informações financeiras reais mais tarde.',
+  hide: 'Ocultar',
+  show: 'Mostrar',
+  
+  // Portfolio section
+  portfolioSummary: 'Resumo do Portfólio',
+  totalLiquidActive: 'Total Líquido (Ativo)',
+  totalIlliquidActive: 'Total Ilíquido (Ativo)',
+  totalPortfolioActive: 'Portfólio Total (Ativo)',
+  ofPortfolio: 'do portfólio',
+  activeAssetsOnly: 'Apenas Ativos Ativos',
+  blockchainWallets: 'Carteiras Blockchain',
+  trackCryptoPortfolios: 'Acompanhe seus portfólios de criptomoedas em múltiplas blockchains',
 };

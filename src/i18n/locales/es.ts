@@ -139,4 +139,68 @@ export const es: Translations = {
   partial: 'Parcial',
   paid: 'Pagado',
   due: 'Vencimiento',
+  
+  // Dashboard interface
+  userInfoConfigUI: 'CONFIG_UI_INFO_USUARIO',
+  profileCustomizeDesc: 'Personaliza tu experiencia en el panel y preferencias.',
+  customizeExperience: 'Personalizar Experiencia',
+  accountLinking: 'Vinculación de Cuenta',
+  walletLinking: 'Vinculación de Billetera',
+  directPayments: 'Pagos Directos',
+  connectWallets: 'Conecta tus billeteras para habilitar pagos directos',
+  linkedWallets: 'Billeteras Vinculadas',
+  payForTier: 'Pagar por Nivel',
+  payForDegen: 'Pagar por Degen',
+  
+  // Sync and time
+  neverSynced: 'Nunca sincronizado',
+  justNow: 'Ahora mismo',
+  minutesAgo: 'minutos atrás',
+  hoursAgo: 'horas atrás',
+  
+  // Degen mode
+  degenMode: 'Modo Degen',
+  lifetimeAccess: 'Vitalicio',
+  noAdsEnabled: 'Sin anuncios! Experiencia premium activada',
+  activateForAdFree: 'Futuro: Activa para experiencia sin anuncios',
+  activateCode: 'Activar Código',
+  buyDegen: 'Comprar Degen',
+  premiumExperience: 'Experiencia Premium',
+  
+  // Wallet connection
+  solanaWallet: 'Billetera Solana',
+  evmWallet: 'Billetera EVM',
+  connectSolana: 'Conectar Solana',
+  connectMetamask: 'Conectar MetaMask',
+  reconnectSolana: 'Reconectar Solana',
+  reconnectEVM: 'Reconectar EVM',
+  connecting: 'Conectando...',
+  
+  // Navigation sections
+  dashboardSections: 'Secciones del Panel',
+  communityFeatures: 'Características de la Comunidad',
+  settingsPreferences: 'Configuraciones y Preferencias',
+  supportDonation: 'Soporte y Donación',
+  
+  // Dashboard sections
+  overview: 'Resumen',
+  welcome: 'Bienvenido',
+  getStarted: 'Comenzar',
+  addDemoData: 'Añadir Datos Demo',
+  addMyOwn: 'Añadiré los Míos',
+  proTip: 'Consejo profesional',
+  welcomeToNumoraq: '¡Bienvenido a Numoraq!',
+  demoDataDescription: 'Comienza añadiendo algunos datos de demostración para ver cómo funciona el panel. Siempre puedes reemplazarlos con tu información financiera real más tarde.',
+  hide: 'Ocultar',
+  show: 'Mostrar',
+  
+  // Portfolio section
+  portfolioSummary: 'Resumen del Portafolio',
+  totalLiquidActive: 'Total Líquido (Activo)',
+  totalIlliquidActive: 'Total Ilíquido (Activo)',
+  totalPortfolioActive: 'Portafolio Total (Activo)',
+  ofPortfolio: 'del portafolio',
+  activeAssetsOnly: 'Solo Activos Activos',
+  blockchainWallets: 'Carteras Blockchain',
+  trackCryptoPortfolios: 'Rastrea tus portafolios de criptomonedas en múltiples blockchains',
 };
