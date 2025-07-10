@@ -16,6 +16,7 @@ const DonationPage = () => {
   const { isMonitoring, getWalletAddress, getPaymentTiers } = useCryptoPaymentMonitor();
   const { t } = useTranslation();
   const [copiedWallet, setCopiedWallet] = React.useState<string>('');
+  const [showAdvancedCrypto, setShowAdvancedCrypto] = React.useState(false);
 
   // Donation tiers configuration
   const donationTiers: PaymentTier[] = [
@@ -287,22 +288,33 @@ const DonationPage = () => {
           {/* Advanced Crypto Options - Collapsible */}
           <Card className="border-2 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-mono text-accent">
-                💰 ADVANCED CRYPTO OPTIONS
-                {isMonitoring && (
-                  <Badge className="bg-green-600 text-white text-xs">
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse mr-1"></div>
-                    Auto-Detection Active
-                  </Badge>
-                )}
+              <CardTitle className="flex items-center justify-between font-mono text-accent">
+                <div className="flex items-center gap-2">
+                  💰 ADVANCED CRYPTO OPTIONS
+                  {isMonitoring && (
+                    <Badge className="bg-green-600 text-white text-xs">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse mr-1"></div>
+                      Auto-Detection Active
+                    </Badge>
+                  )}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAdvancedCrypto(!showAdvancedCrypto)}
+                  className="font-mono text-xs"
+                >
+                  {showAdvancedCrypto ? 'Hide' : 'Show'} LEGACY (use method above!)
+                </Button>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-sm font-mono text-muted-foreground mb-4">
-                Direct wallet transfers for advanced users. These methods are separate from the main payment flow above.
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {showAdvancedCrypto && (
+              <CardContent className="space-y-4">
+                <div className="text-sm font-mono text-muted-foreground mb-4">
+                  Direct wallet transfers for advanced users. These methods are separate from the main payment flow above.
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {walletOptions.map((wallet) => (
                   <div key={wallet.type} className={`p-4 border border-border rounded ${wallet.status === 'upcoming' ? 'bg-muted/30' : 'bg-card/50'}`}>
                     <div className="flex items-center justify-between mb-2">
@@ -386,6 +398,7 @@ const DonationPage = () => {
                 </div>
               </div>
             </CardContent>
+            )}
           </Card>
 
 
