@@ -3,9 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Wallet, Link, Unlink, CheckCircle, AlertCircle, Zap, Crown } from "lucide-react";
+import { Wallet, Link, Unlink, CheckCircle, AlertCircle, Zap, Crown, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { solanaWalletService } from "@/services/solanaWalletService";
+import { useNavigate } from "react-router-dom";
 
 interface LinkedWallet {
   type: 'solana' | 'evm';
@@ -26,9 +27,8 @@ export const WalletLinking: React.FC<WalletLinkingProps> = ({
 }) => {
   const [linkedWallets, setLinkedWallets] = useState<LinkedWallet[]>([]);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
-  const [selectedTier, setSelectedTier] = useState<string | null>(null);
-  const [showPaymentOptions, setShowPaymentOptions] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Load linked wallets from localStorage
@@ -162,54 +162,7 @@ export const WalletLinking: React.FC<WalletLinkingProps> = ({
     }
   };
 
-  const payWithLinkedWallet = async (walletType: string, tier: string) => {
-    const wallet = linkedWallets.find(w => w.type === walletType);
-    if (!wallet) {
-      toast({
-        title: "Wallet Not Found",
-        description: "Please reconnect your wallet",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    setSelectedTier(tier);
-    try {
-      if (walletType === 'solana') {
-        const result = await solanaWalletService.processPayment(tier);
-        if (result.success) {
-          toast({
-            title: "Payment Successful!",
-            description: `${tier} tier activated with Solana payment`,
-          });
-        } else {
-          throw new Error(result.error || 'Payment failed');
-        }
-      } else if (walletType === 'evm') {
-        // EVM payment logic would go here
-        toast({
-          title: "EVM Payment",
-          description: "EVM direct payments coming soon. Use manual payment for now.",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Payment Failed",
-        description: error instanceof Error ? error.message : "Payment processing failed",
-        variant: "destructive",
-      });
-    } finally {
-      setSelectedTier(null);
-      setShowPaymentOptions(null);
-    }
-  };
-
-  const paymentTiers = [
-    { id: 'DEGEN_PRO', name: 'Degen Pro', price: '$9.99', description: 'Monthly access' },
-    { id: 'DEGEN_LIFETIME', name: 'Degen Lifetime', price: '$299', description: 'Lifetime access' },
-    { id: 'WHALE', name: 'Whale Tier', price: '$1,000', description: 'Whale status' },
-    { id: 'CHAMPION', name: 'Champion Tier', price: '$500', description: 'Champion status' }
-  ];
 
   return (
     <Card className="bg-card border-2 border-accent">
@@ -248,12 +201,20 @@ export const WalletLinking: React.FC<WalletLinkingProps> = ({
               
               <div className="flex items-center gap-2">
                 <Button
-                  onClick={() => setShowPaymentOptions(wallet.type)}
+                  onClick={() => navigate('/donation')}
                   size="sm"
                   className="bg-green-500/20 text-green-400 border-green-500/40 hover:bg-green-500/30"
                 >
                   <Crown size={14} className="mr-1" />
                   Pay for Tier
+                </Button>
+                <Button
+                  onClick={() => navigate('/payment')}
+                  size="sm"
+                  className="bg-orange-500/20 text-orange-400 border-orange-500/40 hover:bg-orange-500/30"
+                >
+                  <CreditCard size={14} className="mr-1" />
+                  Pay for Degen
                 </Button>
                 <Button
                   onClick={() => unlinkWallet(wallet.type)}
@@ -276,42 +237,7 @@ export const WalletLinking: React.FC<WalletLinkingProps> = ({
           )}
         </div>
 
-        {/* Payment Options Modal */}
-        {showPaymentOptions && (
-          <Alert>
-            <Crown className="h-4 w-4" />
-            <AlertDescription>
-              <div className="space-y-3">
-                <div className="font-semibold">Choose Tier to Purchase:</div>
-                <div className="grid grid-cols-2 gap-2">
-                  {paymentTiers.map((tier) => (
-                    <Button
-                      key={tier.id}
-                      onClick={() => payWithLinkedWallet(showPaymentOptions, tier.id)}
-                      disabled={selectedTier === tier.id}
-                      variant="outline"
-                      size="sm"
-                      className="text-left h-auto p-3"
-                    >
-                      <div>
-                        <div className="font-semibold">{tier.name}</div>
-                        <div className="text-xs text-muted-foreground">{tier.price} - {tier.description}</div>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
-                <Button
-                  onClick={() => setShowPaymentOptions(null)}
-                  variant="ghost"
-                  size="sm"
-                  className="w-full"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
+
 
         {/* Connection Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

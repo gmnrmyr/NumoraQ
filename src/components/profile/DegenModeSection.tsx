@@ -39,8 +39,9 @@ export const DegenModeSection = () => {
           {isPremiumUser && (
             <Badge 
               variant="outline" 
-              className="bg-green-600/20 border-green-600 text-green-400 font-mono cursor-help"
-              title="Lifetime access - No ads, premium features enabled"
+              className="bg-green-600/20 border-green-600 text-green-400 font-mono cursor-pointer hover:bg-green-600/30 transition-colors"
+              title="Lifetime access - Click to view payment options"
+              onClick={() => navigate('/payment')}
             >
               <Timer size={12} className="mr-1" />
               {getDegenTimeRemaining()}
@@ -48,13 +49,14 @@ export const DegenModeSection = () => {
           )}
         </div>
         {!isPremiumUser && (
-          <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="outline" className="text-xs font-mono">
-                <Gift size={12} className="mr-1" />
-                Activate
-              </Button>
-            </DialogTrigger>
+          <div className="flex items-center gap-2">
+            <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline" className="text-xs font-mono">
+                  <Gift size={12} className="mr-1" />
+                  Activate Code
+                </Button>
+              </DialogTrigger>
             <DialogContent className="bg-card border-2 border-border">
               <DialogHeader>
                 <DialogTitle className="font-mono">Activate Degen Mode</DialogTitle>
@@ -104,6 +106,16 @@ export const DegenModeSection = () => {
               </div>
             </DialogContent>
           </Dialog>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="text-xs font-mono bg-orange-600/20 text-orange-400 border-orange-600/40 hover:bg-orange-600/30"
+            onClick={() => navigate('/payment')}
+          >
+            <CreditCard size={12} className="mr-1" />
+            Buy Degen
+          </Button>
+          </div>
         )}
       </div>
       <div className="text-xs text-muted-foreground font-mono mt-2">
