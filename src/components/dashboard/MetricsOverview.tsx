@@ -62,28 +62,28 @@ export const MetricsOverview = () => {
   const addDemoData = () => {
     const demoData = {
       liquidAssets: [
-        { id: 'demo-1', name: 'Bitcoin', value: 45000, type: 'crypto', isActive: true },
-        { id: 'demo-2', name: 'Ethereum', value: 15000, type: 'crypto', isActive: true },
-        { id: 'demo-3', name: 'Cash Savings', value: 8000, type: 'cash', isActive: true },
-        { id: 'demo-4', name: 'S&P 500 ETF', value: 12000, type: 'stocks', isActive: true },
+        { id: 'demo-1', name: 'Bitcoin', value: 45000, type: 'crypto', isActive: true, icon: '₿', color: '#f59e0b' },
+        { id: 'demo-2', name: 'Ethereum', value: 15000, type: 'crypto', isActive: true, icon: 'Ξ', color: '#8b5cf6' },
+        { id: 'demo-3', name: 'Cash Savings', value: 8000, type: 'cash', isActive: true, icon: '💵', color: '#10b981' },
+        { id: 'demo-4', name: 'S&P 500 ETF', value: 12000, type: 'stocks', isActive: true, icon: '📈', color: '#3b82f6' },
       ],
       expenses: [
-        { id: 'demo-exp-1', name: 'Rent', amount: 1200, type: 'recurring', status: 'active' },
-        { id: 'demo-exp-2', name: 'Food', amount: 600, type: 'recurring', status: 'active' },
-        { id: 'demo-exp-3', name: 'Utilities', amount: 200, type: 'recurring', status: 'active' },
-        { id: 'demo-exp-4', name: 'Entertainment', amount: 300, type: 'variable', status: 'active' },
+        { id: 'demo-exp-1', name: 'Rent', amount: 1200, type: 'recurring' as const, status: 'active' as const, category: 'housing' },
+        { id: 'demo-exp-2', name: 'Food', amount: 600, type: 'recurring' as const, status: 'active' as const, category: 'food' },
+        { id: 'demo-exp-3', name: 'Utilities', amount: 200, type: 'recurring' as const, status: 'active' as const, category: 'utilities' },
+        { id: 'demo-exp-4', name: 'Entertainment', amount: 300, type: 'variable' as const, status: 'active' as const, category: 'entertainment' },
       ],
       passiveIncome: [
-        { id: 'demo-inc-1', name: 'Dividend Income', amount: 400, frequency: 'monthly', status: 'active' },
-        { id: 'demo-inc-2', name: 'Rental Income', amount: 800, frequency: 'monthly', status: 'active' },
+        { id: 'demo-inc-1', source: 'Dividend Income', amount: 400, frequency: 'monthly', status: 'active' as const, icon: '💰', category: 'investments' },
+        { id: 'demo-inc-2', source: 'Rental Income', amount: 800, frequency: 'monthly', status: 'active' as const, icon: '🏠', category: 'real_estate' },
       ],
       activeIncome: [
-        { id: 'demo-inc-3', name: 'Salary', amount: 5000, frequency: 'monthly', status: 'active' },
-        { id: 'demo-inc-4', name: 'Freelance', amount: 1500, frequency: 'monthly', status: 'active' },
+        { id: 'demo-inc-3', source: 'Salary', amount: 5000, frequency: 'monthly', status: 'active' as const, icon: '💼', category: 'employment' },
+        { id: 'demo-inc-4', source: 'Freelance', amount: 1500, frequency: 'monthly', status: 'active' as const, icon: '💻', category: 'freelance' },
       ],
       debts: [
-        { id: 'demo-debt-1', name: 'Credit Card', amount: 2500, isActive: true, status: 'active' },
-        { id: 'demo-debt-2', name: 'Student Loan', amount: 15000, isActive: true, status: 'active' },
+        { id: 'demo-debt-1', creditor: 'Credit Card', amount: 2500, isActive: true, status: 'active' },
+        { id: 'demo-debt-2', creditor: 'Student Loan', amount: 15000, isActive: true, status: 'active' },
       ]
     };
 

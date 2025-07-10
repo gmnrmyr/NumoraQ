@@ -41,6 +41,7 @@ export interface BackupItem {
 
 export interface FinancialDataContextType {
   data: FinancialData;
+  updateData: (newData: Partial<FinancialData>) => void;
   updateUserProfile: (updates: Partial<UserProfile>) => void;
   updateProjectionMonths: (months: number) => void;
   updateExchangeRate: (key: keyof ExchangeRates, value: number) => void;
@@ -79,7 +80,7 @@ export interface FinancialDataContextType {
   lastSync: string | null;
   // Backup functionality
   backups: BackupItem[];
-  createBackup: (name?: string) => string;
+  createBackup: (name?: string) => Promise<string | null>;
   restoreBackup: (backupId: string) => void;
   deleteBackup: (backupId: string) => void;
   getBackupStats: () => { totalBackups: number; manualBackups: number; automaticBackups: number; totalSize: number; latestBackup: string | null };
