@@ -6,17 +6,20 @@ import { Menu, User, LogIn, LogOut, Trophy, Home, TrendingUp, DollarSign, Briefc
 import { useAuth } from '@/contexts/AuthContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useTranslation } from '@/contexts/TranslationContext';
+import { useDashboardMode } from '@/contexts/DashboardModeContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { CurrencySelector } from './CurrencySelector';
 import { DonationLinks } from './DonationLinks';
 import { UserFeedbackDialog } from '@/components/UserFeedbackDialog';
+import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 
 export const UserSettingsPanel = () => {
   const { user, signOut } = useAuth();
   const { data } = useFinancialData();
   const { t } = useTranslation();
+  const { mode, setMode, isSimpleMode } = useDashboardMode();
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
@@ -203,6 +206,37 @@ export const UserSettingsPanel = () => {
             <DropdownMenuSeparator className="bg-border" />
           </>
         )}
+        
+        {/* Dashboard Mode Toggle - Available for all users */}
+        <div className="px-2 py-1.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-mono text-muted-foreground">Dashboard Mode:</span>
+              {isSimpleMode && (
+                <span className="text-xs bg-yellow-500/20 text-yellow-600 px-1.5 py-0.5 rounded font-mono">
+                  BETA
+                </span>
+              )}
+            </div>
+            <Switch
+              checked={isSimpleMode}
+              onCheckedChange={(checked) => setMode(checked ? 'simple' : 'advanced')}
+              className="data-[state=checked]:bg-primary"
+            />
+          </div>
+          <div className="flex items-center justify-between mt-1">
+            <span className="text-xs font-mono text-muted-foreground">
+              {isSimpleMode ? 'Simple' : 'Advanced'}
+            </span>
+            {isSimpleMode && (
+              <span className="text-xs text-muted-foreground font-mono">
+                Use Advanced for now
+              </span>
+            )}
+          </div>
+        </div>
+        
+        <DropdownMenuSeparator className="bg-border" />
         
         {/* Dashboard Navigation - Available for all users */}
         <DropdownMenuLabel className="text-xs text-muted-foreground font-mono uppercase">

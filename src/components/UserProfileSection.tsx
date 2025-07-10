@@ -13,11 +13,11 @@ import { DataManagementSection } from './DataManagementSection';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/contexts/TranslationContext';
-import { ChevronRight, ChevronDown, Cloud, Save, Mail, LogOut } from 'lucide-react';
+import { ChevronRight, ChevronDown, Cloud, Save, Mail, LogOut, LogIn, UserPlus } from 'lucide-react';
 
 export const UserProfileSection = () => {
   const { data, saveToCloud, syncState, lastSync } = useFinancialData();
-  const { user, signOut } = useAuth();
+  const { user, signOut, signInWithGoogle } = useAuth();
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -32,6 +32,14 @@ export const UserProfileSection = () => {
       await signOut();
     } catch (error) {
       console.error('Logout error:', error);
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      console.error('Login error:', error);
     }
   };
 
@@ -113,6 +121,56 @@ export const UserProfileSection = () => {
                       <Cloud size={14} />
                     )}
                     <span className="text-xs hidden sm:inline">{t.save}</span>
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* When collapsed and user is not logged in, show login/register buttons */}
+            {!isExpanded && !user && (
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handleLogin}
+                  size="sm"
+                  variant="outline"
+                  className="brutalist-button text-xs flex items-center gap-1"
+                >
+                  <LogIn size={12} />
+                  <span className="hidden sm:inline">{t.login}</span>
+                </Button>
+                <Button
+                  onClick={() => window.location.href = '/auth'}
+                  size="sm"
+                  variant="default"
+                  className="brutalist-button text-xs flex items-center gap-1"
+                >
+                  <UserPlus size={12} />
+                  <span className="hidden sm:inline">{t.register}</span>
+                </Button>
+              </div>
+            )}
+
+            {/* When expanded and user is not logged in, show login/register buttons */}
+            {isExpanded && !user && (
+              <div className="border-t border-border pt-4">
+                <div className="flex justify-end gap-2">
+                  <Button
+                    onClick={handleLogin}
+                    size="sm"
+                    variant="outline"
+                    className="brutalist-button text-xs flex items-center gap-1"
+                  >
+                    <LogIn size={12} />
+                    <span className="hidden sm:inline">{t.login}</span>
+                  </Button>
+                  <Button
+                    onClick={() => window.location.href = '/auth'}
+                    size="sm"
+                    variant="default"
+                    className="brutalist-button text-xs flex items-center gap-1"
+                  >
+                    <UserPlus size={12} />
+                    <span className="hidden sm:inline">{t.register}</span>
                   </Button>
                 </div>
               </div>

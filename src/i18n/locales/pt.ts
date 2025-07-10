@@ -18,6 +18,12 @@ export const pt: Translations = {
   defaultCurrency: 'Moeda Padrão',
   signIn: 'Entrar',
   signOut: 'Sair',
+  login: 'Entrar',
+  register: 'Registrar',
+  createAccount: 'Criar Conta',
+  loginWithGoogle: 'Entrar com Google',
+  signInToSave: 'Entre para salvar seus dados',
+  createAccountToSync: 'Crie uma conta para sincronizar seus dados financeiros entre dispositivos e acessar recursos premium.',
   
   availableNow: 'Disponível Agora',
   monthlyIncome: 'Receita Mensal',

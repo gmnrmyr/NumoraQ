@@ -20,11 +20,14 @@ import { AIAdvisor } from "@/components/ai/AIAdvisor";
 import { PWASetup } from "@/components/PWASetup";
 import { AdSenseAd } from "@/components/AdSenseAd";
 import { useSecureAdminAuth } from "@/hooks/useSecureAdminAuth";
+import { useDashboardMode } from "@/contexts/DashboardModeContext";
+import { SimpleDashboard } from "@/components/dashboard/SimpleDashboard";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const { isAdmin } = useSecureAdminAuth();
+  const { isSimpleMode } = useDashboardMode();
 
   // Admin panel keyboard shortcut
   React.useEffect(() => {
@@ -63,6 +66,27 @@ const Dashboard = () => {
       default: return 'DASHBOARD';
     }
   };
+
+  // Render Simple Dashboard if in simple mode
+  if (isSimpleMode) {
+    return (
+      <>
+        {/* SEO Meta Tags for Dashboard */}
+        <title>Simple Dashboard - NUMORAQ | Financial Analysis & Crypto Tracking</title>
+        <meta name="description" content="Simple financial dashboard for tracking your portfolio, income, expenses, and net worth. Perfect for beginners." />
+        <meta name="keywords" content="simple financial dashboard, portfolio management, expense tracking, income analysis, net worth calculator" />
+        <meta name="robots" content="noindex, nofollow" />
+        
+        <div className="min-h-screen bg-background text-foreground font-mono">
+          <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
+          <div className="pt-20 sm:pt-32 pb-4">
+            <SimpleDashboard />
+          </div>
+          <Footer />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

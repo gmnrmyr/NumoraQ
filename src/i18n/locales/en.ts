@@ -18,6 +18,12 @@ export const en: Translations = {
   defaultCurrency: 'Default Currency',
   signIn: 'Sign In',
   signOut: 'Sign Out',
+  login: 'Login',
+  register: 'Register',
+  createAccount: 'Create Account',
+  loginWithGoogle: 'Login with Google',
+  signInToSave: 'Sign in to save your data',
+  createAccountToSync: 'Create an account to sync your financial data across devices and access premium features.',
   
   availableNow: 'Available Now',
   monthlyIncome: 'Monthly Income',
