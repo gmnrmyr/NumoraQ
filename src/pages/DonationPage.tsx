@@ -8,11 +8,13 @@ import { Footer } from '@/components/Footer';
 import { UnifiedPaymentFlow, type PaymentTier } from '@/components/payment/UnifiedPaymentFlow';
 import { useCMSSettings } from '@/hooks/useCMSSettings';
 import { useCryptoPaymentMonitor } from '@/hooks/useCryptoPaymentMonitor';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { toast } from '@/hooks/use-toast';
 
 const DonationPage = () => {
   const { settings, loading } = useCMSSettings();
   const { isMonitoring, getWalletAddress, getPaymentTiers } = useCryptoPaymentMonitor();
+  const { t } = useTranslation();
   const [copiedWallet, setCopiedWallet] = React.useState<string>('');
 
   // Donation tiers configuration
@@ -120,8 +122,8 @@ const DonationPage = () => {
     setCopiedWallet(type);
     setTimeout(() => setCopiedWallet(''), 2000);
     toast({
-      title: "Copied!",
-      description: `${type} wallet address copied to clipboard`
+      title: t.copied,
+      description: `${type} ${t.walletAddressCopied}`
     });
   };
 
@@ -170,7 +172,7 @@ const DonationPage = () => {
         <div className="pt-20 sm:pt-32 pb-8">
           <div className="max-w-6xl mx-auto px-4">
             <div className="text-center">
-              <div className="animate-pulse">Loading donation information...</div>
+              <div className="animate-pulse">{t.loadingDonationInfo}</div>
             </div>
           </div>
         </div>
@@ -185,13 +187,37 @@ const DonationPage = () => {
       
       <div className="pt-20 sm:pt-32 pb-8">
         <div className="max-w-6xl mx-auto px-4 space-y-8">
+          {/* Navigation between payment pages */}
+          <Card className="border-2 border-accent/30 bg-accent/5">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Heart className="text-accent" size={20} />
+                  <div>
+                    <div className="font-mono text-sm text-accent font-bold">{t.currentlyOnDonations}</div>
+                    <div className="text-xs text-muted-foreground font-mono">Support platform & donor badges</div>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.href = '/payment'}
+                  className="border-accent text-accent hover:bg-accent hover:text-accent-foreground font-mono"
+                >
+                  <Crown size={14} className="mr-2" />
+                  {t.switchToPayments}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold font-mono text-accent uppercase tracking-wider">
-              SUPPORT & DONOR BADGES
+              {t.supportDonorBadges}
             </h1>
             <p className="text-muted-foreground text-lg font-mono">
-              Support platform development and earn exclusive donor badges (separate from premium access)
+              {t.supportPlatformDevelopment}
             </p>
             <div className="flex justify-center items-center gap-4">
               <div className="w-8 h-1 bg-accent"></div>

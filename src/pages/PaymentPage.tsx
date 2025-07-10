@@ -9,11 +9,13 @@ import { Footer } from '@/components/Footer';
 import { UnifiedPaymentFlow, type PaymentTier } from '@/components/payment/UnifiedPaymentFlow';
 import { useCMSSettings } from '@/hooks/useCMSSettings';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { toast } from '@/hooks/use-toast';
 
 const PaymentPage = () => {
   const { settings, loading } = useCMSSettings();
   const { refetch: refetchPremiumStatus } = usePremiumStatus();
+  const { t } = useTranslation();
   const [copiedWallet, setCopiedWallet] = React.useState<string>('');
 
   // Degen plans configuration
@@ -70,8 +72,8 @@ const PaymentPage = () => {
 
     if (success === 'true' && sessionId) {
       toast({
-        title: "Payment Successful! 🎉",
-        description: "Your premium access has been activated. Welcome to the degen club!",
+        title: t.paymentSuccessful,
+        description: t.welcomeToDegenClub,
       });
       refetchPremiumStatus();
       
@@ -80,8 +82,8 @@ const PaymentPage = () => {
       window.history.replaceState({}, '', newUrl);
     } else if (canceled === 'true') {
       toast({
-        title: "Payment Cancelled",
-        description: "Your payment was cancelled. You can try again anytime.",
+        title: t.paymentCancelled,
+        description: t.paymentCancelledDescription,
         variant: "destructive"
       });
       
@@ -97,8 +99,8 @@ const PaymentPage = () => {
     setCopiedWallet(type);
     setTimeout(() => setCopiedWallet(''), 2000);
     toast({
-      title: "Copied!",
-      description: `${type} wallet address copied to clipboard`
+      title: t.copied,
+      description: `${type} ${t.walletAddressCopied}`
     });
   };
 
@@ -145,7 +147,7 @@ const PaymentPage = () => {
         <div className="pt-20 sm:pt-32 pb-8">
           <div className="max-w-6xl mx-auto px-4">
             <div className="text-center">
-              <div className="animate-pulse">Loading payment information...</div>
+              <div className="animate-pulse">{t.loadingPaymentInfo}</div>
             </div>
           </div>
         </div>
@@ -160,13 +162,37 @@ const PaymentPage = () => {
       
       <div className="pt-20 sm:pt-32 pb-8">
         <div className="max-w-6xl mx-auto px-4 space-y-8">
+          {/* Navigation between payment pages */}
+          <Card className="border-2 border-accent/30 bg-accent/5">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Crown className="text-accent" size={20} />
+                  <div>
+                    <div className="font-mono text-sm text-accent font-bold">{t.currentlyOnPayments}</div>
+                    <div className="text-xs text-muted-foreground font-mono">Premium access & degen plans</div>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.href = '/donation'}
+                  className="border-accent text-accent hover:bg-accent hover:text-accent-foreground font-mono"
+                >
+                  <Heart size={14} className="mr-2" />
+                  {t.switchToDonations}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold font-mono text-accent uppercase tracking-wider">
-              DEGEN PLANS & PREMIUM ACCESS
+              {t.degenPlansPremiumAccess}
             </h1>
             <p className="text-muted-foreground text-lg font-mono">
-              Purchase premium access to unlock advanced features, AI insights, and ad-free experience
+              {t.purchasePremiumAccess}
             </p>
             <div className="flex justify-center items-center gap-4">
               <div className="w-8 h-1 bg-accent"></div>
@@ -181,19 +207,18 @@ const PaymentPage = () => {
               <div className="flex items-start gap-3">
                 <Crown className="text-accent mt-1" size={20} />
                 <div className="space-y-2">
-                  <h3 className="font-mono font-bold text-accent">PREMIUM ACCESS - DEGEN PLANS</h3>
+                  <h3 className="font-mono font-bold text-accent">{t.premiumAccessNotice}</h3>
                   <p className="text-sm font-mono text-muted-foreground">
-                    Purchase premium access to unlock advanced features, AI-powered insights, ad-free experience, and premium themes. 
-                    This is separate from donor badges - for platform support, visit the <a href="/donation" className="text-accent underline">donation page</a>.
+                    {t.premiumAccessDescription}
                   </p>
                   <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded">
                     <p className="text-sm font-mono text-blue-600">
-                      💙 <strong>Simple Flow:</strong> Choose your degen plan → Select payment method → Complete payment → Get instant access
+                      💙 <strong>{t.simpleFlow.split(':')[0]}:</strong> {t.simpleFlow.split(':')[1]}
                     </p>
                   </div>
                   <div className="p-3 bg-green-500/10 border border-green-500/30 rounded mt-3">
                     <p className="text-sm font-mono text-green-600">
-                      ✅ <strong>Stripe Integration Active:</strong> Secure payment processing with automatic premium activation
+                      ✅ <strong>{t.stripeIntegrationActive.split(':')[0]}:</strong> {t.stripeIntegrationActive.split(':')[1]}
                     </p>
                   </div>
                 </div>
