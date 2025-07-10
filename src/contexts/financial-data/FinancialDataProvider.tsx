@@ -44,6 +44,11 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     }
   }, [user]);
 
+  // Update entire data object
+  const updateData = (newData: Partial<FinancialData>) => {
+    setData(prev => ({ ...prev, ...newData }));
+  };
+
   const updateUserProfile = (updates: Partial<FinancialData['userProfile']>) => {
     setData(prev => ({
       ...prev,
@@ -378,8 +383,9 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     }
   };
 
-  const contextValue = {
+  const contextValue: FinancialDataContextType = {
     data,
+    updateData,
     updateUserProfile,
     updateProjectionMonths,
     updateExchangeRate,

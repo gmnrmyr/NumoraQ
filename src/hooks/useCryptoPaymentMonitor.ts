@@ -52,31 +52,9 @@ export const useCryptoPaymentMonitor = () => {
         return;
       }
 
-      // Create a payment session record
-      const sessionId = `crypto_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Create premium status directly without payment_sessions
+      console.log('Activating premium for tier:', tier.description);
       
-      const { error: sessionError } = await supabase
-        .from('payment_sessions')
-        .insert({
-          id: sessionId,
-          user_id: user.id,
-          payment_method: 'crypto',
-          subscription_plan: tier.plan,
-          amount: usdAmount,
-          currency: 'USD',
-          status: 'completed',
-          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
-          metadata: {
-            transaction_hash: transactionHash,
-            eth_amount: ethAmount,
-            usd_amount: usdAmount,
-            from_address: fromAddress,
-            auto_detected: true
-          }
-        });
-
-      if (sessionError) throw sessionError;
-
       // Calculate expiry date
       const now = new Date();
       let expiresAt: Date | null = null;
@@ -96,7 +74,6 @@ export const useCryptoPaymentMonitor = () => {
           premium_type: tier.plan,
           activated_at: now.toISOString(),
           expires_at: expiresAt?.toISOString(),
-          payment_session_id: sessionId
         });
 
       if (statusError) throw statusError;

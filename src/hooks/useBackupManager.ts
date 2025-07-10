@@ -49,7 +49,7 @@ export const useBackupManager = () => {
             id: backup.id,
             name: backup.backup_name,
             timestamp: backup.created_at,
-            data: backup.backup_data,
+            data: backup.backup_data as unknown as FinancialData,
             size: JSON.stringify(backup.backup_data).length,
             isAutomatic: backup.backup_type === 'automatic'
           }));
@@ -86,7 +86,7 @@ export const useBackupManager = () => {
         .insert({
           user_id: user.id,
           backup_name: name,
-          backup_data: backupData,
+          backup_data: backupData as any,
           backup_type: isAutomatic ? 'automatic' : 'manual'
         })
         .select()
@@ -138,7 +138,7 @@ export const useBackupManager = () => {
           id: newBackup.id,
           name: newBackup.backup_name,
           timestamp: newBackup.created_at,
-          data: newBackup.backup_data,
+          data: newBackup.backup_data as unknown as FinancialData,
           size: JSON.stringify(newBackup.backup_data).length,
           isAutomatic: newBackup.backup_type === 'automatic'
         };
