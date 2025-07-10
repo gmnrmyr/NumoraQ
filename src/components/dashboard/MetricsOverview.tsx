@@ -96,39 +96,39 @@ export const MetricsOverview = () => {
 
   const metrics = [
     {
-      title: "Available Now",
+      title: t.availableNow,
       value: availableNow,
       icon: DollarSign,
-      description: `${activeLiquidAssets.length} liquid assets`,
+      description: `${activeLiquidAssets.length} ${t.liquidAssets.toLowerCase()}`,
       color: "text-blue-500",
       borderColor: "border-blue-500"
     },
     {
-      title: "Monthly Income",
+      title: t.monthlyIncome,
       value: totalIncome,
       icon: TrendingUp,
-      description: `${formatCurrency(totalPassiveIncome)} passive + ${formatCurrency(totalActiveIncome)} active`,
+      description: `${formatCurrency(totalPassiveIncome)} ${t.passiveIncome.toLowerCase()} + ${formatCurrency(totalActiveIncome)} ${t.activeIncome.toLowerCase()}`,
       color: "text-green-500",
       borderColor: "border-green-500"
     },
     {
-      title: "Monthly Expenses",
+      title: t.monthlyExpenses,
       value: totalExpenses,
       icon: TrendingDown,
-      description: `${recurringExpenses.length + unscheduledVariableExpenses.length} active expenses`,
+      description: `${recurringExpenses.length + unscheduledVariableExpenses.length} ${t.active.toLowerCase()} ${t.expenses.toLowerCase()}`,
       color: "text-red-500",
       borderColor: "border-red-500"
     },
     {
-      title: "Active Debts",
+      title: t.activeDebts,
       value: totalActiveDebts,
       icon: CreditCard,
-      description: `${activeDebts.length} pending debts`,
+      description: `${activeDebts.length} ${t.pending.toLowerCase()} ${t.debt.toLowerCase()}`,
       color: "text-orange-500",
       borderColor: "border-orange-500"
     },
     {
-      title: "Monthly Balance",
+      title: t.monthlyBalance,
       value: monthlyBalance,
       icon: BarChart3,
       description: `${formatCurrency(totalIncome)} in - ${formatCurrency(totalExpenses)} out`,
@@ -142,7 +142,7 @@ export const MetricsOverview = () => {
       {/* Header with toggle */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold font-mono uppercase text-foreground">
-          OVERVIEW
+          {t.overview.toUpperCase()}
         </h2>
         <Button
           variant="outline"
@@ -152,7 +152,7 @@ export const MetricsOverview = () => {
         >
           {isExpanded ? <EyeOff size={16} /> : <Eye size={16} />}
           <span className="ml-2 font-mono text-xs">
-            {isExpanded ? 'HIDE' : 'SHOW'}
+            {isExpanded ? t.hide.toUpperCase() : t.show.toUpperCase()}
           </span>
         </Button>
       </div>
@@ -166,11 +166,10 @@ export const MetricsOverview = () => {
                 <Sparkles className="h-12 w-12 text-blue-500 animate-pulse" />
               </div>
               <h3 className="text-lg font-bold font-mono text-blue-900 uppercase">
-                Welcome to Numoraq!
+                {t.welcomeToNumoraq}
               </h3>
               <p className="text-sm text-blue-800 font-mono max-w-md mx-auto">
-                Get started by adding some demo data to see how the dashboard works. 
-                You can always replace it with your real financial information later.
+                {t.demoDataDescription}
               </p>
               <div className="flex justify-center gap-3">
                 <Button
@@ -178,18 +177,18 @@ export const MetricsOverview = () => {
                   className="bg-blue-600 hover:bg-blue-700 text-white font-mono"
                 >
                   <Play size={16} className="mr-2" />
-                  Add Demo Data
+                  {t.addDemoData}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setIsExpanded(false)}
                   className="border-blue-300 text-blue-700 font-mono"
                 >
-                  I'll Add My Own
+                  {t.addMyOwn}
                 </Button>
               </div>
               <p className="text-xs text-blue-600 font-mono">
-                💡 Pro tip: Use the portfolio section below to start adding your real assets
+                💡 {t.proTip}: Use the portfolio section below to start adding your real assets
               </p>
             </div>
           </CardContent>

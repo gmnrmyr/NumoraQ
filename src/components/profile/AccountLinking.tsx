@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { Wallet, MessageCircle, Mail, Link, Eye, EyeOff } from 'lucide-react';
 
 export const AccountLinking = () => {
   const { user, linkAccount } = useAuth();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState<string | null>(null);
   const [showLinkedAccounts, setShowLinkedAccounts] = useState(true);
 
@@ -54,7 +56,7 @@ export const AccountLinking = () => {
         <CardTitle className="flex items-center justify-between font-mono text-sm">
           <div className="flex items-center gap-2">
             <Link className="text-accent" size={16} />
-            LINKED ACCOUNTS
+            {t.accountLinking.toUpperCase()}
           </div>
           <Button
             variant="ghost"
@@ -100,7 +102,7 @@ export const AccountLinking = () => {
                 className="justify-start font-mono"
               >
                 <Mail size={14} className="mr-2" />
-                {loading === 'google' ? 'Linking...' : 'Link Gmail Account'}
+                {loading === 'google' ? t.connecting : 'Link Gmail Account'}
               </Button>
             )}
             
@@ -113,14 +115,14 @@ export const AccountLinking = () => {
                 className="justify-start font-mono"
               >
                 <MessageCircle size={14} className="mr-2" />
-                {loading === 'discord' ? 'Linking...' : 'Link Discord Account'}
+                {loading === 'discord' ? t.connecting : 'Link Discord Account'}
               </Button>
             )}
           </div>
         </div>
 
         <div className="text-xs text-muted-foreground font-mono bg-muted p-2 border-2 border-border rounded">
-          🔗 <strong>Account Linking:</strong> Connect multiple authentication methods to your account for easier access. For wallet connections, use the dedicated Wallet Linking section below.
+          🔗 <strong>{t.accountLinking}:</strong> {t.connectWallets}
         </div>
       </CardContent>
     </Card>

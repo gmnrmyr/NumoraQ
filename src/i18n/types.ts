@@ -157,4 +157,68 @@ export interface Translations {
   partial: string;
   paid: string;
   due: string;
+  
+  // Dashboard interface
+  userInfoConfigUI: string;
+  profileCustomizeDesc: string;
+  customizeExperience: string;
+  accountLinking: string;
+  walletLinking: string;
+  directPayments: string;
+  connectWallets: string;
+  linkedWallets: string;
+  payForTier: string;
+  payForDegen: string;
+  
+  // Sync and time
+  neverSynced: string;
+  justNow: string;
+  minutesAgo: string;
+  hoursAgo: string;
+  
+  // Degen mode
+  degenMode: string;
+  lifetimeAccess: string;
+  noAdsEnabled: string;
+  activateForAdFree: string;
+  activateCode: string;
+  buyDegen: string;
+  premiumExperience: string;
+  
+  // Wallet connection
+  solanaWallet: string;
+  evmWallet: string;
+  connectSolana: string;
+  connectMetamask: string;
+  reconnectSolana: string;
+  reconnectEVM: string;
+  connecting: string;
+  
+  // Navigation sections
+  dashboardSections: string;
+  communityFeatures: string;
+  settingsPreferences: string;
+  supportDonation: string;
+  
+  // Dashboard sections
+  overview: string;
+  welcome: string;
+  getStarted: string;
+  addDemoData: string;
+  addMyOwn: string;
+  proTip: string;
+  welcomeToNumoraq: string;
+  demoDataDescription: string;
+  hide: string;
+  show: string;
+  
+  // Portfolio section
+  portfolioSummary: string;
+  totalLiquidActive: string;
+  totalIlliquidActive: string;
+  totalPortfolioActive: string;
+  ofPortfolio: string;
+  activeAssetsOnly: string;
+  blockchainWallets: string;
+  trackCryptoPortfolios: string;
 }

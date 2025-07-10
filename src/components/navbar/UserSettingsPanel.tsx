@@ -149,12 +149,12 @@ export const UserSettingsPanel = () => {
   };
 
   const dashboardItems = [
-    { id: 'portfolio', label: 'Portfolio', icon: Briefcase },
-    { id: 'income', label: 'Income', icon: TrendingUp },
-    { id: 'expenses', label: 'Expenses', icon: DollarSign },
-    { id: 'assets', label: 'Assets', icon: Home },
-    { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-    { id: 'debt', label: 'Debt', icon: CreditCard }
+    { id: 'portfolio', label: t.portfolio, icon: Briefcase },
+    { id: 'income', label: t.income, icon: TrendingUp },
+    { id: 'expenses', label: t.expenses, icon: DollarSign },
+    { id: 'assets', label: t.assets, icon: Home },
+    { id: 'tasks', label: t.tasks, icon: CheckSquare },
+    { id: 'debt', label: t.debt, icon: CreditCard }
   ];
 
   // Auth Action Component for reuse
@@ -165,7 +165,7 @@ export const UserSettingsPanel = () => {
         className="text-primary hover:text-primary-foreground hover:bg-primary font-mono"
       >
         {user ? <LogOut size={16} className="mr-2" /> : <LogIn size={16} className="mr-2" />}
-        {user ? 'Sign Out' : 'Sign In'}
+        {user ? t.signOut : t.signIn}
       </DropdownMenuItem>
       
       {!user && (
@@ -206,7 +206,7 @@ export const UserSettingsPanel = () => {
         
         {/* Dashboard Navigation - Available for all users */}
         <DropdownMenuLabel className="text-xs text-muted-foreground font-mono uppercase">
-          Dashboard
+          {t.dashboardSections}
         </DropdownMenuLabel>
         {dashboardItems.map(item => {
           const Icon = item.icon;
@@ -226,7 +226,7 @@ export const UserSettingsPanel = () => {
         
         {/* Community */}
         <DropdownMenuLabel className="text-xs text-muted-foreground font-mono uppercase">
-          Community
+          {t.communityFeatures}
         </DropdownMenuLabel>
         <DropdownMenuItem 
           onClick={() => handleTabChange('leaderboard')}
@@ -241,7 +241,7 @@ export const UserSettingsPanel = () => {
           className="hover:bg-accent hover:text-accent-foreground font-mono"
         >
           <User size={16} className="mr-2" />
-          Profile
+          {t.userProfile}
         </DropdownMenuItem>
         
         <DropdownMenuSeparator className="bg-border" />

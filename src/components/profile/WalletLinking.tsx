@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Wallet, Link, Unlink, CheckCircle, AlertCircle, Zap, Crown, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { solanaWalletService } from "@/services/solanaWalletService";
 import { useNavigate } from "react-router-dom";
 
@@ -28,6 +29,7 @@ export const WalletLinking: React.FC<WalletLinkingProps> = ({
   const [linkedWallets, setLinkedWallets] = useState<LinkedWallet[]>([]);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -169,13 +171,13 @@ export const WalletLinking: React.FC<WalletLinkingProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 font-mono">
           <Link size={20} />
-          Linked Wallets
+          {t.linkedWallets}
           <Badge variant="outline" className="ml-auto">
-            Direct Payments
+            {t.directPayments}
           </Badge>
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Connect your wallets for instant tier payments and seamless access
+          {t.connectWallets}
         </p>
       </CardHeader>
 

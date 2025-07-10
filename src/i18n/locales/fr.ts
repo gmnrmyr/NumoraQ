@@ -84,14 +84,14 @@ export const fr: Translations = {
   variableExpenses: 'Dépenses Variables',
   housing: 'Logement',
   transportation: 'Transport',
-  food: 'Alimentation',
+  food: 'Nourriture et Restauration',
   entertainment: 'Divertissement',
   health: 'Santé',
   utilities: 'Services Publics',
   personal: 'Personnel',
   travel: 'Voyage',
   trips: 'Voyages',
-  other: 'Autre',
+  other: 'Autres',
   
   amount: 'Montant',
   category: 'Catégorie',
@@ -101,7 +101,7 @@ export const fr: Translations = {
   notes: 'Notes',
   name: 'Nom',
   
-  noDataYet: 'Aucune donnée pour le moment',
+  noDataYet: 'Pas encore de données',
   addFirstItem: 'Ajoutez votre premier élément',
   syncingData: 'Synchronisation des données...',
   dataUpdated: 'Données mises à jour avec succès',
@@ -132,10 +132,75 @@ export const fr: Translations = {
   expenseSummary: 'Résumé des Dépenses',
   tapToSwitch: 'Appuyez pour changer',
   
-  creditor: 'Créditeur',
+  // Debt-specific terms
+  creditor: 'Créancier',
   dueDate: 'Date d\'Échéance',
   status: 'Statut',
   partial: 'Partiel',
   paid: 'Payé',
   due: 'Échéance',
+  
+  // Dashboard interface
+  userInfoConfigUI: 'CONFIG_UI_INFO_UTILISATEUR',
+  profileCustomizeDesc: 'Personnalisez votre expérience du tableau de bord et vos préférences.',
+  customizeExperience: 'Personnaliser l\'Expérience',
+  accountLinking: 'Liaison de Compte',
+  walletLinking: 'Liaison de Portefeuille',
+  directPayments: 'Paiements Directs',
+  connectWallets: 'Connectez vos portefeuilles pour activer les paiements directs',
+  linkedWallets: 'Portefeuilles Liés',
+  payForTier: 'Payer pour le Niveau',
+  payForDegen: 'Payer pour Degen',
+  
+  // Sync and time
+  neverSynced: 'Jamais synchronisé',
+  justNow: 'À l\'instant',
+  minutesAgo: 'minutes plus tôt',
+  hoursAgo: 'heures plus tôt',
+  
+  // Degen mode
+  degenMode: 'Mode Degen',
+  lifetimeAccess: 'À vie',
+  noAdsEnabled: 'Pas de publicités! Expérience premium activée',
+  activateForAdFree: 'Futur: Activez pour une expérience sans publicité',
+  activateCode: 'Activer le Code',
+  buyDegen: 'Acheter Degen',
+  premiumExperience: 'Expérience Premium',
+  
+  // Wallet connection
+  solanaWallet: 'Portefeuille Solana',
+  evmWallet: 'Portefeuille EVM',
+  connectSolana: 'Connecter Solana',
+  connectMetamask: 'Connecter MetaMask',
+  reconnectSolana: 'Reconnecter Solana',
+  reconnectEVM: 'Reconnecter EVM',
+  connecting: 'Connexion...',
+  
+  // Navigation sections
+  dashboardSections: 'Sections du Tableau de Bord',
+  communityFeatures: 'Fonctionnalités Communautaires',
+  settingsPreferences: 'Paramètres et Préférences',
+  supportDonation: 'Support et Don',
+  
+  // Dashboard sections
+  overview: 'Aperçu',
+  welcome: 'Bienvenue',
+  getStarted: 'Commencer',
+  addDemoData: 'Ajouter des Données de Démo',
+  addMyOwn: 'J\'ajouterai les Miennes',
+  proTip: 'Conseil professionnel',
+  welcomeToNumoraq: 'Bienvenue sur Numoraq!',
+  demoDataDescription: 'Commencez par ajouter des données de démonstration pour voir comment fonctionne le tableau de bord. Vous pouvez toujours les remplacer par vos vraies informations financières plus tard.',
+  hide: 'Masquer',
+  show: 'Afficher',
+  
+  // Portfolio section
+  portfolioSummary: 'Résumé du Portefeuille',
+  totalLiquidActive: 'Total Liquide (Actif)',
+  totalIlliquidActive: 'Total Illiquide (Actif)',
+  totalPortfolioActive: 'Portefeuille Total (Actif)',
+  ofPortfolio: 'du portefeuille',
+  activeAssetsOnly: 'Actifs Actifs Seulement',
+  blockchainWallets: 'Portefeuilles Blockchain',
+  trackCryptoPortfolios: 'Suivez vos portefeuilles crypto sur plusieurs blockchains',
 };
