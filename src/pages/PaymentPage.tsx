@@ -257,55 +257,7 @@ const PaymentPage = () => {
 
 
 
-          {/* Alternative Payment Methods */}
-          <Card className="border-2 border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-mono text-accent">
-                🔄 ALTERNATIVE PAYMENT METHODS
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 border border-border rounded bg-card/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl">💳</span>
-                    <span className="font-mono font-bold text-foreground">Stripe (Primary)</span>
-                    <Badge variant="outline" className="text-xs text-green-400 border-green-400">
-                      Active
-                    </Badge>
-                  </div>
-                  <div className="text-xs font-mono text-muted-foreground mb-2">
-                    Secure credit card payments with automatic premium activation
-                  </div>
-                  <p className="text-xs text-green-400 font-mono">
-                    ✅ Recommended payment method
-                  </p>
-                </div>
-                
-                <div className="p-4 border border-border rounded bg-muted/30">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl">🌟</span>
-                    <span className="font-mono font-bold text-foreground">Solana</span>
-                    <Badge variant="outline" className="text-xs text-orange-400 border-orange-400">
-                      Coming Soon
-                    </Badge>
-                  </div>
-                  <div className="text-xs font-mono text-muted-foreground mb-2">
-                    Direct SOL payments for premium access
-                  </div>
-                  <p className="text-xs text-orange-400 font-mono">
-                    🚧 In development
-                  </p>
-                </div>
-              </div>
-              
-              <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded">
-                <p className="text-xs font-mono text-blue-400">
-                  💡 <strong>Need help?</strong> Contact us at numoraq@gmail.com for payment support
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+
 
 
 
