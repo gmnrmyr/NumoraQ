@@ -54,6 +54,14 @@ export const DonationInterface = ({ isOpen, onClose }: DonationInterfaceProps) =
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Quick Access to Full Donation Page */}
+          <div className="flex justify-center">
+            <Button onClick={handleViewFullPage} variant="outline" className="font-mono">
+              <ExternalLink size={14} className="mr-2" />
+              View Full Donation Page
+            </Button>
+          </div>
+
           <Alert className="bg-yellow-500/10 border-yellow-500/20">
             <Clock className="h-4 w-4 text-yellow-500" />
             <AlertDescription className="text-yellow-400 font-mono text-sm">
@@ -222,12 +230,8 @@ export const DonationInterface = ({ isOpen, onClose }: DonationInterfaceProps) =
             </CardContent>
           </Card>
 
-          <div className="flex gap-2">
-            <Button onClick={handleViewFullPage} variant="outline" className="flex-1">
-              <ExternalLink size={14} className="mr-2" />
-              View Full Donation Page
-            </Button>
-            <Button onClick={onClose} variant="default" className="flex-1">
+          <div className="flex justify-center">
+            <Button onClick={onClose} variant="default" className="px-8">
               Close
             </Button>
           </div>
