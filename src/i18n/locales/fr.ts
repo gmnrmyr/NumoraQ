@@ -288,7 +288,8 @@ export const fr: Translations = {
   connectMetamaskWallets: 'Connectez MetaMask ou d\'autres portefeuilles EVM',
   instantBrazilianPayments: 'Paiements brésiliens instantanés via PIX',
   brazilianBankSlip: 'Méthode de paiement via bordereau bancaire brésilien',
-  active: 'Actif',
+  securePaymentProcessing: 'Traitement Sécurisé des Paiements',
+  paymentActive: 'Actif',
   disabled: 'Désactivé',
   
   // Navigation between payment pages
