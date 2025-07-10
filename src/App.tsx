@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { FinancialDataProvider } from "@/contexts/FinancialDataContext";
 import { TranslationProvider } from "@/contexts/TranslationContext";
+import { DashboardModeProvider } from "@/contexts/DashboardModeContext";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import AuthPage from "./pages/AuthPage";
@@ -56,7 +57,8 @@ const App: React.FC = () => {
           <AuthProvider>
             <FinancialDataProvider>
               <TranslationProvider>
-                <TooltipProvider>
+                <DashboardModeProvider>
+                  <TooltipProvider>
                   <Toaster />
                   <Sonner />
                   <BrowserRouter>
@@ -77,7 +79,8 @@ const App: React.FC = () => {
                     </Routes>
                   </BrowserRouter>
                 </TooltipProvider>
-              </TranslationProvider>
+              </DashboardModeProvider>
+            </TranslationProvider>
             </FinancialDataProvider>
           </AuthProvider>
         </QueryClientProvider>
