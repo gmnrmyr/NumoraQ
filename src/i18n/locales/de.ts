@@ -56,6 +56,7 @@ export const de: Translations = {
   inactive: 'Inaktiv',
   completed: 'Abgeschlossen',
   pending: 'Ausstehend',
+  status: 'Status',
   
   high: 'Hoch',
   medium: 'Mittel',
@@ -135,7 +136,7 @@ export const de: Translations = {
   // Debt-specific terms
   creditor: 'Gläubiger',
   dueDate: 'Fälligkeitsdatum',
-  status: 'Status',
+  debtStatus: 'Status',
   partial: 'Teilweise',
   paid: 'Bezahlt',
   due: 'Fällig',
@@ -168,7 +169,7 @@ export const de: Translations = {
   premiumExperience: 'Premium-Erfahrung',
   
   // Wallet connection
-  solanaWallet: 'Solana Wallet',
+  solanaWalletConnect: 'Solana Wallet',
   evmWallet: 'EVM Wallet',
   connectSolana: 'Solana verbinden',
   connectMetamask: 'MetaMask verbinden',
@@ -206,7 +207,7 @@ export const de: Translations = {
   community: 'Community',
   github: 'GitHub',
   xTwitter: 'X (Twitter)',
-  status: 'Status',
+  systemStatus: 'Status',
   allSystemsOperational: 'Alle Systeme betriebsbereit',
   
   // Portfolio section
@@ -274,7 +275,7 @@ export const de: Translations = {
   
   // Payment methods
   creditCardStripe: 'Kreditkarte (Stripe)',
-  solanaWallet: 'Solana-Wallet',
+  solanaWallet: 'Solana SOL-Zahlungen',
   paypal: 'PayPal',
   evmDirectTransfer: 'EVM-Direktüberweisung',
   evmWalletConnect: 'EVM-Wallet Verbinden',
@@ -286,8 +287,9 @@ export const de: Translations = {
   sendEthBscDirectly: 'Senden Sie ETH/BSC direkt an unsere Wallet',
   connectMetamaskWallets: 'Verbinden Sie MetaMask oder andere EVM-Wallets',
   instantBrazilianPayments: 'Sofortige brasilianische Zahlungen über PIX',
-  brazilianBankSlip: 'Brasilianische Banküberweisung als Zahlungsmethode',
-  active: 'Aktiv',
+  brazilianBankSlip: 'Brasilianische Banküberweisung',
+  securePaymentProcessing: 'Sichere Zahlungsabwicklung',
+  paymentActive: 'Aktiv',
   disabled: 'Deaktiviert',
   
   // Navigation between payment pages

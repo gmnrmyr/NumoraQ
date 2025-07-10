@@ -117,23 +117,7 @@ export const usePaymentProcessing = () => {
         }
       };
 
-      // Store session in database
-      const { error } = await supabase
-        .from('payment_sessions')
-        .insert({
-          id: sessionId,
-          user_id: user.id,
-          payment_method: method,
-          subscription_plan: plan,
-          amount: planInfo.amount,
-          currency: planInfo.currency,
-          status: 'pending',
-          expires_at: session.expires_at,
-          metadata: session.metadata
-        });
-
-      if (error) throw error;
-
+      // Store session locally only (TODO: Create payment_sessions table)
       setCurrentSession(session);
       
       toast({
@@ -159,27 +143,20 @@ export const usePaymentProcessing = () => {
     setLoading(true);
     
     try {
-      // Get the current session details
-      const { data: sessionData, error: sessionError } = await supabase
-        .from('payment_sessions')
-        .select('*')
-        .eq('id', sessionId)
-        .single();
-
-      if (sessionError || !sessionData) {
+      if (!currentSession) {
         throw new Error('Payment session not found');
       }
 
       // Call the Stripe Edge Function to create checkout session
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-payment/create-checkout-session`, {
+      const response = await fetch(`https://hcnoxyfztviuwkiysitm.supabase.co/functions/v1/stripe-payment/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhjbm94eWZ6dHZpdXdraXlzaXRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5NDI5MjgsImV4cCI6MjA2NTUxODkyOH0.nUpvYZmBlKdVlAU3HbuPpXsZfoTFtSgD0guVIskdahc`,
         },
         body: JSON.stringify({
           sessionId: sessionId,
-          plan: sessionData.subscription_plan,
+          plan: currentSession.plan,
           userEmail: user?.email,
           userId: user?.id
         })
@@ -207,7 +184,7 @@ export const usePaymentProcessing = () => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, currentSession]);
 
   const processPayPalPayment = useCallback(async (sessionId: string): Promise<boolean> => {
     // In a real implementation, this would integrate with PayPal
@@ -217,14 +194,6 @@ export const usePaymentProcessing = () => {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Update session status
-      const { error } = await supabase
-        .from('payment_sessions')
-        .update({ status: 'completed' })
-        .eq('id', sessionId);
-
-      if (error) throw error;
-
       await activatePremiumAccess(sessionId);
       
       toast({
@@ -254,17 +223,6 @@ export const usePaymentProcessing = () => {
       // Simulate transaction verification
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Update session status
-      const { error } = await supabase
-        .from('payment_sessions')
-        .update({ 
-          status: 'completed',
-          metadata: { transaction_hash: transactionHash }
-        })
-        .eq('id', sessionId);
-
-      if (error) throw error;
-
       await activatePremiumAccess(sessionId);
       
       toast({
@@ -288,20 +246,15 @@ export const usePaymentProcessing = () => {
 
   const activatePremiumAccess = useCallback(async (sessionId: string) => {
     try {
-      // Get payment session details
-      const { data: session, error: sessionError } = await supabase
-        .from('payment_sessions')
-        .select('*')
-        .eq('id', sessionId)
-        .single();
-
-      if (sessionError) throw sessionError;
+      if (!currentSession || !user) {
+        throw new Error('Session or user not available');
+      }
 
       // Calculate expiry date based on plan
       const now = new Date();
       let expiresAt: Date | null = null;
       
-      switch (session.subscription_plan) {
+      switch (currentSession.plan) {
         case '1month':
           expiresAt = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
           break;
@@ -326,12 +279,11 @@ export const usePaymentProcessing = () => {
       const { error: statusError } = await supabase
         .from('user_premium_status')
         .upsert({
-          user_id: session.user_id,
+          user_id: user.id,
           is_premium: true,
-          premium_type: session.subscription_plan,
+          premium_type: currentSession.plan,
           activated_at: now.toISOString(),
-          expires_at: expiresAt?.toISOString(),
-          payment_session_id: sessionId
+          expires_at: expiresAt?.toISOString()
         });
 
       if (statusError) throw statusError;
@@ -343,17 +295,10 @@ export const usePaymentProcessing = () => {
       console.error('Error activating premium access:', error);
       throw error;
     }
-  }, [refetchPremiumStatus]);
+  }, [refetchPremiumStatus, currentSession, user]);
 
   const cancelPaymentSession = useCallback(async (sessionId: string) => {
     try {
-      const { error } = await supabase
-        .from('payment_sessions')
-        .update({ status: 'cancelled' })
-        .eq('id', sessionId);
-
-      if (error) throw error;
-
       setCurrentSession(null);
       
       toast({
@@ -375,12 +320,12 @@ export const usePaymentProcessing = () => {
     const methods: PaymentMethod[] = ['stripe'];
     
     // Add PayPal if enabled (for future implementation)
-    if (import.meta.env.VITE_PAYPAL_ENABLED === 'true') {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
       methods.push('paypal');
     }
     
     // Add crypto if enabled (for future implementation)
-    if (import.meta.env.VITE_CRYPTO_PAYMENTS_ENABLED === 'true') {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
       methods.push('crypto');
     }
     
@@ -398,4 +343,4 @@ export const usePaymentProcessing = () => {
     cancelPaymentSession,
     getPaymentMethods
   };
-}; 
+};

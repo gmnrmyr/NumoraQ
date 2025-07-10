@@ -56,6 +56,7 @@ export const es: Translations = {
   inactive: 'Inactivo',
   completed: 'Completado',
   pending: 'Pendiente',
+  status: 'Estado',
   
   high: 'Alta',
   medium: 'Media',
@@ -135,7 +136,7 @@ export const es: Translations = {
   // Debt-specific terms
   creditor: 'Acreedor',
   dueDate: 'Fecha de Vencimiento',
-  status: 'Estado',
+  debtStatus: 'Estado',
   partial: 'Parcial',
   paid: 'Pagado',
   due: 'Vencimiento',
@@ -168,7 +169,7 @@ export const es: Translations = {
   premiumExperience: 'Experiencia Premium',
   
   // Wallet connection
-  solanaWallet: 'Billetera Solana',
+  solanaWalletConnect: 'Billetera Solana',
   evmWallet: 'Billetera EVM',
   connectSolana: 'Conectar Solana',
   connectMetamask: 'Conectar MetaMask',
@@ -206,7 +207,7 @@ export const es: Translations = {
   community: 'Comunidad',
   github: 'GitHub',
   xTwitter: 'X (Twitter)',
-  status: 'Estado',
+  systemStatus: 'Estado',
   allSystemsOperational: 'Todos los sistemas operativos',
   
   // Portfolio section
@@ -286,8 +287,9 @@ export const es: Translations = {
   sendEthBscDirectly: 'Envía ETH/BSC directamente a nuestra billetera',
   connectMetamaskWallets: 'Conecta MetaMask u otras billeteras EVM',
   instantBrazilianPayments: 'Pagos brasileños instantáneos vía PIX',
-  brazilianBankSlip: 'Método de pago vía boleto brasileño',
-  active: 'Activo',
+  brazilianBankSlip: 'Boleto bancario brasileño',
+  securePaymentProcessing: 'Procesamiento Seguro de Pagos',
+  paymentActive: 'Activo',
   disabled: 'Deshabilitado',
   
   // Navigation between payment pages

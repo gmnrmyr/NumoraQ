@@ -65,6 +65,7 @@ export interface Translations {
   inactive: string;
   completed: string;
   pending: string;
+  status: string;
   
   // Priority levels
   high: string;
@@ -153,7 +154,7 @@ export interface Translations {
   // Debt-specific terms
   creditor: string;
   dueDate: string;
-  status: string;
+  debtStatus: string;
   partial: string;
   paid: string;
   due: string;
@@ -186,7 +187,7 @@ export interface Translations {
   premiumExperience: string;
   
   // Wallet connection
-  solanaWallet: string;
+  solanaWalletConnect: string;
   evmWallet: string;
   connectSolana: string;
   connectMetamask: string;
@@ -231,7 +232,6 @@ export interface Translations {
   premiumAccessDescription: string;
   simpleFlow: string;
   stripeIntegrationActive: string;
-  securePaymentProcessing: string;
   loadingDonationInfo: string;
   loadingPaymentInfo: string;
   copied: string;
@@ -291,7 +291,8 @@ export interface Translations {
   connectMetamaskWallets: string;
   instantBrazilianPayments: string;
   brazilianBankSlip: string;
-  active: string;
+  securePaymentProcessing: string;
+  paymentActive: string;
   disabled: string;
   
   // Navigation between payment pages
@@ -312,6 +313,6 @@ export interface Translations {
   community: string;
   github: string;
   xTwitter: string;
-  status: string;
+  systemStatus: string;
   allSystemsOperational: string;
 }
