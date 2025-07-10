@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# Stripe Payment Integration Deployment Script
+# Enhanced Stripe Payment Integration Deployment Script
 # This script helps deploy the Stripe payment integration to Supabase
+# Supports both degen plans and donation tiers
 
-echo "🚀 Deploying Stripe Payment Integration..."
+echo "🚀 Deploying Enhanced Stripe Payment Integration..."
 
 # Check if Supabase CLI is installed
 if ! command -v supabase &> /dev/null; then
@@ -43,11 +44,14 @@ fi
 
 echo "🔧 Deploying Edge Functions..."
 
-# Deploy the stripe-payment function
+# Deploy the enhanced stripe-payment function
 supabase functions deploy stripe-payment
 
 if [ $? -eq 0 ]; then
-    echo "✅ Stripe payment function deployed successfully!"
+    echo "✅ Enhanced Stripe payment function deployed successfully!"
+    echo "   - Supports both degen plans and donation tiers"
+    echo "   - Automatic premium activation for degen plans"
+    echo "   - Points system for donation tiers"
 else
     echo "❌ Failed to deploy stripe-payment function"
     exit 1
@@ -72,27 +76,43 @@ supabase db push
 
 if [ $? -eq 0 ]; then
     echo "✅ Database migrations applied successfully!"
+    echo "   - payment_sessions table configured"
+    echo "   - user_premium_status table updated"
+    echo "   - user_points table for donation tiers"
 else
     echo "❌ Failed to apply database migrations"
     exit 1
 fi
 
 echo ""
-echo "🎉 Deployment completed successfully!"
+echo "🎉 Enhanced deployment completed successfully!"
 echo ""
 echo "📋 Next steps:"
 echo "1. Set up Stripe webhook endpoint in your Stripe Dashboard:"
 echo "   URL: https://your-project.supabase.co/functions/v1/stripe-payment/webhook"
 echo "   Events: checkout.session.completed"
 echo ""
-echo "2. Test the payment flow:"
-echo "   - Go to your payment page"
-echo "   - Select a degen plan"
-echo "   - Complete a test payment"
+echo "2. Test the payment flows:"
+echo "   - Go to /payment for degen plans"
+echo "   - Go to /donation for donation tiers"
+echo "   - Complete test payments for both types"
 echo ""
 echo "3. Monitor the integration:"
 echo "   - Check Supabase Edge Function logs"
 echo "   - Verify webhook delivery in Stripe Dashboard"
-echo "   - Test with real payment (small amount)"
+echo "   - Test with real payments (small amounts)"
+echo ""
+echo "4. Verify database updates:"
+echo "   - Check user_premium_status for degen activations"
+echo "   - Check user_points for donation tier points"
+echo "   - Check payment_sessions for transaction history"
+echo ""
+echo "🔧 Features Deployed:"
+echo "✅ Stripe Checkout for both degen plans and donation tiers"
+echo "✅ Automatic premium activation for degen plans"
+echo "✅ Points system for donation tiers"
+echo "✅ Webhook processing for payment confirmations"
+echo "✅ Database integration with proper RLS policies"
+echo "✅ Success/cancel URL handling"
 echo ""
 echo "📞 For support: numoraq@gmail.com" 

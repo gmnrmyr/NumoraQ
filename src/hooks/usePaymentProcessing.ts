@@ -6,6 +6,7 @@ import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 
 export type PaymentMethod = 'stripe' | 'paypal' | 'crypto';
 export type SubscriptionPlan = '1month' | '3months' | '6months' | '1year' | '5years' | 'lifetime';
+export type PaymentType = 'degen' | 'donation';
 
 export interface PaymentSession {
   id: string;
@@ -28,13 +29,22 @@ export interface SubscriptionInfo {
   description: string;
 }
 
+export interface DonationTier {
+  tier: string;
+  amount: number;
+  currency: string;
+  description: string;
+  points: number;
+  features: string[];
+}
+
 export const usePaymentProcessing = () => {
   const { user } = useAuth();
   const { refetch: refetchPremiumStatus } = usePremiumStatus();
   const [loading, setLoading] = useState(false);
   const [currentSession, setCurrentSession] = useState<PaymentSession | null>(null);
 
-  // Available subscription plans
+  // Available subscription plans (Degen Plans)
   const subscriptionPlans: Record<SubscriptionPlan, SubscriptionInfo> = {
     '1month': {
       plan: '1month',
@@ -81,9 +91,110 @@ export const usePaymentProcessing = () => {
     }
   };
 
+  // Available donation tiers
+  const donationTiers: Record<string, DonationTier> = {
+    'whale': {
+      tier: 'whale',
+      amount: 50000,
+      currency: 'USD',
+      description: 'Ultra VIP access',
+      points: 50000,
+      features: ['Exclusive Whale Badge', 'Ultra VIP Access', 'All Degen Features', 'Direct Developer Contact']
+    },
+    'legend': {
+      tier: 'legend',
+      amount: 10000,
+      currency: 'USD',
+      description: 'Priority support',
+      points: 10000,
+      features: ['Exclusive Legend Badge', 'Priority Support', 'All Degen Features']
+    },
+    'patron': {
+      tier: 'patron',
+      amount: 5000,
+      currency: 'USD',
+      description: 'Advanced features',
+      points: 5000,
+      features: ['Patron Badge', 'Degen Themes', 'Advanced Features']
+    },
+    'champion': {
+      tier: 'champion',
+      amount: 2000,
+      currency: 'USD',
+      description: 'Black hole animation',
+      points: 2000,
+      features: ['Champion Badge', 'Black Hole Animation', 'Degen Themes']
+    },
+    'supporter': {
+      tier: 'supporter',
+      amount: 1000,
+      currency: 'USD',
+      description: 'Degen access',
+      points: 1000,
+      features: ['Supporter Badge', 'Degen Access']
+    },
+    'backer': {
+      tier: 'backer',
+      amount: 500,
+      currency: 'USD',
+      description: 'Special recognition',
+      points: 500,
+      features: ['Backer Badge', 'Special Recognition']
+    },
+    'donor': {
+      tier: 'donor',
+      amount: 100,
+      currency: 'USD',
+      description: 'Thank you message',
+      points: 100,
+      features: ['Donor Badge', 'Thank You Message']
+    },
+    'contributor': {
+      tier: 'contributor',
+      amount: 50,
+      currency: 'USD',
+      description: 'Contributor badge',
+      points: 50,
+      features: ['Contributor Badge']
+    },
+    'helper': {
+      tier: 'helper',
+      amount: 25,
+      currency: 'USD',
+      description: 'Helper badge',
+      points: 25,
+      features: ['Helper Badge']
+    },
+    'friend': {
+      tier: 'friend',
+      amount: 20,
+      currency: 'USD',
+      description: 'Friend badge',
+      points: 20,
+      features: ['Friend Badge']
+    },
+    'supporter-basic': {
+      tier: 'supporter-basic',
+      amount: 10,
+      currency: 'USD',
+      description: 'Basic supporter badge',
+      points: 10,
+      features: ['Basic Supporter Badge']
+    },
+    'newcomer': {
+      tier: 'newcomer',
+      amount: 0,
+      currency: 'USD',
+      description: 'Welcome badge',
+      points: 0,
+      features: ['Welcome Badge', '1 point daily login']
+    }
+  };
+
   const createPaymentSession = useCallback(async (
-    plan: SubscriptionPlan,
+    plan: SubscriptionPlan | string,
     method: PaymentMethod,
+    paymentType: PaymentType,
     metadata?: Record<string, any>
   ): Promise<PaymentSession | null> => {
     if (!user) {
@@ -98,26 +209,59 @@ export const usePaymentProcessing = () => {
     setLoading(true);
     
     try {
-      const planInfo = subscriptionPlans[plan];
+      let planInfo: SubscriptionInfo | DonationTier;
+      let amount: number;
+      
+      if (paymentType === 'degen') {
+        planInfo = subscriptionPlans[plan as SubscriptionPlan];
+        amount = planInfo.amount;
+      } else {
+        planInfo = donationTiers[plan];
+        amount = planInfo.amount;
+      }
+
       const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
+      // Create payment session in database
+      const { error: sessionError } = await supabase
+        .from('payment_sessions')
+        .insert({
+          id: sessionId,
+          user_id: user.id,
+          payment_method: method,
+          subscription_plan: plan,
+          amount: amount,
+          currency: 'USD',
+          status: 'pending',
+          expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes
+          metadata: {
+            payment_type: paymentType,
+            user_email: user.email,
+            ...metadata
+          }
+        });
+
+      if (sessionError) {
+        throw sessionError;
+      }
+
       const session: PaymentSession = {
         id: sessionId,
         method,
-        plan,
-        amount: planInfo.amount,
-        currency: planInfo.currency,
+        plan: plan as SubscriptionPlan,
+        amount,
+        currency: 'USD',
         status: 'pending',
         created_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes
+        expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
         metadata: {
+          payment_type: paymentType,
           user_id: user.id,
           user_email: user.email,
           ...metadata
         }
       };
 
-      // Store session locally only (TODO: Create payment_sessions table)
       setCurrentSession(session);
       
       toast({
@@ -139,7 +283,7 @@ export const usePaymentProcessing = () => {
     }
   }, [user]);
 
-  const processStripePayment = useCallback(async (sessionId: string): Promise<boolean> => {
+  const processStripePayment = useCallback(async (sessionId: string, paymentType: PaymentType): Promise<boolean> => {
     setLoading(true);
     
     try {
@@ -158,7 +302,8 @@ export const usePaymentProcessing = () => {
           sessionId: sessionId,
           plan: currentSession.plan,
           userEmail: user?.email,
-          userId: user?.id
+          userId: user?.id,
+          paymentType: paymentType
         })
       });
 
@@ -288,6 +433,17 @@ export const usePaymentProcessing = () => {
 
       if (statusError) throw statusError;
 
+      // Update payment session status
+      const { error: sessionError } = await supabase
+        .from('payment_sessions')
+        .update({ 
+          status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (sessionError) throw sessionError;
+
       // Refresh premium status
       await refetchPremiumStatus();
       
@@ -299,6 +455,16 @@ export const usePaymentProcessing = () => {
 
   const cancelPaymentSession = useCallback(async (sessionId: string) => {
     try {
+      const { error } = await supabase
+        .from('payment_sessions')
+        .update({ 
+          status: 'cancelled',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (error) throw error;
+
       setCurrentSession(null);
       
       toast({
@@ -308,39 +474,23 @@ export const usePaymentProcessing = () => {
     } catch (error) {
       console.error('Error cancelling payment session:', error);
       toast({
-        title: "Cancellation Failed",
+        title: "Cancellation Error",
         description: "Could not cancel payment session",
         variant: "destructive"
       });
     }
   }, []);
 
-  const getPaymentMethods = useCallback((): PaymentMethod[] => {
-    // Return available payment methods based on configuration
-    const methods: PaymentMethod[] = ['stripe'];
-    
-    // Add PayPal if enabled (for future implementation)
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-      methods.push('paypal');
-    }
-    
-    // Add crypto if enabled (for future implementation)
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-      methods.push('crypto');
-    }
-    
-    return methods;
-  }, []);
-
   return {
-    subscriptionPlans,
-    currentSession,
     loading,
+    currentSession,
+    subscriptionPlans,
+    donationTiers,
     createPaymentSession,
     processStripePayment,
     processPayPalPayment,
     processCryptoPayment,
     cancelPaymentSession,
-    getPaymentMethods
+    activatePremiumAccess
   };
 };
