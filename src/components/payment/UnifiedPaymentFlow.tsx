@@ -344,57 +344,139 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
          </CardContent>
        </Card>
 
-             {/* Payment Method Selection */}
+       {/* Payment Method Selection */}
        {selectedTier && (
-         <Card className="border-2 border-border bg-transparent">
-           <CardContent className="space-y-8 pt-6">
-             <Tabs value={selectedMethod} onValueChange={setSelectedMethod}>
-                            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-3 gap-2 mb-6 bg-transparent">
+         <Card className="border-2 border-border">
+           <CardHeader>
+              <CardTitle className="font-mono text-accent">
+                {"Select Payment Method"}
+              </CardTitle>
+           </CardHeader>
+           <CardContent className="space-y-6">
+             {/* Payment Methods Grid */}
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                {paymentMethods.map((method) => (
-                 <TabsTrigger 
-                   key={method.id} 
-                   value={method.id}
-                   disabled={method.status === 'disabled'}
-                   className="flex flex-col items-center gap-1 p-2 text-xs data-[state=active]:ring-4 data-[state=active]:ring-accent data-[state=active]:border-accent data-[state=active]:bg-accent/20 data-[state=active]:scale-105 data-[state=active]:shadow-lg"
+                 <Card 
+                   key={method.id}
+                   className={`cursor-pointer transition-all border-2 ${
+                     selectedMethod === method.id 
+                       ? 'border-accent bg-accent/20 ring-2 ring-accent/50 shadow-lg' 
+                       : 'border-border hover:border-accent/50 hover:bg-accent/5'
+                   } ${method.status === 'disabled' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                   onClick={() => method.status !== 'disabled' && setSelectedMethod(method.id)}
                  >
-                   {method.icon}
-                   <span className="text-center leading-tight">{getShortName(method.name)}</span>
-                 </TabsTrigger>
-               ))}
-             </TabsList>
-               
-               {paymentMethods.map((method) => (
-                 <TabsContent key={method.id} value={method.id} className="bg-transparent">
-                   <div className="space-y-8">
-                     <div className="flex items-center justify-end">
+                   <CardContent className="p-4 space-y-3">
+                     <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                         {method.icon}
+                         <span className="font-mono text-sm font-semibold">
+                           {getShortName(method.name)}
+                         </span>
+                       </div>
+                       {selectedMethod === method.id && (
+                         <div className="w-4 h-4 bg-green-600 rounded-full flex items-center justify-center">
+                           <Check size={10} className="text-white" />
+                         </div>
+                       )}
+                     </div>
+                     
+                     <div className="text-xs text-muted-foreground">
+                       {method.description}
+                     </div>
+                     
+                     <div className="flex justify-end">
                        {getStatusBadge(method.status)}
                      </div>
+                   </CardContent>
+                 </Card>
+               ))}
+             </div>
 
-                     {method.status === 'active' && (
-                       <div className="pt-2">
+             {/* Selected Method Details */}
+             {selectedMethod && (
+               <div className="space-y-4">
+                 <div className="border-t border-border pt-6">
+                    <h4 className="font-mono font-semibold text-foreground mb-4">
+                      {"Payment Details"}
+                    </h4>
+                   
+                   {/* Selected Tier Summary */}
+                   <div className="bg-muted/20 border border-border rounded-lg p-4 mb-4">
+                     <div className="flex items-center justify-between">
+                       <div>
+                         <h5 className="font-mono font-semibold">{selectedTier.name}</h5>
+                         <p className="text-sm text-muted-foreground">{selectedTier.description}</p>
+                       </div>
+                       <div className="text-2xl font-bold text-accent">
+                         ${selectedTier.price}
+                       </div>
+                     </div>
+                   </div>
+
+                   {/* Selected Payment Method Info */}
+                   {(() => {
+                     const method = paymentMethods.find(m => m.id === selectedMethod);
+                     if (!method) return null;
+                     
+                     return (
+                       <div className="bg-accent/5 border border-accent/20 rounded-lg p-4 mb-6">
+                         <div className="flex items-center gap-3 mb-2">
+                           {method.icon}
+                           <span className="font-mono font-semibold">{method.name}</span>
+                           {getStatusBadge(method.status)}
+                         </div>
+                         <p className="text-sm text-muted-foreground">{method.description}</p>
+                       </div>
+                     );
+                   })()}
+
+                   {/* Action Button */}
+                   {(() => {
+                     const method = paymentMethods.find(m => m.id === selectedMethod);
+                     if (!method) return null;
+                     
+                     if (method.status === 'coming-soon') {
+                       return (
+                         <Alert className="border-orange-500/20 bg-orange-500/5">
+                           <AlertCircle className="h-5 w-5 text-orange-500" />
+                            <AlertDescription className="text-orange-400 font-mono">
+                              {t.thisPaymentMethodComingSoon}
+                            </AlertDescription>
+                         </Alert>
+                       );
+                     }
+                     
+                     if (method.status === 'active') {
+                       return (
                          <Button
                            onClick={handlePayment}
                            disabled={isProcessing || !user}
                            className="w-full p-4 text-base font-mono"
+                           size="lg"
                          >
                            {isProcessing ? (
                              <>
-                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-3"></div>
-                               {t.processing}
-                             </>
-                           ) : (
-                             <>
-                               {flowType === 'degen' ? <Crown size={18} className="mr-3" /> : <Heart size={18} className="mr-3" />}
-                               {flowType === 'degen' ? t.activateDegenPlan : t.completeDonation}
+                               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                                {t.processing}
+                              </>
+                            ) : (
+                              <>
+                                {flowType === 'degen' ? <Crown size={20} className="mr-3" /> : <Heart size={20} className="mr-3" />}
+                                {flowType === 'degen' 
+                                  ? t.activateDegenPlan
+                                  : t.completeDonation
+                                }
                              </>
                            )}
                          </Button>
-                       </div>
-                     )}
-                   </div>
-                 </TabsContent>
-               ))}
-             </Tabs>
+                       );
+                     }
+                     
+                     return null;
+                   })()}
+                 </div>
+               </div>
+             )}
            </CardContent>
          </Card>
        )}
