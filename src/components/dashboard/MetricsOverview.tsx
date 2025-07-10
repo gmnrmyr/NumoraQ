@@ -82,8 +82,8 @@ export const MetricsOverview = () => {
         { id: 'demo-inc-4', source: 'Freelance', amount: 1500, frequency: 'monthly', status: 'active' as const, icon: '💻', category: 'freelance' },
       ],
       debts: [
-        { id: 'demo-debt-1', creditor: 'Credit Card', amount: 2500, isActive: true, status: 'active' },
-        { id: 'demo-debt-2', creditor: 'Student Loan', amount: 15000, isActive: true, status: 'active' },
+        { id: 'demo-debt-1', creditor: 'Credit Card', amount: 2500, dueDate: '2024-01-15', status: 'pending' as const, icon: '💳', isActive: true },
+        { id: 'demo-debt-2', creditor: 'Student Loan', amount: 15000, dueDate: '2024-02-01', status: 'pending' as const, icon: '🎓', isActive: true },
       ]
     };
 

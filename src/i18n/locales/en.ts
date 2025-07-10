@@ -56,6 +56,7 @@ export const en: Translations = {
   inactive: 'Inactive',
   completed: 'Completed',
   pending: 'Pending',
+  status: 'Status',
   
   high: 'High',
   medium: 'Medium',
@@ -135,7 +136,7 @@ export const en: Translations = {
   // Debt-specific terms
   creditor: 'Creditor',
   dueDate: 'Due Date',
-  status: 'Status',
+  debtStatus: 'Status',
   partial: 'Partial',
   paid: 'Paid',
   due: 'Due',
@@ -168,7 +169,7 @@ export const en: Translations = {
   premiumExperience: 'Premium Experience',
   
   // Wallet connection
-  solanaWallet: 'Solana Wallet',
+  solanaWalletConnect: 'Solana Wallet',
   evmWallet: 'EVM Wallet',
   connectSolana: 'Connect Solana',
   connectMetamask: 'Connect MetaMask',
@@ -272,7 +273,8 @@ export const en: Translations = {
   connectMetamaskWallets: 'Connect MetaMask or other EVM wallets',
   instantBrazilianPayments: 'Instant Brazilian payments via PIX',
   brazilianBankSlip: 'Brazilian bank slip payment method',
-  active: 'Active',
+  securePaymentProcessing: 'Secure Payment Processing',
+  paymentActive: 'Active',
   disabled: 'Disabled',
   
   // Navigation between payment pages
@@ -293,6 +295,6 @@ export const en: Translations = {
   community: 'Community',
   github: 'GitHub',
   xTwitter: 'X (Twitter)',
-  status: 'Status',
+  systemStatus: 'Status',
   allSystemsOperational: 'All systems operational',
 };

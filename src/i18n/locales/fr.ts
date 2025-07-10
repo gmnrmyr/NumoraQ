@@ -56,6 +56,7 @@ export const fr: Translations = {
   inactive: 'Inactif',
   completed: 'Terminé',
   pending: 'En Attente',
+  status: 'Statut',
   
   high: 'Élevé',
   medium: 'Moyen',
@@ -135,7 +136,7 @@ export const fr: Translations = {
   // Debt-specific terms
   creditor: 'Créancier',
   dueDate: 'Date d\'Échéance',
-  status: 'Statut',
+  debtStatus: 'Statut',
   partial: 'Partiel',
   paid: 'Payé',
   due: 'Échéance',
@@ -168,7 +169,7 @@ export const fr: Translations = {
   premiumExperience: 'Expérience Premium',
   
   // Wallet connection
-  solanaWallet: 'Portefeuille Solana',
+  solanaWalletConnect: 'Portefeuille Solana',
   evmWallet: 'Portefeuille EVM',
   connectSolana: 'Connecter Solana',
   connectMetamask: 'Connecter MetaMask',
@@ -206,7 +207,7 @@ export const fr: Translations = {
   community: 'Communauté',
   github: 'GitHub',
   xTwitter: 'X (Twitter)',
-  status: 'Statut',
+  systemStatus: 'Statut',
   allSystemsOperational: 'Tous les systèmes opérationnels',
   
   // Portfolio section
