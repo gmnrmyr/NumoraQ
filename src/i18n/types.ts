@@ -22,6 +22,14 @@ export interface Translations {
   signIn: string;
   signOut: string;
   
+  // Auth
+  login: string;
+  register: string;
+  createAccount: string;
+  loginWithGoogle: string;
+  signInToSave: string;
+  createAccountToSync: string;
+  
   // Dashboard metrics
   availableNow: string;
   monthlyIncome: string;
@@ -278,6 +286,8 @@ export interface Translations {
   
   // Payment methods
   creditCardStripe: string;
+  selectPaymentMethod: string;
+  paymentDetails: string;
   solanaWallet: string;
   paypal: string;
   evmDirectTransfer: string;
