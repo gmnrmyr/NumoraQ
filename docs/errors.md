@@ -1,0 +1,11 @@
+when tryinig to improve the app, by implementing the stripe payment integration on month degen and lifetime degen, i lost the following:
+
+- admin hability to create degen codes
+- users lost their degen status (lifetime, etc)
+- user lost their donation tags (whale, champion, etc.)
+- degen users are now seeing ads (cause they`re no longer degen)
+- stripe still doesnt work, we broke trying to make it work and we actually lost a lot of the app (above)
+- ai chatbot no longer work (because users lost degen status, and AI was only for degen statuses.)
+
+------------------------
+
