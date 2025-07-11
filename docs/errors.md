@@ -9,3 +9,12 @@ when tryinig to improve the app, by implementing the stripe payment integration 
 
 ------------------------
 
+The functionality stays the same, but we lost it on backend. So instead of restoring it, we just keep as it is and continue from here.
+
+when we manage to make stripe and solana payments work for both degen plans and donation tiers, then we can restore the following:
+
+- admin hability to create degen codes and assign points (two different things on admin panel)
+- then we will see if ai chatbot and no ads work back again.
+
+----> Then, we will be able to continue with the app, adding functionality from system-architecture.md.
+
