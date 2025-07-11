@@ -1,4 +1,4 @@
-when tryinig to improve the app, by implementing the stripe payment integration on month degen and lifetime degen, i lost the following:
+when tryinig to improve the app, by implementing the stripe payment integration on month degen and lifetime degen, i lost the following: (we broke backend on supabase probably..)
 
 - admin hability to create degen codes
 - users lost their degen status (lifetime, etc)
