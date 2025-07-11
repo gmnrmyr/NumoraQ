@@ -46,25 +46,25 @@ export type Database = {
       }
       cms_settings: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: string
           setting_key: string
           setting_value: Json
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           setting_key: string
           setting_value: Json
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           setting_key?: string
           setting_value?: Json
-          updated_at?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -92,42 +92,72 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_sessions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string
+          expires_at: string
+          id: string
+          metadata: Json | null
+          payment_method: string
+          status: string
+          subscription_plan: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string
+          expires_at: string
+          id?: string
+          metadata?: Json | null
+          payment_method: string
+          status?: string
+          subscription_plan: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string
+          expires_at?: string
+          id?: string
+          metadata?: Json | null
+          payment_method?: string
+          status?: string
+          subscription_plan?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       premium_codes: {
         Row: {
           code: string
-          code_type: string
-          created_at: string
-          created_by: string | null
-          expires_at: string | null
+          created_at: string | null
           id: string
-          is_active: boolean
+          is_used: boolean | null
           used_at: string | null
           used_by: string | null
-          user_email: string | null
         }
         Insert: {
           code: string
-          code_type: string
-          created_at?: string
-          created_by?: string | null
-          expires_at?: string | null
+          created_at?: string | null
           id?: string
-          is_active?: boolean
+          is_used?: boolean | null
           used_at?: string | null
           used_by?: string | null
-          user_email?: string | null
         }
         Update: {
           code?: string
-          code_type?: string
-          created_at?: string
-          created_by?: string | null
-          expires_at?: string | null
+          created_at?: string | null
           id?: string
-          is_active?: boolean
+          is_used?: boolean | null
           used_at?: string | null
           used_by?: string | null
-          user_email?: string | null
         }
         Relationships: []
       }
@@ -202,74 +232,63 @@ export type Database = {
       }
       user_points: {
         Row: {
-          activity_date: string
-          activity_type: string
-          created_at: string
-          id: string
-          points: number
+          created_at: string | null
+          highest_tier: string | null
+          points: number | null
+          total_donated: number | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
-          activity_date?: string
-          activity_type: string
-          created_at?: string
-          id?: string
-          points?: number
+          created_at?: string | null
+          highest_tier?: string | null
+          points?: number | null
+          total_donated?: number | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
-          activity_date?: string
-          activity_type?: string
-          created_at?: string
-          id?: string
-          points?: number
+          created_at?: string | null
+          highest_tier?: string | null
+          points?: number | null
+          total_donated?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
       }
       user_premium_status: {
         Row: {
-          activated_at: string | null
-          activated_code: string | null
-          created_at: string
-          expires_at: string | null
-          id: string
-          is_premium: boolean
-          premium_type: string | null
-          updated_at: string
+          created_at: string | null
+          is_premium: boolean | null
+          premium_expires_at: string | null
+          premium_plan: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
-          activated_at?: string | null
-          activated_code?: string | null
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          is_premium?: boolean
-          premium_type?: string | null
-          updated_at?: string
+          created_at?: string | null
+          is_premium?: boolean | null
+          premium_expires_at?: string | null
+          premium_plan?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
-          activated_at?: string | null
-          activated_code?: string | null
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          is_premium?: boolean
-          premium_type?: string | null
-          updated_at?: string
+          created_at?: string | null
+          is_premium?: boolean | null
+          premium_expires_at?: string | null
+          premium_plan?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_premium_status_activated_code_fkey"
-            columns: ["activated_code"]
-            isOneToOne: false
-            referencedRelation: "premium_codes"
-            referencedColumns: ["code"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {

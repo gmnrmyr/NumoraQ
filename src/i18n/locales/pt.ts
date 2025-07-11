@@ -24,6 +24,7 @@ export const pt: Translations = {
   loginWithGoogle: 'Entrar com Google',
   signInToSave: 'Entre para salvar seus dados',
   createAccountToSync: 'Crie uma conta para sincronizar seus dados financeiros entre dispositivos e acessar recursos premium.',
+  createAccountToSync: 'Crie uma conta para sincronizar seus dados financeiros entre dispositivos e acessar recursos premium.',
   
   availableNow: 'Disponível Agora',
   monthlyIncome: 'Receita Mensal',
@@ -282,6 +283,8 @@ export const pt: Translations = {
   securePaymentProcessing: 'Processamento Seguro de Pagamentos',
   paymentActive: 'Ativo',
   disabled: 'Desabilitado',
+  selectPaymentMethod: 'Selecionar Método de Pagamento',
+  paymentDetails: 'Detalhes do Pagamento',
   
   // Navigation between payment pages
   switchToDonations: 'Mudar para Doações',

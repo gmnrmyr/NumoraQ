@@ -282,6 +282,8 @@ export const en: Translations = {
   securePaymentProcessing: 'Secure Payment Processing',
   paymentActive: 'Active',
   disabled: 'Disabled',
+  selectPaymentMethod: 'Select Payment Method',
+  paymentDetails: 'Payment Details',
   
   // Navigation between payment pages
   switchToDonations: 'Switch to Donations',
