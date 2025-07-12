@@ -24,7 +24,8 @@ export const pt: Translations = {
   loginWithGoogle: 'Entrar com Google',
   signInToSave: 'Entre para salvar seus dados',
   createAccountToSync: 'Crie uma conta para sincronizar seus dados financeiros entre dispositivos e acessar recursos premium.',
-  createAccountToSync: 'Crie uma conta para sincronizar seus dados financeiros entre dispositivos e acessar recursos premium.',
+  resetPassword: 'Redefinir Senha',
+  backToLogin: 'Voltar ao Login',
   
   availableNow: 'Disponível Agora',
   monthlyIncome: 'Receita Mensal',

@@ -34,7 +34,7 @@ export const PremiumSubscriptionPanel = () => {
     processPayPalPayment,
     processCryptoPayment,
     cancelPaymentSession,
-    getPaymentMethods
+    // getPaymentMethods
   } = usePaymentProcessing();
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan>('6months');
@@ -42,7 +42,7 @@ export const PremiumSubscriptionPanel = () => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [cryptoTransactionHash, setCryptoTransactionHash] = useState('');
 
-  const availablePaymentMethods = getPaymentMethods();
+  const availablePaymentMethods = ['stripe', 'solana'];
 
   const handleSubscribe = async () => {
     if (!user) {
@@ -63,7 +63,7 @@ export const PremiumSubscriptionPanel = () => {
       return;
     }
 
-    const session = await createPaymentSession(selectedPlan, selectedPaymentMethod);
+    const session = await createPaymentSession(selectedPlan, selectedPaymentMethod, user.id);
     if (session) {
       setShowPaymentDialog(true);
     }
@@ -76,7 +76,7 @@ export const PremiumSubscriptionPanel = () => {
     
     switch (selectedPaymentMethod) {
       case 'stripe':
-        success = await processStripePayment(currentSession.id);
+        success = await processStripePayment(currentSession.id, user.id);
         break;
       case 'paypal':
         success = await processPayPalPayment(currentSession.id);

@@ -90,10 +90,9 @@ export const SimpleDashboard: React.FC = () => {
     addActiveIncome({
       source: "New Income",
       amount: 0,
-      frequency: 'monthly',
       status: 'active',
       icon: '💼',
-      category: 'employment'
+      // category: 'employment'
     });
     setShowAddIncome(false);
   };
@@ -113,9 +112,9 @@ export const SimpleDashboard: React.FC = () => {
     addLiquidAsset({
       name: "New Asset",
       value: 0,
-      type: 'manual',
       isActive: true,
-      icon: '💵'
+      icon: '💵',
+      color: '#22c55e'
     });
     setShowAddAsset(false);
   };
@@ -246,10 +245,8 @@ export const SimpleDashboard: React.FC = () => {
         addActiveIncome({
           source: "New Income",
           amount: 0,
-          frequency: 'monthly',
           status: 'active',
-          icon: '💼',
-          category: 'employment'
+          icon: '💼'
         });
         break;
       case 'expense':
@@ -265,9 +262,9 @@ export const SimpleDashboard: React.FC = () => {
         addLiquidAsset({
           name: "New Asset",
           value: 0,
-          type: 'manual',
           isActive: true,
-          icon: '💵'
+          icon: '💵',
+          color: '#22c55e'
         });
         break;
     }
@@ -383,7 +380,7 @@ export const SimpleDashboard: React.FC = () => {
                           <div 
                             key={index}
                             className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/70 transition-colors"
-                            onClick={() => handleOnboardingEdit(item, currentStep.dataType)}
+                            onClick={() => handleOnboardingEdit(item, currentStep.dataType as 'income' | 'expense' | 'asset')}
                           >
                             <div className="flex items-center gap-3">
                               <Icon size={16} className="text-primary" />
@@ -408,7 +405,7 @@ export const SimpleDashboard: React.FC = () => {
                   {/* Add New Item Button */}
                   <div className="text-center">
                     <Button
-                      onClick={() => handleOnboardingAddItem(currentStep.dataType)}
+                      onClick={() => handleOnboardingAddItem(currentStep.dataType as 'income' | 'expense' | 'asset')}
                       variant="outline"
                       className="brutalist-button"
                     >
