@@ -1,0 +1,3 @@
+- [ ] Fix Stripe integration (degen plans and donation tiers)
+- [ ] Fix Solana integration (degen plans and donation tiers)
+- [ ] Fix CMS functionality (degen code creation and degen points assignment for admins)
