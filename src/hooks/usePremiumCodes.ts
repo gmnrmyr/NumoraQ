@@ -57,41 +57,40 @@ export const usePremiumCodes = () => {
 
   const generateCode = async (codeType: '1year' | '5years' | 'lifetime') => {
     try {
-      const code = `DEGEN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-      
-      let expiresAt = null;
-      if (codeType !== 'lifetime') {
-        const expiry = new Date();
-        expiry.setFullYear(expiry.getFullYear() + (codeType === '1year' ? 1 : 5));
-        expiresAt = expiry.toISOString();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('User not authenticated');
       }
 
-      const { data: user } = await supabase.auth.getUser();
-      
-      const { error } = await supabase
-        .from('premium_codes')
-        .insert({
-          code,
-          code_type: codeType,
-          expires_at: expiresAt,
-          created_by: user.user?.id
-        });
+      // Use the edge function to generate code
+      const response = await fetch(`https://hcnoxyfztviuwkiysitm.supabase.co/functions/v1/premium-codes/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ codeType })
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate code');
+      }
 
+      const data = await response.json();
       await loadCodes();
       
       toast({
         title: "Code Generated",
-        description: `Premium code ${code} (${codeType}) created successfully`
+        description: `Premium code ${data.code} (${codeType}) created successfully`
       });
 
-      return code;
+      return data.code;
     } catch (error) {
       console.error('Error generating premium code:', error);
       toast({
         title: "Error",
-        description: "Failed to generate premium code",
+        description: error instanceof Error ? error.message : "Failed to generate premium code",
         variant: "destructive"
       });
       return null;
@@ -100,8 +99,8 @@ export const usePremiumCodes = () => {
 
   const activateCode = async (code: string, userEmail?: string) => {
     try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
         toast({
           title: "Error",
           description: "You must be logged in to activate a code",
@@ -110,71 +109,27 @@ export const usePremiumCodes = () => {
         return false;
       }
 
-      // Check if code exists and is active
-      const { data: codeData, error: codeError } = await supabase
-        .from('premium_codes')
-        .select('*')
-        .eq('code', code)
-        .eq('is_active', true)
-        .is('used_by', null)
-        .single();
+      // Use the edge function to activate code
+      const response = await fetch(`https://hcnoxyfztviuwkiysitm.supabase.co/functions/v1/premium-codes/activate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ code, userEmail })
+      });
 
-      if (codeError || !codeData) {
-        toast({
-          title: "Invalid Code",
-          description: "Code not found or already used",
-          variant: "destructive"
-        });
-        return false;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to activate code');
       }
 
-      // Calculate expiry based on code type
-      const now = new Date();
-      let expiresAt: Date | null = null;
-      
-      switch (codeData.code_type) {
-        case '1year':
-          expiresAt = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
-          break;
-        case '5years':
-          expiresAt = new Date(now.getFullYear() + 5, now.getMonth(), now.getDate());
-          break;
-        case 'lifetime':
-          expiresAt = new Date(2099, 11, 31);
-          break;
-      }
-
-      // Update premium code as used
-      const { error: updateError } = await supabase
-        .from('premium_codes')
-        .update({
-          used_by: user.user.id,
-          used_at: now.toISOString(),
-          user_email: userEmail || user.user.email
-        })
-        .eq('code', code);
-
-      if (updateError) throw updateError;
-
-      // Update user premium status
-      const { error: statusError } = await supabase
-        .from('user_premium_status')
-        .upsert({
-          user_id: user.user.id,
-          is_premium: true,
-          premium_type: codeData.code_type,
-          activated_at: now.toISOString(),
-          expires_at: expiresAt?.toISOString(),
-          activated_code: code
-        });
-
-      if (statusError) throw statusError;
-
+      const data = await response.json();
       await loadCodes();
       
       toast({
         title: "Code Activated",
-        description: `Premium access activated successfully (${codeData.code_type})`
+        description: `Premium access activated successfully (${data.codeType})`
       });
 
       return true;
@@ -182,7 +137,7 @@ export const usePremiumCodes = () => {
       console.error('Error activating premium code:', error);
       toast({
         title: "Error",
-        description: "Failed to activate premium code",
+        description: error instanceof Error ? error.message : "Failed to activate premium code",
         variant: "destructive"
       });
       return false;

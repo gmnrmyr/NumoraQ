@@ -118,14 +118,18 @@ async function activatePremiumAccess(userId: string, tier: PaymentTier, sessionI
     expirationDate.setFullYear(expirationDate.getFullYear() + 1); // 1 year
   }
 
-  // Update user premium status
+  // Update user premium status using service role (bypasses RLS)
   const { error: premiumError } = await supabase
     .from('user_premium_status')
     .upsert({
       user_id: userId,
       is_premium: true,
+      premium_type: tier.tier.toLowerCase().replace('_', ''),
       premium_plan: tier.tier.toLowerCase().replace('_', ''),
+      activated_at: new Date().toISOString(),
+      expires_at: expirationDate.toISOString(),
       premium_expires_at: expirationDate.toISOString(),
+      payment_session_id: sessionId,
       updated_at: new Date().toISOString()
     });
 

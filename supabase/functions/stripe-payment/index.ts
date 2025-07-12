@@ -232,15 +232,17 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
   const expirationDate = new Date()
   expirationDate.setDate(expirationDate.getDate() + plan.duration_days)
 
-  // Update user premium status
+  // Update user premium status using service role (bypasses RLS)
   const { error: premiumError } = await supabase
     .from('user_premium_status')
     .upsert({
       user_id: userId,
       is_premium: true,
       premium_type: plan.plan,
+      premium_plan: plan.plan,
       activated_at: new Date().toISOString(),
       expires_at: expirationDate.toISOString(),
+      premium_expires_at: expirationDate.toISOString(),
       payment_session_id: sessionId,
       updated_at: new Date().toISOString()
     })
@@ -250,7 +252,7 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
     throw premiumError
   }
 
-  // Update payment session status
+  // Update payment session status using service role (bypasses RLS)
   const { error: sessionError } = await supabase
     .from('payment_sessions')
     .update({ 
@@ -268,15 +270,32 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
 }
 
 async function activateDonationTier(userId: string, tier: DonationTier, sessionId: string) {
-  // Add points to user's account
+  // Get existing user points to add to them (not replace)
+  const { data: existingPoints, error: fetchError } = await supabase
+    .from('user_points')
+    .select('points, total_donated')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (fetchError && fetchError.code !== 'PGRST116') {
+    console.error('Error fetching user points:', fetchError)
+    throw fetchError
+  }
+
+  const currentPoints = existingPoints?.points || 0
+  const currentDonated = existingPoints?.total_donated || 0
+
+  // Update user points with accumulated values using service role (bypasses RLS)
   const { error: pointsError } = await supabase
     .from('user_points')
     .upsert({
       user_id: userId,
-      points: tier.points,
+      points: currentPoints + tier.points,
+      total_donated: currentDonated + tier.amount,
+      highest_tier: tier.tier.toLowerCase(),
       activity_type: 'donation',
       activity_date: new Date().toISOString().split('T')[0],
-      created_at: new Date().toISOString()
+      updated_at: new Date().toISOString()
     })
 
   if (pointsError) {
@@ -284,7 +303,7 @@ async function activateDonationTier(userId: string, tier: DonationTier, sessionI
     throw pointsError
   }
 
-  // Update payment session status
+  // Update payment session status using service role (bypasses RLS)
   const { error: sessionError } = await supabase
     .from('payment_sessions')
     .update({ 
