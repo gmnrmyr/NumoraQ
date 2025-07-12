@@ -125,10 +125,8 @@ async function activatePremiumAccess(userId: string, tier: PaymentTier, sessionI
       user_id: userId,
       is_premium: true,
       premium_type: tier.tier.toLowerCase().replace('_', ''),
-      premium_plan: tier.tier.toLowerCase().replace('_', ''),
       activated_at: new Date().toISOString(),
       expires_at: expirationDate.toISOString(),
-      premium_expires_at: expirationDate.toISOString(),
       payment_session_id: sessionId,
       updated_at: new Date().toISOString()
     });
@@ -142,33 +140,21 @@ async function activatePremiumAccess(userId: string, tier: PaymentTier, sessionI
 }
 
 async function activateDonationTier(userId: string, tier: PaymentTier, sessionId: string) {
-  // Update user points
-  const { data: existingPoints, error: fetchError } = await supabase
-    .from('user_points')
-    .select('points, total_donated')
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  if (fetchError && fetchError.code !== 'PGRST116') {
-    console.error('Error fetching user points:', fetchError);
-    throw fetchError;
-  }
-
-  const currentPoints = existingPoints?.points || 0;
-  const currentDonated = existingPoints?.total_donated || 0;
-
+  // Add donation points to user_points table
   const { error: pointsError } = await supabase
     .from('user_points')
-    .upsert({
+    .insert({
       user_id: userId,
-      points: currentPoints + tier.points,
-      total_donated: currentDonated + tier.usdValue,
-      highest_tier: tier.tier.toLowerCase(),
-      updated_at: new Date().toISOString()
+      points: tier.points,
+      activity_type: 'donation',
+      activity_date: new Date().toISOString().split('T')[0],
+      donation_amount: tier.usdValue,
+      donation_tier: tier.tier.toLowerCase(),
+      notes: `Solana donation: ${tier.tier}`
     });
 
   if (pointsError) {
-    console.error('Error updating user points:', pointsError);
+    console.error('Error adding donation points:', pointsError);
     throw pointsError;
   }
 

@@ -95,8 +95,7 @@ serve(async (req) => {
           code_type: codeType,
           expires_at: expiresAt,
           created_by: userId,
-          is_active: true,
-          is_used: false
+          is_active: true
         })
 
       if (error) {
@@ -192,10 +191,9 @@ serve(async (req) => {
           user_id: userId,
           is_premium: true,
           premium_type: codeData.code_type,
-          premium_plan: codeData.code_type,
           activated_at: now.toISOString(),
           expires_at: expiresAt?.toISOString(),
-          premium_expires_at: expiresAt?.toISOString(),
+          activated_code: code,
           updated_at: now.toISOString()
         })
 

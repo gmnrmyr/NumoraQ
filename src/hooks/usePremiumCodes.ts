@@ -63,7 +63,7 @@ export const usePremiumCodes = () => {
       }
 
       // Use the edge function to generate code
-      const response = await fetch(`https://hcnoxyfztviuwkiysitm.supabase.co/functions/v1/premium-codes/generate`, {
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/premium-codes/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ export const usePremiumCodes = () => {
       }
 
       // Use the edge function to activate code
-      const response = await fetch(`https://hcnoxyfztviuwkiysitm.supabase.co/functions/v1/premium-codes/activate`, {
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/premium-codes/activate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

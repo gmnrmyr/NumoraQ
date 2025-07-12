@@ -291,12 +291,18 @@ export const usePaymentProcessing = () => {
         throw new Error('Payment session not found');
       }
 
+      // Get the current user session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('User not authenticated');
+      }
+
       // Call the Stripe Edge Function to create checkout session
-      const response = await fetch(`https://hcnoxyfztviuwkiysitm.supabase.co/functions/v1/stripe-payment/create-checkout-session`, {
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/stripe-payment/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ***REMOVED***`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           sessionId: sessionId,
