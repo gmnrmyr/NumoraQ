@@ -13,7 +13,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // Stripe configuration
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') || 'sk_test_51Rj4WCLiONz4H0DzdKAVwkIk6ODhKAA1AgFt27xII7E6lnWKxjFXOEbE4rH3Bm5eHovFjLNM4eOS2v7LCJ8ASP5Q00nbsIt597';
-const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')
+const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET') || 'whsec_l0NkY7tWgKlFMCqWaZvVJplVzpJ3faoe';
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51Rj4WCLiONz4H0DzG7kW8rB81KhHHRMOEX96bqeq26YbbCtVKDf9r8fzV8zPZzqO3X4KjcW9Xl6wsOXlRIHaISzk00Gwi9ixCY';
 
 interface PaymentSession {
@@ -428,6 +428,95 @@ serve(async (req) => {
         JSON.stringify({ received: true }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       )
+    }
+
+    // Fallback activation endpoint for when webhooks fail
+    if ((path === '/activate-payment' || path.endsWith('/activate-payment')) && req.method === 'POST') {
+      const body = await req.json()
+      const { stripeSessionId, userId } = body
+
+      if (!stripeSessionId || !userId) {
+        return new Response(
+          JSON.stringify({ error: 'Missing required parameters' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        )
+      }
+
+      try {
+        const stripe = await import('https://esm.sh/stripe@14.21.0?target=deno')
+        const stripeClient = stripe.default(STRIPE_SECRET_KEY, {
+          apiVersion: '2024-12-18.acacia',
+          httpClient: stripe.Stripe.createFetchHttpClient(),
+        })
+
+        // Get the Stripe session to verify payment
+        const stripeSession = await stripeClient.checkout.sessions.retrieve(stripeSessionId)
+        
+        if (stripeSession.payment_status !== 'paid') {
+          return new Response(
+            JSON.stringify({ error: 'Payment not completed' }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+          )
+        }
+
+        const { session_id, plan, payment_type } = stripeSession.metadata
+
+        // Get user ID from the session
+        const { data: sessionData, error: sessionError } = await supabase
+          .from('payment_sessions')
+          .select('user_id')
+          .eq('id', session_id)
+          .single()
+
+        if (sessionError || !sessionData || sessionData.user_id !== userId) {
+          console.error('Error fetching payment session:', sessionError)
+          return new Response(
+            JSON.stringify({ error: 'Session not found or user mismatch' }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+          )
+        }
+
+        if (payment_type === 'degen') {
+          const planInfo = degenPlans[plan]
+          if (!planInfo) {
+            return new Response(
+              JSON.stringify({ error: 'Invalid plan' }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+            )
+          }
+
+          await activatePremiumAccess(sessionData.user_id, planInfo, session_id)
+          console.log(`Premium access activated via fallback for user ${sessionData.user_id}, plan: ${plan}`)
+        } else if (payment_type === 'donation') {
+          const tierInfo = donationTiers[plan]
+          if (!tierInfo) {
+            return new Response(
+              JSON.stringify({ error: 'Invalid tier' }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+            )
+          }
+
+          await activateDonationTier(sessionData.user_id, tierInfo, session_id)
+          console.log(`Donation tier activated via fallback for user ${sessionData.user_id}, tier: ${plan}`)
+        }
+
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: 'Payment activated successfully',
+            plan: plan,
+            type: payment_type
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        )
+
+      } catch (error) {
+        console.error('Fallback activation error:', error)
+        return new Response(
+          JSON.stringify({ error: error.message }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        )
+      }
     }
 
     return new Response(
