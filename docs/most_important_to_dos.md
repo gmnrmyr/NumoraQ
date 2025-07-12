@@ -3,7 +3,9 @@
 
 - [ ] Fix Solana integration (degen plans and donation tiers) (still not working)
 
-- [ ] Fix CMS functionality (degen code creation and degen points assignment for admins) [partially working for degen codes. it create but auto assign for the logged user, which is incorrect. we want to give this codes to friends.] [also, our indication that degen is connected and for how many times in dashboard is not working i think]. -> Partially working. Admins can create but they assign to themselves. When other users try to use the code, it says that the code is not valid or has already been used. besides that, whe users that CMS shows that are degen, on user_config_ui (panel on dashboard) they are not shown as degen with the tag, nor with the time of this degen (used to show lifetime, month, or something..)
+- [ ] Fix CMS functionality (degen code creation and degen points assignment for admins) [partially working for degen codes] <--- working partially, cause it doenst apply the degen status, despite being shown as applied on cms. and I'm worried to ask you to make this work cause i dont want it to break the stripe functionality. but would be really nice to have it.
+
+- [ ] User Management & UID System (for admins to assign points to users for tiers testing is not working)
 
 
 ----
