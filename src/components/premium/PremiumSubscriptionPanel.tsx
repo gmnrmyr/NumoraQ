@@ -63,7 +63,7 @@ export const PremiumSubscriptionPanel = () => {
       return;
     }
 
-    const session = await createPaymentSession(selectedPlan, selectedPaymentMethod, user.id);
+    const session = await createPaymentSession(selectedPlan, selectedPaymentMethod, 'degen');
     if (session) {
       setShowPaymentDialog(true);
     }
@@ -76,7 +76,7 @@ export const PremiumSubscriptionPanel = () => {
     
     switch (selectedPaymentMethod) {
       case 'stripe':
-        success = await processStripePayment(currentSession.id, user.id);
+        success = await processStripePayment(currentSession.id, 'degen');
         break;
       case 'paypal':
         success = await processPayPalPayment(currentSession.id);
@@ -261,8 +261,8 @@ export const PremiumSubscriptionPanel = () => {
                   <div key={method} className="flex items-center space-x-2">
                     <RadioGroupItem value={method} id={method} />
                     <Label htmlFor={method} className="flex items-center gap-2 cursor-pointer">
-                      {getPaymentMethodIcon(method)}
-                      {getPaymentMethodName(method)}
+                      {getPaymentMethodIcon(method as PaymentMethod)}
+                      {getPaymentMethodName(method as PaymentMethod)}
                     </Label>
                   </div>
                 ))}

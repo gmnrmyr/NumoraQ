@@ -24,6 +24,8 @@ export const en: Translations = {
   loginWithGoogle: 'Login with Google',
   signInToSave: 'Sign in to save your data',
   createAccountToSync: 'Create an account to sync your financial data across devices and access premium features.',
+  resetPassword: 'Reset Password',
+  backToLogin: 'Back to Login',
   
   availableNow: 'Available Now',
   monthlyIncome: 'Monthly Income',

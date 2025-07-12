@@ -299,6 +299,8 @@ export const fr: Translations = {
   securePaymentProcessing: 'Traitement Sécurisé des Paiements',
   paymentActive: 'Actif',
   disabled: 'Désactivé',
+  selectPaymentMethod: 'Sélectionner une Méthode de Paiement',
+  paymentDetails: 'Détails du Paiement',
   
   // Navigation between payment pages
   switchToDonations: 'Passer aux Dons',
