@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings, RefreshCw, Lock } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useAdminMode } from '@/hooks/useAdminMode';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { toast } from "@/hooks/use-toast";
 import { useUserTitle } from '@/hooks/useUserTitle';
 import { ThemeSelector } from './devmenu/ThemeSelector';
@@ -15,7 +16,20 @@ export const DevMenu = () => {
   const [tab, setTab] = useState("theme"); // <-- Add controlled tab state
   const { data, updateUserProfile } = useFinancialData();
   const { activatePremiumCode } = useAdminMode();
+  const { refetch: refetchPremiumStatus } = usePremiumStatus();
   const { userTitle } = useUserTitle();
+
+  // Wrapper function to handle premium code activation and refresh status
+  const activatePremiumCodeWithRefresh = async (code: string, userName: string) => {
+    const success = await activatePremiumCode(code, userName);
+    if (success) {
+      // Add a small delay to ensure database update is processed
+      setTimeout(async () => {
+        await refetchPremiumStatus();
+      }, 1000);
+    }
+    return success;
+  };
 
   // Check if user has CHAMPION role (2000+ points)
   const isChampionUser = userTitle.level >= 2000 || userTitle.title === 'CHAMPION';
@@ -176,7 +190,7 @@ export const DevMenu = () => {
 
           <TabsContent value="degen">
             <DegenModePanel 
-              activatePremiumCode={activatePremiumCode}
+              activatePremiumCode={activatePremiumCodeWithRefresh}
               userName={data.userProfile.name}
             />
           </TabsContent>

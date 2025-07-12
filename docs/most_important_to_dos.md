@@ -11,6 +11,7 @@
 ----
 
 - [ ] Make new users trigger 30 days free trial. <--- should also be showing on user_config_ui (panel on dashboard). And for now when the trial is over, it should be showing the user that the trial is over and that they need to pay to continue using the app. (of course, unless he adds a degen coupon or pay the app)
+(basically, users that are not degen should have this time being triggered properly I think))
 
 
 -----

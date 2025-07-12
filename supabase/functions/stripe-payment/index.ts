@@ -290,9 +290,9 @@ async function activateDonationTier(userId: string, tier: DonationTier, sessionI
       points: tier.points,
       activity_type: 'donation',
       activity_date: new Date().toISOString().split('T')[0],
+      notes: `Stripe Donation: ${tier.description}`,
       donation_amount: tier.amount,
-      donation_tier: tier.tier.toLowerCase(),
-      notes: `Donation: ${tier.description}`
+      donation_tier: tier.tier.toLowerCase()
     })
 
   if (pointsError) {

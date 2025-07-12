@@ -7,8 +7,6 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 export const PremiumStatusIndicator = () => {
   const { isPremiumUser, premiumDetails } = usePremiumStatus();
   
-  if (!isPremiumUser) return null;
-
   const formatExpiryDate = () => {
     if (!premiumDetails) return 'Active';
     
@@ -47,18 +45,33 @@ export const PremiumStatusIndicator = () => {
 
   const getBadgeStyle = () => {
     if (premiumDetails?.type === '30day_trial') {
+      if (formatExpiryDate() === 'Expired') {
+        return "bg-red-600/20 border-red-600 text-red-400 font-mono";
+      }
       return "bg-blue-600/20 border-blue-600 text-blue-400 font-mono";
     }
     return "bg-green-600/20 border-green-600 text-green-400 font-mono";
   };
 
+  const getExpiryBadgeStyle = () => {
+    if (premiumDetails?.type === '30day_trial' && formatExpiryDate() === 'Expired') {
+      return "bg-red-600/20 border-red-600 text-red-400 font-mono";
+    }
+    return "bg-yellow-600/20 border-yellow-600 text-yellow-400 font-mono";
+  };
+
+  // Show indicator for premium users OR users with expired trials
+  const isTrialExpired = premiumDetails?.type === '30day_trial' && formatExpiryDate() === 'Expired';
+  
+  if (!isPremiumUser && !isTrialExpired) return null;
+
   return (
     <div className="flex items-center gap-2">
       <Badge variant="outline" className={getBadgeStyle()}>
         <Zap size={12} className="mr-1" />
-        {getPremiumTypeDisplay()}
+        {isTrialExpired ? 'TRIAL EXPIRED' : getPremiumTypeDisplay()}
       </Badge>
-      <Badge variant="outline" className="bg-yellow-600/20 border-yellow-600 text-yellow-400 font-mono">
+      <Badge variant="outline" className={getExpiryBadgeStyle()}>
         <Timer size={12} className="mr-1" />
         {formatExpiryDate()}
       </Badge>

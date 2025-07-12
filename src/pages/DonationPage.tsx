@@ -10,13 +10,68 @@ import { useCMSSettings } from '@/hooks/useCMSSettings';
 import { useCryptoPaymentMonitor } from '@/hooks/useCryptoPaymentMonitor';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const DonationPage = () => {
   const { settings, loading } = useCMSSettings();
   const { isMonitoring, getWalletAddress, getPaymentTiers } = useCryptoPaymentMonitor();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [copiedWallet, setCopiedWallet] = React.useState<string>('');
   const [showAdvancedCrypto, setShowAdvancedCrypto] = React.useState(false);
+
+  // Handle URL parameters for payment success
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const sessionId = urlParams.get('session_id');
+    
+    if (success === 'true' && sessionId) {
+      toast({
+        title: "Donation Successful! 🎉",
+        description: "Your donation has been processed successfully. Thank you for supporting us!",
+        duration: 8000
+      });
+      
+      // Try fallback activation in case webhook failed
+      if (user) {
+        handleFallbackActivation(sessionId);
+      }
+      
+      // Clean up URL parameters
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [user]);
+
+  const handleFallbackActivation = async (stripeSessionId: string) => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('stripe-payment/activate-payment', {
+        body: { 
+          stripeSessionId, 
+          userId: user.id
+        }
+      });
+      
+      if (error) {
+        console.error('Fallback activation error:', error);
+        return;
+      }
+      
+      if (data?.success) {
+        toast({
+          title: "Donation Tier Activated! ✅",
+          description: `Your ${data.plan} donation tier has been activated successfully!`,
+          duration: 8000
+        });
+      }
+    } catch (error) {
+      console.error('Fallback activation failed:', error);
+    }
+  };
 
   // Donation tiers configuration
   const donationTiers: PaymentTier[] = [
