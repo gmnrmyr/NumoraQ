@@ -4,12 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
 interface UserPoints {
-  id: string;
   user_id: string;
   points: number;
+  total_donated: number;
   activity_type: 'daily_login' | 'donation' | 'referral' | 'manual';
   activity_date: string;
   created_at: string;
+  updated_at: string;
+  highest_tier: string;
 }
 
 export const useUserPoints = () => {

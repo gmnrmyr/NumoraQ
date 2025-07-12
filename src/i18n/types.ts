@@ -29,6 +29,8 @@ export interface Translations {
   loginWithGoogle: string;
   signInToSave: string;
   createAccountToSync: string;
+  resetPassword: string;
+  backToLogin: string;
   
   // Dashboard metrics
   availableNow: string;

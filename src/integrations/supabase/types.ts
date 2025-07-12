@@ -137,27 +137,42 @@ export type Database = {
       premium_codes: {
         Row: {
           code: string
+          code_type: string | null
           created_at: string | null
+          created_by: string | null
+          expires_at: string | null
           id: string
+          is_active: boolean | null
           is_used: boolean | null
           used_at: string | null
           used_by: string | null
+          user_email: string | null
         }
         Insert: {
           code: string
+          code_type?: string | null
           created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
           id?: string
+          is_active?: boolean | null
           is_used?: boolean | null
           used_at?: string | null
           used_by?: string | null
+          user_email?: string | null
         }
         Update: {
           code?: string
+          code_type?: string | null
           created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
           id?: string
+          is_active?: boolean | null
           is_used?: boolean | null
           used_at?: string | null
           used_by?: string | null
+          user_email?: string | null
         }
         Relationships: []
       }
@@ -232,6 +247,8 @@ export type Database = {
       }
       user_points: {
         Row: {
+          activity_date: string | null
+          activity_type: string | null
           created_at: string | null
           highest_tier: string | null
           points: number | null
@@ -240,6 +257,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          activity_date?: string | null
+          activity_type?: string | null
           created_at?: string | null
           highest_tier?: string | null
           points?: number | null
@@ -248,6 +267,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          activity_date?: string | null
+          activity_type?: string | null
           created_at?: string | null
           highest_tier?: string | null
           points?: number | null
@@ -259,30 +280,42 @@ export type Database = {
       }
       user_premium_status: {
         Row: {
+          activated_at: string | null
           created_at: string | null
+          expires_at: string | null
           is_premium: boolean | null
+          payment_session_id: string | null
           premium_expires_at: string | null
           premium_plan: string | null
+          premium_type: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          activated_at?: string | null
           created_at?: string | null
+          expires_at?: string | null
           is_premium?: boolean | null
+          payment_session_id?: string | null
           premium_expires_at?: string | null
           premium_plan?: string | null
+          premium_type?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          activated_at?: string | null
           created_at?: string | null
+          expires_at?: string | null
           is_premium?: boolean | null
+          payment_session_id?: string | null
           premium_expires_at?: string | null
           premium_plan?: string | null
+          premium_type?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string | null
