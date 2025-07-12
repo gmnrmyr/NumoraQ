@@ -48,7 +48,7 @@ serve(async (req) => {
     const path = url.pathname
 
     // Generate premium code (admin only)
-    if (path === '/generate' && req.method === 'POST') {
+    if ((path === '/generate' || path.endsWith('/generate')) && req.method === 'POST') {
       const authHeader = req.headers.get('Authorization')
       if (!authHeader) {
         return new Response(
@@ -115,7 +115,7 @@ serve(async (req) => {
     }
 
     // Activate premium code (any authenticated user)
-    if (path === '/activate' && req.method === 'POST') {
+    if ((path === '/activate' || path.endsWith('/activate')) && req.method === 'POST') {
       const authHeader = req.headers.get('Authorization')
       if (!authHeader) {
         return new Response(
