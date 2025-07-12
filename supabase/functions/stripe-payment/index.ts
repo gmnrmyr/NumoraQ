@@ -12,8 +12,9 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // Stripe configuration
-const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')!
-const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
+const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') || 'sk_test_51Rj4WCLiONz4H0DzdKAVwkIk6ODhKAA1AgFt27xII7E6lnWKxjFXOEbE4rH3Bm5eHovFjLNM4eOS2v7LCJ8ASP5Q00nbsIt597';
+const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')
+const STRIPE_PUBLISHABLE_KEY = 'pk_test_51Rj4WCLiONz4H0DzG7kW8rB81KhHHRMOEX96bqeq26YbbCtVKDf9r8fzV8zPZzqO3X4KjcW9Xl6wsOXlRIHaISzk00Gwi9ixCY';
 
 interface PaymentSession {
   id: string;
@@ -312,7 +313,7 @@ serve(async (req) => {
     const url = new URL(req.url)
     const path = url.pathname
 
-    if (path === '/create-checkout-session' && req.method === 'POST') {
+    if ((path === '/create-checkout-session' || path.endsWith('/create-checkout-session')) && req.method === 'POST') {
       const body = await req.json()
       const { sessionId, plan, userEmail, userId, paymentType } = body
 
@@ -349,7 +350,7 @@ serve(async (req) => {
       )
     }
 
-    if (path === '/webhook' && req.method === 'POST') {
+    if ((path === '/webhook' || path.endsWith('/webhook')) && req.method === 'POST') {
       const body = await req.text()
       const signature = req.headers.get('stripe-signature')
 

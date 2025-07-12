@@ -37,9 +37,9 @@ export const UserProfileSection = () => {
 
   const handleLogin = async () => {
     try {
-      await signInWithGoogle();
+      window.location.href = '/auth';
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Navigation error:', error);
     }
   };
 
