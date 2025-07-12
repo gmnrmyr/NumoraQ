@@ -1,4 +1,6 @@
-- [X] Fix Stripe integration (degen plans and donation tiers) [seems to be working partially] [works for degen plans correctly! But not for donation tiers!]
+- [X] Fix Stripe integration (degen plans and donation tiers) [seems to be working partially] [works for degen plans correctly! But not for donation tiers!] 
+
+(oh, on degen plans... it should be triggering time after the payment confirmed. So if user purchased 1 month it adds that time... when its over, it should be showing that user is not degen anymore.) <-- for now. and add that functionality that ask him to pay. allow him to auto-assign himself 3 extra days (during beta) so add myself 3 extra days to continue during beta.>
 
 
 - [ ] Fix Solana integration (degen plans and donation tiers) (still not working)
@@ -12,6 +14,8 @@
 
 - [ ] Make new users trigger 30 days free trial. <--- should also be showing on user_config_ui (panel on dashboard). And for now when the trial is over, it should be showing the user that the trial is over and that they need to pay to continue using the app. (of course, unless he adds a degen coupon or pay the app)
 (basically, users that are not degen should have this time being triggered properly I think))
+
+<---- for now we only would need to add trial status for those users, and whhen its over we will ask him to pay before continuing. Make user confirm and give him no-degen for 3 days. This is on beta only. After that users wont be ablle to assign them this 3 days ofc. And keep their data of course so when they want to pay, they can of course continue.
 
 
 -----

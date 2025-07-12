@@ -76,20 +76,37 @@ export const AdminPanel = () => {
 
     setIsSearching(true);
     try {
-      // Search for users by name or email
-      const { data: profiles, error: profileError } = await supabase
+      // Search for users by name or UUID (more permissive search)
+      let profileQuery = supabase
         .from('profiles')
         .select('id, name, user_uid')
-        .or(`name.ilike.%${searchQuery}%,id.in.(${searchQuery})`)
-        .limit(10);
+        .limit(20); // Increased limit for better results
+
+      // If search query looks like a UUID (36 characters), search by ID
+      if (searchQuery.length === 36 && searchQuery.includes('-')) {
+        profileQuery = profileQuery.eq('id', searchQuery);
+      } else {
+        // Otherwise search by name (case-insensitive)
+        profileQuery = profileQuery.ilike('name', `%${searchQuery}%`);
+      }
+
+      const { data: profiles, error: profileError } = await profileQuery;
 
       if (profileError) throw profileError;
 
-      // Get user emails from auth.users (requires service role or special permissions)
-      const { data: users, error: usersError } = await supabase.auth.admin.listUsers();
-      
-      if (usersError) {
-        console.log('Could not fetch user emails (limited permissions)');
+      // If no results from name search, try a broader search
+      if (!profiles || profiles.length === 0) {
+        const { data: broadProfiles, error: broadError } = await supabase
+          .from('profiles')
+          .select('id, name, user_uid')
+          .or(`user_uid.ilike.%${searchQuery}%,name.ilike.%${searchQuery}%`)
+          .limit(20);
+
+        if (broadError) throw broadError;
+        
+        if (broadProfiles && broadProfiles.length > 0) {
+          profiles.push(...broadProfiles);
+        }
       }
 
       // Get user points totals
@@ -112,7 +129,7 @@ export const AdminPanel = () => {
       const results: UserSearchResult[] = profiles?.map(profile => ({
         id: profile.id,
         name: profile.name || 'Anonymous',
-        email: users?.users.find(u => u.id === profile.id)?.email || 'Email not available',
+        email: `${profile.id.substring(0, 8)}...@hidden`, // Show partial ID instead of email for privacy
         user_uid: profile.user_uid || 'USER',
         total_points: pointsMap.get(profile.id) || 0
       })) || [];
@@ -122,15 +139,20 @@ export const AdminPanel = () => {
       if (results.length === 0) {
         toast({
           title: "No Users Found",
-          description: "No users found matching your search query",
+          description: "No users found matching your search query. Try searching by name or user UID.",
           variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Search Results",
+          description: `Found ${results.length} user(s) matching "${searchQuery}"`,
         });
       }
     } catch (error) {
       console.error('Error searching users:', error);
       toast({
         title: "Search Failed",
-        description: "Failed to search users. Please try again.",
+        description: "Failed to search users. Please try again or check your permissions.",
         variant: "destructive"
       });
     } finally {
@@ -376,49 +398,84 @@ export const AdminPanel = () => {
               <CardTitle className="font-mono">User Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="searchUser" className="font-mono">Search Users</Label>
-                  <Input
-                    id="searchUser"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        searchUsers();
-                      }
-                    }}
-                    placeholder="Enter name or email"
-                    className="font-mono"
-                  />
+              <div className="space-y-4">
+                <div className="bg-muted p-3 border border-border rounded">
+                  <div className="text-xs font-mono text-muted-foreground">
+                    💡 <strong>Search Tips:</strong>
+                    <div className="mt-1">
+                      • Search by display name (e.g., "john", "alice")
+                    </div>
+                    <div>
+                      • Search by user UID (e.g., "A1B2C3D4")
+                    </div>
+                    <div>
+                      • Search by full UUID (36 chars with dashes)
+                    </div>
+                  </div>
                 </div>
-                <Button
-                  onClick={searchUsers}
-                  disabled={isSearching || !searchQuery.trim()}
-                  className="w-full font-mono"
-                >
-                  <Search size={16} className="mr-2" />
-                  {isSearching ? "Searching..." : "Search Users"}
-                </Button>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="searchUser" className="font-mono">Search Users</Label>
+                    <Input
+                      id="searchUser"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          searchUsers();
+                        }
+                      }}
+                      placeholder="Enter name, UID, or UUID..."
+                      className="font-mono"
+                    />
+                  </div>
+                  <Button
+                    onClick={searchUsers}
+                    disabled={isSearching || !searchQuery.trim()}
+                    className="w-full font-mono"
+                  >
+                    <Search size={16} className="mr-2" />
+                    {isSearching ? "Searching..." : "Search Users"}
+                  </Button>
+                </div>
               </div>
 
               {searchResults.length > 0 && (
                 <div className="mt-4">
-                  <h4 className="font-mono font-bold mb-2">Search Results</h4>
+                  <h4 className="font-mono font-bold mb-2">Search Results ({searchResults.length} found)</h4>
                   <div className="space-y-2">
                     {searchResults.map((user) => (
                       <div
                         key={user.id}
-                        className="flex items-center justify-between p-3 border border-border rounded cursor-pointer hover:bg-accent/10"
+                        className={`flex items-center justify-between p-3 border rounded cursor-pointer transition-colors ${
+                          selectedUser?.id === user.id 
+                            ? 'border-accent bg-accent/20 ring-2 ring-accent/50' 
+                            : 'border-border hover:bg-accent/10'
+                        }`}
                         onClick={() => setSelectedUser(user)}
                       >
                         <div className="font-mono">
-                          <div className="font-bold">{user.name}</div>
-                          <div className="text-sm text-muted-foreground">{user.email}</div>
+                          <div className="font-bold flex items-center gap-2">
+                            {user.name}
+                            <Badge variant="secondary" className="text-xs px-1 py-0">
+                              UID: {user.user_uid}
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            ID: {user.id.substring(0, 8)}...{user.id.substring(-4)}
+                          </div>
                         </div>
-                        <Badge variant="outline" className="font-mono">
-                          {user.total_points} pts
-                        </Badge>
+                        <div className="text-right">
+                          <Badge variant="outline" className="font-mono">
+                            {user.total_points} pts
+                          </Badge>
+                          {selectedUser?.id === user.id && (
+                            <div className="text-xs text-accent font-mono mt-1">
+                              ✓ Selected
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -426,13 +483,20 @@ export const AdminPanel = () => {
               )}
 
               {selectedUser && (
-                <div className="mt-4 p-4 bg-muted border border-border rounded">
-                  <h4 className="font-mono font-bold mb-2">Selected User</h4>
-                  <div className="font-mono">
-                    <p><strong>Name:</strong> {selectedUser.name}</p>
-                    <p><strong>Email:</strong> {selectedUser.email}</p>
-                    <p><strong>User UID:</strong> {selectedUser.user_uid}</p>
-                    <p><strong>Total Points:</strong> {selectedUser.total_points}</p>
+                <div className="mt-4 p-4 bg-accent/10 border-2 border-accent rounded">
+                  <h4 className="font-mono font-bold mb-3 text-accent">✓ Selected User</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-sm">
+                    <div>
+                      <p><strong>Display Name:</strong> {selectedUser.name}</p>
+                      <p><strong>User UID:</strong> {selectedUser.user_uid}</p>
+                    </div>
+                    <div>
+                      <p><strong>Current Points:</strong> {selectedUser.total_points}</p>
+                      <p><strong>Full ID:</strong> <code className="text-xs">{selectedUser.id}</code></p>
+                    </div>
+                  </div>
+                  <div className="mt-3 p-2 bg-background/50 rounded border text-xs text-muted-foreground">
+                    💡 Ready for points assignment. Use the Points System tab to add points to this user.
                   </div>
                 </div>
               )}
@@ -446,66 +510,77 @@ export const AdminPanel = () => {
               <CardTitle className="font-mono">Manual Points Assignment</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <Label htmlFor="userId" className="font-mono">User ID</Label>
-                  <Input
-                    id="userId"
-                    value={selectedUser?.id || ''}
-                    onChange={(e) => {
-                      const user = searchResults.find(u => u.id === e.target.value);
-                      if (user) {
-                        setSelectedUser(user);
-                      } else {
-                        setSelectedUser(null);
-                      }
-                    }}
-                    placeholder="Enter user UUID"
-                    className="font-mono"
-                  />
+              {selectedUser ? (
+                <div className="space-y-4">
+                  <div className="p-3 bg-accent/10 border border-accent rounded">
+                    <div className="font-mono text-sm">
+                      <strong>Adding points to:</strong> {selectedUser.name} (UID: {selectedUser.user_uid})
+                      <div className="text-xs text-muted-foreground mt-1">
+                        Current Points: {selectedUser.total_points}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="points" className="font-mono">Points to Add</Label>
+                      <Input
+                        id="points"
+                        type="number"
+                        value={pointsAmount}
+                        onChange={(e) => setPointsAmount(e.target.value)}
+                        placeholder="100"
+                        className="font-mono"
+                        min="1"
+                        max="50000"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="reason" className="font-mono">Reason</Label>
+                      <Input
+                        id="reason"
+                        value={pointsReason}
+                        onChange={(e) => setPointsReason(e.target.value)}
+                        placeholder="Testing tier functionality"
+                        className="font-mono"
+                      />
+                    </div>
+                    
+                    <div className="flex items-end">
+                      <Button 
+                        onClick={handleAddPoints}
+                        disabled={!pointsAmount.trim() || parseInt(pointsAmount) <= 0}
+                        className="w-full font-mono bg-green-600 hover:bg-green-700"
+                      >
+                        <Crown size={16} className="mr-2" />
+                        Add {pointsAmount || '0'} Points
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {pointsAmount && parseInt(pointsAmount) > 0 && (
+                    <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded">
+                      <div className="text-sm font-mono text-blue-600">
+                        📊 <strong>Preview:</strong> {selectedUser.name} will have {selectedUser.total_points + parseInt(pointsAmount)} total points
+                        <div className="text-xs mt-1">
+                          This may unlock a new tier badge based on the point thresholds below.
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                
-                <div>
-                  <Label htmlFor="points" className="font-mono">Points</Label>
-                  <Input
-                    id="points"
-                    type="number"
-                    value={pointsAmount}
-                    onChange={(e) => setPointsAmount(e.target.value)}
-                    placeholder="100"
-                    className="font-mono"
-                  />
+              ) : (
+                <div className="text-center p-8 border-2 border-dashed border-border rounded">
+                  <div className="text-muted-foreground font-mono">
+                    <User size={32} className="mx-auto mb-2 opacity-50" />
+                    <div className="text-sm">No user selected</div>
+                    <div className="text-xs mt-1">
+                      Go to the "Users" tab to search and select a user first
+                    </div>
+                  </div>
                 </div>
-                
-                <div>
-                  <Label htmlFor="reason" className="font-mono">Reason</Label>
-                  <Input
-                    id="reason"
-                    value={pointsReason}
-                    onChange={(e) => setPointsReason(e.target.value)}
-                    placeholder="Manual assignment"
-                    className="font-mono"
-                  />
-                </div>
-                
-                <div className="flex items-end">
-                  <Button 
-                    onClick={handleAddPoints}
-                    disabled={!selectedUser || !pointsAmount.trim()}
-                    className="w-full font-mono"
-                  >
-                    <Zap size={16} className="mr-2" />
-                    Add Points
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="mt-4 p-4 bg-muted border border-border rounded">
-                <h4 className="font-mono font-bold mb-2">Quick Reference - User ID for deckard.hardsurface@gmail.com:</h4>
-                <code className="text-xs bg-background p-2 rounded block">
-                  You can find user UUIDs in the Supabase Auth panel or by checking the browser console when users log in
-                </code>
-              </div>
+              )}
             </CardContent>
           </Card>
 

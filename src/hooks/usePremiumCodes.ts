@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 
 interface PremiumCode {
   id: string;
@@ -98,7 +97,7 @@ export const usePremiumCodes = () => {
     }
   };
 
-  const activateCode = async (code: string, userEmail?: string) => {
+  const activateCode = async (code: string, userEmail?: string, onSuccess?: () => void) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -127,6 +126,11 @@ export const usePremiumCodes = () => {
 
       const data = await response.json();
       await loadCodes();
+      
+      // Call success callback if provided (for premium status refresh)
+      if (onSuccess) {
+        onSuccess();
+      }
       
       toast({
         title: "Code Activated",

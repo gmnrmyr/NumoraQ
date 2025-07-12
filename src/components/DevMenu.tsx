@@ -21,14 +21,13 @@ export const DevMenu = () => {
 
   // Wrapper function to handle premium code activation and refresh status
   const activatePremiumCodeWithRefresh = async (code: string, userName: string) => {
-    const success = await activatePremiumCode(code, userName);
-    if (success) {
+    return await activatePremiumCode(code, userName, async () => {
+      // This callback runs after successful activation
       // Add a small delay to ensure database update is processed
       setTimeout(async () => {
         await refetchPremiumStatus();
       }, 1000);
-    }
-    return success;
+    });
   };
 
   // Check if user has CHAMPION role (2000+ points)
