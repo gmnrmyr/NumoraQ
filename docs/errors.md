@@ -6,6 +6,8 @@ when tryinig to improve the app, by implementing the stripe payment integration 
 - degen users are now seeing ads (cause they`re no longer degen)
 - stripe still doesnt work, we broke trying to make it work and we actually lost a lot of the app (above)
 - ai chatbot no longer work (because users lost degen status, and AI was only for degen statuses.) (which means that if we can tackle the hability to create degen codes and assign points, we can also tackle the ai chatbot)
+- leaderboard has also been broken. (i think we lost the database)
+- So basically, the backend seem to be working but e lost the database. As I understand. And we are not going to restore the databse, but things working again with the new stripe and solana integration. As soon as everything is working, we will organically add things to the database.
 
 ------------------------
 

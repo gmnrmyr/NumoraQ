@@ -24,6 +24,7 @@
 10. [Roadmap & Upcoming Features](#roadmap--upcoming-features)
 11. [Technical References](#technical-references)
 12. [External Development Tasks](#external-development-tasks)
+13. [Infrastructure Planning](#infrastructure-planning)
 
 ---
 
@@ -45,6 +46,7 @@
 - **Real-time:** Supabase Realtime for live updates across multiple user sessions
 - **File Storage:** Supabase Storage for user assets, images, and document management
 - **Edge Functions:** Supabase Edge Functions for payment processing and webhook handling
+- **Database Migration Plan:** DBeaver integration for free backups and cost optimization (planned)
 
 ### Deployment & Infrastructure
 - **Development Environment:** Lovable Studio for collaborative development
@@ -52,6 +54,7 @@
 - **Domain Management:** NUMORAQ branding with custom domain configuration
 - **CDN:** Static assets via deployment platform with global content distribution
 - **Environment Management:** Separate development, staging, and production environments
+- **Multi-Environment Strategy:** Test environment (test.numoraq.com) with proper backup implementation (planned)
 
 ### External APIs & Integrations
 - **Live Prices:** Custom service for BTC/ETH prices with real-time updates
@@ -63,6 +66,35 @@
   - Google Auth for enhanced authentication options
   - ChatGPT API for AI-powered financial advisor features
   - PayPal API for alternative payment processing
+
+---
+
+## 🏗️ Infrastructure Planning
+
+### Database Migration Strategy 🚧 **PLANNED**
+- **Current State:** Supabase PostgreSQL with premium backup requirements
+- **Migration Goal:** DBeaver integration for cost-effective backup solutions
+- **Implementation Timeline:** After backend and database completion
+- **Benefits:**
+  - Free backup solutions without premium Supabase costs
+  - Enhanced database management capabilities
+  - Improved data control and portability
+  - Cost optimization for long-term scalability
+
+### Multi-Environment Architecture 🚧 **FAR FUTURE**
+- **Test Environment:** test.numoraq.com for development and testing
+- **Production Environment:** numoraq.com for live user traffic
+- **Backup Strategy:** Comprehensive backup implementation for both environments
+- **Infrastructure Components:**
+  - **Frontend:** Separate deployments for test and production
+  - **Backend:** Isolated backend instances with proper data separation
+  - **Database:** Independent database instances with automated backups
+  - **Backup Systems:** Open-source backup solutions for cost efficiency
+- **Development Workflow:**
+  - Continuous development on test environment
+  - Stable releases to production environment
+  - Automated backup verification and restoration testing
+  - Disaster recovery procedures for both environments
 
 ---
 
@@ -332,6 +364,12 @@ Central hub providing comprehensive financial life management with real-time dat
 - 🔄 NFT floor price tracking with OpenSea integration
 - 🔄 AI-powered forecasting with machine learning algorithms
 - 🔄 Smart expense categorization with automated classification
+
+### Phase 5: Infrastructure & Scalability (Future Development)
+- 🔄 **Database Migration:** DBeaver integration for cost-effective backup solutions
+- 🔄 **Multi-Environment Setup:** Test and production environments with proper isolation
+- 🔄 **Backup Systems:** Open-source backup solutions for comprehensive data protection
+- 🔄 **Disaster Recovery:** Automated backup verification and restoration procedures
 
 ### 🎯 **Current Priorities & Development Focus**
 1. **Payment System Integration** - Stripe/PayPal integration (Solana ✅ completed)
