@@ -10,13 +10,14 @@ import { useAdminMode } from '@/hooks/useAdminMode';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 export const DegenModeSection = () => {
   const [showDegenDialog, setShowDegenDialog] = useState(false);
   const [degenCode, setDegenCode] = useState('');
   const { user } = useAuth();
   const { activatePremiumCode } = useAdminMode();
-  const { isPremiumUser } = usePremiumStatus();
+  const { isPremiumUser, premiumDetails, refetch } = usePremiumStatus();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -25,12 +26,74 @@ export const DegenModeSection = () => {
     if (success) {
       setDegenCode('');
       setShowDegenDialog(false);
+      // Refresh premium status after successful activation
+      await refetch();
+      toast({
+        title: "🎉 Degen Code Activated!",
+        description: "Premium access has been activated! Welcome to the degen club!",
+        duration: 5000
+      });
     } else {
-      alert('Invalid or already used code');
+      toast({
+        title: "Code Activation Failed",
+        description: "Invalid code, already used, or expired. Please check your code and try again.",
+        variant: "destructive"
+      });
     }
   };
 
-  const getDegenTimeRemaining = () => "Lifetime"; // Updated to show lifetime
+  const getDegenTimeRemaining = () => {
+    if (!premiumDetails) return 'Active';
+    
+    if (!premiumDetails.expiresAt) return 'Lifetime';
+    
+    const expiryDate = new Date(premiumDetails.expiresAt);
+    const now = new Date();
+    
+    if (expiryDate.getFullYear() >= 2099) return 'Lifetime';
+    
+    const diffTime = expiryDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays <= 0) return 'Expired';
+    if (diffDays === 1) return '1 Day';
+    if (diffDays <= 30) return `${diffDays} Days`;
+    if (diffDays <= 365) return `${Math.ceil(diffDays / 30)} Months`;
+    
+    return `${Math.ceil(diffDays / 365)} Years`;
+  };
+
+  const getPremiumTypeDisplay = () => {
+    if (!premiumDetails?.type) return 'DEGEN';
+    
+    switch (premiumDetails.type) {
+      case '30day_trial': return 'FREE TRIAL';
+      case '1year': return 'DEGEN 1Y';
+      case '5years': return 'DEGEN 5Y';
+      case 'lifetime': return 'DEGEN LIFE';
+      case '1month': return 'DEGEN 1M';
+      case '3months': return 'DEGEN 3M';
+      case '6months': return 'DEGEN 6M';
+      default: return 'DEGEN';
+    }
+  };
+
+  const getBadgeStyle = () => {
+    if (premiumDetails?.type === '30day_trial') {
+      return "bg-blue-600/20 border-blue-600 text-blue-400 font-mono cursor-pointer hover:bg-blue-600/30 transition-colors";
+    }
+    return "bg-green-600/20 border-green-600 text-green-400 font-mono cursor-pointer hover:bg-green-600/30 transition-colors";
+  };
+
+  const getStatusMessage = () => {
+    if (isPremiumUser) {
+      if (premiumDetails?.type === '30day_trial') {
+        return `🎉 Free trial active - ${getDegenTimeRemaining()} remaining`;
+      }
+      return `🚀 ${t.noAdsEnabled}`;
+    }
+    return `📺 ${t.activateForAdFree}`;
+  };
 
   return (
     <div className="border-t border-border pt-4">
@@ -41,12 +104,12 @@ export const DegenModeSection = () => {
           {isPremiumUser && (
             <Badge 
               variant="outline" 
-              className="bg-green-600/20 border-green-600 text-green-400 font-mono cursor-pointer hover:bg-green-600/30 transition-colors"
-              title={`${t.lifetimeAccess} - Click to view payment options`}
+              className={getBadgeStyle()}
+              title={`${premiumDetails?.type || 'Premium'} Access - ${getDegenTimeRemaining()} - Click to view payment options`}
               onClick={() => navigate('/payment')}
             >
               <Timer size={12} className="mr-1" />
-              {getDegenTimeRemaining()}
+              {getPremiumTypeDisplay()}
             </Badge>
           )}
         </div>
@@ -121,7 +184,7 @@ export const DegenModeSection = () => {
         )}
       </div>
       <div className="text-xs text-muted-foreground font-mono mt-2">
-        {isPremiumUser ? `🚀 ${t.noAdsEnabled}` : `📺 ${t.activateForAdFree}`}
+        {getStatusMessage()}
       </div>
     </div>
   );

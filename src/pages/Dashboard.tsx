@@ -22,12 +22,17 @@ import { AdSenseAd } from "@/components/AdSenseAd";
 import { useSecureAdminAuth } from "@/hooks/useSecureAdminAuth";
 import { useDashboardMode } from "@/contexts/DashboardModeContext";
 import { SimpleDashboard } from "@/components/dashboard/SimpleDashboard";
+import { useFinancialData } from '@/contexts/FinancialDataContext';
+import { useTrialActivation } from '@/hooks/useTrialActivation';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('portfolio');
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const { isAdmin } = useSecureAdminAuth();
   const { isSimpleMode } = useDashboardMode();
+  
+  // Automatically check and activate 30-day trial for new users
+  useTrialActivation();
 
   // Admin panel keyboard shortcut
   React.useEffect(() => {
