@@ -26,6 +26,11 @@ export const useAdminMode = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isAdmin]);
 
+  // Wrapper for activatePremiumCode to handle onSuccess callback
+  const activatePremiumCodeWithCallback = async (code: string, userEmail?: string, onSuccess?: () => void) => {
+    return await premiumCodes.activateCode(code, userEmail, onSuccess);
+  };
+
   return {
     isAdminMode: isAdmin, // Use secure admin status
     showAdminPanel,
@@ -38,7 +43,7 @@ export const useAdminMode = () => {
     // Premium codes
     premiumCodes: premiumCodes.codes,
     generatePremiumCode: premiumCodes.generateCode,
-    activatePremiumCode: premiumCodes.activateCode,
+    activatePremiumCode: activatePremiumCodeWithCallback,
     deletePremiumCode: premiumCodes.deleteCode,
     getCodeStats: premiumCodes.getCodeStats,
     premiumCodesLoading: premiumCodes.loading

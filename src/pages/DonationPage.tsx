@@ -11,6 +11,7 @@ import { useCryptoPaymentMonitor } from '@/hooks/useCryptoPaymentMonitor';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserTitle } from '@/hooks/useUserTitle';
 import { supabase } from '@/integrations/supabase/client';
 
 const DonationPage = () => {
@@ -18,6 +19,7 @@ const DonationPage = () => {
   const { isMonitoring, getWalletAddress, getPaymentTiers } = useCryptoPaymentMonitor();
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { refresh: refreshUserTitle } = useUserTitle();
   const [copiedWallet, setCopiedWallet] = React.useState<string>('');
   const [showAdvancedCrypto, setShowAdvancedCrypto] = React.useState(false);
 
@@ -62,6 +64,11 @@ const DonationPage = () => {
       }
       
       if (data?.success) {
+        // Refresh user title to reflect new points/tier
+        setTimeout(async () => {
+          await refreshUserTitle();
+        }, 1000);
+        
         toast({
           title: "Donation Tier Activated! ✅",
           description: `Your ${data.plan} donation tier has been activated successfully!`,
@@ -337,6 +344,11 @@ const DonationPage = () => {
                 title: "Donation Initiated!",
                 description: `Processing ${tier.name} donation via ${method}`,
               });
+              
+              // Refresh user title after payment completion (will be called after webhook/fallback)
+              setTimeout(async () => {
+                await refreshUserTitle();
+              }, 3000);
             }}
           />
 

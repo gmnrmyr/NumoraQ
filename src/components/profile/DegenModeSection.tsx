@@ -22,11 +22,8 @@ export const DegenModeSection = () => {
   const navigate = useNavigate();
 
   const handleActivateDegenCode = async () => {
-    const success = await activatePremiumCode(degenCode, user?.email);
-    if (success) {
-      setDegenCode('');
-      setShowDegenDialog(false);
-      // Refresh premium status after successful activation
+    const success = await activatePremiumCode(degenCode, user?.email, async () => {
+      // This callback runs after successful activation
       // Add a small delay to ensure database update is processed
       setTimeout(async () => {
         await refetchPremiumStatus();
@@ -36,6 +33,11 @@ export const DegenModeSection = () => {
           duration: 5000
         });
       }, 1000);
+    });
+    
+    if (success) {
+      setDegenCode('');
+      setShowDegenDialog(false);
     } else {
       toast({
         title: "Code Activation Failed",
