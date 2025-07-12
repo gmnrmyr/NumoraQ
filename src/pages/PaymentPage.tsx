@@ -11,6 +11,7 @@ import { useCMSSettings } from '@/hooks/useCMSSettings';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const PaymentPage = () => {
   const { settings, loading } = useCMSSettings();
@@ -71,15 +72,7 @@ const PaymentPage = () => {
     const canceled = urlParams.get('canceled');
 
     if (success === 'true' && sessionId) {
-      toast({
-        title: t.paymentSuccessful,
-        description: t.welcomeToDegenClub,
-      });
-      refetchPremiumStatus();
-      
-      // Clean up URL parameters
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, '', newUrl);
+      handlePaymentSuccess(sessionId);
     } else if (canceled === 'true') {
       toast({
         title: t.paymentCancelled,
@@ -92,6 +85,93 @@ const PaymentPage = () => {
       window.history.replaceState({}, '', newUrl);
     }
   }, [refetchPremiumStatus]);
+
+  const handlePaymentSuccess = async (sessionId: string) => {
+    try {
+      // Show success message immediately
+      toast({
+        title: t.paymentSuccessful,
+        description: t.welcomeToDegenClub,
+      });
+
+      // Refetch premium status to see if webhook already activated it
+      await refetchPremiumStatus();
+      
+      // Wait a moment to see if premium status is already active
+      setTimeout(async () => {
+        await refetchPremiumStatus();
+        
+        // If premium is still not active, try fallback activation
+        const { isPremiumUser } = await import('@/hooks/usePremiumStatus');
+        const currentUser = await import('@/contexts/AuthContext').then(m => m.useAuth);
+        
+        if (currentUser && !isPremiumUser) {
+          // Try fallback activation
+          await attemptFallbackActivation(sessionId);
+        }
+      }, 3000); // Wait 3 seconds for webhook to potentially fire
+      
+    } catch (error) {
+      console.error('Payment success handling error:', error);
+    } finally {
+      // Clean up URL parameters
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  };
+
+  const attemptFallbackActivation = async (stripeSessionId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.error('No user session for fallback activation');
+        return;
+      }
+
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/stripe-payment/activate-payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          stripeSessionId: stripeSessionId,
+          userId: session.user.id
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        toast({
+          title: "🎉 Premium Activated!",
+          description: `Your ${data.plan} plan is now active! Welcome to the degen club!`,
+          duration: 8000
+        });
+        
+        // Refetch premium status
+        await refetchPremiumStatus();
+      } else {
+        const errorData = await response.json();
+        console.error('Fallback activation failed:', errorData);
+        
+        toast({
+          title: "Activation Issue",
+          description: "Your payment was successful but activation is pending. Please contact support if this persists.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Fallback activation error:', error);
+      
+      toast({
+        title: "Activation Retry Failed",
+        description: "Please contact support with your payment confirmation.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const copyWallet = (wallet: string, type: string) => {
 

@@ -12,6 +12,7 @@ import { usePremiumCodes } from '@/hooks/usePremiumCodes';
 import { useUserPoints } from '@/hooks/useUserPoints';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProjectSettingsPanel } from './cms/ProjectSettingsPanel';
+import { toast } from '@/hooks/use-toast';
 
 export const AdminPanel = () => {
   const { user } = useAuth();
@@ -51,43 +52,95 @@ export const AdminPanel = () => {
 
   const handleGenerateCode = async () => {
     if (!newCodeEmail.trim()) {
-      alert('Please enter an email address');
+      toast({
+        title: "Missing Information",
+        description: "Please enter an email address",
+        variant: "destructive"
+      });
       return;
     }
 
     const success = await generateCode(newCodeType as '1year' | '5years' | 'lifetime');
     if (success) {
       setNewCodeEmail('');
-      alert('Premium code generated successfully!');
+      toast({
+        title: "Code Generated! ✅",
+        description: "Premium code generated successfully!",
+        duration: 5000
+      });
     }
   };
 
   const handleCreateCode = async () => {
     if (!newCodeEmail.trim()) {
-      alert('Please enter an email address');
+      toast({
+        title: "Missing Information",
+        description: "Please enter an email address",
+        variant: "destructive"
+      });
       return;
     }
 
-    await generateCode(newCodeType as '1year' | '5years' | 'lifetime');
-    setNewCodeEmail('');
+    try {
+      const success = await generateCode(newCodeType as '1year' | '5years' | 'lifetime');
+      
+      if (success) {
+        // Clear form fields after successful submission
+        setNewCodeEmail('');
+        
+        toast({
+          title: "Degen Code Generated! ✅",
+          description: `${newCodeType} premium code created successfully and is ready for sharing!`,
+          duration: 5000
+        });
+      }
+    } catch (error) {
+      console.error('Error generating code:', error);
+      toast({
+        title: "Failed to Generate Code ❌",
+        description: "Failed to generate premium code. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleAddPoints = async () => {
     if (!pointsUserId.trim() || !pointsAmount.trim()) {
-      alert('Please enter user ID and points amount');
+      toast({
+        title: "Missing Information",
+        description: "Please enter both user ID and points amount",
+        variant: "destructive"
+      });
       return;
     }
 
     const points = parseInt(pointsAmount);
     if (isNaN(points) || points <= 0) {
-      alert('Please enter a valid positive number for points');
+      toast({
+        title: "Invalid Points",
+        description: "Please enter a valid positive number for points",
+        variant: "destructive"
+      });
       return;
     }
 
-    await addManualPoints(pointsUserId, points, pointsReason || 'Manual admin assignment');
-    setPointsUserId('');
-    setPointsAmount('');
-    setPointsReason('');
+    try {
+      await addManualPoints(pointsUserId, points, pointsReason || 'Manual admin assignment');
+      
+      // Clear form fields after successful submission
+      setPointsUserId('');
+      setPointsAmount('');
+      setPointsReason('');
+      
+      // Note: Toast notification is handled by the addManualPoints hook
+    } catch (error) {
+      console.error('Error adding points:', error);
+      toast({
+        title: "Failed to Add Points ❌",
+        description: "Failed to add points. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   if (!user) return null;
