@@ -190,7 +190,7 @@ const donationTiers: Record<string, DonationTier> = {
   }
 };
 
-async function createStripeCheckoutSession(sessionId: string, plan: SubscriptionPlan | DonationTier, userEmail: string, paymentType: 'degen' | 'donation') {
+async function createStripeCheckoutSession(sessionId: string, plan: SubscriptionPlan | DonationTier, userEmail: string, paymentType: 'degen' | 'donation', req: Request) {
   const stripe = await import('https://esm.sh/stripe@14.21.0?target=deno')
   
   const stripeClient = stripe.default(STRIPE_SECRET_KEY, {
@@ -198,6 +198,19 @@ async function createStripeCheckoutSession(sessionId: string, plan: Subscription
     httpClient: stripe.Stripe.createFetchHttpClient(),
   })
 
+  // Dynamic base URL detection from request
+  const origin = req.headers.get('origin') || req.headers.get('referer') || 'https://numoraq.online';
+  let siteUrl = origin;
+  
+  // Handle localhost specially
+  if (origin && origin.includes('localhost')) {
+    siteUrl = origin;
+  } else {
+    siteUrl = Deno.env.get('SITE_URL') || 'https://numoraq.online';
+  }
+  
+  console.log(`Using site URL: ${siteUrl} (from origin: ${origin})`);
+  
   const session = await stripeClient.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [
@@ -216,11 +229,11 @@ async function createStripeCheckoutSession(sessionId: string, plan: Subscription
       },
     ],
     mode: 'payment',
-    success_url: `${Deno.env.get('SITE_URL') || 'https://numoraq.online'}/${paymentType === 'degen' ? 'payment' : 'donation'}?success=true&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${Deno.env.get('SITE_URL') || 'https://numoraq.online'}/${paymentType === 'degen' ? 'payment' : 'donation'}?canceled=true`,
+    success_url: `${siteUrl}/${paymentType === 'degen' ? 'payment' : 'donation'}?success=true&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${siteUrl}/${paymentType === 'degen' ? 'payment' : 'donation'}?canceled=true`,
     metadata: {
       session_id: sessionId,
-              plan: 'plan' in plan ? plan.plan : plan.tier,
+      plan: 'plan' in plan ? plan.plan : plan.tier,
       user_email: userEmail,
       payment_type: paymentType,
     },
@@ -339,7 +352,7 @@ serve(async (req) => {
         )
       }
 
-      const checkoutSession = await createStripeCheckoutSession(sessionId, planInfo, userEmail, paymentType)
+      const checkoutSession = await createStripeCheckoutSession(sessionId, planInfo, userEmail, paymentType, req)
 
       return new Response(
         JSON.stringify({ 

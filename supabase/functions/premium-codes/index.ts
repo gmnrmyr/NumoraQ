@@ -38,6 +38,21 @@ async function verifyAdminUser(authToken: string): Promise<{ userId: string; isA
   }
 }
 
+// Helper to verify any authenticated user
+async function verifyUser(authToken: string): Promise<{ userId: string; userEmail: string }> {
+  const anonSupabase = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!)
+  const { data: userData, error: userError } = await anonSupabase.auth.getUser(authToken)
+  
+  if (userError || !userData.user) {
+    throw new Error('Invalid authentication token')
+  }
+
+  return {
+    userId: userData.user.id,
+    userEmail: userData.user.email || ''
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -125,10 +140,10 @@ serve(async (req) => {
       }
 
       const token = authHeader.replace('Bearer ', '')
-      const { userId } = await verifyAdminUser(token)
+      const { userId, userEmail } = await verifyUser(token)
 
       const body = await req.json()
-      const { code, userEmail } = body
+      const { code, userEmail: providedEmail } = body
 
       if (!code) {
         return new Response(
@@ -175,7 +190,7 @@ serve(async (req) => {
         .update({
           used_by: userId,
           used_at: now.toISOString(),
-          user_email: userEmail
+          user_email: providedEmail || userEmail
         })
         .eq('code', code)
 
