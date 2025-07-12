@@ -170,7 +170,8 @@ serve(async (req) => {
     const url = new URL(req.url)
     const path = url.pathname
 
-    if (path === '/verify-payment' && req.method === 'POST') {
+    // Process Solana payment
+    if ((path === '/process-payment' || path.endsWith('/process-payment')) && req.method === 'POST') {
       const body: SolanaPaymentRequest = await req.json()
       const { userWallet, amount, tier, transactionSignature, userId } = body
 

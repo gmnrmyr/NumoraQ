@@ -21,6 +21,7 @@ import { useUserTitle } from '@/hooks/useUserTitle';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { usePaymentProcessing, PaymentType } from '@/hooks/usePaymentProcessing';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface PaymentTier {
   id: string;
@@ -185,18 +186,52 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
           );
 
           if (solanaSession) {
-            // For Solana, we'll show the payment interface
-            toast({
-              title: "Solana Payment",
-              description: "Please confirm the payment in your Solana wallet.",
-            });
-            
-            // Here you would integrate with Solana wallet
-            // For now, we'll show a placeholder message
-            toast({
-              title: "Solana Integration",
-              description: "Solana payment integration is being processed. Please contact support if you need immediate assistance.",
-            });
+            // Call the Solana Edge Function to process payment
+            try {
+              const { data: { session: authSession } } = await supabase.auth.getSession();
+              if (!authSession) {
+                throw new Error('User not authenticated');
+              }
+
+              const response = await fetch(`${supabase.supabaseUrl}/functions/v1/solana-payment/process-payment`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${authSession.access_token}`,
+                },
+                body: JSON.stringify({
+                  sessionId: solanaSession.id,
+                  plan: selectedTier.id,
+                  userEmail: user?.email,
+                  userId: user?.id,
+                  paymentType: flowType
+                })
+              });
+
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to process Solana payment');
+              }
+
+              const data = await response.json();
+              
+              toast({
+                title: "Solana Payment Processing",
+                description: "Please confirm the payment in your Solana wallet and wait for confirmation.",
+                duration: 8000
+              });
+
+              if (data.success) {
+                onPaymentComplete?.(selectedTier, selectedMethod);
+              }
+            } catch (error) {
+              console.error('Solana payment error:', error);
+              toast({
+                title: "Solana Payment Error",
+                description: error instanceof Error ? error.message : "Failed to process Solana payment",
+                variant: "destructive"
+              });
+            }
           }
           break;
 
