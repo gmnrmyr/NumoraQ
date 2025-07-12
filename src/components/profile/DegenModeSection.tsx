@@ -17,7 +17,7 @@ export const DegenModeSection = () => {
   const [degenCode, setDegenCode] = useState('');
   const { user } = useAuth();
   const { activatePremiumCode } = useAdminMode();
-  const { isPremiumUser, premiumDetails, refetch } = usePremiumStatus();
+  const { isPremiumUser, premiumDetails, refetch: refetchPremiumStatus } = usePremiumStatus();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -27,12 +27,15 @@ export const DegenModeSection = () => {
       setDegenCode('');
       setShowDegenDialog(false);
       // Refresh premium status after successful activation
-      await refetch();
-      toast({
-        title: "🎉 Degen Code Activated!",
-        description: "Premium access has been activated! Welcome to the degen club!",
-        duration: 5000
-      });
+      // Add a small delay to ensure database update is processed
+      setTimeout(async () => {
+        await refetchPremiumStatus();
+        toast({
+          title: "🎉 Degen Code Activated!",
+          description: "Premium access has been activated! Welcome to the degen club!",
+          duration: 5000
+        });
+      }, 1000);
     } else {
       toast({
         title: "Code Activation Failed",
@@ -92,8 +95,17 @@ export const DegenModeSection = () => {
       }
       return `🚀 ${t.noAdsEnabled}`;
     }
+    
+    // Check if user had a trial that expired
+    if (premiumDetails?.type === '30day_trial' && getDegenTimeRemaining() === 'Expired') {
+      return `⏰ FREE TRIAL EXPIRED - Please purchase a degen plan to continue premium access`;
+    }
+    
     return `📺 ${t.activateForAdFree}`;
   };
+
+  const isTrialExpired = premiumDetails?.type === '30day_trial' && getDegenTimeRemaining() === 'Expired';
+  const hasTrialAccess = premiumDetails?.type === '30day_trial' && isPremiumUser;
 
   return (
     <div className="border-t border-border pt-4">
@@ -101,20 +113,31 @@ export const DegenModeSection = () => {
         <div className="flex items-center gap-2">
           <Crown size={16} className={isPremiumUser ? "text-yellow-400" : "text-muted-foreground"} />
           <span className="font-mono text-sm">{t.degenMode}</span>
-          {isPremiumUser && (
+          {(isPremiumUser || isTrialExpired) && (
             <Badge 
               variant="outline" 
-              className={getBadgeStyle()}
+              className={isTrialExpired ? "bg-red-600/20 border-red-600 text-red-400 font-mono cursor-pointer hover:bg-red-600/30 transition-colors" : getBadgeStyle()}
               title={`${premiumDetails?.type || 'Premium'} Access - ${getDegenTimeRemaining()} - Click to view payment options`}
               onClick={() => navigate('/payment')}
             >
               <Timer size={12} className="mr-1" />
-              {getPremiumTypeDisplay()}
+              {isTrialExpired ? 'TRIAL EXPIRED' : getPremiumTypeDisplay()}
             </Badge>
           )}
         </div>
-        {!isPremiumUser && (
+        {(!isPremiumUser || isTrialExpired) && (
           <div className="flex items-center gap-2">
+            {isTrialExpired && (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="text-xs font-mono bg-red-600/20 text-red-400 border-red-600/40 hover:bg-red-600/30"
+                onClick={() => navigate('/payment')}
+              >
+                <Zap size={12} className="mr-1" />
+                UPGRADE NOW
+              </Button>
+            )}
             <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
               <DialogTrigger asChild>
                 <Button size="sm" variant="outline" className="text-xs font-mono">
@@ -171,15 +194,17 @@ export const DegenModeSection = () => {
               </div>
             </DialogContent>
           </Dialog>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="text-xs font-mono bg-orange-600/20 text-orange-400 border-orange-600/40 hover:bg-orange-600/30"
-            onClick={() => navigate('/payment')}
-          >
-            <CreditCard size={12} className="mr-1" />
-            {t.buyDegen}
-          </Button>
+          {!isTrialExpired && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="text-xs font-mono bg-orange-600/20 text-orange-400 border-orange-600/40 hover:bg-orange-600/30"
+              onClick={() => navigate('/payment')}
+            >
+              <CreditCard size={12} className="mr-1" />
+              {t.buyDegen}
+            </Button>
+          )}
           </div>
         )}
       </div>

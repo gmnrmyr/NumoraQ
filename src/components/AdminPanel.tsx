@@ -6,13 +6,22 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Shield, Users, Code, Gift, Crown, Settings, Globe, Upload, Wallet, Zap } from 'lucide-react';
+import { Shield, Users, Code, Gift, Crown, Settings, Globe, Upload, Wallet, Zap, Search, User } from 'lucide-react';
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { usePremiumCodes } from '@/hooks/usePremiumCodes';
 import { useUserPoints } from '@/hooks/useUserPoints';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProjectSettingsPanel } from './cms/ProjectSettingsPanel';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+
+interface UserSearchResult {
+  id: string;
+  name: string;
+  email: string;
+  user_uid: string;
+  total_points: number;
+}
 
 export const AdminPanel = () => {
   const { user } = useAuth();
@@ -32,12 +41,16 @@ export const AdminPanel = () => {
 
   const [newCodeType, setNewCodeType] = useState('1year');
   const [newCodeEmail, setNewCodeEmail] = useState('');
-  const [pointsUserId, setPointsUserId] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserSearchResult | null>(null);
   const [pointsAmount, setPointsAmount] = useState('');
   const [pointsReason, setPointsReason] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
   // User title requirements (hardcoded for reference)
   const titleRequirements = [
+    { title: 'WHALE', points: 50000, donation: '$50,000+' },
     { title: 'LEGEND', points: 10000, donation: '$10,000+' },
     { title: 'PATRON', points: 5000, donation: '$5,000+' },
     { title: 'CHAMPION', points: 2000, donation: '$2,000+' },
@@ -47,8 +60,83 @@ export const AdminPanel = () => {
     { title: 'CONTRIBUTOR', points: 50, donation: '$50+' },
     { title: 'HELPER', points: 25, donation: '$25+' },
     { title: 'FRIEND', points: 20, donation: '$20+' },
-    { title: 'SUPPORTER', points: 10, donation: '$10+' }
+    { title: 'SUPPORTER-BASIC', points: 10, donation: '$10+' },
+    { title: 'NEWCOMER', points: 0, donation: 'Welcome Badge' }
   ];
+
+  const searchUsers = async () => {
+    if (!searchQuery.trim()) {
+      toast({
+        title: "Search Query Required",
+        description: "Please enter a name or email to search for users",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      // Search for users by name or email
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, name, user_uid')
+        .or(`name.ilike.%${searchQuery}%,id.in.(${searchQuery})`)
+        .limit(10);
+
+      if (profileError) throw profileError;
+
+      // Get user emails from auth.users (requires service role or special permissions)
+      const { data: users, error: usersError } = await supabase.auth.admin.listUsers();
+      
+      if (usersError) {
+        console.log('Could not fetch user emails (limited permissions)');
+      }
+
+      // Get user points totals
+      const userIds = profiles?.map(p => p.id) || [];
+      const { data: pointsData, error: pointsError } = await supabase
+        .from('user_points')
+        .select('user_id, points')
+        .in('user_id', userIds);
+
+      if (pointsError) throw pointsError;
+
+      // Calculate total points per user
+      const pointsMap = new Map<string, number>();
+      pointsData?.forEach(entry => {
+        const current = pointsMap.get(entry.user_id) || 0;
+        pointsMap.set(entry.user_id, current + entry.points);
+      });
+
+      // Combine data
+      const results: UserSearchResult[] = profiles?.map(profile => ({
+        id: profile.id,
+        name: profile.name || 'Anonymous',
+        email: users?.users.find(u => u.id === profile.id)?.email || 'Email not available',
+        user_uid: profile.user_uid || 'USER',
+        total_points: pointsMap.get(profile.id) || 0
+      })) || [];
+
+      setSearchResults(results);
+      
+      if (results.length === 0) {
+        toast({
+          title: "No Users Found",
+          description: "No users found matching your search query",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error searching users:', error);
+      toast({
+        title: "Search Failed",
+        description: "Failed to search users. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const handleGenerateCode = async () => {
     if (!newCodeEmail.trim()) {
@@ -105,10 +193,10 @@ export const AdminPanel = () => {
   };
 
   const handleAddPoints = async () => {
-    if (!pointsUserId.trim() || !pointsAmount.trim()) {
+    if (!selectedUser || !pointsAmount.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please enter both user ID and points amount",
+        description: "Please select a user and enter points amount",
         variant: "destructive"
       });
       return;
@@ -125,14 +213,20 @@ export const AdminPanel = () => {
     }
 
     try {
-      await addManualPoints(pointsUserId, points, pointsReason || 'Manual admin assignment');
+      await addManualPoints(selectedUser.id, points, pointsReason || 'Manual admin assignment');
       
       // Clear form fields after successful submission
-      setPointsUserId('');
+      setSelectedUser(null);
       setPointsAmount('');
       setPointsReason('');
+      setSearchQuery('');
+      setSearchResults([]);
       
-      // Note: Toast notification is handled by the addManualPoints hook
+      toast({
+        title: "Points Added Successfully! ✅",
+        description: `${points} points added to ${selectedUser.name} (${selectedUser.user_uid})`,
+        duration: 5000
+      });
     } catch (error) {
       console.error('Error adding points:', error);
       toast({
@@ -282,9 +376,66 @@ export const AdminPanel = () => {
               <CardTitle className="font-mono">User Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="font-mono text-muted-foreground">
-                User management features coming soon...
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="searchUser" className="font-mono">Search Users</Label>
+                  <Input
+                    id="searchUser"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        searchUsers();
+                      }
+                    }}
+                    placeholder="Enter name or email"
+                    className="font-mono"
+                  />
+                </div>
+                <Button
+                  onClick={searchUsers}
+                  disabled={isSearching || !searchQuery.trim()}
+                  className="w-full font-mono"
+                >
+                  <Search size={16} className="mr-2" />
+                  {isSearching ? "Searching..." : "Search Users"}
+                </Button>
               </div>
+
+              {searchResults.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="font-mono font-bold mb-2">Search Results</h4>
+                  <div className="space-y-2">
+                    {searchResults.map((user) => (
+                      <div
+                        key={user.id}
+                        className="flex items-center justify-between p-3 border border-border rounded cursor-pointer hover:bg-accent/10"
+                        onClick={() => setSelectedUser(user)}
+                      >
+                        <div className="font-mono">
+                          <div className="font-bold">{user.name}</div>
+                          <div className="text-sm text-muted-foreground">{user.email}</div>
+                        </div>
+                        <Badge variant="outline" className="font-mono">
+                          {user.total_points} pts
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedUser && (
+                <div className="mt-4 p-4 bg-muted border border-border rounded">
+                  <h4 className="font-mono font-bold mb-2">Selected User</h4>
+                  <div className="font-mono">
+                    <p><strong>Name:</strong> {selectedUser.name}</p>
+                    <p><strong>Email:</strong> {selectedUser.email}</p>
+                    <p><strong>User UID:</strong> {selectedUser.user_uid}</p>
+                    <p><strong>Total Points:</strong> {selectedUser.total_points}</p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -300,8 +451,15 @@ export const AdminPanel = () => {
                   <Label htmlFor="userId" className="font-mono">User ID</Label>
                   <Input
                     id="userId"
-                    value={pointsUserId}
-                    onChange={(e) => setPointsUserId(e.target.value)}
+                    value={selectedUser?.id || ''}
+                    onChange={(e) => {
+                      const user = searchResults.find(u => u.id === e.target.value);
+                      if (user) {
+                        setSelectedUser(user);
+                      } else {
+                        setSelectedUser(null);
+                      }
+                    }}
                     placeholder="Enter user UUID"
                     className="font-mono"
                   />
@@ -333,7 +491,7 @@ export const AdminPanel = () => {
                 <div className="flex items-end">
                   <Button 
                     onClick={handleAddPoints}
-                    disabled={!pointsUserId.trim() || !pointsAmount.trim()}
+                    disabled={!selectedUser || !pointsAmount.trim()}
                     className="w-full font-mono"
                   >
                     <Zap size={16} className="mr-2" />
