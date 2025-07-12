@@ -92,30 +92,39 @@ export const useUserPoints = () => {
 
   const addManualPoints = async (userId: string, points: number, reason: string) => {
     try {
+      const today = new Date().toISOString().split('T')[0];
+      
       const { error } = await supabase
         .from('user_points')
         .insert({
           user_id: userId,
           points,
-          activity_type: 'manual'
+          activity_type: 'manual',
+          activity_date: today,
+          notes: reason || 'Manual admin assignment',
+          donation_amount: 0,
+          donation_tier: null
         });
 
       if (error) throw error;
 
       toast({
-        title: "Points Added",
-        description: `${points} points added manually: ${reason}`
+        title: "Points Added Successfully! ✅",
+        description: `${points} points added to user ${userId.substring(0, 8)}... - ${reason}`,
+        duration: 5000
       });
 
+      // Reload points if it's the current user
       if (userId === (await supabase.auth.getUser()).data.user?.id) {
         await loadUserPoints();
       }
     } catch (error) {
       console.error('Error adding manual points:', error);
       toast({
-        title: "Error",
-        description: "Failed to add points",
-        variant: "destructive"
+        title: "Failed to Add Points ❌",
+        description: error instanceof Error ? error.message : "Failed to add points. Please try again.",
+        variant: "destructive",
+        duration: 5000
       });
     }
   };

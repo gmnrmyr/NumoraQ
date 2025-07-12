@@ -220,7 +220,7 @@ export const usePaymentProcessing = () => {
         amount = planInfo.amount;
       }
 
-      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const sessionId = crypto.randomUUID();
       
       // Create payment session in database
       const { error: sessionError } = await supabase
@@ -283,17 +283,18 @@ export const usePaymentProcessing = () => {
     }
   }, [user]);
 
-  const processStripePayment = useCallback(async (sessionId: string, paymentType: PaymentType): Promise<boolean> => {
+  const processStripePayment = useCallback(async (sessionId: string, paymentType: PaymentType, session?: PaymentSession): Promise<boolean> => {
     setLoading(true);
     
     try {
-      if (!currentSession) {
+      const sessionToUse = session || currentSession;
+      if (!sessionToUse) {
         throw new Error('Payment session not found');
       }
 
       // Get the current user session for authentication
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      const { data: { session: authSession } } = await supabase.auth.getSession();
+      if (!authSession) {
         throw new Error('User not authenticated');
       }
 
@@ -302,11 +303,11 @@ export const usePaymentProcessing = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ${authSession.access_token}`,
         },
         body: JSON.stringify({
           sessionId: sessionId,
-          plan: currentSession.plan,
+          plan: sessionToUse.plan,
           userEmail: user?.email,
           userId: user?.id,
           paymentType: paymentType

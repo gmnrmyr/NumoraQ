@@ -120,7 +120,7 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
       id: 'evm-direct',
       name: t.evmDirectTransfer,
       icon: <Wallet size={16} />,
-      status: 'active',
+      status: 'coming-soon',
       description: t.sendEthBscDirectly
     },
     {
@@ -169,7 +169,7 @@ export const UnifiedPaymentFlow: React.FC<UnifiedPaymentFlowProps> = ({
           );
 
           if (session) {
-            const success = await processStripePayment(session.id, flowType as PaymentType);
+            const success = await processStripePayment(session.id, flowType as PaymentType, session);
             if (success) {
               onPaymentComplete?.(selectedTier, selectedMethod);
             }
