@@ -19,5 +19,6 @@
 
 - [ ] Fix the animations we are trying to implement on dashboard, like we have on landing page for specific users (Degen, and Specific Tiers).
 
+- [ ] When we're done with all above, we will change the stripe key from test to prod.
 
 - [ ] Make our test.numoraq.com work with proper documentation for me to actually work mainly on test and not on prod. but make me a way to update both backend,database and frontend to prod. also a way to backup everything on test. (last!!!)
