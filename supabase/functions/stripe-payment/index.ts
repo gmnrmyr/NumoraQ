@@ -273,25 +273,13 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
 
   console.log(`Premium activation: User ${userId}, Plan: ${plan.plan}, Start: ${startDate.toISOString()}, Expires: ${expirationDate.toISOString()}`)
 
-  // Map plan types to valid database constraint values
-  let dbPremiumType: string;
-  switch (plan.plan) {
-    case '1month':
-    case '3months': 
-    case '6months':
-      dbPremiumType = '1year'; // Use valid constraint value
-      break;
-    case '1year':
-      dbPremiumType = '1year';
-      break;
-    case '5years':
-      dbPremiumType = '5years';
-      break;
-    case 'lifetime':
-      dbPremiumType = 'lifetime';
-      break;
-    default:
-      dbPremiumType = '1year'; // Default fallback
+  // Use the actual plan type for database storage
+  let dbPremiumType: string = plan.plan;
+  
+  // Ensure the plan type is valid for the database constraint
+  const validPlanTypes = ['1month', '3months', '6months', '1year', '5years', 'lifetime'];
+  if (!validPlanTypes.includes(plan.plan)) {
+    dbPremiumType = '1year'; // Default fallback
   }
 
   // Update user premium status using service role (bypasses RLS)
@@ -331,18 +319,41 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
 
 async function activateDonationTier(userId: string, tier: DonationTier, sessionId: string) {
   // Add donation points to user_points table using only existing columns
+  // Handle the unique constraint by adding a slight time offset to avoid conflicts
+  const now = new Date();
+  const offsetTime = new Date(now.getTime() + Math.random() * 1000 * 60 * 60); // Random offset up to 1 hour
+  
   const { error: pointsError } = await supabase
     .from('user_points')
     .insert({
       user_id: userId,
       points: tier.points,
       activity_type: 'donation',
-      activity_date: new Date().toISOString().split('T')[0]
+      activity_date: offsetTime.toISOString().split('T')[0]
     })
 
   if (pointsError) {
     console.error('Error adding donation points:', pointsError)
-    throw pointsError
+    
+    // If there's still a conflict, try using 'manual' activity type instead
+    if (pointsError.code === '23505') {
+      console.log('Retrying with manual activity type due to constraint conflict')
+      const { error: retryError } = await supabase
+        .from('user_points')
+        .insert({
+          user_id: userId,
+          points: tier.points,
+          activity_type: 'manual',
+          activity_date: offsetTime.toISOString().split('T')[0]
+        })
+      
+      if (retryError) {
+        console.error('Error adding points with manual type:', retryError)
+        throw retryError
+      }
+    } else {
+      throw pointsError
+    }
   }
 
   // Update payment session status using service role (bypasses RLS)

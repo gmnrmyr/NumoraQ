@@ -65,14 +65,36 @@ export const DegenModeSection = () => {
     if (expiryDate.getFullYear() >= 2099) return 'Lifetime';
     
     const diffTime = expiryDate.getTime() - now.getTime();
+    
+    if (diffTime <= 0) return 'Expired';
+    
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+    const diffMinutes = Math.ceil(diffTime / (1000 * 60));
     
-    if (diffDays <= 0) return 'Expired';
-    if (diffDays === 1) return '1 Day';
+    // Show more precise time for shorter periods
+    if (diffDays <= 1) {
+      if (diffHours <= 1) {
+        return `${diffMinutes} Minutes`;
+      }
+      return `${diffHours} Hours`;
+    }
+    
+    if (diffDays <= 7) return `${diffDays} Days`;
     if (diffDays <= 30) return `${diffDays} Days`;
-    if (diffDays <= 365) return `${Math.ceil(diffDays / 30)} Months`;
+    if (diffDays <= 365) {
+      const months = Math.floor(diffDays / 30);
+      const remainingDays = diffDays % 30;
+      if (remainingDays === 0) return `${months} Months`;
+      return `${months}M ${remainingDays}D`;
+    }
     
-    return `${Math.ceil(diffDays / 365)} Years`;
+    const years = Math.floor(diffDays / 365);
+    const remainingDays = diffDays % 365;
+    const remainingMonths = Math.floor(remainingDays / 30);
+    
+    if (remainingMonths === 0) return `${years} Years`;
+    return `${years}Y ${remainingMonths}M`;
   };
 
   const getPremiumTypeDisplay = () => {
