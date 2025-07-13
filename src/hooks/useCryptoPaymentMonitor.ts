@@ -52,27 +52,50 @@ export const useCryptoPaymentMonitor = () => {
         return;
       }
 
-      // Create premium status directly without payment_sessions
+      // Get existing premium status to check for stacking (same logic as webhook)
+      const { data: existingStatus, error: fetchError } = await supabase
+        .from('user_premium_status')
+        .select('expires_at, premium_type, is_premium')
+        .eq('user_id', user.id)
+        .single();
+
       console.log('Activating premium for tier:', tier.description);
       
-      // Calculate expiry date
-      const now = new Date();
+      let startDate = new Date();
+      
+      // If user has existing active premium, extend from expiry date
+      if (existingStatus && existingStatus.is_premium && existingStatus.expires_at) {
+        const existingExpiry = new Date(existingStatus.expires_at);
+        const now = new Date();
+        
+        // If existing plan hasn't expired yet, extend from expiry date
+        if (existingExpiry > now) {
+          startDate = existingExpiry;
+          console.log(`Crypto payment: Extending existing premium plan from ${existingExpiry.toISOString()}`);
+        } else {
+          console.log('Crypto payment: Existing plan expired, starting fresh');
+        }
+      }
+      
+      // Calculate expiry date from start date
       let expiresAt: Date | null = null;
       
       if (tier.durationMonths) {
-        expiresAt = new Date(now.getFullYear(), now.getMonth() + tier.durationMonths, now.getDate());
+        expiresAt = new Date(startDate.getFullYear(), startDate.getMonth() + tier.durationMonths, startDate.getDate());
       } else {
         expiresAt = new Date(2099, 11, 31); // Lifetime
       }
 
-      // Activate premium status
+      console.log(`Crypto premium activation: User ${user.id}, Plan: ${tier.plan}, Start: ${startDate.toISOString()}, Expires: ${expiresAt?.toISOString()}`);
+
+      // Activate premium status with proper time stacking
       const { error: statusError } = await supabase
         .from('user_premium_status')
         .upsert({
           user_id: user.id,
           is_premium: true,
           premium_type: tier.plan,
-          activated_at: now.toISOString(),
+          activated_at: new Date().toISOString(), // When this specific purchase was made
           expires_at: expiresAt?.toISOString(),
         });
 

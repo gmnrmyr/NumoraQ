@@ -92,12 +92,10 @@ export const useUserPoints = () => {
 
   const addManualPoints = async (userId: string, points: number, reason: string) => {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      console.log('Adding manual points:', { userId, points, reason });
       
-      // Create a unique identifier to avoid constraint violations
-      // Use a random suffix since the unique constraint prevents multiple manual entries per day
-      const uniqueDate = new Date();
-      uniqueDate.setHours(uniqueDate.getHours() + Math.floor(Math.random() * 24));
+      // Get current admin user
+      const { data: currentUser } = await supabase.auth.getUser();
       
       const { error } = await supabase
         .from('user_points')
@@ -105,10 +103,22 @@ export const useUserPoints = () => {
           user_id: userId,
           points,
           activity_type: 'manual',
-          activity_date: uniqueDate.toISOString().split('T')[0] // Use slightly offset date to avoid conflicts
+          activity_date: new Date().toISOString().split('T')[0],
+          points_source: 'admin_assigned',
+          source_details: JSON.stringify({
+            reason: reason,
+            admin_assigned: true,
+            timestamp: new Date().toISOString()
+          }),
+          assigned_by_admin: currentUser.user?.id || null
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding manual points:', error);
+        throw error;
+      }
+
+      console.log('Manual points added successfully');
 
       toast({
         title: "Points Added Successfully! ✅",
@@ -117,7 +127,6 @@ export const useUserPoints = () => {
       });
 
       // Reload points if it's the current user
-      const { data: currentUser } = await supabase.auth.getUser();
       if (userId === currentUser.user?.id) {
         await loadUserPoints();
       }
