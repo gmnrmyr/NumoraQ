@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Crown, Gift, Timer, CreditCard, Zap } from 'lucide-react';
+import { Crown, Gift, Timer, CreditCard, Zap, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
+import { useTrialActivation } from '@/hooks/useTrialActivation';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -18,6 +19,12 @@ export const DegenModeSection = () => {
   const { user } = useAuth();
   const { activatePremiumCode } = useAdminMode();
   const { isPremiumUser, premiumDetails, refetch: refetchPremiumStatus } = usePremiumStatus();
+  const { 
+    activateBetaGracePeriod, 
+    isTrialExpired, 
+    trialTimeRemaining, 
+    isOnTrial 
+  } = useTrialActivation();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -92,22 +99,26 @@ export const DegenModeSection = () => {
 
   const getStatusMessage = () => {
     if (isPremiumUser) {
-      if (premiumDetails?.type === '30day_trial') {
-        return `🎉 Free trial active - ${getDegenTimeRemaining()} remaining`;
+      if (isOnTrial) {
+        return `🎉 Free trial active - ${trialTimeRemaining} remaining`;
       }
       return `🚀 ${t.noAdsEnabled}`;
     }
     
     // Check if user had a trial that expired
-    if (premiumDetails?.type === '30day_trial' && getDegenTimeRemaining() === 'Expired') {
-      return `⏰ FREE TRIAL EXPIRED - Please purchase a degen plan to continue premium access`;
+    if (isTrialExpired) {
+      return `⏰ FREE TRIAL EXPIRED - Upgrade to continue premium access or use 3-day beta grace period`;
     }
     
     return `📺 ${t.activateForAdFree}`;
   };
 
-  const isTrialExpired = premiumDetails?.type === '30day_trial' && getDegenTimeRemaining() === 'Expired';
-  const hasTrialAccess = premiumDetails?.type === '30day_trial' && isPremiumUser;
+  const handleGracePeriodActivation = async () => {
+    const success = await activateBetaGracePeriod();
+    if (success) {
+      await refetchPremiumStatus();
+    }
+  };
 
   return (
     <div className="border-t border-border pt-4">
@@ -119,26 +130,38 @@ export const DegenModeSection = () => {
             <Badge 
               variant="outline" 
               className={isTrialExpired ? "bg-red-600/20 border-red-600 text-red-400 font-mono cursor-pointer hover:bg-red-600/30 transition-colors" : getBadgeStyle()}
-              title={`${premiumDetails?.type || 'Premium'} Access - ${getDegenTimeRemaining()} - Click to view payment options`}
+              title={`${premiumDetails?.type || 'Premium'} Access - ${trialTimeRemaining || getDegenTimeRemaining()} - Click to view payment options`}
               onClick={() => navigate('/payment')}
             >
               <Timer size={12} className="mr-1" />
-              {isTrialExpired ? 'TRIAL EXPIRED' : getPremiumTypeDisplay()}
+              {isTrialExpired ? 'TRIAL EXPIRED' : isOnTrial ? 'FREE TRIAL' : getPremiumTypeDisplay()}
             </Badge>
           )}
         </div>
         {(!isPremiumUser || isTrialExpired) && (
           <div className="flex items-center gap-2">
             {isTrialExpired && (
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="text-xs font-mono bg-red-600/20 text-red-400 border-red-600/40 hover:bg-red-600/30"
-                onClick={() => navigate('/payment')}
-              >
-                <Zap size={12} className="mr-1" />
-                UPGRADE NOW
-              </Button>
+              <>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="text-xs font-mono bg-orange-600/20 text-orange-400 border-orange-600/40 hover:bg-orange-600/30"
+                  onClick={handleGracePeriodActivation}
+                  title="Get 3 additional days to try premium features (beta only, one-time offer)"
+                >
+                  <Gift size={12} className="mr-1" />
+                  3-DAY GRACE
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="text-xs font-mono bg-red-600/20 text-red-400 border-red-600/40 hover:bg-red-600/30"
+                  onClick={() => navigate('/payment')}
+                >
+                  <Zap size={12} className="mr-1" />
+                  UPGRADE NOW
+                </Button>
+              </>
             )}
             <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
               <DialogTrigger asChild>
