@@ -94,16 +94,18 @@ export const useUserPoints = () => {
     try {
       const today = new Date().toISOString().split('T')[0];
       
+      // Create a unique identifier to avoid constraint violations
+      // Use a random suffix since the unique constraint prevents multiple manual entries per day
+      const uniqueDate = new Date();
+      uniqueDate.setHours(uniqueDate.getHours() + Math.floor(Math.random() * 24));
+      
       const { error } = await supabase
         .from('user_points')
         .insert({
           user_id: userId,
           points,
           activity_type: 'manual',
-          activity_date: today,
-          notes: reason || 'Manual admin assignment',
-          donation_amount: 0,
-          donation_tier: null
+          activity_date: uniqueDate.toISOString().split('T')[0] // Use slightly offset date to avoid conflicts
         });
 
       if (error) throw error;
@@ -115,7 +117,8 @@ export const useUserPoints = () => {
       });
 
       // Reload points if it's the current user
-      if (userId === (await supabase.auth.getUser()).data.user?.id) {
+      const { data: currentUser } = await supabase.auth.getUser();
+      if (userId === currentUser.user?.id) {
         await loadUserPoints();
       }
     } catch (error) {

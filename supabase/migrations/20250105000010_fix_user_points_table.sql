@@ -1,18 +1,27 @@
 -- Fix user_points table to support donation tiers properly
 -- The table is missing columns that the donation system expects
+-- Ensure all columns have proper defaults to avoid insertion failures
 
--- Add missing columns to user_points table
+-- Add missing columns to user_points table with proper defaults
 ALTER TABLE public.user_points 
-ADD COLUMN IF NOT EXISTS notes TEXT,
-ADD COLUMN IF NOT EXISTS donation_amount DECIMAL(10, 2),
-ADD COLUMN IF NOT EXISTS donation_tier TEXT,
+ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS donation_amount DECIMAL(10, 2) DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS donation_tier TEXT DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS total_donated DECIMAL(10, 2) DEFAULT 0,
-ADD COLUMN IF NOT EXISTS highest_tier TEXT,
+ADD COLUMN IF NOT EXISTS highest_tier TEXT DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT now();
 
--- Remove the unique constraint that prevents multiple donations per day
-ALTER TABLE public.user_points 
-DROP CONSTRAINT IF EXISTS user_points_user_id_activity_type_activity_date_key;
+-- Remove the unique constraint that prevents multiple donations per day ONLY if it exists
+DO $$ 
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'user_points_user_id_activity_type_activity_date_key'
+    ) THEN
+        ALTER TABLE public.user_points 
+        DROP CONSTRAINT user_points_user_id_activity_type_activity_date_key;
+    END IF;
+END $$;
 
 -- Create a new unique constraint that allows multiple donations but prevents duplicate daily logins
 CREATE UNIQUE INDEX IF NOT EXISTS user_points_daily_login_unique 

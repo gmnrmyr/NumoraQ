@@ -31,7 +31,7 @@ export const usePremiumStatus = () => {
     try {
       const { data, error } = await supabase
         .from('user_premium_status')
-        .select('is_premium, premium_type, expires_at, trial_activated_at')
+        .select('is_premium, premium_type, expires_at, activated_at')
         .eq('user_id', user.id)
         .single();
 
@@ -48,8 +48,9 @@ export const usePremiumStatus = () => {
       // Check if user has actual premium access (is_premium: true and not expired)
       const isActive = data.is_premium && hasNotExpired;
 
-      // Check if user is on trial (premium_type: '30day_trial' and not expired)
-      const isOnTrial = data.premium_type === '30day_trial' && hasNotExpired;
+      // Check if user is on trial (is_premium: false but has expiry date and hasn't expired)
+      // This indicates a trial since real premium users have is_premium: true
+      const isOnTrial = !data.is_premium && data.expires_at && hasNotExpired;
 
       // Calculate trial time remaining if on trial
       let trialTimeRemaining = '';
@@ -70,7 +71,7 @@ export const usePremiumStatus = () => {
       
       if (isActive || isOnTrial) {
         setPremiumDetails({
-          type: data.premium_type || 'lifetime',
+          type: isOnTrial ? '30day_trial' : data.premium_type || 'lifetime',
           expiresAt: data.expires_at,
           isOnTrial,
           trialTimeRemaining

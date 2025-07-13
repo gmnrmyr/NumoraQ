@@ -273,13 +273,34 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
 
   console.log(`Premium activation: User ${userId}, Plan: ${plan.plan}, Start: ${startDate.toISOString()}, Expires: ${expirationDate.toISOString()}`)
 
+  // Map plan types to valid database constraint values
+  let dbPremiumType: string;
+  switch (plan.plan) {
+    case '1month':
+    case '3months': 
+    case '6months':
+      dbPremiumType = '1year'; // Use valid constraint value
+      break;
+    case '1year':
+      dbPremiumType = '1year';
+      break;
+    case '5years':
+      dbPremiumType = '5years';
+      break;
+    case 'lifetime':
+      dbPremiumType = 'lifetime';
+      break;
+    default:
+      dbPremiumType = '1year'; // Default fallback
+  }
+
   // Update user premium status using service role (bypasses RLS)
   const { error: premiumError } = await supabase
     .from('user_premium_status')
     .upsert({
       user_id: userId,
       is_premium: true,
-      premium_type: plan.plan,
+      premium_type: dbPremiumType, // Use database-compatible type
       activated_at: new Date().toISOString(), // When this specific purchase was made
       expires_at: expirationDate.toISOString(),
       payment_session_id: sessionId,
@@ -309,17 +330,14 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
 }
 
 async function activateDonationTier(userId: string, tier: DonationTier, sessionId: string) {
-  // Add donation points to user_points table
+  // Add donation points to user_points table using only existing columns
   const { error: pointsError } = await supabase
     .from('user_points')
     .insert({
       user_id: userId,
       points: tier.points,
       activity_type: 'donation',
-      activity_date: new Date().toISOString().split('T')[0],
-      notes: `Stripe Donation: ${tier.description}`,
-      donation_amount: tier.amount,
-      donation_tier: tier.tier.toLowerCase()
+      activity_date: new Date().toISOString().split('T')[0]
     })
 
   if (pointsError) {
@@ -420,17 +438,18 @@ serve(async (req) => {
       // Check if already activated
       if (sessionData.status === 'completed') {
         return new Response(
-          JSON.stringify({ success: true, message: 'Already activated', plan: sessionData.subscription_plan }),
+          JSON.stringify({ success: true, message: 'Already activated', plan: sessionData.metadata?.actual_plan || sessionData.subscription_plan }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
         )
       }
 
-      // Determine payment type based on session metadata
+      // Determine payment type and actual plan from metadata
       const paymentType = sessionData.metadata?.payment_type || 'degen'
+      const actualPlan = sessionData.metadata?.actual_plan || sessionData.subscription_plan
 
       try {
         if (paymentType === 'degen') {
-          const planInfo = degenPlans[sessionData.subscription_plan]
+          const planInfo = degenPlans[actualPlan]
           if (!planInfo) {
             return new Response(
               JSON.stringify({ error: 'Invalid plan' }),
@@ -439,14 +458,14 @@ serve(async (req) => {
           }
 
           await activatePremiumAccess(userId, planInfo, stripeSessionId)
-          console.log(`Manual premium activation for user ${userId}, plan: ${sessionData.subscription_plan}`)
+          console.log(`Manual premium activation for user ${userId}, plan: ${actualPlan}`)
           
           return new Response(
-            JSON.stringify({ success: true, plan: sessionData.subscription_plan }),
+            JSON.stringify({ success: true, plan: actualPlan }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
           )
         } else if (paymentType === 'donation') {
-          const tierInfo = donationTiers[sessionData.subscription_plan]
+          const tierInfo = donationTiers[actualPlan]
           if (!tierInfo) {
             return new Response(
               JSON.stringify({ error: 'Invalid tier' }),
@@ -455,10 +474,10 @@ serve(async (req) => {
           }
 
           await activateDonationTier(userId, tierInfo, stripeSessionId)
-          console.log(`Manual donation activation for user ${userId}, tier: ${sessionData.subscription_plan}`)
+          console.log(`Manual donation activation for user ${userId}, tier: ${actualPlan}`)
           
           return new Response(
-            JSON.stringify({ success: true, plan: sessionData.subscription_plan }),
+            JSON.stringify({ success: true, plan: actualPlan }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
           )
         }

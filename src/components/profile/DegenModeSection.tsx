@@ -98,21 +98,22 @@ export const DegenModeSection = () => {
   };
 
   const getStatusMessage = () => {
+    // If user has premium degen access (is_premium: true)
     if (isPremiumUser) {
-      return `🚀 ${t.noAdsEnabled}`;
+      return `🚀 ${t.noAdsEnabled} - ${getDegenTimeRemaining()} remaining`;
     }
     
-    // Check if user is on trial
+    // Check if user is on trial (is_premium: false but has trial)
     if (premiumDetails?.isOnTrial) {
-      return `🎉 Free trial active - ${premiumDetails.trialTimeRemaining} remaining`;
+      return `🎯 FREE TRIAL ACTIVE - ${premiumDetails.trialTimeRemaining} remaining (with ads)`;
     }
     
     // Check if user had a trial that expired
     if (isTrialExpired) {
-      return `⏰ FREE TRIAL EXPIRED - Upgrade to continue premium access or use 3-day beta grace period`;
+      return `⏰ FREE TRIAL EXPIRED - Upgrade to continue or use 3-day beta grace period`;
     }
     
-    return `📺 ${t.activateForAdFree}`;
+    return `📺 ${t.activateForAdFree} - No trial or degen access`;
   };
 
   const handleGracePeriodActivation = async () => {
@@ -124,6 +125,7 @@ export const DegenModeSection = () => {
 
   const isTrialActive = premiumDetails?.isOnTrial || false;
   const isTrialOrPremium = isPremiumUser || isTrialActive;
+  const hasAnyAccess = isTrialOrPremium || isTrialExpired;
 
   return (
     <div className="border-t border-border pt-4">
@@ -131,7 +133,7 @@ export const DegenModeSection = () => {
         <div className="flex items-center gap-2">
           <Crown size={16} className={isTrialOrPremium ? "text-yellow-400" : "text-muted-foreground"} />
           <span className="font-mono text-sm">{t.degenMode}</span>
-          {isTrialOrPremium && (
+          {hasAnyAccess && (
             <Badge 
               variant="outline" 
               className={isTrialExpired ? "bg-red-600/20 border-red-600 text-red-400 font-mono cursor-pointer hover:bg-red-600/30 transition-colors" : getBadgeStyle()}
@@ -222,8 +224,28 @@ export const DegenModeSection = () => {
           </div>
         )}
       </div>
-      <div className="mt-2 text-xs text-muted-foreground font-mono">
-        {getStatusMessage()}
+      
+      {/* Enhanced Status Display for user_ui_config panel */}
+      <div className="mt-3 p-3 bg-muted/50 border border-border rounded font-mono text-xs">
+        <div className="space-y-1">
+          <div className="font-bold text-accent">STATUS:</div>
+          <div>{getStatusMessage()}</div>
+          
+          {premiumDetails && (
+            <div className="mt-2 pt-2 border-t border-border space-y-1">
+              <div><strong>Type:</strong> {premiumDetails.type || 'None'}</div>
+              {premiumDetails.expiresAt && (
+                <div><strong>Expires:</strong> {new Date(premiumDetails.expiresAt).toLocaleDateString()}</div>
+              )}
+              {premiumDetails.isOnTrial && (
+                <div className="text-blue-400"><strong>Trial Status:</strong> Active ({premiumDetails.trialTimeRemaining})</div>
+              )}
+              {isPremiumUser && (
+                <div className="text-green-400"><strong>Degen Status:</strong> Active ({getDegenTimeRemaining()})</div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

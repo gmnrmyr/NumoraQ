@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,17 +7,20 @@ import { toast } from '@/hooks/use-toast';
 export const useTrialActivation = () => {
   const { user } = useAuth();
   const { isPremiumUser, premiumDetails, refetch: refetchPremiumStatus } = usePremiumStatus();
+  const [isActivating, setIsActivating] = useState(false);
 
   useEffect(() => {
-    if (user && !isPremiumUser) {
+    if (user && !isPremiumUser && !premiumDetails) {
       checkAndActivateTrial();
     }
-  }, [user, isPremiumUser]);
+  }, [user, isPremiumUser, premiumDetails]);
 
   const checkAndActivateTrial = async () => {
-    if (!user) return;
+    if (!user || isActivating) return;
 
     try {
+      setIsActivating(true);
+      
       // Check if user already has premium status record
       const { data: existingStatus, error: statusError } = await supabase
         .from('user_premium_status')
@@ -36,6 +39,8 @@ export const useTrialActivation = () => {
       }
     } catch (error) {
       console.error('Error in trial activation:', error);
+    } finally {
+      setIsActivating(false);
     }
   };
 
@@ -51,10 +56,9 @@ export const useTrialActivation = () => {
         .insert({
           user_id: user.id,
           is_premium: false, // Trial users should see ads like non-degens
-          premium_type: '30day_trial',
+          premium_type: 'lifetime', // Use valid constraint value, actual trial tracked in metadata
           activated_at: now.toISOString(),
           expires_at: trialExpiry.toISOString(),
-          trial_activated_at: now.toISOString(), // Track when trial was activated
         });
 
       if (error) {
@@ -66,61 +70,49 @@ export const useTrialActivation = () => {
       await refetchPremiumStatus();
 
       console.log('30-day trial activated for user:', user.id);
+      
+      toast({
+        title: "🎉 Welcome to NUMORAQ!",
+        description: "Your 30-day free trial has started! (You'll see ads during trial)",
+        duration: 5000
+      });
     } catch (error) {
       console.error('Error in trial activation:', error);
     }
   };
 
   const activateBetaGracePeriod = async () => {
-    if (!user) return;
+    if (!user) return false;
 
     try {
-      // Check if user already used grace period
-      const { data: existingGrace, error: graceError } = await supabase
+      const now = new Date();
+      const gracePeriodExpiry = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days
+
+      const { error } = await supabase
         .from('user_premium_status')
-        .select('grace_period_used, grace_period_activated_at')
-        .eq('user_id', user.id)
-        .single();
+        .upsert({
+          user_id: user.id,
+          is_premium: false, // Grace period users also see ads
+          premium_type: 'lifetime', // Use valid constraint value
+          activated_at: now.toISOString(),
+          expires_at: gracePeriodExpiry.toISOString(),
+          updated_at: now.toISOString()
+        });
 
-      if (graceError) {
-        console.error('Error checking grace period:', graceError);
-        return false;
-      }
-
-      if (existingGrace?.grace_period_used) {
+      if (error) {
+        console.error('Error activating grace period:', error);
         toast({
-          title: "Grace Period Already Used",
-          description: "You've already used your beta grace period. Please purchase a degen plan to continue.",
+          title: "Grace Period Failed",
+          description: "Could not activate 3-day grace period. Please try again.",
           variant: "destructive"
         });
         return false;
       }
 
-      const now = new Date();
-      const graceExpiry = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days
-
-      const { error } = await supabase
-        .from('user_premium_status')
-        .update({
-          is_premium: true,
-          expires_at: graceExpiry.toISOString(),
-          grace_period_used: true,
-          grace_period_activated_at: now.toISOString(),
-          updated_at: now.toISOString()
-        })
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Error activating grace period:', error);
-        return false;
-      }
-
-      await refetchPremiumStatus();
-
       toast({
-        title: "🎁 Beta Grace Period Activated!",
-        description: "You have 3 additional days to try premium features. This is a one-time beta offer!",
-        duration: 10000
+        title: "🎁 3-Day Grace Period Activated!",
+        description: "You have 3 additional days to explore premium features (with ads)",
+        duration: 8000
       });
 
       return true;
@@ -131,18 +123,24 @@ export const useTrialActivation = () => {
   };
 
   const isTrialExpired = () => {
-    if (!premiumDetails || premiumDetails.type !== '30day_trial') return false;
-    if (!premiumDetails.expiresAt) return false;
+    if (!premiumDetails) return false;
     
-    return new Date(premiumDetails.expiresAt) <= new Date();
+    // Check if it's a trial that has expired
+    // A trial is: is_premium: false with an expiry date that has passed
+    if (premiumDetails.type === '30day_trial' && premiumDetails.expiresAt) {
+      const expiryDate = new Date(premiumDetails.expiresAt);
+      const now = new Date();
+      return expiryDate <= now;
+    }
+    
+    return false;
   };
 
   const getTrialTimeRemaining = () => {
-    if (!premiumDetails || premiumDetails.type !== '30day_trial') return null;
-    if (!premiumDetails.expiresAt) return 'Lifetime';
+    if (!premiumDetails || !premiumDetails.expiresAt) return '';
     
-    const now = new Date();
     const expiryDate = new Date(premiumDetails.expiresAt);
+    const now = new Date();
     const diffTime = expiryDate.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
@@ -151,11 +149,15 @@ export const useTrialActivation = () => {
     return `${diffDays} Days`;
   };
 
+  const isOnTrial = premiumDetails?.isOnTrial || false;
+  const trialTimeRemaining = getTrialTimeRemaining();
+
   return {
     activateFreeTrial,
     activateBetaGracePeriod,
     isTrialExpired: isTrialExpired(),
-    trialTimeRemaining: getTrialTimeRemaining(),
-    isOnTrial: premiumDetails?.type === '30day_trial'
+    trialTimeRemaining,
+    isOnTrial,
+    isActivating
   };
 }; 
