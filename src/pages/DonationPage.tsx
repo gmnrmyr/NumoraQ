@@ -12,6 +12,7 @@ import { useTranslation } from '@/contexts/TranslationContext';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserTitle } from '@/hooks/useUserTitle';
+import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { supabase } from '@/integrations/supabase/client';
 
 const DonationPage = () => {
@@ -20,6 +21,7 @@ const DonationPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { refresh: refreshUserTitle } = useUserTitle();
+  const { refresh: refreshLeaderboard } = useLeaderboard();
   const [copiedWallet, setCopiedWallet] = React.useState<string>('');
   const [showAdvancedCrypto, setShowAdvancedCrypto] = React.useState(false);
 
@@ -28,18 +30,16 @@ const DonationPage = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const success = urlParams.get('success');
     const sessionId = urlParams.get('session_id');
+    const canceled = urlParams.get('canceled');
     
     if (success === 'true' && sessionId) {
+      handleDonationSuccess(sessionId);
+    } else if (canceled === 'true') {
       toast({
-        title: "Donation Successful! 🎉",
-        description: "Your donation has been processed successfully. Thank you for supporting us!",
-        duration: 8000
+        title: "Donation Cancelled",
+        description: "Your donation was cancelled. No charges were made.",
+        variant: "destructive"
       });
-      
-      // Try fallback activation in case webhook failed
-      if (user) {
-        handleFallbackActivation(sessionId);
-      }
       
       // Clean up URL parameters
       const newUrl = window.location.pathname;
@@ -47,36 +47,106 @@ const DonationPage = () => {
     }
   }, [user]);
 
+  const handleDonationSuccess = async (sessionId: string) => {
+    try {
+      // Show success message immediately
+      toast({
+        title: "Donation Successful! 🎉",
+        description: "Your donation has been processed successfully. Thank you for supporting us!",
+        duration: 8000
+      });
+
+      // First refresh attempt to see if webhook already processed
+      await refreshAllUserData();
+      
+      // Wait a moment to see if donation points are already active
+      setTimeout(async () => {
+        await refreshAllUserData();
+        
+        // If points still haven't been added, try fallback activation
+        if (user) {
+          await handleFallbackActivation(sessionId);
+        }
+      }, 3000); // Wait 3 seconds for webhook to potentially fire
+      
+    } catch (error) {
+      console.error('Donation success handling error:', error);
+    } finally {
+      // Clean up URL parameters
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  };
+
   const handleFallbackActivation = async (stripeSessionId: string) => {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase.functions.invoke('stripe-payment/activate-payment', {
-        body: { 
-          stripeSessionId, 
-          userId: user.id
-        }
-      });
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (error) {
-        console.error('Fallback activation error:', error);
+      if (!session) {
+        console.error('No user session for fallback activation');
         return;
       }
-      
-      if (data?.success) {
-        // Refresh user title to reflect new points/tier
-        setTimeout(async () => {
-          await refreshUserTitle();
-        }, 1000);
+
+      // Use the proper Edge Function endpoint with authentication
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/stripe-payment/activate-payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          stripeSessionId: stripeSessionId,
+          userId: session.user.id
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data?.success) {
+          // Refresh all user data to reflect new points/tier
+          await refreshAllUserData();
+          
+          toast({
+            title: "Donation Tier Activated! ✅",
+            description: `Your ${data.plan} donation tier has been activated successfully!`,
+            duration: 8000
+          });
+        }
+      } else {
+        const errorData = await response.json();
+        console.error('Fallback activation failed:', errorData);
         
         toast({
-          title: "Donation Tier Activated! ✅",
-          description: `Your ${data.plan} donation tier has been activated successfully!`,
-          duration: 8000
+          title: "Activation Issue",
+          description: "Your donation was successful but activation is pending. Please contact support if this persists.",
+          variant: "destructive"
         });
       }
     } catch (error) {
-      console.error('Fallback activation failed:', error);
+      console.error('Fallback activation error:', error);
+      
+      toast({
+        title: "Activation Retry Failed",
+        description: "Please contact support with your donation confirmation.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const refreshAllUserData = async () => {
+    try {
+      // Refresh user title (for badges)
+      await refreshUserTitle();
+      
+      // Refresh leaderboard data (for points)
+      await refreshLeaderboard();
+      
+      console.log('All user data refreshed after donation');
+    } catch (error) {
+      console.error('Error refreshing user data:', error);
     }
   };
 
@@ -345,9 +415,9 @@ const DonationPage = () => {
                 description: `Processing ${tier.name} donation via ${method}`,
               });
               
-              // Refresh user title after payment completion (will be called after webhook/fallback)
+              // Refresh all user data after payment completion (will be called after webhook/fallback)
               setTimeout(async () => {
-                await refreshUserTitle();
+                await refreshAllUserData();
               }, 3000);
             }}
           />
