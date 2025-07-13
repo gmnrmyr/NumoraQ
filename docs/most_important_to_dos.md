@@ -21,9 +21,6 @@ Important: if user has no degen plan, despite the fact that he hasn't recently c
 
 So, trial users should see ads as non degens. and it should show the trial time...
 
-
-- [ ] Fix Solana integration (degen plans and donation tiers) (still not working)
-
 - [ ] Fix CMS functionality (degen code creation and degen points assignment for admins) [partially working for degen codes] <--- working partially, cause it doenst apply the degen status, despite being shown as applied on cms. and I'm worried to ask you to make this work cause i dont want it to break the stripe functionality. but would be really nice to have it. <--- stil working>
 
 - [ ] User Management & UID System (for admins to assign points to users for tiers testing is not working) (we dont even recieve a feedback after submiting user id +amount of points on admin panel.)
@@ -39,11 +36,15 @@ So, trial users should see ads as non degens. and it should show the trial time.
 
 -----
 
+- [ ] Fix Solana integration (degen plans and donation tiers) (still not working) (focusing on stripe atm, but this still will have to be fixed last)
+
 - [ ] Finish all trasnlations, onboarding flow and simple dashboard.
 
 - [ ] Fix the animations we are trying to implement on dashboard, like we have on landing page for specific users (Degen, and Specific Tiers).
 
 - [ ] When we're done with all above, we will change the stripe key from test to prod.
+
+--------------
 
 - [ ] Make our test.numoraq.com work with proper documentation for me to actually work mainly on test and not on prod. but make me a way to update both backend,database and frontend to prod. also a way to backup everything on test. (last!!!)
 
