@@ -243,8 +243,35 @@ async function createStripeCheckoutSession(sessionId: string, plan: Subscription
 }
 
 async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, sessionId: string) {
-  const expirationDate = new Date()
+  // Get existing premium status to check for stacking
+  const { data: existingStatus, error: fetchError } = await supabase
+    .from('user_premium_status')
+    .select('expires_at, premium_type, is_premium')
+    .eq('user_id', userId)
+    .single()
+
+  let startDate = new Date()
+  let expirationDate = new Date()
+
+  // If user has existing active premium, extend from expiry date
+  if (existingStatus && existingStatus.is_premium && existingStatus.expires_at) {
+    const existingExpiry = new Date(existingStatus.expires_at)
+    const now = new Date()
+    
+    // If existing plan hasn't expired yet, extend from expiry date
+    if (existingExpiry > now) {
+      startDate = existingExpiry
+      console.log(`Extending existing premium plan from ${existingExpiry.toISOString()}`)
+    } else {
+      console.log('Existing plan expired, starting fresh')
+    }
+  }
+
+  // Calculate new expiry date from start date
+  expirationDate = new Date(startDate)
   expirationDate.setDate(expirationDate.getDate() + plan.duration_days)
+
+  console.log(`Premium activation: User ${userId}, Plan: ${plan.plan}, Start: ${startDate.toISOString()}, Expires: ${expirationDate.toISOString()}`)
 
   // Update user premium status using service role (bypasses RLS)
   const { error: premiumError } = await supabase
@@ -253,7 +280,7 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
       user_id: userId,
       is_premium: true,
       premium_type: plan.plan,
-      activated_at: new Date().toISOString(),
+      activated_at: new Date().toISOString(), // When this specific purchase was made
       expires_at: expirationDate.toISOString(),
       payment_session_id: sessionId,
       updated_at: new Date().toISOString()

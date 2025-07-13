@@ -5,13 +5,21 @@ CREATE TABLE IF NOT EXISTS public.user_premium_status (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   is_premium BOOLEAN DEFAULT false,
-  premium_type TEXT, -- '1month', '3months', '6months', '1year', '5years', 'lifetime'
+  premium_type TEXT CHECK (premium_type IN ('1month', '3months', '6months', '1year', '5years', 'lifetime', '30day_trial')), -- Added trial types
   activated_at TIMESTAMP WITH TIME ZONE,
   expires_at TIMESTAMP WITH TIME ZONE,
   payment_session_id TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
+
+-- Update existing constraint if table already exists
+ALTER TABLE public.user_premium_status 
+DROP CONSTRAINT IF EXISTS user_premium_status_premium_type_check;
+
+ALTER TABLE public.user_premium_status 
+ADD CONSTRAINT user_premium_status_premium_type_check 
+CHECK (premium_type IN ('1month', '3months', '6months', '1year', '5years', 'lifetime', '30day_trial'));
 
 -- Create unique constraint on user_id (one premium status per user)
 CREATE UNIQUE INDEX IF NOT EXISTS user_premium_status_user_id_unique 

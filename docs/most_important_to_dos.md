@@ -9,6 +9,19 @@
 - [ ] Activating degen codes are not working.
 
 
+Degen plans purchase work, but we are not counting time properly
+1) so when users purchase a degen plan, it doesnt show time missing to expiry. (each user will have a different time missing to expiry)
+2) also if user purchase a month degen plan and then purchase another month, it should add +30 days on time, despite the fact that user has already a degen plan.
+
+- we also probably need 1,2,3,4,5, until 12 months and 1year+month tags cause as I said, if users buy another month plan it should add +30 days on time despite he already has a degen plan...
+
+----------------
+
+Important: if user has no degen plan, despite the fact that he hasn't recently created the acc... it should still count as trial time. So you can add 30 days to all this users who has a blank trial state and are not degen. This is hard to measure but important.
+
+So, trial users should see ads as non degens. and it should show the trial time...
+
+
 - [ ] Fix Solana integration (degen plans and donation tiers) (still not working)
 
 - [ ] Fix CMS functionality (degen code creation and degen points assignment for admins) [partially working for degen codes] <--- working partially, cause it doenst apply the degen status, despite being shown as applied on cms. and I'm worried to ask you to make this work cause i dont want it to break the stripe functionality. but would be really nice to have it. <--- stil working>
@@ -39,13 +52,3 @@
 then we will add more functionality like wallet connection, nft fetching from opensea and more.
 
 ----------------
-
-Degen plans purchase work, but we are not counting time properly
-1) so when users purchase a degen plan, it doesnt show time missing to expiry. (each user will have a different time missing to expiry)
-2) also if user purchase a month degen plan and then purchase another month, it should add +30 days on time, despite the fact that user has already a degen plan.
-
-----------------
-
-Important: if user has no degen plan, despite the fact that he hasn't recently created the acc... it should still count as trial time. So you can add 30 days to all this users who has a blank trial state and are not degen. This is hard to measure but important.
-
-So, trial users should see ads as non degens. and it should show the trial time...
