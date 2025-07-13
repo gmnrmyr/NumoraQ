@@ -1,5 +1,5 @@
 - all financial part of the app on advanced dashboard is working properly.
-- landing page is working properly and looiking great.
+- landing page is working properly and looking great, especially on the animation part on the top of the page.
 - hamburger menu is working properly with advanced dashboard.
 - dev mode (for users to change themes) work partially, which users really enjoy.
 - simple mode is working partially but needs improvements.
