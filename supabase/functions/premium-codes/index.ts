@@ -234,6 +234,13 @@ serve(async (req) => {
           activated_at: now.toISOString(),
           expires_at: expiresAt?.toISOString(),
           activated_code: code,
+          activation_source: 'premium_code',
+          source_details: JSON.stringify({
+            code: code,
+            code_type: codeData.code_type,
+            activated_by_user: true,
+            activation_time: now.toISOString()
+          }),
           updated_at: now.toISOString()
         })
 

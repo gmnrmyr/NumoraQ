@@ -6,12 +6,13 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Shield, Users, Code, Gift, Crown, Settings, Globe, Upload, Wallet, Zap, Search, User } from 'lucide-react';
+import { Shield, Users, Code, Gift, Crown, Settings, Globe, Upload, Wallet, Zap, Search, User, Database } from 'lucide-react';
 import { useAdminMode } from '@/hooks/useAdminMode';
 import { usePremiumCodes } from '@/hooks/usePremiumCodes';
 import { useUserPoints } from '@/hooks/useUserPoints';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProjectSettingsPanel } from './cms/ProjectSettingsPanel';
+import { AdminSourceTracker } from './AdminSourceTracker';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -276,7 +277,7 @@ export const AdminPanel = () => {
       </Card>
 
       <Tabs defaultValue="cms" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-card border-2 border-border">
+        <TabsList className="grid w-full grid-cols-5 bg-card border-2 border-border">
           <TabsTrigger value="cms" className="font-mono">
             <Settings size={16} className="mr-2" />
             CMS Settings
@@ -292,6 +293,10 @@ export const AdminPanel = () => {
           <TabsTrigger value="points" className="font-mono">
             <Zap size={16} className="mr-2" />
             Points System
+          </TabsTrigger>
+          <TabsTrigger value="tracking" className="font-mono">
+            <Database size={16} className="mr-2" />
+            Source Tracking
           </TabsTrigger>
         </TabsList>
 
@@ -608,6 +613,10 @@ export const AdminPanel = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="tracking" className="space-y-4">
+          <AdminSourceTracker />
         </TabsContent>
       </Tabs>
     </div>
