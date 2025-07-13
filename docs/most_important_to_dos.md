@@ -35,3 +35,15 @@
 --------
 
 then we will add more functionality like wallet connection, nft fetching from opensea and more.
+
+----------------
+
+Degen plans purchase work, but we are not counting time properly
+1) so when users purchase a degen plan, it doesnt show time missing to expiry. (each user will have a different time missing to expiry)
+2) also if user purchase a month degen plan and then purchase another month, it should add +30 days on time, despite the fact that user has already a degen plan.
+
+----------------
+
+Important: if user has no degen plan, despite the fact that he hasn't recently created the acc... it should still count as trial time. So you can add 30 days to all this users who has a blank trial state and are not degen. This is hard to measure but important.
+
+So, trial users should see ads as non degens. and it should show the trial time...
