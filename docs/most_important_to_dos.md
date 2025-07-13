@@ -10,6 +10,11 @@
 
 - [ ] Activating degen codes are not working.
 
+- [ ] We need to add proper time counting on days... or hours, the easier. If user buys a month and already has for example: 10 days left, it should add 30 days time so 40 days left in total. Despite showing the badges, we need to keep track of that time left.
+
+- [ ] All users gain 30 days as trial time. They are NOT degen, they are in trial period which ALSO has ads.
+
+- [ ] We should also see a log of degen statuses and tiers on cms panel. there we should see: all users that are degens and where this degen came from (payment, admin, code, etc.) Same as Tiers, where that tiers came from. (payment, admin gave, via leaderboard, etc.) and what databases track this data.
 
 Degen plans purchase work, but we are not counting time properly
 1) so when users purchase a degen plan, it doesnt show time missing to expiry. (each user will have a different time missing to expiry)
