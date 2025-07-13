@@ -32,13 +32,13 @@ DROP CONSTRAINT IF EXISTS user_points_user_id_activity_type_activity_date_key;
 
 -- Add new constraint that only applies to daily_login and referral
 -- This allows multiple donation and manual entries per day
-CREATE UNIQUE INDEX user_points_unique_login_referral 
+CREATE UNIQUE INDEX IF NOT EXISTS user_points_unique_login_referral 
 ON public.user_points (user_id, activity_type, activity_date)
 WHERE activity_type IN ('daily_login', 'referral');
 
 -- Ensure ID column exists for multiple entries per day
 ALTER TABLE public.user_points 
-ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid() PRIMARY KEY;
+ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
 
 -- =====================================
 -- 3. ADD SOURCE TRACKING COLUMNS
@@ -73,6 +73,10 @@ CREATE TABLE IF NOT EXISTS public.admin_audit_log (
 
 -- Enable RLS on admin audit log
 ALTER TABLE public.admin_audit_log ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies to avoid conflicts
+DROP POLICY IF EXISTS "Admins can read audit logs" ON public.admin_audit_log;
+DROP POLICY IF EXISTS "Admins can insert audit logs" ON public.admin_audit_log;
 
 -- Create RLS policies for admin audit log
 CREATE POLICY "Admins can read audit logs" ON public.admin_audit_log
