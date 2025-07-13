@@ -1,4 +1,4 @@
-- [X] Fix Stripe integration (degen plans ok)
+- [X] Fix Stripe integration (degen plans) ok!!!!
 
 - [ ] Fix Stripe integration (donation tiers) [seems to be working partially] [works for degen plans correctly! But not for donation tiers!] <- still.>
 
