@@ -388,8 +388,11 @@ async function processDonationPayment(userId: string, tier: DonationTier, sessio
   console.log(`Processing donation payment for user ${userId} with tier ${tier.tier}`);
   
   try {
-    // Add points to user for the donation
-    const { error: pointsError } = await supabase
+    // Add points to user for the donation - try with new columns first, fall back to basic columns
+    let pointsError;
+    
+    // Try with new columns first
+    const { error: newPointsError } = await supabase
       .from('user_points')
       .insert({
         user_id: userId,
@@ -406,12 +409,29 @@ async function processDonationPayment(userId: string, tier: DonationTier, sessio
         })
       });
 
-    if (pointsError) {
-      console.error('Error adding donation points:', pointsError);
-      throw pointsError;
+    if (newPointsError) {
+      console.log('New columns not available, trying basic columns:', newPointsError);
+      
+      // Fall back to basic columns if new columns don't exist
+      const { error: basicPointsError } = await supabase
+        .from('user_points')
+        .insert({
+          user_id: userId,
+          points: tier.points,
+          activity_type: 'donation',
+          activity_date: new Date().toISOString().split('T')[0]
+        });
+
+      if (basicPointsError) {
+        console.error('Error adding donation points (basic):', basicPointsError);
+        throw basicPointsError;
+      }
+      
+      console.log(`Successfully added ${tier.points} points for donation tier ${tier.tier} (basic columns)`);
+    } else {
+      console.log(`Successfully added ${tier.points} points for donation tier ${tier.tier} (extended columns)`);
     }
 
-    console.log(`Successfully added ${tier.points} points for donation tier ${tier.tier}`);
     return { success: true, points: tier.points };
   } catch (error) {
     console.error('Error processing donation payment:', error);
