@@ -101,20 +101,15 @@ const PaymentPage = () => {
       setTimeout(async () => {
         await refetchPremiumStatus();
         
-        // If premium is still not active, try fallback activation
-        const { isPremiumUser } = await import('@/hooks/usePremiumStatus');
-        const currentUser = await import('@/contexts/AuthContext').then(m => m.useAuth);
-        
-        if (currentUser && !isPremiumUser) {
-          // Try fallback activation
-          await attemptFallbackActivation(sessionId);
-        }
+        // Clean up URL parameters
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
       }, 3000); // Wait 3 seconds for webhook to potentially fire
       
     } catch (error) {
       console.error('Payment success handling error:', error);
-    } finally {
-      // Clean up URL parameters
+      
+      // Clean up URL parameters even on error
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
     }

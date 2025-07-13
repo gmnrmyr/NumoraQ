@@ -211,13 +211,17 @@ export const usePaymentProcessing = () => {
     try {
       let planInfo: SubscriptionInfo | DonationTier;
       let amount: number;
+      let dbPlanName: string; // The name to store in database
       
       if (paymentType === 'degen') {
         planInfo = subscriptionPlans[plan as SubscriptionPlan];
         amount = planInfo.amount;
+        dbPlanName = plan as string; // Use the actual plan name
       } else {
         planInfo = donationTiers[plan];
         amount = planInfo.amount;
+        // For donations, use 'lifetime' as valid database value but store real tier in metadata
+        dbPlanName = 'lifetime';
       }
 
       const sessionId = crypto.randomUUID();
@@ -229,7 +233,7 @@ export const usePaymentProcessing = () => {
           id: sessionId,
           user_id: user.id,
           payment_method: method,
-          subscription_plan: plan,
+          subscription_plan: dbPlanName, // Use database-compatible name
           amount: amount,
           currency: 'USD',
           status: 'pending',
@@ -237,6 +241,7 @@ export const usePaymentProcessing = () => {
           metadata: {
             payment_type: paymentType,
             user_email: user.email,
+            actual_plan: plan, // Store the real plan/tier name here
             ...metadata
           }
         });
@@ -258,6 +263,7 @@ export const usePaymentProcessing = () => {
           payment_type: paymentType,
           user_id: user.id,
           user_email: user.email,
+          actual_plan: plan,
           ...metadata
         }
       };
