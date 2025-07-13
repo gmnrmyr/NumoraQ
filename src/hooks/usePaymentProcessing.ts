@@ -408,43 +408,31 @@ export const usePaymentProcessing = () => {
         throw new Error('Session or user not available');
       }
 
-      // Calculate expiry date based on plan
-      const now = new Date();
-      let expiresAt: Date | null = null;
+      // Instead of activating premium directly here, use the Stripe webhook endpoint
+      // This ensures proper time stacking and avoids conflicts with webhook processing
+      const { data: { session } } = await supabase.auth.getSession();
       
-      switch (currentSession.plan) {
-        case '1month':
-          expiresAt = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
-          break;
-        case '3months':
-          expiresAt = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate());
-          break;
-        case '6months':
-          expiresAt = new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
-          break;
-        case '1year':
-          expiresAt = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
-          break;
-        case '5years':
-          expiresAt = new Date(now.getFullYear() + 5, now.getMonth(), now.getDate());
-          break;
-        case 'lifetime':
-          expiresAt = new Date(2099, 11, 31);
-          break;
+      if (!session) {
+        throw new Error('No user session available');
       }
 
-      // Update user premium status
-      const { error: statusError } = await supabase
-        .from('user_premium_status')
-        .upsert({
-          user_id: user.id,
-          is_premium: true,
-          premium_type: currentSession.plan,
-          activated_at: now.toISOString(),
-          expires_at: expiresAt?.toISOString()
-        });
+      // Call the activate-payment endpoint to ensure proper stacking
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/stripe-payment/activate-payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ 
+          stripeSessionId: sessionId,
+          userId: user.id 
+        })
+      });
 
-      if (statusError) throw statusError;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to activate premium access');
+      }
 
       // Update payment session status
       const { error: sessionError } = await supabase

@@ -1,6 +1,6 @@
 I will keep this updated as you do the changes and I test them.
 
-1) When user has 3 months degen and purchases another month, does he gets 4 months of degen or at least it shows on user_ui_config panel that he has 4 months of degen? No. Tested, still show 3 months.
+1) When user has 3 months degen and purchases another month, does he gets 4 months of degen or at least it shows on user_ui_config panel that he has 4 months of degen? No. Tested, still show 3 months. We use to at least allow users to update from 1 month to 3 months, but now not even that is working.
 
 2) Is purchase of tiers working via stripe? No. Stripe confirms purchase, our site confirms purchase but it still display user as newcomer despite having purchased a tier.
 
@@ -10,6 +10,6 @@ I will keep this updated as you do the changes and I test them.
 
 5) Are users that have already spent their 30 trial days and not payed being blocked to use the app? I can't tell, we have not found a way to test this.
 
-6) are admins able to see a log showing: where this degen came from (payment, admin, code, etc.) Same as Tiers, where that tiers came from. (payment, admin gave, via leaderboard, etc.) and what databases track this data? No, this has not been added to admin panel.
+6) are admins able to see a log showing: where this degen came from (payment, admin, code, etc.) Same as Tiers, where that tiers came from. (payment, admin gave, via leaderboard, etc.) and what databases track this data? No, this has not been added to admin panel. (also source of days, for example: user has 28 days left, source: trial)
 
 7)  are admins being able to add points to users via the admin panel? No. Despite adding the correct UID and amount of points, there is no feedback on admin panel and the users are not recieving thise points.

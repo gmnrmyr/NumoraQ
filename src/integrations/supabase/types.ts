@@ -247,79 +247,85 @@ export type Database = {
       }
       user_points: {
         Row: {
-          activity_date: string | null
-          activity_type: string | null
-          created_at: string | null
-          highest_tier: string | null
-          points: number | null
-          total_donated: number | null
-          updated_at: string | null
+          id: string
           user_id: string
+          points: number | null
+          activity_type: string | null
+          activity_date: string | null
+          points_source: string | null
+          source_details: Json | null
+          assigned_by_admin: string | null
+          created_at: string | null
         }
         Insert: {
-          activity_date?: string | null
-          activity_type?: string | null
-          created_at?: string | null
-          highest_tier?: string | null
-          points?: number | null
-          total_donated?: number | null
-          updated_at?: string | null
+          id?: string
           user_id: string
+          points?: number | null
+          activity_type?: string | null
+          activity_date?: string | null
+          points_source?: string | null
+          source_details?: Json | null
+          assigned_by_admin?: string | null
+          created_at?: string | null
         }
         Update: {
-          activity_date?: string | null
-          activity_type?: string | null
-          created_at?: string | null
-          highest_tier?: string | null
-          points?: number | null
-          total_donated?: number | null
-          updated_at?: string | null
+          id?: string
           user_id?: string
+          points?: number | null
+          activity_type?: string | null
+          activity_date?: string | null
+          points_source?: string | null
+          source_details?: Json | null
+          assigned_by_admin?: string | null
+          created_at?: string | null
         }
         Relationships: []
       }
       user_premium_status: {
         Row: {
-          activated_at: string | null
-          created_at: string | null
-          expires_at: string | null
-          is_premium: boolean | null
-          payment_session_id: string | null
-          premium_expires_at: string | null
-          premium_plan: string | null
-          premium_type: string | null
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          updated_at: string | null
+          id: string
           user_id: string
+          is_premium: boolean | null
+          premium_type: string | null
+          activated_at: string | null
+          expires_at: string | null
+          activated_code: string | null
+          payment_session_id: string | null
+          activation_source: string | null
+          source_details: Json | null
+          activated_by_admin: string | null
+          created_at: string | null
+          updated_at: string | null
         }
         Insert: {
-          activated_at?: string | null
-          created_at?: string | null
-          expires_at?: string | null
-          is_premium?: boolean | null
-          payment_session_id?: string | null
-          premium_expires_at?: string | null
-          premium_plan?: string | null
-          premium_type?: string | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          updated_at?: string | null
+          id?: string
           user_id: string
+          is_premium?: boolean | null
+          premium_type?: string | null
+          activated_at?: string | null
+          expires_at?: string | null
+          activated_code?: string | null
+          payment_session_id?: string | null
+          activation_source?: string | null
+          source_details?: Json | null
+          activated_by_admin?: string | null
+          created_at?: string | null
+          updated_at?: string | null
         }
         Update: {
-          activated_at?: string | null
-          created_at?: string | null
-          expires_at?: string | null
-          is_premium?: boolean | null
-          payment_session_id?: string | null
-          premium_expires_at?: string | null
-          premium_plan?: string | null
-          premium_type?: string | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          updated_at?: string | null
+          id?: string
           user_id?: string
+          is_premium?: boolean | null
+          premium_type?: string | null
+          activated_at?: string | null
+          expires_at?: string | null
+          activated_code?: string | null
+          payment_session_id?: string | null
+          activation_source?: string | null
+          source_details?: Json | null
+          activated_by_admin?: string | null
+          created_at?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }

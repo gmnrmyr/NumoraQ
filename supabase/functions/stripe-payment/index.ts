@@ -292,6 +292,13 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
       activated_at: new Date().toISOString(), // When this specific purchase was made
       expires_at: expirationDate.toISOString(),
       payment_session_id: sessionId,
+      activation_source: 'stripe_payment',
+      source_details: JSON.stringify({
+        plan: plan.plan,
+        session_id: sessionId,
+        amount: plan.amount,
+        duration_days: plan.duration_days
+      }),
       updated_at: new Date().toISOString()
     })
 
@@ -318,43 +325,31 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
 }
 
 async function activateDonationTier(userId: string, tier: DonationTier, sessionId: string) {
-  // Add donation points to user_points table using only existing columns
-  // Handle the unique constraint by adding a slight time offset to avoid conflicts
-  const now = new Date();
-  const offsetTime = new Date(now.getTime() + Math.random() * 1000 * 60 * 60); // Random offset up to 1 hour
+  console.log(`Activating donation tier: ${tier.tier} for user ${userId}, awarding ${tier.points} points`)
   
+  // Add donation points to user_points table
   const { error: pointsError } = await supabase
     .from('user_points')
     .insert({
       user_id: userId,
       points: tier.points,
       activity_type: 'donation',
-      activity_date: offsetTime.toISOString().split('T')[0]
+      activity_date: new Date().toISOString().split('T')[0],
+      points_source: 'stripe_donation',
+      source_details: JSON.stringify({
+        tier: tier.tier,
+        session_id: sessionId,
+        amount: tier.amount,
+        stripe_payment: true
+      })
     })
 
   if (pointsError) {
     console.error('Error adding donation points:', pointsError)
-    
-    // If there's still a conflict, try using 'manual' activity type instead
-    if (pointsError.code === '23505') {
-      console.log('Retrying with manual activity type due to constraint conflict')
-      const { error: retryError } = await supabase
-        .from('user_points')
-        .insert({
-          user_id: userId,
-          points: tier.points,
-          activity_type: 'manual',
-          activity_date: offsetTime.toISOString().split('T')[0]
-        })
-      
-      if (retryError) {
-        console.error('Error adding points with manual type:', retryError)
-        throw retryError
-      }
-    } else {
-      throw pointsError
-    }
+    throw pointsError
   }
+
+  console.log(`Successfully added ${tier.points} points for donation tier ${tier.tier}`)
 
   // Update payment session status using service role (bypasses RLS)
   const { error: sessionError } = await supabase
