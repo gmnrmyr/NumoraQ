@@ -26,7 +26,7 @@ So, trial users should see ads as non degens. and it should show the trial time.
 
 - [ ] Fix CMS functionality (degen code creation and degen points assignment for admins) [partially working for degen codes] <--- working partially, cause it doenst apply the degen status, despite being shown as applied on cms. and I'm worried to ask you to make this work cause i dont want it to break the stripe functionality. but would be really nice to have it. <--- stil working>
 
-- [ ] User Management & UID System (for admins to assign points to users for tiers testing is not working)
+- [ ] User Management & UID System (for admins to assign points to users for tiers testing is not working) (we dont even recieve a feedback after submiting user id +amount of points on admin panel.)
 
 
 ----
