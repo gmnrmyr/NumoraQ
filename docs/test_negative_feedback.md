@@ -16,3 +16,5 @@ I will keep this updated as you do the changes and I test them.
 7)  are admins being able to add points to users via the admin panel? No. Despite adding the correct UID and amount of points, there is no feedback on admin panel and the users are not recieving thise points.
 
 8) I think you're applying admin panel / cms changes on the wrong place. Our admin panel is acessible via ctr+shift+e.
+
+9) on USER_INFO_CONFIG_UI.. we should also have a button for users to add more degen time via code or buy more degen time. Users who are already degen should be able to redeem codes (generated via by admin) and buy more degen time if they want. Keeping their plan active - meaning, when the plan ends, it trigger the renew.
