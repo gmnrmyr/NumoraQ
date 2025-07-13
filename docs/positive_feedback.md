@@ -1,0 +1,6 @@
+- all financial part of the app on advanced dashboard is working properly.
+- landing page is working properly and looiking great.
+- hamburger menu is working properly with advanced dashboard.
+- dev mode (for users to change themes) work partially, which users really enjoy.
+- simple mode is working partially but needs improvements.
+- onboarding is working properly but needs improvements maybe.
