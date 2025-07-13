@@ -363,6 +363,87 @@ serve(async (req) => {
       )
     }
 
+    if ((path === '/activate-payment' || path.endsWith('/activate-payment')) && req.method === 'POST') {
+      const body = await req.json()
+      const { stripeSessionId, userId } = body
+
+      if (!stripeSessionId || !userId) {
+        return new Response(
+          JSON.stringify({ error: 'Missing required parameters' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        )
+      }
+
+      // Get payment session from database
+      const { data: sessionData, error: sessionError } = await supabase
+        .from('payment_sessions')
+        .select('*')
+        .eq('id', stripeSessionId)
+        .eq('user_id', userId)
+        .single()
+
+      if (sessionError || !sessionData) {
+        console.error('Error fetching payment session:', sessionError)
+        return new Response(
+          JSON.stringify({ error: 'Payment session not found' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+        )
+      }
+
+      // Check if already activated
+      if (sessionData.status === 'completed') {
+        return new Response(
+          JSON.stringify({ success: true, message: 'Already activated', plan: sessionData.subscription_plan }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        )
+      }
+
+      // Determine payment type based on session metadata
+      const paymentType = sessionData.metadata?.payment_type || 'degen'
+
+      try {
+        if (paymentType === 'degen') {
+          const planInfo = degenPlans[sessionData.subscription_plan]
+          if (!planInfo) {
+            return new Response(
+              JSON.stringify({ error: 'Invalid plan' }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+            )
+          }
+
+          await activatePremiumAccess(userId, planInfo, stripeSessionId)
+          console.log(`Manual premium activation for user ${userId}, plan: ${sessionData.subscription_plan}`)
+          
+          return new Response(
+            JSON.stringify({ success: true, plan: sessionData.subscription_plan }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+          )
+        } else if (paymentType === 'donation') {
+          const tierInfo = donationTiers[sessionData.subscription_plan]
+          if (!tierInfo) {
+            return new Response(
+              JSON.stringify({ error: 'Invalid tier' }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+            )
+          }
+
+          await activateDonationTier(userId, tierInfo, stripeSessionId)
+          console.log(`Manual donation activation for user ${userId}, tier: ${sessionData.subscription_plan}`)
+          
+          return new Response(
+            JSON.stringify({ success: true, plan: sessionData.subscription_plan }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+          )
+        }
+      } catch (error) {
+        console.error('Error activating payment:', error)
+        return new Response(
+          JSON.stringify({ error: 'Failed to activate payment' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        )
+      }
+    }
+
     if ((path === '/webhook' || path.endsWith('/webhook')) && req.method === 'POST') {
       const body = await req.text()
       const signature = req.headers.get('stripe-signature')
@@ -443,104 +524,14 @@ serve(async (req) => {
       )
     }
 
-    // Fallback activation endpoint for when webhooks fail
-    if ((path === '/activate-payment' || path.endsWith('/activate-payment')) && req.method === 'POST') {
-      const body = await req.json()
-      const { stripeSessionId, userId } = body
-
-      if (!stripeSessionId || !userId) {
-        return new Response(
-          JSON.stringify({ error: 'Missing required parameters' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-        )
-      }
-
-      try {
-        const stripe = await import('https://esm.sh/stripe@14.21.0?target=deno')
-        const stripeClient = stripe.default(STRIPE_SECRET_KEY, {
-          apiVersion: '2024-12-18.acacia',
-          httpClient: stripe.Stripe.createFetchHttpClient(),
-        })
-
-        // Get the Stripe session to verify payment
-        const stripeSession = await stripeClient.checkout.sessions.retrieve(stripeSessionId)
-        
-        if (stripeSession.payment_status !== 'paid') {
-          return new Response(
-            JSON.stringify({ error: 'Payment not completed' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-          )
-        }
-
-        const { session_id, plan, payment_type } = stripeSession.metadata
-
-        // Get user ID from the session
-        const { data: sessionData, error: sessionError } = await supabase
-          .from('payment_sessions')
-          .select('user_id')
-          .eq('id', session_id)
-          .single()
-
-        if (sessionError || !sessionData || sessionData.user_id !== userId) {
-          console.error('Error fetching payment session:', sessionError)
-          return new Response(
-            JSON.stringify({ error: 'Session not found or user mismatch' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-          )
-        }
-
-        if (payment_type === 'degen') {
-          const planInfo = degenPlans[plan]
-          if (!planInfo) {
-            return new Response(
-              JSON.stringify({ error: 'Invalid plan' }),
-              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-            )
-          }
-
-          await activatePremiumAccess(sessionData.user_id, planInfo, session_id)
-          console.log(`Premium access activated via fallback for user ${sessionData.user_id}, plan: ${plan}`)
-        } else if (payment_type === 'donation') {
-          const tierInfo = donationTiers[plan]
-          if (!tierInfo) {
-            return new Response(
-              JSON.stringify({ error: 'Invalid tier' }),
-              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-            )
-          }
-
-          await activateDonationTier(sessionData.user_id, tierInfo, session_id)
-          console.log(`Donation tier activated via fallback for user ${sessionData.user_id}, tier: ${plan}`)
-        }
-
-        return new Response(
-          JSON.stringify({ 
-            success: true, 
-            message: 'Payment activated successfully',
-            plan: plan,
-            type: payment_type
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-        )
-
-      } catch (error) {
-        console.error('Fallback activation error:', error)
-        return new Response(
-          JSON.stringify({ error: error.message }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-        )
-      }
-    }
-
     return new Response(
-      JSON.stringify({ error: 'Endpoint not found' }),
+      JSON.stringify({ error: 'Not found' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
     )
-
   } catch (error) {
-    console.error('Edge function error:', error)
+    console.error('Error in stripe-payment function:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'Internal server error' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
