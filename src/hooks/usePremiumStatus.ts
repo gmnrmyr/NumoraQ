@@ -31,13 +31,22 @@ export const usePremiumStatus = () => {
     if (!user) return;
 
     try {
+      // Query with all possible columns, using COALESCE for missing columns
       const { data, error } = await supabase
         .from('user_premium_status')
-        .select('is_premium, premium_type, expires_at, activated_at, activation_source, source_details')
+        .select(`
+          is_premium, 
+          premium_type, 
+          expires_at, 
+          activated_at,
+          activation_source,
+          source_details,
+          activated_code
+        `)
         .eq('user_id', user.id)
         .single();
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         console.error('Premium status check error:', error);
         setIsPremiumUser(false);
         setPremiumDetails(null);
@@ -47,6 +56,7 @@ export const usePremiumStatus = () => {
 
       if (!data) {
         // User doesn't have premium status - they should have been given a trial
+        console.log('No premium status found for user, may need trial activation');
         setIsPremiumUser(false);
         setPremiumDetails(null);
         setLoading(false);
@@ -60,40 +70,81 @@ export const usePremiumStatus = () => {
       // Check if user has actual premium access (is_premium: true and not expired)
       const isActive = data.is_premium && hasNotExpired;
 
-      // Check if user is on trial (is_premium: false but has expiry date and hasn't expired)
-      const isOnTrial = !data.is_premium && data.premium_type === '30day_trial' && hasNotExpired;
+      // Check if user is on trial (premium_type: '30day_trial' and hasn't expired)
+      const isOnTrial = data.premium_type === '30day_trial' && hasNotExpired;
 
-      // Calculate trial time remaining if on trial
-      let trialTimeRemaining = '';
-      if (isOnTrial && expiryDate) {
+      // Calculate time remaining
+      let timeRemaining = '';
+      if (expiryDate) {
         const diffTime = expiryDate.getTime() - now.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
-        if (diffDays <= 0) {
-          trialTimeRemaining = 'Expired';
-        } else if (diffDays === 1) {
-          trialTimeRemaining = '1 Day';
+        if (diffTime <= 0) {
+          timeRemaining = 'Expired';
         } else {
-          trialTimeRemaining = `${diffDays} Days`;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+          const diffMinutes = Math.ceil(diffTime / (1000 * 60));
+          
+          // Show more precise time for shorter periods
+          if (diffDays <= 1) {
+            if (diffHours <= 1) {
+              timeRemaining = `${diffMinutes} minutes`;
+            } else {
+              timeRemaining = `${diffHours} hours`;
+            }
+          } else if (diffDays <= 7) {
+            timeRemaining = `${diffDays} days`;
+          } else if (diffDays <= 30) {
+            timeRemaining = `${diffDays} days`;
+          } else if (diffDays <= 365) {
+            const months = Math.floor(diffDays / 30);
+            const remainingDays = diffDays % 30;
+            if (remainingDays === 0) {
+              timeRemaining = `${months} months`;
+            } else {
+              timeRemaining = `${months} months ${remainingDays} days`;
+            }
+          } else {
+            const years = Math.floor(diffDays / 365);
+            const remainingDays = diffDays % 365;
+            const remainingMonths = Math.floor(remainingDays / 30);
+            
+            if (remainingMonths === 0) {
+              timeRemaining = `${years} years`;
+            } else {
+              timeRemaining = `${years} years ${remainingMonths} months`;
+            }
+          }
         }
       }
 
-      // Set states based on the results
+      // Set premium user status
       setIsPremiumUser(isActive);
+      
+      // Set premium details
       setPremiumDetails({
         type: data.premium_type,
         expiresAt: data.expires_at,
         isOnTrial: isOnTrial,
-        trialTimeRemaining: trialTimeRemaining,
-        activationSource: data.activation_source,
-        sourceDetails: data.source_details
+        trialTimeRemaining: timeRemaining,
+        activationSource: data.activation_source || 'unknown',
+        sourceDetails: data.source_details || {}
       });
 
-      setLoading(false);
+      console.log('Premium status calculated:', {
+        isPremium: isActive,
+        isOnTrial: isOnTrial,
+        type: data.premium_type,
+        expiresAt: data.expires_at,
+        timeRemaining: timeRemaining,
+        activationSource: data.activation_source || 'unknown'
+      });
+
     } catch (error) {
       console.error('Error checking premium status:', error);
       setIsPremiumUser(false);
       setPremiumDetails(null);
+    } finally {
       setLoading(false);
     }
   };

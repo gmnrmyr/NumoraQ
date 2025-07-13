@@ -224,8 +224,11 @@ serve(async (req) => {
         throw updateError
       }
 
-      // Update user premium status using service role
-      const { error: statusError } = await supabase
+      // Update user premium status using service role - try with new columns first, fall back to basic
+      let statusError = null;
+      
+      // Try with new columns first
+      const { error: newStatusError } = await supabase
         .from('user_premium_status')
         .upsert({
           user_id: userId,
@@ -244,9 +247,29 @@ serve(async (req) => {
           updated_at: now.toISOString()
         })
 
-      if (statusError) {
-        console.error('Error updating premium status:', statusError)
-        throw statusError
+      if (newStatusError) {
+        console.log('New columns not available, trying basic columns:', newStatusError)
+        
+        // Fall back to basic columns if new columns don't exist
+        const { error: basicStatusError } = await supabase
+          .from('user_premium_status')
+          .upsert({
+            user_id: userId,
+            is_premium: true,
+            premium_type: codeData.code_type,
+            activated_at: now.toISOString(),
+            expires_at: expiresAt?.toISOString(),
+            updated_at: now.toISOString()
+          })
+
+        if (basicStatusError) {
+          console.error('Error updating premium status (basic):', basicStatusError)
+          throw basicStatusError
+        }
+        
+        console.log('Premium status updated successfully (basic columns)')
+      } else {
+        console.log('Premium status updated successfully (extended columns)')
       }
 
       return new Response(

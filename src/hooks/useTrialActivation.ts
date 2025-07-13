@@ -53,7 +53,8 @@ export const useTrialActivation = () => {
       const now = new Date();
       const trialExpiry = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
-      const { error } = await supabase
+      // Try with new columns first, fall back to basic columns
+      let { error } = await supabase
         .from('user_premium_status')
         .insert({
           user_id: user.id,
@@ -70,14 +71,31 @@ export const useTrialActivation = () => {
         });
 
       if (error) {
-        console.error('Error creating missing trial:', error);
-        return;
+        console.log('New columns not available, trying basic columns:', error);
+        
+        // Fall back to basic columns if new columns don't exist
+        const { error: basicError } = await supabase
+          .from('user_premium_status')
+          .insert({
+            user_id: user.id,
+            is_premium: false, // Trial users are not premium (they see ads)
+            premium_type: '30day_trial',
+            activated_at: now.toISOString(),
+            expires_at: trialExpiry.toISOString()
+          });
+
+        if (basicError) {
+          console.error('Error creating missing trial (basic):', basicError);
+          return;
+        }
+        
+        console.log('30-day trial created for user (basic columns):', user.id);
+      } else {
+        console.log('30-day trial created for user (extended columns):', user.id);
       }
 
       // Refetch premium status to reflect the new trial
       await refetchPremiumStatus();
-
-      console.log('30-day trial created for user:', user.id);
       
       toast({
         title: "🎉 Welcome to NUMORAQ!",
@@ -96,7 +114,8 @@ export const useTrialActivation = () => {
       const now = new Date();
       const gracePeriodExpiry = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days
 
-      const { error } = await supabase
+      // Try with new columns first, fall back to basic columns
+      let { error } = await supabase
         .from('user_premium_status')
         .upsert({
           user_id: user.id,
@@ -113,8 +132,28 @@ export const useTrialActivation = () => {
         });
 
       if (error) {
-        console.error('Error activating beta grace period:', error);
-        return false;
+        console.log('New columns not available, trying basic columns:', error);
+        
+        // Fall back to basic columns if new columns don't exist
+        const { error: basicError } = await supabase
+          .from('user_premium_status')
+          .upsert({
+            user_id: user.id,
+            is_premium: false, // Grace period users also see ads
+            premium_type: '30day_trial',
+            activated_at: now.toISOString(),
+            expires_at: gracePeriodExpiry.toISOString(),
+            updated_at: now.toISOString()
+          });
+
+        if (basicError) {
+          console.error('Error activating beta grace period (basic):', basicError);
+          return false;
+        }
+        
+        console.log('Beta grace period activated (basic columns)');
+      } else {
+        console.log('Beta grace period activated (extended columns)');
       }
 
       await refetchPremiumStatus();

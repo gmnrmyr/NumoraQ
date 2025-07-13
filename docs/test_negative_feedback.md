@@ -1,5 +1,7 @@
 I will keep this updated as you do the changes and I test them.
 
+Mandatory:
+
 1) When user has 3 months degen and purchases another month, does he gets 4 months of degen or at least it shows on user_ui_config panel that he has 4 months of degen? No. Tested, still show 3 months. We used to at least allow users to update from 1 month to 3 months, but now not even that is working. I know this is hard to do because plans should technically be updated in the database, as hours and that sum should be accounting for the users plan. So if the user has 1 month of degen (from trial) - that also has to be indicated that this time was provided from trial. And when user purchases monthly plan, it should show the active plan which is charged monthly and + the hours he has, so he should have 4 months of degen, and it should be reccuring and renovating for +3 months with the 3month price 
 
 
@@ -17,4 +19,13 @@ I will keep this updated as you do the changes and I test them.
 
 8) I think you're applying admin panel / cms changes on the wrong place. Our admin panel is acessible via ctr+shift+e.
 
+---
+
+Secondary
+
 9) on USER_INFO_CONFIG_UI.. we should also have a button for users to add more degen time via code or buy more degen time. Users who are already degen should be able to redeem codes (generated via by admin) and buy more degen time if they want. Keeping their plan active - meaning, when the plan ends, it trigger the renew.
+
+10) when we fix above, we should also add new themes for whales and other tiers on dev menu.
+
+11) when we fix all above, we can add new currencies. as proposed on @most_important_todos.md
+
