@@ -1,8 +1,10 @@
-- [X] Fix Stripe integration (degen plans) ok!!!!
+- [ ] Fix  stripe integration (degen plans) ok!!!! <--- that just broke.
 
 - [ ] Fix Stripe integration (donation tiers) [seems to be working partially] [works for degen plans correctly! But not for donation tiers!] <- still.>
 
 ----
+
+(everytime you wonder where the indication should be... it's on user_ui_config panel on advanced dashboard)
 
 (oh, on degen plans... it should be triggering time after the payment confirmed. So if user purchased 1 month it adds that time... when its over, it should be showing that user is not degen anymore.) <-- for now. and add that functionality that ask him to pay. allow him to auto-assign himself 3 extra days (during beta) so add myself 3 extra days to continue during beta.> ((not working yet, not showing on user_ui_config panel... non-degen users should have this period of time being triggered and shown on user_ui config panel on advanced dashboard.))
 

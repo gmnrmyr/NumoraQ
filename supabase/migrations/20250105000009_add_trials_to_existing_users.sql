@@ -1,5 +1,6 @@
 -- Add 30-day trial to existing users who don't have premium status
 -- This ensures all users get the trial period regardless of when they joined
+-- Trial users should see ads like non-degens (is_premium: false)
 
 -- First, add the trial_activated_at column if it doesn't exist
 ALTER TABLE public.user_premium_status 
@@ -18,7 +19,7 @@ INSERT INTO public.user_premium_status (
 )
 SELECT 
   u.id as user_id,
-  false as is_premium,
+  false as is_premium, -- Trial users should see ads like non-degens
   '30day_trial' as premium_type,
   NOW() as activated_at,
   NOW() + INTERVAL '30 days' as expires_at,

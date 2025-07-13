@@ -99,10 +99,12 @@ export const DegenModeSection = () => {
 
   const getStatusMessage = () => {
     if (isPremiumUser) {
-      if (isOnTrial) {
-        return `🎉 Free trial active - ${trialTimeRemaining} remaining`;
-      }
       return `🚀 ${t.noAdsEnabled}`;
+    }
+    
+    // Check if user is on trial
+    if (premiumDetails?.isOnTrial) {
+      return `🎉 Free trial active - ${premiumDetails.trialTimeRemaining} remaining`;
     }
     
     // Check if user had a trial that expired
@@ -120,25 +122,28 @@ export const DegenModeSection = () => {
     }
   };
 
+  const isTrialActive = premiumDetails?.isOnTrial || false;
+  const isTrialOrPremium = isPremiumUser || isTrialActive;
+
   return (
     <div className="border-t border-border pt-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Crown size={16} className={isPremiumUser ? "text-yellow-400" : "text-muted-foreground"} />
+          <Crown size={16} className={isTrialOrPremium ? "text-yellow-400" : "text-muted-foreground"} />
           <span className="font-mono text-sm">{t.degenMode}</span>
-          {(isPremiumUser || isTrialExpired) && (
+          {isTrialOrPremium && (
             <Badge 
               variant="outline" 
               className={isTrialExpired ? "bg-red-600/20 border-red-600 text-red-400 font-mono cursor-pointer hover:bg-red-600/30 transition-colors" : getBadgeStyle()}
-              title={`${premiumDetails?.type || 'Premium'} Access - ${trialTimeRemaining || getDegenTimeRemaining()} - Click to view payment options`}
+              title={`${premiumDetails?.type || 'Premium'} Access - ${premiumDetails?.trialTimeRemaining || getDegenTimeRemaining()} - Click to view payment options`}
               onClick={() => navigate('/payment')}
             >
               <Timer size={12} className="mr-1" />
-              {isTrialExpired ? 'TRIAL EXPIRED' : isOnTrial ? 'FREE TRIAL' : getPremiumTypeDisplay()}
+              {isTrialExpired ? 'TRIAL EXPIRED' : isTrialActive ? 'FREE TRIAL' : getPremiumTypeDisplay()}
             </Badge>
           )}
         </div>
-        {(!isPremiumUser || isTrialExpired) && (
+        {(!isTrialOrPremium || isTrialExpired) && (
           <div className="flex items-center gap-2">
             {isTrialExpired && (
               <>
@@ -158,82 +163,66 @@ export const DegenModeSection = () => {
                   className="text-xs font-mono bg-red-600/20 text-red-400 border-red-600/40 hover:bg-red-600/30"
                   onClick={() => navigate('/payment')}
                 >
-                  <Zap size={12} className="mr-1" />
-                  UPGRADE NOW
+                  <CreditCard size={12} className="mr-1" />
+                  UPGRADE
                 </Button>
               </>
             )}
-            <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
-              <DialogTrigger asChild>
-                <Button size="sm" variant="outline" className="text-xs font-mono">
-                  <Gift size={12} className="mr-1" />
-                  {t.activateCode}
-                </Button>
-              </DialogTrigger>
-            <DialogContent className="bg-card border-2 border-border">
-              <DialogHeader>
-                <DialogTitle className="font-mono">Activate Degen Mode</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground font-mono">
-                  Enter your degen code to activate ad-free experience:
-                </p>
-                <Input 
-                  placeholder="DEGEN-XXXXXX" 
-                  value={degenCode} 
-                  onChange={e => setDegenCode(e.target.value.toUpperCase())} 
-                  className="font-mono" 
-                />
+            {!isTrialOrPremium && (
+              <>
+                <Dialog open={showDegenDialog} onOpenChange={setShowDegenDialog}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-xs font-mono bg-yellow-600/20 text-yellow-400 border-yellow-600/40 hover:bg-yellow-600/30"
+                    >
+                      <Gift size={12} className="mr-1" />
+                      {t.activateCode}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="font-mono text-accent">{t.activateDegenCode}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="bg-accent/10 p-3 rounded border border-accent/20">
+                        <p className="text-sm font-mono text-muted-foreground">
+                          {t.enterDegenCodeDescription}
+                        </p>
+                      </div>
+                      <Input
+                        value={degenCode}
+                        onChange={(e) => setDegenCode(e.target.value)}
+                        placeholder={t.enterDegenCodePlaceholder}
+                        className="font-mono"
+                      />
+                      <Button
+                        onClick={handleActivateDegenCode}
+                        className="w-full font-mono"
+                        disabled={!degenCode.trim()}
+                      >
+                        <Zap size={16} className="mr-2" />
+                        {t.activateDegenAccess}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 <Button 
-                  onClick={handleActivateDegenCode} 
-                  className="w-full" 
-                  disabled={!degenCode.trim()}
+                  size="sm" 
+                  variant="outline" 
+                  className="text-xs font-mono bg-green-600/20 text-green-400 border-green-600/40 hover:bg-green-600/30"
+                  onClick={() => navigate('/payment')}
                 >
-                  Activate Code
+                  <Crown size={12} className="mr-1" />
+                  {t.goDegen}
                 </Button>
-                
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground font-mono">OR</span>
-                  </div>
-                </div>
-                
-                <Button 
-                  onClick={() => {
-                    setShowDegenDialog(false);
-                    navigate('/payment');
-                  }}
-                  variant="outline"
-                  className="w-full"
-                >
-                  <CreditCard size={16} className="mr-2" />
-                  Buy Degen Plan
-                </Button>
-                
-                <p className="text-xs text-muted-foreground font-mono text-center">
-                  Don't have a code? Purchase a degen plan to unlock premium features
-                </p>
-              </div>
-            </DialogContent>
-          </Dialog>
-          {!isTrialExpired && (
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="text-xs font-mono bg-orange-600/20 text-orange-400 border-orange-600/40 hover:bg-orange-600/30"
-              onClick={() => navigate('/payment')}
-            >
-              <CreditCard size={12} className="mr-1" />
-              {t.buyDegen}
-            </Button>
-          )}
+              </>
+            )}
           </div>
         )}
       </div>
-      <div className="text-xs text-muted-foreground font-mono mt-2">
+      <div className="mt-2 text-xs text-muted-foreground font-mono">
         {getStatusMessage()}
       </div>
     </div>

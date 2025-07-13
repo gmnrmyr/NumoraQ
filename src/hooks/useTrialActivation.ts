@@ -50,10 +50,11 @@ export const useTrialActivation = () => {
         .from('user_premium_status')
         .insert({
           user_id: user.id,
-          is_premium: true,
+          is_premium: false, // Trial users should see ads like non-degens
           premium_type: '30day_trial',
           activated_at: now.toISOString(),
           expires_at: trialExpiry.toISOString(),
+          trial_activated_at: now.toISOString(), // Track when trial was activated
         });
 
       if (error) {
@@ -61,18 +62,12 @@ export const useTrialActivation = () => {
         return;
       }
 
-      // Refresh premium status to reflect the trial
+      // Refetch premium status to reflect the new trial
       await refetchPremiumStatus();
 
-      toast({
-        title: "🎉 Welcome to NUMORAQ!",
-        description: "Your 30-day free trial has been activated! Enjoy all premium features.",
-        duration: 8000
-      });
-
-      console.log('30-day trial activated for new user:', user.email);
+      console.log('30-day trial activated for user:', user.id);
     } catch (error) {
-      console.error('Error activating free trial:', error);
+      console.error('Error in trial activation:', error);
     }
   };
 
