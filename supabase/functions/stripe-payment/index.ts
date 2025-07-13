@@ -245,99 +245,133 @@ async function createStripeCheckoutSession(sessionId: string, plan: Subscription
 async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, sessionId: string) {
   console.log(`Starting premium activation for user ${userId} with plan ${plan.plan}`);
   
-  // Get existing premium status to check for stacking
-  const { data: existingStatus, error: fetchError } = await supabase
-    .from('user_premium_status')
-    .select('expires_at, premium_type, is_premium, activation_source')
-    .eq('user_id', userId)
-    .single()
-
-  if (fetchError && fetchError.code !== 'PGRST116') {
-    console.error('Error fetching existing premium status:', fetchError);
-    throw fetchError;
-  }
-
-  let startDate = new Date();
-  let expirationDate = new Date();
-  let isUpgradeFromTrial = false;
-
-  // Determine start date based on existing status
-  if (existingStatus) {
-    const existingExpiry = new Date(existingStatus.expires_at);
-    const now = new Date();
+  try {
+    // Get existing premium status to check for stacking - use basic query first
+    let existingStatus = null;
     
-    // If user has existing premium that hasn't expired, extend from expiry date
-    if (existingStatus.is_premium && existingExpiry > now) {
-      startDate = existingExpiry;
-      console.log(`Extending existing premium plan from ${existingExpiry.toISOString()}`);
-    } 
-    // If user is on trial, start from now (convert trial to premium)
-    else if (existingStatus.premium_type === '30day_trial') {
-      startDate = now;
-      isUpgradeFromTrial = true;
-      console.log('Converting trial to premium, starting from now');
+    try {
+      const { data, error } = await supabase
+        .from('user_premium_status')
+        .select('expires_at, premium_type, is_premium')
+        .eq('user_id', userId)
+        .single();
+      
+      if (!error) {
+        existingStatus = data;
+      }
+    } catch (error) {
+      console.log('Error fetching existing status, will create new:', error);
     }
-    // If existing plan expired, start fresh
-    else if (existingExpiry <= now) {
+
+    let startDate = new Date();
+    let expirationDate = new Date();
+    let isUpgradeFromTrial = false;
+
+    // Determine start date based on existing status
+    if (existingStatus) {
+      const existingExpiry = new Date(existingStatus.expires_at);
+      const now = new Date();
+ 
+      // If user has existing premium that hasn't expired, extend from expiry date (TIME STACKING)
+      if (existingStatus.is_premium && existingExpiry > now) {
+        startDate = existingExpiry;
+        console.log(`🎯 TIME STACKING: Extending existing premium plan from ${existingExpiry.toISOString()}`);
+      } 
+      // If user is on trial, start from now (convert trial to premium)
+      else if (existingStatus.premium_type === '30day_trial') {
+        startDate = now;
+        isUpgradeFromTrial = true;
+        console.log('Converting trial to premium, starting from now');
+      }
+      // If existing plan expired, start fresh
+      else if (existingExpiry <= now) {
+        startDate = now;
+        console.log('Existing plan expired, starting fresh');
+      }
+      // Default: start from now
+      else {
+        startDate = now;
+        console.log('Starting premium from now');
+      }
+    } else {
+      // No existing status, start from now
       startDate = now;
-      console.log('Existing plan expired, starting fresh');
+      console.log('No existing status, starting premium from now');
     }
-    // Default: start from now
-    else {
-      startDate = now;
-      console.log('Starting premium from now');
+
+    // Calculate new expiry date from start date
+    expirationDate = new Date(startDate);
+    expirationDate.setDate(expirationDate.getDate() + plan.duration_days);
+
+    console.log(`📅 Premium activation: User ${userId}, Plan: ${plan.plan}, Start: ${startDate.toISOString()}, Expires: ${expirationDate.toISOString()}`);
+
+    // Ensure the plan type is valid for the database constraint
+    let dbPremiumType: string = plan.plan;
+    const validPlanTypes = ['1month', '3months', '6months', '1year', '5years', 'lifetime'];
+    if (!validPlanTypes.includes(plan.plan)) {
+      dbPremiumType = '1year'; // Default fallback
     }
-  } else {
-    // No existing status, start from now
-    startDate = now;
-    console.log('No existing status, starting premium from now');
+
+    // Try with enhanced columns first, fall back to basic columns
+    let premiumError = null;
+    
+    try {
+      const { error: enhancedError } = await supabase
+        .from('user_premium_status')
+        .upsert({
+          user_id: userId,
+          is_premium: true,
+          premium_type: dbPremiumType,
+          activated_at: new Date().toISOString(),
+          expires_at: expirationDate.toISOString(),
+          payment_session_id: sessionId,
+          activation_source: 'stripe_payment',
+          source_details: JSON.stringify({
+            plan: plan.plan,
+            session_id: sessionId,
+            amount: plan.amount,
+            duration_days: plan.duration_days,
+            is_upgrade_from_trial: isUpgradeFromTrial,
+            previous_expiry: existingStatus?.expires_at || null,
+            stacked_from: startDate.toISOString(),
+            time_stacking: existingStatus?.is_premium && new Date(existingStatus.expires_at) > new Date()
+          }),
+          updated_at: new Date().toISOString()
+        });
+
+      if (enhancedError) {
+        throw enhancedError;
+      }
+      
+      console.log('✅ Premium access activated successfully with enhanced columns');
+    } catch (enhancedError) {
+      console.log('Enhanced columns not available, trying basic columns:', enhancedError);
+      
+      // Fall back to basic columns
+      const { error: basicError } = await supabase
+        .from('user_premium_status')
+        .upsert({
+          user_id: userId,
+          is_premium: true,
+          premium_type: dbPremiumType,
+          activated_at: new Date().toISOString(),
+          expires_at: expirationDate.toISOString(),
+          updated_at: new Date().toISOString()
+        });
+
+      if (basicError) {
+        console.error('❌ Error updating premium status (basic):', basicError);
+        throw basicError;
+      }
+      
+      console.log('✅ Premium access activated successfully with basic columns');
+    }
+
+    return { success: true, expiresAt: expirationDate.toISOString() };
+  } catch (error) {
+    console.error('❌ Error in activatePremiumAccess:', error);
+    throw error;
   }
-
-  // Calculate new expiry date from start date
-  expirationDate = new Date(startDate);
-  expirationDate.setDate(expirationDate.getDate() + plan.duration_days);
-
-  console.log(`Premium activation: User ${userId}, Plan: ${plan.plan}, Start: ${startDate.toISOString()}, Expires: ${expirationDate.toISOString()}`);
-
-  // Use the actual plan type for database storage
-  let dbPremiumType: string = plan.plan;
-  
-  // Ensure the plan type is valid for the database constraint
-  const validPlanTypes = ['1month', '3months', '6months', '1year', '5years', 'lifetime'];
-  if (!validPlanTypes.includes(plan.plan)) {
-    dbPremiumType = '1year'; // Default fallback
-  }
-
-  // Update user premium status using service role (bypasses RLS)
-  const { error: premiumError } = await supabase
-    .from('user_premium_status')
-    .upsert({
-      user_id: userId,
-      is_premium: true,
-      premium_type: dbPremiumType,
-      activated_at: new Date().toISOString(), // When this specific purchase was made
-      expires_at: expirationDate.toISOString(),
-      payment_session_id: sessionId,
-      activation_source: 'stripe_payment',
-      source_details: JSON.stringify({
-        plan: plan.plan,
-        session_id: sessionId,
-        amount: plan.amount,
-        duration_days: plan.duration_days,
-        is_upgrade_from_trial: isUpgradeFromTrial,
-        previous_expiry: existingStatus?.expires_at || null,
-        stacked_from: startDate.toISOString()
-      }),
-      updated_at: new Date().toISOString()
-    });
-
-  if (premiumError) {
-    console.error('Error updating premium status:', premiumError);
-    throw premiumError;
-  }
-
-  console.log(`Premium access activated successfully for user ${userId}`);
-  return { success: true, expiresAt: expirationDate.toISOString() };
 }
 
 async function activateDonationTier(userId: string, tier: DonationTier, sessionId: string) {

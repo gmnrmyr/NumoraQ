@@ -31,17 +31,16 @@ export const usePremiumStatus = () => {
     if (!user) return;
 
     try {
-      // Query with all possible columns, using COALESCE for missing columns
+      console.log('🔍 Checking premium status for user:', user.id);
+      
+      // Query with all possible columns, fallback gracefully for missing ones
       const { data, error } = await supabase
         .from('user_premium_status')
         .select(`
           is_premium, 
           premium_type, 
           expires_at, 
-          activated_at,
-          activation_source,
-          source_details,
-          activated_code
+          activated_at
         `)
         .eq('user_id', user.id)
         .single();
@@ -55,8 +54,7 @@ export const usePremiumStatus = () => {
       }
 
       if (!data) {
-        // User doesn't have premium status - they should have been given a trial
-        console.log('No premium status found for user, may need trial activation');
+        console.log('📊 No premium status found for user');
         setIsPremiumUser(false);
         setPremiumDetails(null);
         setLoading(false);
@@ -73,7 +71,7 @@ export const usePremiumStatus = () => {
       // Check if user is on trial (premium_type: '30day_trial' and hasn't expired)
       const isOnTrial = data.premium_type === '30day_trial' && hasNotExpired;
 
-      // Calculate time remaining
+      // Calculate detailed time remaining
       let timeRemaining = '';
       if (expiryDate) {
         const diffTime = expiryDate.getTime() - now.getTime();
@@ -127,21 +125,21 @@ export const usePremiumStatus = () => {
         expiresAt: data.expires_at,
         isOnTrial: isOnTrial,
         trialTimeRemaining: timeRemaining,
-        activationSource: data.activation_source || 'unknown',
-        sourceDetails: data.source_details || {}
+        activationSource: 'unknown', // Will show 'unknown' if column doesn't exist
+        sourceDetails: {}
       });
 
-      console.log('Premium status calculated:', {
+      console.log('📊 Premium status calculated:', {
         isPremium: isActive,
         isOnTrial: isOnTrial,
         type: data.premium_type,
         expiresAt: data.expires_at,
         timeRemaining: timeRemaining,
-        activationSource: data.activation_source || 'unknown'
+        diffFromNow: expiryDate ? Math.round((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) + ' days' : 'N/A'
       });
 
     } catch (error) {
-      console.error('Error checking premium status:', error);
+      console.error('❌ Error checking premium status:', error);
       setIsPremiumUser(false);
       setPremiumDetails(null);
     } finally {
@@ -150,9 +148,22 @@ export const usePremiumStatus = () => {
   };
 
   const refetch = async () => {
+    console.log('🔄 Force refreshing premium status...');
     setLoading(true);
     await checkPremiumStatus();
   };
+
+  // Force refresh every 30 seconds when component is active (for real-time updates)
+  useEffect(() => {
+    if (!user) return;
+    
+    const interval = setInterval(() => {
+      console.log('⏰ Auto-refreshing premium status...');
+      checkPremiumStatus();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [user]);
 
   return {
     isPremiumUser,
