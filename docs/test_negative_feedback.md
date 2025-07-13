@@ -14,3 +14,5 @@ I will keep this updated as you do the changes and I test them.
 6) are admins able to see a log showing: where this degen came from (payment, admin, code, etc.) Same as Tiers, where that tiers came from. (payment, admin gave, via leaderboard, etc.) and what databases track this data? No, this has not been added to admin panel. (also source of days, for example: user has 28 days left, source: trial)
 
 7)  are admins being able to add points to users via the admin panel? No. Despite adding the correct UID and amount of points, there is no feedback on admin panel and the users are not recieving thise points.
+
+8) I think you're applying admin panel / cms changes on the wrong place. Our admin panel is acessible via ctr+shift+e.
