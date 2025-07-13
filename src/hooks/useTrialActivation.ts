@@ -10,10 +10,11 @@ export const useTrialActivation = () => {
   const [isActivating, setIsActivating] = useState(false);
 
   useEffect(() => {
-    if (user && !isPremiumUser && !premiumDetails) {
+    if (user && !premiumDetails && !isActivating) {
+      // Only check for trial if user has no premium status at all
       checkAndActivateTrial();
     }
-  }, [user, isPremiumUser, premiumDetails]);
+  }, [user, premiumDetails, isActivating]);
 
   const checkAndActivateTrial = async () => {
     if (!user || isActivating) return;
@@ -33,9 +34,10 @@ export const useTrialActivation = () => {
         return;
       }
 
-      // If no premium status exists, create 30-day trial
+      // If no premium status exists, the database trigger should have created one
+      // But if it didn't, we'll create it manually
       if (!existingStatus) {
-        await activateFreeTrial();
+        await createMissingTrial();
       }
     } catch (error) {
       console.error('Error in trial activation:', error);
@@ -44,7 +46,7 @@ export const useTrialActivation = () => {
     }
   };
 
-  const activateFreeTrial = async () => {
+  const createMissingTrial = async () => {
     if (!user) return;
 
     try {
@@ -55,29 +57,35 @@ export const useTrialActivation = () => {
         .from('user_premium_status')
         .insert({
           user_id: user.id,
-          is_premium: false, // Trial users should see ads like non-degens
-          premium_type: 'lifetime', // Use valid constraint value, actual trial tracked in metadata
+          is_premium: false, // Trial users are not premium (they see ads)
+          premium_type: '30day_trial',
           activated_at: now.toISOString(),
           expires_at: trialExpiry.toISOString(),
+          activation_source: 'manual_trial',
+          source_details: JSON.stringify({
+            trial_type: '30_day',
+            manually_created: true,
+            reason: 'missing_trial_fix'
+          })
         });
 
       if (error) {
-        console.error('Error activating trial:', error);
+        console.error('Error creating missing trial:', error);
         return;
       }
 
       // Refetch premium status to reflect the new trial
       await refetchPremiumStatus();
 
-      console.log('30-day trial activated for user:', user.id);
+      console.log('30-day trial created for user:', user.id);
       
       toast({
         title: "🎉 Welcome to NUMORAQ!",
-        description: "Your 30-day free trial has started! (You'll see ads during trial)",
+        description: "Your 30-day free trial has started!",
         duration: 5000
       });
     } catch (error) {
-      console.error('Error in trial activation:', error);
+      console.error('Error creating missing trial:', error);
     }
   };
 
@@ -93,71 +101,62 @@ export const useTrialActivation = () => {
         .upsert({
           user_id: user.id,
           is_premium: false, // Grace period users also see ads
-          premium_type: 'lifetime', // Use valid constraint value
+          premium_type: '30day_trial',
           activated_at: now.toISOString(),
           expires_at: gracePeriodExpiry.toISOString(),
+          activation_source: 'grace_period',
+          source_details: JSON.stringify({
+            trial_type: '3_day_grace',
+            grace_period: true
+          }),
           updated_at: now.toISOString()
         });
 
       if (error) {
-        console.error('Error activating grace period:', error);
-        toast({
-          title: "Grace Period Failed",
-          description: "Could not activate 3-day grace period. Please try again.",
-          variant: "destructive"
-        });
+        console.error('Error activating beta grace period:', error);
         return false;
       }
 
+      await refetchPremiumStatus();
+
       toast({
-        title: "🎁 3-Day Grace Period Activated!",
-        description: "You have 3 additional days to explore premium features (with ads)",
-        duration: 8000
+        title: "🎉 Beta Grace Period Activated!",
+        description: "You have 3 days of beta access!",
+        duration: 5000
       });
 
       return true;
     } catch (error) {
-      console.error('Error activating grace period:', error);
+      console.error('Error in beta grace period activation:', error);
       return false;
     }
   };
 
   const isTrialExpired = () => {
-    if (!premiumDetails) return false;
+    if (!premiumDetails || !premiumDetails.expiresAt) return false;
+    if (premiumDetails.type !== '30day_trial') return false;
     
-    // Check if it's a trial that has expired
-    // A trial is: is_premium: false with an expiry date that has passed
-    if (premiumDetails.type === '30day_trial' && premiumDetails.expiresAt) {
-      const expiryDate = new Date(premiumDetails.expiresAt);
-      const now = new Date();
-      return expiryDate <= now;
-    }
-    
-    return false;
+    const now = new Date();
+    const expiryDate = new Date(premiumDetails.expiresAt);
+    return expiryDate <= now;
+  };
+
+  const isOnTrial = () => {
+    return premiumDetails?.isOnTrial === true;
   };
 
   const getTrialTimeRemaining = () => {
-    if (!premiumDetails || !premiumDetails.expiresAt) return '';
-    
-    const expiryDate = new Date(premiumDetails.expiresAt);
-    const now = new Date();
-    const diffTime = expiryDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays <= 0) return 'Expired';
-    if (diffDays === 1) return '1 Day';
-    return `${diffDays} Days`;
+    if (!premiumDetails || !premiumDetails.isOnTrial) return '';
+    return premiumDetails.trialTimeRemaining || '';
   };
 
-  const isOnTrial = premiumDetails?.isOnTrial || false;
   const trialTimeRemaining = getTrialTimeRemaining();
 
   return {
-    activateFreeTrial,
     activateBetaGracePeriod,
     isTrialExpired: isTrialExpired(),
+    isOnTrial: isOnTrial(),
     trialTimeRemaining,
-    isOnTrial,
     isActivating
   };
 }; 

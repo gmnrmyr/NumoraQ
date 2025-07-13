@@ -11,6 +11,8 @@ export const usePremiumStatus = () => {
     expiresAt: string | null;
     isOnTrial?: boolean;
     trialTimeRemaining?: string;
+    activationSource?: string;
+    sourceDetails?: any;
   } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,13 +33,23 @@ export const usePremiumStatus = () => {
     try {
       const { data, error } = await supabase
         .from('user_premium_status')
-        .select('is_premium, premium_type, expires_at, activated_at')
+        .select('is_premium, premium_type, expires_at, activated_at, activation_source, source_details')
         .eq('user_id', user.id)
         .single();
 
-      if (error || !data) {
+      if (error) {
+        console.error('Premium status check error:', error);
         setIsPremiumUser(false);
         setPremiumDetails(null);
+        setLoading(false);
+        return;
+      }
+
+      if (!data) {
+        // User doesn't have premium status - they should have been given a trial
+        setIsPremiumUser(false);
+        setPremiumDetails(null);
+        setLoading(false);
         return;
       }
 
@@ -49,8 +61,7 @@ export const usePremiumStatus = () => {
       const isActive = data.is_premium && hasNotExpired;
 
       // Check if user is on trial (is_premium: false but has expiry date and hasn't expired)
-      // This indicates a trial since real premium users have is_premium: true
-      const isOnTrial = !data.is_premium && data.expires_at && hasNotExpired;
+      const isOnTrial = !data.is_premium && data.premium_type === '30day_trial' && hasNotExpired;
 
       // Calculate trial time remaining if on trial
       let trialTimeRemaining = '';
@@ -67,26 +78,35 @@ export const usePremiumStatus = () => {
         }
       }
 
+      // Set states based on the results
       setIsPremiumUser(isActive);
-      
-      if (isActive || isOnTrial) {
-        setPremiumDetails({
-          type: isOnTrial ? '30day_trial' : data.premium_type || 'lifetime',
-          expiresAt: data.expires_at,
-          isOnTrial,
-          trialTimeRemaining
-        });
-      } else {
-        setPremiumDetails(null);
-      }
+      setPremiumDetails({
+        type: data.premium_type,
+        expiresAt: data.expires_at,
+        isOnTrial: isOnTrial,
+        trialTimeRemaining: trialTimeRemaining,
+        activationSource: data.activation_source,
+        sourceDetails: data.source_details
+      });
+
+      setLoading(false);
     } catch (error) {
       console.error('Error checking premium status:', error);
       setIsPremiumUser(false);
       setPremiumDetails(null);
-    } finally {
       setLoading(false);
     }
   };
 
-  return { isPremiumUser, premiumDetails, loading, refetch: checkPremiumStatus };
+  const refetch = async () => {
+    setLoading(true);
+    await checkPremiumStatus();
+  };
+
+  return {
+    isPremiumUser,
+    premiumDetails,
+    loading,
+    refetch
+  };
 };

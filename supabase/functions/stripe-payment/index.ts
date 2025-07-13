@@ -243,35 +243,61 @@ async function createStripeCheckoutSession(sessionId: string, plan: Subscription
 }
 
 async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, sessionId: string) {
+  console.log(`Starting premium activation for user ${userId} with plan ${plan.plan}`);
+  
   // Get existing premium status to check for stacking
   const { data: existingStatus, error: fetchError } = await supabase
     .from('user_premium_status')
-    .select('expires_at, premium_type, is_premium')
+    .select('expires_at, premium_type, is_premium, activation_source')
     .eq('user_id', userId)
     .single()
 
-  let startDate = new Date()
-  let expirationDate = new Date()
+  if (fetchError && fetchError.code !== 'PGRST116') {
+    console.error('Error fetching existing premium status:', fetchError);
+    throw fetchError;
+  }
 
-  // If user has existing active premium, extend from expiry date
-  if (existingStatus && existingStatus.is_premium && existingStatus.expires_at) {
-    const existingExpiry = new Date(existingStatus.expires_at)
-    const now = new Date()
+  let startDate = new Date();
+  let expirationDate = new Date();
+  let isUpgradeFromTrial = false;
+
+  // Determine start date based on existing status
+  if (existingStatus) {
+    const existingExpiry = new Date(existingStatus.expires_at);
+    const now = new Date();
     
-    // If existing plan hasn't expired yet, extend from expiry date
-    if (existingExpiry > now) {
-      startDate = existingExpiry
-      console.log(`Extending existing premium plan from ${existingExpiry.toISOString()}`)
-    } else {
-      console.log('Existing plan expired, starting fresh')
+    // If user has existing premium that hasn't expired, extend from expiry date
+    if (existingStatus.is_premium && existingExpiry > now) {
+      startDate = existingExpiry;
+      console.log(`Extending existing premium plan from ${existingExpiry.toISOString()}`);
+    } 
+    // If user is on trial, start from now (convert trial to premium)
+    else if (existingStatus.premium_type === '30day_trial') {
+      startDate = now;
+      isUpgradeFromTrial = true;
+      console.log('Converting trial to premium, starting from now');
     }
+    // If existing plan expired, start fresh
+    else if (existingExpiry <= now) {
+      startDate = now;
+      console.log('Existing plan expired, starting fresh');
+    }
+    // Default: start from now
+    else {
+      startDate = now;
+      console.log('Starting premium from now');
+    }
+  } else {
+    // No existing status, start from now
+    startDate = now;
+    console.log('No existing status, starting premium from now');
   }
 
   // Calculate new expiry date from start date
-  expirationDate = new Date(startDate)
-  expirationDate.setDate(expirationDate.getDate() + plan.duration_days)
+  expirationDate = new Date(startDate);
+  expirationDate.setDate(expirationDate.getDate() + plan.duration_days);
 
-  console.log(`Premium activation: User ${userId}, Plan: ${plan.plan}, Start: ${startDate.toISOString()}, Expires: ${expirationDate.toISOString()}`)
+  console.log(`Premium activation: User ${userId}, Plan: ${plan.plan}, Start: ${startDate.toISOString()}, Expires: ${expirationDate.toISOString()}`);
 
   // Use the actual plan type for database storage
   let dbPremiumType: string = plan.plan;
@@ -288,7 +314,7 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
     .upsert({
       user_id: userId,
       is_premium: true,
-      premium_type: dbPremiumType, // Use database-compatible type
+      premium_type: dbPremiumType,
       activated_at: new Date().toISOString(), // When this specific purchase was made
       expires_at: expirationDate.toISOString(),
       payment_session_id: sessionId,
@@ -297,31 +323,21 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
         plan: plan.plan,
         session_id: sessionId,
         amount: plan.amount,
-        duration_days: plan.duration_days
+        duration_days: plan.duration_days,
+        is_upgrade_from_trial: isUpgradeFromTrial,
+        previous_expiry: existingStatus?.expires_at || null,
+        stacked_from: startDate.toISOString()
       }),
       updated_at: new Date().toISOString()
-    })
+    });
 
   if (premiumError) {
-    console.error('Error updating premium status:', premiumError)
-    throw premiumError
+    console.error('Error updating premium status:', premiumError);
+    throw premiumError;
   }
 
-  // Update payment session status using service role (bypasses RLS)
-  const { error: sessionError } = await supabase
-    .from('payment_sessions')
-    .update({ 
-      status: 'completed',
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', sessionId)
-
-  if (sessionError) {
-    console.error('Error updating payment session:', sessionError)
-    throw sessionError
-  }
-
-  return true
+  console.log(`Premium access activated successfully for user ${userId}`);
+  return { success: true, expiresAt: expirationDate.toISOString() };
 }
 
 async function activateDonationTier(userId: string, tier: DonationTier, sessionId: string) {
@@ -366,6 +382,41 @@ async function activateDonationTier(userId: string, tier: DonationTier, sessionI
   }
 
   return true
+}
+
+async function processDonationPayment(userId: string, tier: DonationTier, sessionId: string) {
+  console.log(`Processing donation payment for user ${userId} with tier ${tier.tier}`);
+  
+  try {
+    // Add points to user for the donation
+    const { error: pointsError } = await supabase
+      .from('user_points')
+      .insert({
+        user_id: userId,
+        points: tier.points,
+        activity_type: 'donation',
+        activity_date: new Date().toISOString().split('T')[0],
+        points_source: 'stripe_donation',
+        source_details: JSON.stringify({
+          tier: tier.tier,
+          amount: tier.amount,
+          currency: tier.currency,
+          session_id: sessionId,
+          timestamp: new Date().toISOString()
+        })
+      });
+
+    if (pointsError) {
+      console.error('Error adding donation points:', pointsError);
+      throw pointsError;
+    }
+
+    console.log(`Successfully added ${tier.points} points for donation tier ${tier.tier}`);
+    return { success: true, points: tier.points };
+  } catch (error) {
+    console.error('Error processing donation payment:', error);
+    throw error;
+  }
 }
 
 serve(async (req) => {
@@ -497,83 +548,79 @@ serve(async (req) => {
     }
 
     if ((path === '/webhook' || path.endsWith('/webhook')) && req.method === 'POST') {
-      const body = await req.text()
       const signature = req.headers.get('stripe-signature')
-
+      
       if (!signature) {
-        return new Response(
-          JSON.stringify({ error: 'Missing stripe signature' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-        )
+        return new Response('No signature', { status: 400 })
       }
 
-      const stripe = await import('https://esm.sh/stripe@14.21.0?target=deno')
-      const stripeClient = stripe.default(STRIPE_SECRET_KEY, {
-        apiVersion: '2024-12-18.acacia',
-        httpClient: stripe.Stripe.createFetchHttpClient(),
-      })
-
-      let event
       try {
-        event = stripeClient.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET)
-      } catch (err) {
-        console.error('Webhook signature verification failed:', err)
-        return new Response(
-          JSON.stringify({ error: 'Invalid signature' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-        )
-      }
+        const body = await req.text()
+        const event = stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET)
 
-      if (event.type === 'checkout.session.completed') {
-        const session = event.data.object
-        const { session_id, plan, user_email, payment_type } = session.metadata
+        if (event.type === 'checkout.session.completed') {
+          const session = event.data.object
+          const metadata = session.metadata
 
-        // Get user ID from the session
-        const { data: sessionData, error: sessionError } = await supabase
-          .from('payment_sessions')
-          .select('user_id')
-          .eq('id', session_id)
-          .single()
-
-        if (sessionError || !sessionData) {
-          console.error('Error fetching payment session:', sessionError)
-          return new Response(
-            JSON.stringify({ error: 'Session not found' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-          )
-        }
-
-        if (payment_type === 'degen') {
-          const planInfo = degenPlans[plan]
-          if (!planInfo) {
-            console.error('Invalid degen plan:', plan)
-            return new Response(
-              JSON.stringify({ error: 'Invalid plan' }),
-              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-            )
+          if (!metadata.session_id || !metadata.user_email) {
+            console.error('Missing required metadata in webhook:', metadata)
+            return new Response('Missing metadata', { status: 400 })
           }
 
-          await activatePremiumAccess(sessionData.user_id, planInfo, session_id)
-          console.log(`Premium access activated for user ${sessionData.user_id}, plan: ${plan}`)
-        } else if (payment_type === 'donation') {
-          const tierInfo = donationTiers[plan]
-          if (!tierInfo) {
-            console.error('Invalid donation tier:', plan)
-            return new Response(
-              JSON.stringify({ error: 'Invalid tier' }),
-              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-            )
+          const sessionId = metadata.session_id
+          const userEmail = metadata.user_email
+          const plan = metadata.plan
+          const paymentType = metadata.payment_type || 'degen'
+
+          // Get user ID from email
+          const { data: user, error: userError } = await supabase.auth.admin.getUserByEmail(userEmail)
+          
+          if (userError || !user) {
+            console.error('User not found:', userError)
+            return new Response('User not found', { status: 404 })
           }
 
-          await activateDonationTier(sessionData.user_id, tierInfo, session_id)
-          console.log(`Donation tier activated for user ${sessionData.user_id}, tier: ${plan}`)
-        }
-      }
+          const userId = user.id
 
-      return new Response(
-        JSON.stringify({ received: true }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-      )
+          // Process based on payment type
+          if (paymentType === 'degen') {
+            // Process degen plan
+            const planInfo = degenPlans[plan]
+            if (planInfo) {
+              await activatePremiumAccess(userId, planInfo, sessionId)
+            }
+          } else if (paymentType === 'donation') {
+            // Process donation tier
+            const tierInfo = donationTiers[plan]
+            if (tierInfo) {
+              await processDonationPayment(userId, tierInfo, sessionId)
+            }
+          }
+
+          // Update payment session status
+          const { error: sessionError } = await supabase
+            .from('payment_sessions')
+            .update({ 
+              status: 'completed',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', sessionId)
+
+          if (sessionError) {
+            console.error('Error updating payment session:', sessionError)
+          }
+
+          console.log(`Payment processed successfully for user ${userId}`)
+        }
+
+        return new Response(JSON.stringify({ received: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        })
+      } catch (error) {
+        console.error('Webhook error:', error)
+        return new Response(`Webhook error: ${error.message}`, { status: 400 })
+      }
     }
 
     return new Response(
