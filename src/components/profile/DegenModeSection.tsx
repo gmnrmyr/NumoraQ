@@ -12,6 +12,7 @@ import { useTrialActivation } from '@/hooks/useTrialActivation';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export const DegenModeSection = () => {
   const [showDegenDialog, setShowDegenDialog] = useState(false);
@@ -348,8 +349,37 @@ export const DegenModeSection = () => {
       {/* Enhanced Status Display for user_ui_config panel */}
       <div className="mt-3 p-3 bg-muted/50 border border-border rounded font-mono text-xs">
         <div className="space-y-1">
-          <div className="font-bold text-accent">STATUS:</div>
+          <div className="flex items-center justify-between">
+            <div className="font-bold text-accent">STATUS:</div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={async () => {
+                console.log('🔄 Manual refresh triggered from DegenModeSection');
+                await refetchPremiumStatus();
+                toast({
+                  title: "Status Refreshed",
+                  description: "Premium status has been refreshed. Check console for details.",
+                });
+              }}
+              className="text-xs h-6 px-2"
+            >
+              🔄 REFRESH
+            </Button>
+          </div>
           <div>{getStatusMessage()}</div>
+          
+          {/* Debug Information */}
+          <div className="mt-2 pt-2 border-t border-border text-yellow-400 text-xs">
+            <div><strong>🐛 DEBUG INFO:</strong></div>
+            <div>User ID: {user?.id?.substring(0, 8)}...</div>
+            <div>Is Premium: {isPremiumUser ? 'Yes' : 'No'}</div>
+            <div>Is On Trial: {premiumDetails?.isOnTrial ? 'Yes' : 'No'}</div>
+            {premiumDetails && (
+              <div>Raw Expires: {premiumDetails.expiresAt || 'None'}</div>
+            )}
+            <div>Browser Time: {new Date().toLocaleString()}</div>
+          </div>
           
           {premiumDetails && (
             <div className="mt-2 pt-2 border-t border-border space-y-1">
@@ -368,6 +398,53 @@ export const DegenModeSection = () => {
               )}
             </div>
           )}
+          
+          {/* Manual test buttons for debugging */}
+          <div className="mt-2 pt-2 border-t border-border">
+            <div className="text-yellow-400 font-bold text-xs mb-1">🧪 MANUAL TESTS:</div>
+            <div className="flex gap-1 flex-wrap">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={async () => {
+                  console.log('🧪 Testing manual premium status query...');
+                  const { data, error } = await supabase
+                    .from('user_premium_status')
+                    .select('*')
+                    .eq('user_id', user?.id);
+                  console.log('Premium status raw data:', data, 'Error:', error);
+                  toast({
+                    title: "DB Query Test",
+                    description: `Found ${data?.length || 0} records. Check console for details.`,
+                  });
+                }}
+                className="text-xs h-6 px-2"
+              >
+                DB TEST
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={async () => {
+                  console.log('🧪 Testing user points query...');
+                  const { data, error } = await supabase
+                    .from('user_points')
+                    .select('*')
+                    .eq('user_id', user?.id);
+                  console.log('User points raw data:', data, 'Error:', error);
+                  const total = data?.reduce((sum, entry) => sum + entry.points, 0) || 0;
+                  toast({
+                    title: "Points Test",
+                    description: `Total points: ${total}. Check console for details.`,
+                  });
+                }}
+                className="text-xs h-6 px-2"
+              >
+                POINTS TEST
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

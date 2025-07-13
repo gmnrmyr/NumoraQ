@@ -27,6 +27,7 @@ interface UserSearchResult {
 export const AdminPanel = () => {
   const { user } = useAuth();
   const { 
+    premiumCodes,
     generatePremiumCode,
     premiumCodesLoading
   } = useAdminMode();
@@ -378,10 +379,10 @@ export const AdminPanel = () => {
                 <div className="font-mono text-muted-foreground">Loading codes...</div>
               ) : (
                 <div className="space-y-2">
-                  {codes.length === 0 ? (
+                  {premiumCodes.length === 0 ? (
                     <div className="font-mono text-muted-foreground">No codes generated yet</div>
                   ) : (
-                    codes.map((code) => (
+                    premiumCodes.map((code) => (
                       <div key={code.id} className="flex items-center justify-between p-3 border border-border rounded">
                         <div className="font-mono">
                           <div className="font-bold">{code.code}</div>

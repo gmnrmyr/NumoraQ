@@ -172,26 +172,38 @@ serve(async (req) => {
       const now = new Date()
       let expiresAt: Date | null = null
       
-      // Get existing premium status to check for stacking
-      const { data: existingStatus, error: fetchError } = await supabase
-        .from('user_premium_status')
-        .select('expires_at, premium_type, is_premium')
-        .eq('user_id', userId)
-        .single()
+      // Get existing premium status to check for stacking - use basic query first
+      let existingStatus = null;
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_premium_status')
+          .select('expires_at, premium_type, is_premium')
+          .eq('user_id', userId)
+          .single();
+        
+        if (!error) {
+          existingStatus = data;
+        }
+      } catch (error) {
+        console.log('Error fetching existing status for code activation, will create new:', error);
+      }
 
       let startDate = new Date()
       
-      // If user has existing active premium, extend from expiry date
+      // If user has existing active premium, extend from expiry date (TIME STACKING)
       if (existingStatus && existingStatus.is_premium && existingStatus.expires_at) {
         const existingExpiry = new Date(existingStatus.expires_at)
         
         // If existing plan hasn't expired yet, extend from expiry date
         if (existingExpiry > now) {
           startDate = existingExpiry
-          console.log(`Extending existing premium plan from ${existingExpiry.toISOString()}`)
+          console.log(`🎯 CODE TIME STACKING: Extending existing premium plan from ${existingExpiry.toISOString()}`)
         } else {
-          console.log('Existing plan expired, starting fresh')
+          console.log('Existing plan expired, starting fresh with code')
         }
+      } else {
+        console.log('No existing premium status, starting fresh with code')
       }
       
       // Calculate new expiry date from start date
@@ -207,7 +219,7 @@ serve(async (req) => {
           break
       }
 
-      console.log(`Premium code activation: User ${userId}, Code: ${codeData.code_type}, Start: ${startDate.toISOString()}, Expires: ${expiresAt?.toISOString()}`)
+      console.log(`📅 Premium code activation: User ${userId}, Code: ${codeData.code_type}, Start: ${startDate.toISOString()}, Expires: ${expiresAt?.toISOString()}`)
       
       // Update premium code as used using service role
       const { error: updateError } = await supabase

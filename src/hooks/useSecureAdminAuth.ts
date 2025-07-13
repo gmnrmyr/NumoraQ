@@ -11,6 +11,10 @@ interface AdminUser {
   admin_level: 'super' | 'standard';
 }
 
+// Global state to prevent multiple toasts
+let hasShownAdminToast = false;
+let lastToastTime = 0;
+
 export const useSecureAdminAuth = () => {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -25,6 +29,9 @@ export const useSecureAdminAuth = () => {
       setIsAdmin(false);
       setAdminUser(null);
       setLoading(false);
+      // Reset toast flag when user logs out
+      hasShownAdminToast = false;
+      lastToastTime = 0;
     }
   }, [user]);
 
@@ -69,23 +76,37 @@ export const useSecureAdminAuth = () => {
         // Set session expiry to 30 minutes
         setSessionExpiry(new Date(Date.now() + 30 * 60 * 1000));
         
-        toast({
-          title: "Admin Access Granted",
-          description: `Welcome, ${profile.name || 'Admin'}. Session expires in 30 minutes.`,
-        });
+        // Only show toast once per session and not more than once every 30 seconds
+        const now = Date.now();
+        if (!hasShownAdminToast || (now - lastToastTime) > 30000) {
+          toast({
+            title: "Admin Access Granted",
+            description: `Welcome, ${profile.name || 'Admin'}. Session expires in 30 minutes.`,
+          });
+          hasShownAdminToast = true;
+          lastToastTime = now;
+        }
       } else {
         setIsAdmin(false);
         setAdminUser(null);
+        hasShownAdminToast = false;
       }
     } catch (error) {
       console.error('Error checking admin status:', error);
       setIsAdmin(false);
       setAdminUser(null);
-      toast({
-        title: "Access Denied",
-        description: "You don't have admin privileges.",
-        variant: "destructive"
-      });
+      hasShownAdminToast = false;
+      
+      // Only show error toast if not already shown recently
+      const now = Date.now();
+      if ((now - lastToastTime) > 30000) {
+        toast({
+          title: "Access Denied",
+          description: "You don't have admin privileges.",
+          variant: "destructive"
+        });
+        lastToastTime = now;
+      }
     } finally {
       setLoading(false);
     }
@@ -95,6 +116,7 @@ export const useSecureAdminAuth = () => {
     setIsAdmin(false);
     setAdminUser(null);
     setSessionExpiry(null);
+    hasShownAdminToast = false;
     
     toast({
       title: "Admin Session Expired",
