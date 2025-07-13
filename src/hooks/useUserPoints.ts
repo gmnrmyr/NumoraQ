@@ -10,7 +10,9 @@ interface UserPoints {
   activity_type: 'daily_login' | 'donation' | 'referral' | 'manual';
   activity_date: string;
   created_at: string;
-  updated_at: string;
+  points_source?: string;
+  source_details?: any;
+  assigned_by_admin?: string;
   highest_tier: string;
 }
 
@@ -71,7 +73,12 @@ export const useUserPoints = () => {
           user_id: user.user.id,
           points: 10,
           activity_type: 'daily_login',
-          activity_date: today
+          activity_date: today,
+          points_source: 'daily_login',
+          source_details: JSON.stringify({
+            date: today,
+            automatic: true
+          })
         });
 
       if (error) throw error;
@@ -96,8 +103,28 @@ export const useUserPoints = () => {
       
       // Get current admin user
       const { data: currentUser } = await supabase.auth.getUser();
-      
-      const { error } = await supabase
+      if (!currentUser.user) {
+        throw new Error('No authenticated user found');
+      }
+
+      // Validate inputs
+      if (!userId || !points || points <= 0) {
+        throw new Error('Invalid parameters: userId and positive points are required');
+      }
+
+      // Check if target user exists
+      const { data: targetUser, error: userError } = await supabase
+        .from('profiles')
+        .select('id, name, user_uid')
+        .eq('id', userId)
+        .single();
+
+      if (userError || !targetUser) {
+        throw new Error('Target user not found');
+      }
+
+      // Add points with proper source tracking
+      const { error, data: insertedData } = await supabase
         .from('user_points')
         .insert({
           user_id: userId,
@@ -108,36 +135,57 @@ export const useUserPoints = () => {
           source_details: JSON.stringify({
             reason: reason,
             admin_assigned: true,
+            admin_id: currentUser.user.id,
+            admin_email: currentUser.user.email,
             timestamp: new Date().toISOString()
           }),
-          assigned_by_admin: currentUser.user?.id || null
-        });
+          assigned_by_admin: currentUser.user.id
+        })
+        .select();
 
       if (error) {
         console.error('Error adding manual points:', error);
         throw error;
       }
 
-      console.log('Manual points added successfully');
+      console.log('Manual points added successfully:', insertedData);
 
-      toast({
-        title: "Points Added Successfully! ✅",
-        description: `${points} points added to user ${userId.substring(0, 8)}... - ${reason}`,
-        duration: 5000
-      });
+      // Verify the points were actually added
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('user_points')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('activity_type', 'manual')
+        .eq('points', points)
+        .order('created_at', { ascending: false })
+        .limit(1);
 
-      // Reload points if it's the current user
-      if (userId === currentUser.user?.id) {
-        await loadUserPoints();
+      if (verifyError) {
+        console.error('Error verifying points addition:', verifyError);
+      } else if (verifyData && verifyData.length > 0) {
+        console.log('Points verified successfully:', verifyData[0]);
       }
+
+      return true;
     } catch (error) {
-      console.error('Error adding manual points:', error);
-      toast({
-        title: "Failed to Add Points ❌",
-        description: error instanceof Error ? error.message : "Failed to add points. Please try again.",
-        variant: "destructive",
-        duration: 5000
-      });
+      console.error('Error in addManualPoints:', error);
+      throw error;
+    }
+  };
+
+  const getUserTotalPoints = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_points')
+        .select('points')
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      return (data || []).reduce((sum, point) => sum + point.points, 0);
+    } catch (error) {
+      console.error('Error getting user total points:', error);
+      return 0;
     }
   };
 
@@ -147,6 +195,7 @@ export const useUserPoints = () => {
     loading,
     addDailyLoginPoints,
     addManualPoints,
-    reload: loadUserPoints
+    getUserTotalPoints,
+    reloadUserPoints: loadUserPoints
   };
 };

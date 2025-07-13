@@ -41,6 +41,7 @@ export const AdminPanel = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [pointsAmount, setPointsAmount] = useState('');
   const [pointsReason, setPointsReason] = useState('');
+  const [isAddingPoints, setIsAddingPoints] = useState(false);
   
   // Admin code generation
   const [generatedCode, setGeneratedCode] = useState('');
@@ -214,10 +215,10 @@ export const AdminPanel = () => {
   };
 
   const handleAddPoints = async () => {
-    if (!selectedUser || !pointsAmount.trim()) {
+    if (!selectedUser) {
       toast({
-        title: "Missing Information",
-        description: "Please select a user and enter points amount",
+        title: "No User Selected",
+        description: "Please select a user first",
         variant: "destructive"
       });
       return;
@@ -233,8 +234,19 @@ export const AdminPanel = () => {
       return;
     }
 
+    if (!pointsReason.trim()) {
+      toast({
+        title: "Reason Required",
+        description: "Please provide a reason for adding points",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsAddingPoints(true);
+    
     try {
-      await addManualPoints(selectedUser.id, points, pointsReason || 'Manual admin assignment');
+      await addManualPoints(selectedUser.id, points, pointsReason.trim());
       
       // Clear form fields after successful submission
       setSelectedUser(null);
@@ -248,13 +260,19 @@ export const AdminPanel = () => {
         description: `${points} points added to ${selectedUser.name} (${selectedUser.user_uid})`,
         duration: 5000
       });
+      
+      console.log(`Admin ${user?.email} added ${points} points to user ${selectedUser.id} (${selectedUser.name})`);
+      
     } catch (error) {
       console.error('Error adding points:', error);
       toast({
         title: "Failed to Add Points ❌",
-        description: "Failed to add points. Please try again.",
-        variant: "destructive"
+        description: error instanceof Error ? error.message : "Failed to add points. Please try again.",
+        variant: "destructive",
+        duration: 5000
       });
+    } finally {
+      setIsAddingPoints(false);
     }
   };
 
@@ -510,80 +528,118 @@ export const AdminPanel = () => {
         <TabsContent value="points" className="space-y-4">
           <Card className="border-2 border-border">
             <CardHeader>
-              <CardTitle className="font-mono">Manual Points Assignment</CardTitle>
+              <CardTitle className="font-mono">Add Points to User</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {selectedUser ? (
-                <div className="space-y-4">
-                  <div className="p-3 bg-accent/10 border border-accent rounded">
-                    <div className="font-mono text-sm">
-                      <strong>Adding points to:</strong> {selectedUser.name} (UID: {selectedUser.user_uid})
-                      <div className="text-xs text-muted-foreground mt-1">
-                        Current Points: {selectedUser.total_points}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="points" className="font-mono">Points to Add</Label>
-                      <Input
-                        id="points"
-                        type="number"
-                        value={pointsAmount}
-                        onChange={(e) => setPointsAmount(e.target.value)}
-                        placeholder="100"
-                        className="font-mono"
-                        min="1"
-                        max="50000"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="reason" className="font-mono">Reason</Label>
-                      <Input
-                        id="reason"
-                        value={pointsReason}
-                        onChange={(e) => setPointsReason(e.target.value)}
-                        placeholder="Testing tier functionality"
-                        className="font-mono"
-                      />
-                    </div>
-                    
-                    <div className="flex items-end">
-                      <Button 
-                        onClick={handleAddPoints}
-                        disabled={!pointsAmount.trim() || parseInt(pointsAmount) <= 0}
-                        className="w-full font-mono bg-green-600 hover:bg-green-700"
+              {/* User Search */}
+              <div className="space-y-2">
+                <Label htmlFor="userSearch" className="font-mono">Search User</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="userSearch"
+                    placeholder="Enter user name or UID"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="font-mono"
+                  />
+                  <Button 
+                    onClick={searchUsers}
+                    disabled={isSearching || !searchQuery.trim()}
+                    className="font-mono"
+                  >
+                    {isSearching ? 'Searching...' : 'Search'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Search Results */}
+              {searchResults.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="font-mono">Search Results</Label>
+                  <div className="max-h-48 overflow-y-auto space-y-1">
+                    {searchResults.map((result) => (
+                      <div
+                        key={result.id}
+                        className={`p-2 border rounded cursor-pointer hover:bg-accent/10 ${
+                          selectedUser?.id === result.id ? 'bg-accent/20 border-accent' : ''
+                        }`}
+                        onClick={() => setSelectedUser(result)}
                       >
-                        <Crown size={16} className="mr-2" />
-                        Add {pointsAmount || '0'} Points
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {pointsAmount && parseInt(pointsAmount) > 0 && (
-                    <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded">
-                      <div className="text-sm font-mono text-blue-600">
-                        📊 <strong>Preview:</strong> {selectedUser.name} will have {selectedUser.total_points + parseInt(pointsAmount)} total points
-                        <div className="text-xs mt-1">
-                          This may unlock a new tier badge based on the point thresholds below.
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <span className="font-mono font-bold">{result.name}</span>
+                            <span className="font-mono text-sm text-muted-foreground ml-2">
+                              {result.user_uid}
+                            </span>
+                          </div>
+                          <div className="font-mono text-sm">
+                            {result.total_points} points
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center p-8 border-2 border-dashed border-border rounded">
-                  <div className="text-muted-foreground font-mono">
-                    <User size={32} className="mx-auto mb-2 opacity-50" />
-                    <div className="text-sm">No user selected</div>
-                    <div className="text-xs mt-1">
-                      Go to the "Users" tab to search and select a user first
-                    </div>
+                    ))}
                   </div>
                 </div>
               )}
+
+              {/* Selected User */}
+              {selectedUser && (
+                <Card className="border-accent">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h4 className="font-mono font-bold">Selected User</h4>
+                        <p className="font-mono text-sm">{selectedUser.name} ({selectedUser.user_uid})</p>
+                        <p className="font-mono text-sm text-muted-foreground">
+                          Current Points: {selectedUser.total_points}
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedUser(null)}
+                        className="font-mono"
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Points Form */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="pointsAmount" className="font-mono">Points Amount</Label>
+                  <Input
+                    id="pointsAmount"
+                    type="number"
+                    placeholder="Enter points"
+                    value={pointsAmount}
+                    onChange={(e) => setPointsAmount(e.target.value)}
+                    className="font-mono"
+                    min="1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="pointsReason" className="font-mono">Reason</Label>
+                  <Input
+                    id="pointsReason"
+                    placeholder="Reason for adding points"
+                    value={pointsReason}
+                    onChange={(e) => setPointsReason(e.target.value)}
+                    className="font-mono"
+                  />
+                </div>
+              </div>
+
+              <Button 
+                onClick={handleAddPoints}
+                disabled={!selectedUser || !pointsAmount || !pointsReason.trim() || isAddingPoints}
+                className="w-full font-mono"
+              >
+                {isAddingPoints ? 'Adding Points...' : 'Add Points'}
+              </Button>
             </CardContent>
           </Card>
 

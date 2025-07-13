@@ -1,205 +1,62 @@
-import React, { useState } from 'react';
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { PortfolioOverview } from "@/components/PortfolioOverview";
-import { IncomeTracking } from "@/components/IncomeTracking";
-import { ExpenseTrackingEditable } from "@/components/ExpenseTrackingEditable";
-import { AssetManagementEditable } from "@/components/AssetManagementEditable";
-import { TaskManagementEditable } from "@/components/TaskManagementEditable";
-import { DebtTrackingEditable } from "@/components/DebtTrackingEditable";
-import { ProjectionChart } from "@/components/ProjectionChart";
-import { UserProfileSection } from "@/components/UserProfileSection";
-import { DevMenu } from "@/components/DevMenu";
-import { SecureAdminPanel } from "@/components/SecureAdminPanel";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { ExchangeRatesBanner } from "@/components/dashboard/ExchangeRatesBanner";
-import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
-import { ProjectionCard } from "@/components/dashboard/ProjectionCard";
-import { AIAdvisor } from "@/components/ai/AIAdvisor";
-import { PWASetup } from "@/components/PWASetup";
-import { AdSenseAd } from "@/components/AdSenseAd";
-import { useSecureAdminAuth } from "@/hooks/useSecureAdminAuth";
-import { useDashboardMode } from "@/contexts/DashboardModeContext";
-import { SimpleDashboard } from "@/components/dashboard/SimpleDashboard";
-import { useFinancialData } from '@/contexts/FinancialDataContext';
-import { useTrialActivation } from '@/hooks/useTrialActivation';
+import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAdminMode } from '@/hooks/useAdminMode';
+import { AdminPanel } from '@/components/AdminPanel';
+import { useDashboardMode } from '@/contexts/DashboardModeContext';
+import { OnboardingFlow } from '@/components/OnboardingFlow';
+import { SimpleDashboard } from '@/components/dashboard/SimpleDashboard';
+import { AdvancedDashboard } from '@/components/AdvancedDashboard';
+import { TrialExpirationGuard } from '@/components/TrialExpirationGuard';
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('portfolio');
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const { isAdmin } = useSecureAdminAuth();
-  const { isSimpleMode } = useDashboardMode();
-  
-  // Automatically check and activate 30-day trial for new users
-  useTrialActivation();
+  const { user } = useAuth();
+  const { isAdminMode, showAdminPanel, setShowAdminPanel } = useAdminMode();
+  const { mode, setMode } = useDashboardMode();
+  const [showOnboarding, setShowOnboarding] = React.useState(false);
 
-  // Admin panel keyboard shortcut
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.shiftKey && event.key === 'E') {
-        event.preventDefault();
-        if (isAdmin) {
-          setShowAdminPanel(true);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAdmin]);
-
-  // Handle external tab changes (from navbar)
-  React.useEffect(() => {
-    const handleTabChange = (event: CustomEvent) => {
-      console.log('Received tab change event:', event.detail);
-      setActiveTab(event.detail.tab);
-    };
-
-    window.addEventListener('dashboardTabChange', handleTabChange as EventListener);
-    return () => window.removeEventListener('dashboardTabChange', handleTabChange as EventListener);
-  }, []);
-
-  const getSectionTitle = (tab: string) => {
-    switch (tab) {
-      case 'portfolio': return 'PORTFOLIO OVERVIEW';
-      case 'income': return 'INCOME TRACKING';
-      case 'expenses': return 'EXPENSE MANAGEMENT';
-      case 'assets': return 'ASSET MANAGEMENT';
-      case 'tasks': return 'TASK MANAGEMENT';
-      case 'debt': return 'DEBT TRACKING';
-      default: return 'DASHBOARD';
-    }
+  // Handle onboarding completion
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
   };
 
-  // Render Simple Dashboard if in simple mode
-  if (isSimpleMode) {
+  // Show onboarding if requested
+  if (showOnboarding) {
     return (
-      <>
-        {/* SEO Meta Tags for Dashboard */}
-        <title>Simple Dashboard - NUMORAQ | Financial Analysis & Crypto Tracking</title>
-        <meta name="description" content="Simple financial dashboard for tracking your portfolio, income, expenses, and net worth. Perfect for beginners." />
-        <meta name="keywords" content="simple financial dashboard, portfolio management, expense tracking, income analysis, net worth calculator" />
-        <meta name="robots" content="noindex, nofollow" />
-        
-        <div className="min-h-screen bg-background text-foreground font-mono">
-          <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
-          <div className="pt-20 sm:pt-32 pb-4">
-            <SimpleDashboard />
-          </div>
-          <Footer />
-        </div>
-      </>
+      <OnboardingFlow
+        onComplete={handleOnboardingComplete}
+        onSkip={handleOnboardingComplete}
+      />
     );
   }
 
   return (
-    <>
-      {/* SEO Meta Tags for Dashboard */}
-      <title>Dashboard - NUMORAQ | Financial Analysis & Crypto Tracking</title>
-      <meta name="description" content="Complete financial dashboard for tracking your crypto portfolio, income, expenses, and net worth. Real-time data analysis for smart financial decisions." />
-      <meta name="keywords" content="financial dashboard, crypto tracking, portfolio management, expense tracking, income analysis, net worth calculator" />
-      <meta name="robots" content="noindex, nofollow" />
-      
-      <div className="min-h-screen bg-background text-foreground font-mono">
-        <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
-        <div className="pt-20 sm:pt-32 pb-4">
-          <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
-            <DashboardHeader />
-            
-            {/* Consolidated User Profile Section with all panels */}
-            <UserProfileSection />
-            
-            <ExchangeRatesBanner />
-            <MetricsOverview />
-            <ProjectionCard />
-
-            {/* Ad placement only after substantial content is loaded */}
-            <AdSenseAd className="my-6" minContentRequired={true} />
-
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <div>
-                <TabsContent value="portfolio" className="space-y-6" data-section="portfolio">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('portfolio')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <PortfolioOverview />
-                </TabsContent>
-
-                <TabsContent value="income" className="space-y-6" data-section="income">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('income')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <IncomeTracking />
-                  {/* Ad placement within content sections */}
-                  <AdSenseAd className="my-4" minContentRequired={true} />
-                </TabsContent>
-
-                <TabsContent value="expenses" className="space-y-6" data-section="expenses">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('expenses')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <ExpenseTrackingEditable />
-                </TabsContent>
-
-                <TabsContent value="assets" className="space-y-6" data-section="assets">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('assets')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <AssetManagementEditable />
-                </TabsContent>
-
-                <TabsContent value="tasks" className="space-y-6" data-section="tasks">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('tasks')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <TaskManagementEditable />
-                </TabsContent>
-
-                <TabsContent value="debt" className="space-y-6" data-section="debt">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold font-mono text-accent uppercase tracking-wider">
-                      {getSectionTitle('debt')}
-                    </h2>
-                    <div className="h-1 bg-accent w-24 mx-auto mt-2"></div>
-                  </div>
-                  <DebtTrackingEditable />
-                </TabsContent>
-              </div>
-            </Tabs>
-
-            <ProjectionChart />
-            
-            {/* Final ad placement after main content */}
-            <AdSenseAd className="my-4" minContentRequired={true} />
+    <div className="min-h-screen bg-background">
+      {/* Admin Panel */}
+      {isAdminMode && showAdminPanel && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background border-2 border-accent rounded-lg w-full max-w-6xl h-[90vh] overflow-y-auto">
+            <AdminPanel />
+            <div className="flex justify-end p-4">
+              <button
+                onClick={() => setShowAdminPanel(false)}
+                className="text-accent hover:text-accent/80 font-mono"
+              >
+                ✕ Close
+              </button>
+            </div>
           </div>
-          
-          <DevMenu />
-          <AIAdvisor />
-          <PWASetup />
-          <SecureAdminPanel 
-            isOpen={showAdminPanel} 
-            onClose={() => setShowAdminPanel(false)} 
-          />
         </div>
-        <Footer />
-      </div>
-    </>
+      )}
+
+      {/* Main Dashboard Content with Trial Protection */}
+      <TrialExpirationGuard>
+        {mode === 'simple' ? (
+          <SimpleDashboard />
+        ) : (
+          <AdvancedDashboard />
+        )}
+      </TrialExpirationGuard>
+    </div>
   );
 };
 
