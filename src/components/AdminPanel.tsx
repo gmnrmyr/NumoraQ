@@ -29,24 +29,22 @@ export const AdminPanel = () => {
     generatePremiumCode,
     premiumCodesLoading
   } = useAdminMode();
-  
-  const {
-    codes,
-    loading: codesLoading,
-    generateCode,
-    deleteCode
-  } = usePremiumCodes();
-
   const { addManualPoints } = useUserPoints();
-
+  const [showDegenDialog, setShowDegenDialog] = useState(false);
   const [newCodeType, setNewCodeType] = useState('1year');
   const [newCodeEmail, setNewCodeEmail] = useState('');
+  const [codesLoading, setCodesLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserSearchResult | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const [pointsAmount, setPointsAmount] = useState('');
   const [pointsReason, setPointsReason] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+  
+  // Admin code generation
+  const [generatedCode, setGeneratedCode] = useState('');
+  const [selectedCodeType, setSelectedCodeType] = useState('1year');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // User title requirements (hardcoded for reference)
   const titleRequirements = [

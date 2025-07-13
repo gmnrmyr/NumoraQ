@@ -172,18 +172,43 @@ serve(async (req) => {
       const now = new Date()
       let expiresAt: Date | null = null
       
+      // Get existing premium status to check for stacking
+      const { data: existingStatus, error: fetchError } = await supabase
+        .from('user_premium_status')
+        .select('expires_at, premium_type, is_premium')
+        .eq('user_id', userId)
+        .single()
+
+      let startDate = new Date()
+      
+      // If user has existing active premium, extend from expiry date
+      if (existingStatus && existingStatus.is_premium && existingStatus.expires_at) {
+        const existingExpiry = new Date(existingStatus.expires_at)
+        
+        // If existing plan hasn't expired yet, extend from expiry date
+        if (existingExpiry > now) {
+          startDate = existingExpiry
+          console.log(`Extending existing premium plan from ${existingExpiry.toISOString()}`)
+        } else {
+          console.log('Existing plan expired, starting fresh')
+        }
+      }
+      
+      // Calculate new expiry date from start date
       switch (codeData.code_type) {
         case '1year':
-          expiresAt = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate())
+          expiresAt = new Date(startDate.getFullYear() + 1, startDate.getMonth(), startDate.getDate())
           break
         case '5years':
-          expiresAt = new Date(now.getFullYear() + 5, now.getMonth(), now.getDate())
+          expiresAt = new Date(startDate.getFullYear() + 5, startDate.getMonth(), startDate.getDate())
           break
         case 'lifetime':
           expiresAt = new Date(2099, 11, 31)
           break
       }
 
+      console.log(`Premium code activation: User ${userId}, Code: ${codeData.code_type}, Start: ${startDate.toISOString()}, Expires: ${expiresAt?.toISOString()}`)
+      
       // Update premium code as used using service role
       const { error: updateError } = await supabase
         .from('premium_codes')
