@@ -9,6 +9,15 @@ import { Input } from '@/components/ui/input';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDashboardMode } from '@/contexts/DashboardModeContext';
+import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
+import { DevMenu } from '@/components/DevMenu';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { ExchangeRatesBanner } from '@/components/dashboard/ExchangeRatesBanner';
+import { MetricsOverview } from '@/components/dashboard/MetricsOverview';
+import { PWASetup } from '@/components/PWASetup';
+import { AIAdvisor } from '@/components/ai/AIAdvisor';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -23,13 +32,26 @@ import {
   Target,
   Plus,
   LogIn,
-  UserPlus
+  UserPlus,
+  Settings,
+  ArrowLeft
 } from 'lucide-react';
 
 export const SimpleDashboard: React.FC = () => {
   const { data, addExpense, addPassiveIncome, addActiveIncome, addLiquidAsset, addDebt, updateExpense, updatePassiveIncome, updateActiveIncome, updateLiquidAsset, updateDebt, removeExpense, removePassiveIncome, removeActiveIncome, removeLiquidAsset, removeDebt } = useFinancialData();
   const { t } = useTranslation();
   const { user, signInWithGoogle } = useAuth();
+  const { setMode } = useDashboardMode();
+  
+  // Debug log to verify component is rendering
+  console.log('SimpleDashboard rendering with data:', { hasExistingData: data && (
+    (data.passiveIncome && data.passiveIncome.length > 0) ||
+    (data.activeIncome && data.activeIncome.length > 0) ||
+    (data.expenses && data.expenses.length > 0) ||
+    (data.liquidAssets && data.liquidAssets.length > 0) ||
+    (data.illiquidAssets && data.illiquidAssets.length > 0) ||
+    (data.debts && data.debts.length > 0)
+  ) });
   
   // Check if user has existing data to determine onboarding behavior
   const hasExistingData = data && (
@@ -44,17 +66,12 @@ export const SimpleDashboard: React.FC = () => {
   // Check if user has skipped onboarding
   const hasSkippedOnboarding = localStorage.getItem('skipSimpleOnboarding') === 'true';
   
-  // Show onboarding unless user has skipped it
-  const [showOnboarding, setShowOnboarding] = useState(!hasSkippedOnboarding);
+  // Only show onboarding to new users who have no existing data AND haven't skipped onboarding
+  const shouldShowOnboarding = !hasExistingData && !hasSkippedOnboarding;
+  
+  // State for onboarding
+  const [showOnboarding, setShowOnboarding] = useState(shouldShowOnboarding);
   const [onboardingStep, setOnboardingStep] = useState(0);
-
-  // Trigger onboarding when component mounts (user switched to simple mode)
-  useEffect(() => {
-    if (!hasSkippedOnboarding) {
-      setShowOnboarding(true);
-      setOnboardingStep(0);
-    }
-  }, [hasSkippedOnboarding]);
   
   // Quick action dialog states
   const [showAddIncome, setShowAddIncome] = useState(false);
@@ -534,18 +551,70 @@ export const SimpleDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold">Simple Dashboard</h1>
-          <p className="text-muted-foreground">Your financial overview at a glance</p>
-          {!user && (
-            <Badge variant="outline" className="mx-auto">
-              Demo Mode - Sign in to save your data
-            </Badge>
-          )}
-        </div>
+    <>
+      {/* SEO Meta Tags for Simple Dashboard */}
+      <title>Simple Dashboard - NUMORAQ | Easy Financial Tracking</title>
+      <meta name="description" content="Simple financial dashboard for easy tracking of income, expenses, and net worth. Perfect for beginners." />
+      
+      <div className="min-h-screen bg-background text-foreground font-mono">
+        <Navbar activeTab="portfolio" onTabChange={() => {}} />
+        <div className="pt-20 sm:pt-32 pb-4">
+          <div className="max-w-7xl mx-auto space-y-4 px-2 sm:px-4">
+            <DashboardHeader />
+            <ExchangeRatesBanner />
+            <MetricsOverview />
+            
+            {/* Mode Switch Banner */}
+            <Card className="border-2 border-yellow-500/50 bg-yellow-500/10">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2 text-yellow-600">Simple Mode</h3>
+                    <p className="text-sm text-muted-foreground">
+                      You're using the simplified dashboard. Switch to Advanced mode for more features.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    {hasExistingData && (
+                      <Button
+                        onClick={() => {
+                          localStorage.removeItem('skipSimpleOnboarding');
+                          setShowOnboarding(true);
+                          setOnboardingStep(0);
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2"
+                      >
+                        <ArrowLeft size={16} />
+                        Restart Tutorial
+                      </Button>
+                    )}
+                    <Button
+                      onClick={() => setMode('advanced')}
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      <Settings size={16} />
+                      Switch to Advanced
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Simple Dashboard Content */}
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-bold">Simple Dashboard</h2>
+                <p className="text-muted-foreground">Your financial overview at a glance</p>
+                {!user && (
+                  <Badge variant="outline" className="mx-auto">
+                    Demo Mode - Sign in to save your data
+                  </Badge>
+                )}
+              </div>
 
         {/* Authentication Buttons for Non-Logged Users */}
         {!user && (
@@ -938,7 +1007,15 @@ export const SimpleDashboard: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+          </div>
+            </div>
+          </div>
+          
+          <DevMenu />
+          <AIAdvisor />
+          <PWASetup />
         </div>
+        <Footer />
       </div>
 
       {/* Simple Edit Dialog */}
@@ -1016,6 +1093,6 @@ export const SimpleDashboard: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }; 

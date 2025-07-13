@@ -224,16 +224,16 @@ export const UserSettingsPanel = () => {
               className="data-[state=checked]:bg-primary"
             />
           </div>
-          <div className="flex items-center justify-between mt-1">
-            <span className="text-xs font-mono text-muted-foreground">
-              {isSimpleMode ? 'Simple' : 'Advanced'}
-            </span>
-            {isSimpleMode && (
-              <span className="text-xs text-muted-foreground font-mono">
-                Use Advanced for now
+                      <div className="flex items-center justify-between mt-1">
+              <span className="text-xs font-mono text-muted-foreground">
+                {isSimpleMode ? 'Simple' : 'Advanced'}
               </span>
-            )}
-          </div>
+              {isSimpleMode && (
+                <span className="text-xs text-muted-foreground font-mono">
+                  For beginners
+                </span>
+              )}
+            </div>
         </div>
         
         <DropdownMenuSeparator className="bg-border" />
