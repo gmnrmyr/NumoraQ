@@ -38,7 +38,7 @@ NUMORAQ is a comprehensive, crypto-native financial management platform tailored
 ### Infrastructure 🌐🚧📦
 - **Production**: numoraq.online
 - **Staging/Test**: test.numoraq.online (not yet live)
-- **CMS/Admin**: Currently accessible via CTRL+SHIFT+E in the main dashboard (to be migrated to cms.numoraq.online eventually) (Frontend in progress at https://cms-numoraq.lovable.app/)
+- **CMS/Admin**: Currently accessible via CTRL+SHIFT+E in the main dashboard (to be migrated to cms.numoraq.online eventually) (Frontend in progress at https://cms-numoraq.lovable.app/) (will probably need testcms.numoraq.online as well)
 - **CI/CD**: GitHub → Vercel → Supabase migrations
 - **Backups**: Enabled via Supabase Pro tier
 - **Potential Future Migration**: To DBeaver-managed DB if cost reduction becomes necessary 💾🔄💡
@@ -201,6 +201,7 @@ Displayed as plans:
 - GPT financial persona advisor (degen, doomer, etc)
 - Tier-based DevMenu skins (some with Unicorn Studio or Three.js animation) (based on Landing Page's implementation which works)
 - Dashboard Popup (image for now), uploadable via CMS.
+- Track + chart of stats (total portfolio and assets over time) (this should come from saved data once a day, make the chart dynamic and update daily) (useful for users to see if they're spending more or less than they planned. ai should also be able to give advice based on the chart according to user desviating from the in a positive or negative way.) (shows real portfolio growth or loss over time.)
 
 ### Phase 3 🔵📱📤
 - DBeaver migration (for free backups)
@@ -224,3 +225,6 @@ NUMORAQ is approaching MVP status, with most financial tracking systems function
 ---
 
 © 2025 NumoraQ. Not a financial advisor. Made by degens for all financial analysis frens.
+
+prd last version: https://docs.google.com/document/d/1Und0RvCxhr1vSufZVWZYWy6zo00aOsNfkiuzuu7WqTw/edit?usp=sharing
+prd last version (portuguese): https://docs.google.com/document/d/1WEbcmNcQmkZ36jmakewg5-7CWd6pivhsMLBvje9D71Y/edit?usp=sharing
