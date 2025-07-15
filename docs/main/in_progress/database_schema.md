@@ -1,4 +1,5 @@
 # NUMORAQ Database Schema 📊
+((made with ai.. not sure if 100% accurate))
 
 ## Overview
 The NUMORAQ project utilizes a Supabase-powered PostgreSQL database with comprehensive schema design supporting authentication, user management, financial tracking, gamification, and administrative functions.
