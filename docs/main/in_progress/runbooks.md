@@ -1,25 +1,34 @@
-NUMORAQ - Runbook: Estado Atual → Estado Desejado 📋
-🎯 ESTADO ATUAL (Como está hoje)
-Arquitetura Atual
+# NUMORAQ - Runbook: Current State → Desired State 📋
+
+## 🎯 CURRENT STATE (How it is today)
+
+### Current Architecture
+```
 GitHub (main branch) → Lovable CI/CD → numoraq.online
                             ↓
                     Supabase Database (prod)
+```
 
-Processo de Deploy Atual
-Desenvolvimento: Você edita o código
-Commit: git add . → git commit -m "..." → git push
-Deploy: Lovable detecta push e publica automaticamente
-Database: Migrations automáticas via Supabase
-Rollback: Se der problema, você reverte commit anterior
-Problemas Identificados
-❌ Sem ambiente de teste: Mudanças vão direto para usuários
-❌ Sem backup de deploy: Se Lovable falhar, você fica sem controle
-❌ CMS integrado: Dificulta manutenção e atualizações
-❌ Uma branch só: Não permite desenvolvimento paralelo
-❌ Deploy manual: Depende do Lovable para tudo
+### Current Deploy Process
+1. **Development**: You edit the code
+2. **Commit**: `git add . → git commit -m "..." → git push`
+3. **Deploy**: Lovable detects push and publishes automatically
+4. **Database**: Automatic migrations via Supabase
+5. **Rollback**: If problems occur, you revert to previous commit
 
-🚀 ESTADO DESEJADO (Onde queremos chegar)
-Arquitetura Desejada
+### Identified Problems
+- ❌ **No test environment**: Changes go directly to users
+- ❌ **No deploy backup**: If Lovable fails, you lose control
+- ❌ **Integrated CMS**: Makes maintenance and updates difficult
+- ❌ **Single branch**: Doesn't allow parallel development
+- ❌ **Manual deploy**: Depends on Lovable for everything
+
+---
+
+## 🚀 DESIRED STATE (Where we want to go)
+
+### Desired Architecture
+```
 GitHub (main)    → Vercel → numoraq.online (PROD)
        ↓                      ↓
 GitHub (develop) → Vercel → test.numoraq.online (TEST)
@@ -27,123 +36,152 @@ GitHub (develop) → Vercel → test.numoraq.online (TEST)
                     cms.numoraq.online (CMS)
                               ↓
                     Supabase DB (prod + test)
+```
 
-Processo de Deploy Desejado
-Desenvolvimento: Você edita em branch feature/xxx
-Teste: Merge para develop → Auto-deploy em test.numoraq.online
-Validação: Testa funcionalidades em staging
-Produção: Merge para main → Auto-deploy em numoraq.online
-Rollback: Revert via Vercel ou GitHub em segundos
+### Desired Deploy Process
+1. **Development**: You edit in feature/xxx branch
+2. **Test**: Merge to develop → Auto-deploy to test.numoraq.online
+3. **Validation**: Test features in staging
+4. **Production**: Merge to main → Auto-deploy to numoraq.online
+5. **Rollback**: Revert via Vercel or GitHub in seconds
 
-📝 RUNBOOK DE MIGRAÇÃO
-FASE 1: PREPARAÇÃO (1 dia)
-Objetivo: Backup completo e setup inicial
-1.1 Backup do Estado Atual
-# 1. Backup do código
+---
+
+## 📝 MIGRATION RUNBOOK
+
+### PHASE 1: PREPARATION (1 day)
+**Objective**: Complete backup and initial setup
+
+#### 1.1 Backup Current State
+```bash
+# 1. Code backup
 git checkout main
 git pull origin main
 git tag backup-lovable-$(date +%Y%m%d)
 git push origin backup-lovable-$(date +%Y%m%d)
 
-# 2. Backup do database
+# 2. Database backup
 # Via Supabase Dashboard: Settings → Database → Create backup
+```
 
-1.2 Documentar Environment Variables
-# No console do browser (numoraq.online):
+#### 1.2 Document Environment Variables
+```javascript
+// In browser console (numoraq.online):
 console.log({
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
   stripeKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
-  // Copie TODOS os valores e salve em local seguro
+  // Copy ALL values and save securely
 });
+```
 
-1.3 Criar Conta Vercel
-Acesse vercel.com
-Conecte com sua conta GitHub
-Não importe o projeto ainda
+#### 1.3 Create Vercel Account
+1. Go to vercel.com
+2. Connect with your GitHub account
+3. Don't import the project yet
 
-FASE 2: AMBIENTE DE TESTE (2 dias)
-Objetivo: Criar test.numoraq.online funcionando
-2.1 Criar Database de Teste
--- 1. Novo projeto Supabase (test-numoraq)
--- 2. Clonar schema do prod:
--- Na dashboard: Settings → Database → Schema → Export
--- No novo projeto: Import schema
--- 3. Configurar RLS igual ao prod
+---
 
-2.2 Branch Strategy
-# Criar branch de desenvolvimento
+### PHASE 2: TEST ENVIRONMENT (2 days)
+**Objective**: Create functioning test.numoraq.online
+
+#### 2.1 Create Test Database
+```sql
+-- 1. New Supabase project (test-numoraq)
+-- 2. Clone prod schema:
+-- In dashboard: Settings → Database → Schema → Export
+-- In new project: Import schema
+-- 3. Configure RLS same as prod
+```
+
+#### 2.2 Branch Strategy
+```bash
+# Create development branch
 git checkout -b develop
 git push -u origin develop
 
-# Configurar proteção na main
+# Configure main branch protection
 # GitHub → Settings → Branches → Add rule
 # Require pull request reviews: ON
+```
 
-2.3 Deploy de Teste
-# 1. Vercel: Import Project → Escolher seu repo
-# 2. Configurar:
-#    - Branch: develop
-#    - Framework: Vite
-#    - Build: npm run build
-#    - Output: dist
+#### 2.3 Test Deploy
+1. **Vercel**: Import Project → Choose your repo
+2. **Configure**:
+   - Branch: develop
+   - Framework: Vite
+   - Build: `npm run build`
+   - Output: dist
 
-2.4 Configurar Env Variables (Teste)
-# No Vercel Dashboard → Settings → Environment Variables
+#### 2.4 Configure Environment Variables (Test)
+```bash
+# In Vercel Dashboard → Settings → Environment Variables
 VITE_SUPABASE_URL=https://test-xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJ...test...
 STRIPE_SECRET_KEY=sk_test_...
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
 NODE_ENV=staging
+```
 
-2.5 Configurar Domínio
+#### 2.5 Configure Domain
+```bash
 # Vercel → Settings → Domains
-# Adicionar: test.numoraq.online
-# Configurar DNS: CNAME test -> cname.vercel-dns.com
+# Add: test.numoraq.online
+# Configure DNS: CNAME test -> cname.vercel-dns.com
+```
 
+---
 
-FASE 3: MIGRAÇÃO PRODUÇÃO (1 dia)
-Objetivo: Migrar numoraq.online para Vercel
-3.1 Configurar Produção no Vercel
-# 1. Novo projeto Vercel
-# 2. Configurar:
-#    - Branch: main
-#    - Same settings que teste
+### PHASE 3: PRODUCTION MIGRATION (1 day)
+**Objective**: Migrate numoraq.online to Vercel
 
-3.2 Configurar Env Variables (Produção)
-# Usar as MESMAS variáveis que estão no Lovable
+#### 3.1 Configure Production in Vercel
+1. New Vercel project
+2. Configure:
+   - Branch: main
+   - Same settings as test
+
+#### 3.2 Configure Environment Variables (Production)
+```bash
+# Use SAME variables currently in Lovable
 VITE_SUPABASE_URL=https://prod-xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJ...prod...
 STRIPE_SECRET_KEY=sk_live_...
 VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
 NODE_ENV=production
+```
 
-3.3 Teste de Migração
-# 1. Deploy em preview primeiro
-# 2. Testar funcionalidades críticas:
-#    - Login/cadastro
-#    - Pagamentos Stripe
-#    - Dados do dashboard
-#    - AI advisor
+#### 3.3 Migration Test
+1. Deploy in preview first
+2. Test critical functionalities:
+   - Login/registration
+   - Stripe payments
+   - Dashboard data
+   - AI advisor
 
-3.4 Migração do Domínio
-# 1. Configurar numoraq.online no Vercel
-# 2. Atualizar DNS para apontar para Vercel
-# 3. Aguardar propagação (5-60 minutos)
-# 4. Testar produção
+#### 3.4 Domain Migration
+1. Configure numoraq.online in Vercel
+2. Update DNS to point to Vercel
+3. Wait for propagation (5-60 minutes)
+4. Test production
 
+---
 
-FASE 4: CMS SEPARADO (3 dias)
-Objetivo: Criar cms.numoraq.online
-4.1 Criar Projeto CMS
-# Novo repo GitHub: numoraq-cms
+### PHASE 4: SEPARATE CMS (3 days)
+**Objective**: Create cms.numoraq.online
+
+#### 4.1 Create CMS Project
+```bash
+# New GitHub repo: numoraq-cms
 npx create-next-app@latest numoraq-cms --typescript --tailwind
 cd numoraq-cms
 
-# Instalar dependências
+# Install dependencies
 npm install @supabase/supabase-js
 npm install @types/node
+```
 
-4.2 Configurar Conexões Duplas
+#### 4.2 Configure Dual Connections
+```typescript
 // lib/supabase.ts
 import { createClient } from '@supabase/supabase-js'
 
@@ -156,8 +194,10 @@ export const supabaseTest = createClient(
   process.env.SUPABASE_TEST_URL!,
   process.env.SUPABASE_TEST_SERVICE_KEY!
 )
+```
 
-4.3 Interface CMS
+#### 4.3 CMS Interface
+```typescript
 // components/AdminPanel.tsx
 export default function AdminPanel() {
   const [environment, setEnvironment] = useState<'prod' | 'test'>('test')
@@ -172,51 +212,64 @@ export default function AdminPanel() {
     </div>
   )
 }
+```
 
-4.4 Deploy CMS
-# Deploy no Vercel
-# Domínio: cms.numoraq.online
+#### 4.4 Deploy CMS
+- Deploy on Vercel
+- Domain: cms.numoraq.online
+- **Note**: Frontend in progress at https://cms-numoraq.lovable.app/
 
+---
 
-FASE 5: WORKFLOW FINAL (1 dia)
-Objetivo: Documentar e testar processo completo
-5.1 Processo de Desenvolvimento
-# 1. Criar feature
+### PHASE 5: FINAL WORKFLOW (1 day)
+**Objective**: Document and test complete process
+
+#### 5.1 Development Process
+```bash
+# 1. Create feature
 git checkout develop
 git pull origin develop
-git checkout -b feature/nova-funcionalidade
+git checkout -b feature/new-functionality
 
-# 2. Desenvolver
-# ... código ...
+# 2. Develop
+# ... code ...
 
-# 3. Testar localmente
+# 3. Test locally
 npm run dev
 
-# 4. Push para teste
-git push origin feature/nova-funcionalidade
-# Criar PR para develop
-# Testar em test.numoraq.online
+# 4. Push to test
+git push origin feature/new-functionality
+# Create PR to develop
+# Test on test.numoraq.online
 
-# 5. Deploy produção
-# Criar PR de develop para main
-# Testar em numoraq.online
+# 5. Deploy production
+# Create PR from develop to main
+# Test on numoraq.online
+```
 
-5.2 Configurar Webhooks
+#### 5.2 Configure Webhooks
+```bash
 # GitHub → Settings → Webhooks
-# Notificar Vercel sobre mudanças
+# Notify Vercel about changes
+```
 
+---
 
-🔧 FERRAMENTAS DE MONITORAMENTO
-Logs e Alertas
+## 🔧 MONITORING TOOLS
+
+### Logs and Alerts
+```typescript
 // utils/monitoring.ts
 export const logError = (error: Error, context: string) => {
   if (process.env.NODE_ENV === 'production') {
-    // Enviar para serviço de logs
+    // Send to logging service
     console.error(`[${context}]`, error)
   }
 }
+```
 
-Health Checks
+### Health Checks
+```typescript
 // api/health.ts
 export default async function handler(req, res) {
   const health = {
@@ -227,78 +280,112 @@ export default async function handler(req, res) {
   
   res.json(health)
 }
+```
 
+---
 
-🚨 PLANO DE ROLLBACK
-Código (Deploy)
-# Opção 1: Vercel Dashboard
+## 🚨 ROLLBACK PLAN
+
+### Code (Deploy)
+```bash
+# Option 1: Vercel Dashboard
 # Deployments → Promote previous deployment
 
-# Opção 2: Git
+# Option 2: Git
 git revert HEAD
 git push origin main
-# Vercel faz auto-deploy
+# Vercel auto-deploys
 
-# Opção 3: Emergency
-# Temporariamente: Reativar Lovable
+# Option 3: Emergency
+# Temporarily: Reactivate Lovable
+```
 
-Database
+### Database
+```sql
 -- Restore via Supabase Dashboard
--- Ou script automático
+-- Or automatic script
+```
 
+---
 
-📊 CHECKLIST DE VALIDAÇÃO
-Pré-Deploy
-[ ] Backup completo realizado
-[ ] Env vars documentadas
-[ ] Testes em staging passando
-[ ] Database de teste funcionando
-Durante Deploy
-[ ] DNS propagado
-[ ] SSL funcionando
-[ ] Env vars configuradas
-[ ] Build successful
-Pós-Deploy
-[ ] Login funciona
-[ ] Pagamentos funcionam
-[ ] Dashboard carrega
-[ ] AI advisor responde
-[ ] Performance OK
+## 📊 VALIDATION CHECKLIST
 
-🎯 CRONOGRAMA REALISTA
-Semana 1 (Preparação)
-Dia 1: Backup + setup Vercel
-Dia 2: Database teste + deploy staging
-Dia 3: Testes intensivos em staging
-Semana 2 (Migração)
-Dia 4: Migração produção
-Dia 5: Testes e ajustes
-Dia 6: CMS básico
-Semana 3 (Polimento)
-Dia 7: CMS avançado
-Dia 8: Documentação
-Dia 9: Treinamento e testes finais
+### Pre-Deploy
+- [ ] Complete backup performed
+- [ ] Environment variables documented
+- [ ] Staging tests passing
+- [ ] Test database functioning
 
-💰 CUSTOS ESTIMADOS
-Vercel
-Hobby: $0 (limitado)
-Pro: $20/mês (recomendado)
-Supabase
-Produção: $25/mês (Pro)
-Teste: $0 (Free tier)
-Domínios
-Subdomínios: $0 (se já tem numoraq.online)
-Total mensal: ~$45
+### During Deploy
+- [ ] DNS propagated
+- [ ] SSL working
+- [ ] Environment variables configured
+- [ ] Build successful
 
-🤝 PRÓXIMOS PASSOS
-Confirmar plano: Você aprova essa estratégia?
-Backup: Vamos começar com backup completo?
-Vercel: Criar conta e primeiro teste?
-Suporte: Quando precisa de ajuda prática?
-Observação: Este runbook é conservador e seguro. Prioriza não quebrar o que funciona hoje, mas evoluir gradualmente para uma estrutura profissional.
-Topa começar? 🚀
+### Post-Deploy
+- [ ] Login works
+- [ ] Payments work
+- [ ] Dashboard loads
+- [ ] AI advisor responds
+- [ ] Performance OK
 
-----
+---
 
-- need to be translated
-- https://cms-numoraq.lovable.app/ <- frontend in progress>
+## 🎯 REALISTIC TIMELINE
+
+### Week 1 (Preparation)
+- **Day 1**: Backup + Vercel setup
+- **Day 2**: Test database + staging deploy
+- **Day 3**: Intensive staging tests
+
+### Week 2 (Migration)
+- **Day 4**: Production migration
+- **Day 5**: Tests and adjustments
+- **Day 6**: Basic CMS
+
+### Week 3 (Polish)
+- **Day 7**: Advanced CMS
+- **Day 8**: Documentation
+- **Day 9**: Training and final tests
+
+---
+
+## 💰 ESTIMATED COSTS
+
+### Vercel
+- **Hobby**: $0 (limited)
+- **Pro**: $20/month (recommended)
+
+### Supabase
+- **Production**: $25/month (Pro)
+- **Test**: $0 (Free tier)
+
+### Domains
+- **Subdomains**: $0 (if you already have numoraq.online)
+
+**Total monthly**: ~$45
+
+---
+
+## 🤝 NEXT STEPS
+
+1. **Confirm plan**: Do you approve this strategy?
+2. **Backup**: Should we start with complete backup?
+3. **Vercel**: Create account and first test?
+4. **Support**: When do you need practical help?
+
+---
+
+## 📝 NOTES
+
+- This runbook is conservative and safe
+- Prioritizes not breaking what works today
+- Gradually evolves to professional structure
+- Current CMS frontend in progress: https://cms-numoraq.lovable.app/
+
+**Ready to start?** 🚀
+
+---
+
+*Last Updated: July 15 2025*  
+*© 2025 NumoraQ. Migration runbook documentation.*
