@@ -2,10 +2,10 @@
 
 This document provides an overview of the UI components in the Wealth Dashboard Flow app. Components are grouped by feature area with descriptions, primary files, and key usage notes.
 
-## Hamburger Menu (Advanced Dashboard)
+## Hamburger Menu (Advanced Dashboard) (Header)
 Description: A collapsible sidebar navigation menu used in the Advanced Dashboard layout. Supports both desktop and mobile breakpoints.  
 Primary Components:
-- **Navbar** (`src/components/Navbar.tsx`): Main wrapper that handles toggle state and breakpoint logic.  
+- **Navbar** (`src/components/Navbar.tsx`): Main wrapper that handles toggle state and breakpoint logic.  (advanced dashboard hamburger menu)
 - **NavbarHeader** (`src/components/navbar/NavbarHeader.tsx`): Contains logo and hamburger icon.  
 - **CurrencySelector** (`src/components/navbar/CurrencySelector.tsx`): Dropdown for switching currencies.  
 - **DonationLinks** (`src/components/navbar/DonationLinks.tsx`): Quick links to donation flows.  
@@ -14,7 +14,7 @@ Primary Components:
 ## Hamburger Menu (Simple Dashboard)
 Description: A streamlined top-bar menu for the Simple Dashboard view with minimal items.  
 Primary Components:
-- **Navbar** with limited menu items (leverages same `Navbar` component with a reduced item list).  
+- **Navbar** with limited menu items (leverages same `Navbar` component with a reduced item list).  (simple dashboard, todo)
 - **DailyLoginButton** (`src/components/DailyLoginButton.tsx`): Prompts users to check in daily for rewards.  
 
 ## Advanced Dashboard (Main)
