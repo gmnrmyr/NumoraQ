@@ -1,5 +1,8 @@
-I will place the env summary here in order for us to keep track when we move to vercel.
-((NOT YET IMPLEMENTED, JUST FOR REFERENCE)) ((made with ai.. not sure if 100% accurate))
+#BACKEND SECRETS SUMMARY (not yet implemented)
+I will place the env summary here in order for us to keep track when we move to vercel. (currently NOT using this nomenclatures.)
+((NOT YET IMPLEMENTED, JUST FOR REFERENCE)) (being built) ((made with ai.. not sure if 100% accurate)) and being built as we go.
+
+-------
 
 - Supabase: SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 - OpenAI: OPENAI_API_KEY
@@ -43,3 +46,8 @@ Google:
 - Google_ID_TOKEN
 - Google_TOKEN_TYPE
 - Google_EXPIRES_IN
+
+- Google Cloud api key: GOOGLE_CLOUD_API_KEY
+- Google Cloud email(email admin used to register google cloud api for auth via google): GOOGLE_CLOUD_EMAIL
+- 
+
