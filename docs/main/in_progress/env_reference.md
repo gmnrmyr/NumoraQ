@@ -1,19 +1,24 @@
-#BACKEND SECRETS SUMMARY (not yet implemented)
+#BACKEND SECRETS SUMMARY 
+
+---------------------------------------------------------------------------
+
+STRIPE_SECRET_KEY: Added.
+
+STRIPE_PRICE_ID(degen_yearly): Added as "STRIPE_PRICE_ID(degen_yearly)"
+STRIPE_PRICE_ID(degen_monthly): Added as "STRIPE_PRICE_ID(degen_monthly)"
+
+STRIPE_WEBHOOK_SECRET: Added.
+
+(we may need to have 1 for test and 1 for prod on eath of those above - not sure though)
+
+The ones ABOVE are the ones already assigned on supabase -> Edge Functions -> Secrets.
+
+---------------------------------------------------------------------------
+
+BELOW ARE PLACEHOLDER SECRETS, NOT YET ON SUPABASE... SO STILL TO BE IMPLEMENTED.
+(not yet implemented)
 I will place the env summary here in order for us to keep track when we move to vercel. (currently NOT using this nomenclatures.)
 ((NOT YET IMPLEMENTED, JUST FOR REFERENCE)) (being built) ((made with ai.. not sure if 100% accurate)) and being built as we go.
-
--------
-
-The ones below are the ones I read we MUST have.
-
-STRIPE_SECRET_KEY:
-STRIPE_PRICE_ID:
-STRIPE_WEBHOOK_SECRET:
-
-(maybe 1 for test and 1 for prod on eath of those above.)
-(we likely have those hardcoded in the codebase atm, not sure - same as some of the below)
-
---------
 
 - Supabase: SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 - OpenAI: OPENAI_API_KEY
