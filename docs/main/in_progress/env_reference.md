@@ -4,6 +4,17 @@ I will place the env summary here in order for us to keep track when we move to 
 
 -------
 
+The ones below are the ones I read we MUST have.
+
+STRIPE_SECRET_KEY:
+STRIPE_PRICE_ID:
+STRIPE_WEBHOOK_SECRET:
+
+(maybe 1 for test and 1 for prod on eath of those above.)
+(we likely have those hardcoded in the codebase atm, not sure - same as some of the below)
+
+--------
+
 - Supabase: SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 - OpenAI: OPENAI_API_KEY
 - Stripe: STRIPE_SECRET_KEY
