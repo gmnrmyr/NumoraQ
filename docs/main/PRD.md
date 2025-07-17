@@ -200,6 +200,7 @@ NEWCOMER → WHALE progression via XP
 
 ## Roadmap 🛤️🗺️🚧
 ### Phase 1 (Now) 🟢🧪🔧
+- connect MCP to cursor https://youtu.be/6eUL1Wo9ZRc?t=1621
 - Launch test.numoraq.online with CI/CD to prod/test
 - Ensure database backups for test/prod
 - Migrate CMS to cms.numoraq.online (access test data)
@@ -235,7 +236,8 @@ NEWCOMER → WHALE progression via XP
 - Visual database management
 - Log monitoring
 - Version control display
-- Living documentation (auto-updated system diagrams)
+- Living documentation (auto-updated system diagrams) 
+- Script to genrade .md from google docs and translate to pt-br (for our docs that are constantly updated on google and translated to pt-br, and manually converted to .md)
 
 ---
 
