@@ -1,7 +1,7 @@
 
 # Numoraq Core Development TODO
 
-## COMPLETED ✅
+## COMPLETED ✅✅
 - ✅ Fixed ETH price display in exchange rates banner
 - ✅ Improved mobile optimization for expense cards
 - ✅ Added expense categories (housing, health, food, transportation, entertainment, utilities, personal, travel, trips, other)
