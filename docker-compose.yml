@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Mount your source so edits recompile in-container
+    volumes:
+      - .:/app:delegated
+      - /app/node_modules
+    # Expose port 5173 → 5173
+    ports:
+      - "5173:5173"
+    environment:
+      # you can add any extra env-vars here, e.g.:
+      - NODE_ENV=development
+      # (the Supabase URL & anon key are already baked into src/integrations/supabase/client.ts)
+    # override CMD if you like, but Dockerfile already starts "npm run dev -- --host 0.0.0.0"
+    #command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
