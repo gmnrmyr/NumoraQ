@@ -43,7 +43,29 @@ DO UPDATE SET
 
 11) dbeaver migration -> we will go to dbeaver at some point cause its cheaper and we can host ourselves and backup ourselves, but before we need all auth related done cause superbase is amazing with it.
 
-12
+12) RLS supabase rules that allow admin codes to work and admins to acess and manage data. Also users to use leaderboard.
+
+13) leaderboard xp track + something displayed (less rls rules shoudl allow)
+
+14)get ready to create and or sync with external admin panel (make our ctr+shift+e panel to be external on other dmain like cms.numoraq)
+
+15) translation scripts or full app translation to portuguese at least. we need at least 2 languages portuguese and english
+
+16) currencies (not only usd brl) on main adv. dashboard
+
+17) mint process integration. Alow our users to mint nft that we make and give them points or degen time.
+
+18) (should be before) <- unicorn studio animatios fix. Degen users and some tier based as well will have (and already have) different themes via "dev. menu". we need to make SOME of this tehemes with animation (like we have on landing). we have been trying that for a long time and still have not suceeded. the exact thing we want to make work perfectly on landing but we can't manage to make it in our advanced dashboard.
+
+18.5) use vault to store not only this keys but keys for other webapps we are building. (both prod and dev)
+
+19) banner space on adin panel (we should be able to easily upload a png for dashboard users)
+
+20) more charts, more detail on charts (we love the charts) we have on projection.
+
+21) app (it already works, but either way)
+
+22) awesome documentation better than the one we have.
 
 --------
 
