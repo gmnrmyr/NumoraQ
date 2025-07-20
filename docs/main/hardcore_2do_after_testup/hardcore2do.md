@@ -11,3 +11,9 @@ Most of the functionality are not working due to supabase rls restrictions. They
 4) Fix our themes that has animations (like the animations on landing also has) and we were not able to imlement in the same way up until today. (it never appears).
 
 5) Populate database which we are in (dev) with seed data. (Supabase best pratices).
+
+6) Finalize simple dashboard (will provide more info)
+
+7) Finalize onboarding with simple dashboard (will provide more info)
+
+8) 

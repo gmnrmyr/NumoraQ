@@ -17,7 +17,7 @@
 ### Sprint 1: Stripe & Pagamentos (Semana 1)
 **Prioridade: CRÍTICA - PERDA DE RECEITA**
 
-- [ ] **PRIMEIRO: Configurar MCP + Cursor Integration**
+- [X] **PRIMEIRO: Configurar MCP + Cursor Integration**
   - Seguir tutorial: https://youtu.be/6eUL1Wo9ZRc?t=1621
   - Conectar Cursor ao Supabase database
   - Testar se consegue ler tabelas e estrutura
