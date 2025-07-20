@@ -67,6 +67,18 @@ DO UPDATE SET
 
 22) awesome documentation better than the one we have.
 
+23) when EVERYTHING is tested and correct -> remove visual debugging features (leave CMS of COURSE.). (I will specify when and which ones)
+
+24) ->>> - Portfolio history charts:
+  - Daily value snapshots
+  - Growth/loss visualization
+  - AI spending advice based on trends
+  (below projection maybe)
+
+25) polish UI.
+
+26) openbank sync... paypal, pix, etc.
+
 --------
 
 Don't break:
