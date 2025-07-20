@@ -18,17 +18,17 @@
 **Prioridade: CRÍTICA**
 
 #### Ambiente de Desenvolvimento
-- [ ] **Configurar test.numoraq.online**
+- [X] **Configurar test.numoraq.online**
   - Setup de ambiente de staging
   - CI/CD pipeline GitHub → Vercel → Supabase
   - Configuração de variáveis de ambiente separadas
   
-- [ ] **Implementar Backups Automáticos**
+- [X] **Implementar Backups Automáticos**
   - Configurar backups diários no Supabase Pro
   - Implementar retenção de backups (7 dias prod, 3 dias test)
   - Documentar processo de restore
 
-- [ ] **Configurar MCP + Cursor Integration**
+- [X] **Configurar MCP + Cursor Integration**
   - Seguir tutorial: https://youtu.be/6eUL1Wo9ZRc?t=1621
   - Otimizar workflow de desenvolvimento
 
