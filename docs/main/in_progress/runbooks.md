@@ -397,9 +397,13 @@ git push origin main
 
 
 Update:
-- We now launch development with docker. 
+- We now launch development with docker.  (supabase needs to run on mac terminal aswell)
 - Development has its own branch on database (supabase)
 - Vercel auto deploy testnumoraq.vercel upon devleopment branch pushes (and we test it locally as well)
 - Lovable still publish prod (after confirmation and merges to main branch)
+- If restore is needed, do it on supabase while we pay. (daily backup) on each branch
+- If restore is needed on git, its all good, everything is there on prod and develop.
+
+
 
 <----- looking amazing so far ---->
