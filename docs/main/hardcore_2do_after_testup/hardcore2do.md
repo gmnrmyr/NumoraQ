@@ -79,6 +79,9 @@ DO UPDATE SET
 
 26) openbank sync... paypal, pix, etc.
 
+27) (shoould be before) <-- trial timer is working, we need to make sure when trial is done either charge or allow more days for free while in beta>
+
+
 --------
 
 Don't break:
