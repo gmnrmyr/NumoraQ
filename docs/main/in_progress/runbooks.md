@@ -390,3 +390,16 @@ git push origin main
 
 *Last Updated: July 15 2025*  
 *© 2025 NumoraQ. Migration runbook documentation.*
+
+
+
+--------------
+
+
+Update:
+- We now launch development with docker. 
+- Development has its own branch on database (supabase)
+- Vercel auto deploy testnumoraq.vercel upon devleopment branch pushes (and we test it locally as well)
+- Lovable still publish prod (after confirmation and merges to main branch)
+
+<----- looking amazing so far ---->
