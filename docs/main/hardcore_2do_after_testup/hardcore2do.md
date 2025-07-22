@@ -4,6 +4,10 @@ ToDo List after we've properly implemented our tech branches & test database.
 
 0.5) purchase logic for tier purchases:
 
+0.6) need login flow on dev (google, etc...)
+
+0.7) need more data on dev (or way to add.. tiers, trial time if acc was not on database... etc)
+
 1) Fix payment for both "Degen Plans" (Premium plans) and "Donation Tiers" via stripe. We need both of this payments to work via Stripe without breaking the other logic in place. (Admins should also be able to keep providing codes). Without breaking trials as well
 
 2) Fix Admin Panel Design>
@@ -81,6 +85,11 @@ DO UPDATE SET
 
 27) (shoould be before) <-- trial timer is working, we need to make sure when trial is done either charge or allow more days for free while in beta>
 
+28) insights on expenses... check ... see if user pays health insurance and etc, otherwise advise to.
+
+29) ask for age.. for ai to have more data (user set born day). and inflluence on ais insights... if person is young age, medium age or old ai has different insights i think..
+
+30) when user updates an asset, system needs to understand and track what happend, example it should ask if user is changing the price because it has appreciattion or depretiation of that money he had, and that should trigger a log on that asset... or if he wants to remove the assets, cause he sold it.. it can also trigger maybe as an info on the long run. example: system would understand he sold an nft to buy an apartment and over time will have tools to see if that was a good decision or not. (that also syncs when we add charts for PAST history as well... not only for future.)
 
 --------
 
