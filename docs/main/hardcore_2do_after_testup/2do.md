@@ -2,9 +2,9 @@ ToDo List after we've properly implemented our tech branches & test database.
 
 0) purchase logic for degen purchases: use purchase as degen, backend consider as time + when done, stop service or allow user with ads (freemium).
 
-0.1) Fix chat gpt api (was leaked when we made the project public). Webhook Stripe secret was also exposed.
+0.1) Fix chat gpt api (was leaked when we made the project public). Webhook Stripe secret was also exposed. (i didnt notice those where hardcoded)
 
-0.2) Not sure how to merge dev to prod and if that will work well with env keys (chatgpt,stripe,supabase).. same as supabase keys.
+0.2) Not sure how to merge dev to prod and if that will work well with env keys (chatgpt,stripe,supabase).. same as supabase keys.)
 
 0.5) purchase logic for tier purchases:
 
