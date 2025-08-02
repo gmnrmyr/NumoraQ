@@ -4,6 +4,8 @@ ToDo List after we've properly implemented our tech branches & test database.
 
 0.1) Fix chat gpt api (was leaked when we made the project public). Webhook Stripe secret was also exposed.
 
+0.2) Not sure how to merge dev to prod and if that will work well with env keys (chatgpt,stripe,supabase).. same as supabase keys.
+
 0.5) purchase logic for tier purchases:
 
 0.6) need login flow on dev (google, etc...)
