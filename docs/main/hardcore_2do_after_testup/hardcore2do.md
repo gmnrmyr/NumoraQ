@@ -2,7 +2,7 @@ ToDo List after we've properly implemented our tech branches & test database.
 
 0) purchase logic for degen purchases: use purchase as degen, backend consider as time + when done, stop service or allow user with ads (freemium).
 
-0.1) Fix chat gpt api (was leaked when we made the project public)
+0.1) Fix chat gpt api (was leaked when we made the project public). Webhook Stripe secret was also exposed.
 
 0.5) purchase logic for tier purchases:
 
