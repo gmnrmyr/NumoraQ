@@ -134,6 +134,8 @@ DO UPDATE SET
 🔄 30) **Asset change tracking**: when user updates an asset, system needs to understand and track what happened, example it should ask if user is changing the price because it has appreciation or depreciation of that money he had, and that should trigger a log on that asset... or if he wants to remove the assets, cause he sold it.. it can also trigger maybe as an info on the long run. example: system would understand he sold an nft to buy an apartment and over time will have tools to see if that was a good decision or not. (that also syncs when we add charts for PAST history as well... not only for future.)
 *TODO: Advanced asset lifecycle tracking and decision analysis system*
 
+🔄 31) Date to be shown on projection chart. (not only month x like month 12... but the real month of real year it will be)
+
 --------
 
 Don't break:
