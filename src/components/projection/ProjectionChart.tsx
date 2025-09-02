@@ -16,6 +16,32 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
 }) => {
   const { data } = useFinancialData();
   
+  // Function to get actual calendar date for a given month offset
+  const getActualDate = (monthOffset: number) => {
+    const currentDate = new Date();
+    const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthOffset, 1);
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    const monthName = monthNames[targetDate.getMonth()];
+    const year = targetDate.getFullYear();
+    
+    return `${monthName} ${year}`;
+  };
+  
+  // Function to format month label with actual date (shorter for X-axis)
+  const formatMonthLabel = (monthNumber: number) => {
+    if (monthNumber === 0) return 'Now';
+    const actualDate = getActualDate(monthNumber);
+    return `M${monthNumber} (${actualDate})`;
+  };
+  
+  // Function to get dot color based on balance
+  const getDotColor = (balance: number) => {
+    return balance >= 0 ? "#00ff00" : "#ff0066"; // Green for positive, red for negative
+  };
+  
   // Function to get variable expense triggers for a specific month
   const getVariableExpenseTriggers = (monthNumber: number) => {
     if (monthNumber === 0) return [];
@@ -44,29 +70,38 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
     return triggersThisMonth;
   };
   return (
-    <div className="h-64 w-full mb-6 py-4">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full mb-6 py-4">
+      {/* Color Legend */}
+      <div className="flex items-center justify-center gap-4 mb-2 text-xs font-mono">
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+          <span className="text-green-400">Positive Balance</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 rounded-full bg-red-500"></div>
+          <span className="text-red-400">Negative Balance</span>
+        </div>
+      </div>
+      
+      <div className="h-64 w-full">
+        <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={projectionData}
           margin={{
             top: 20,
             right: 30,
             left: 20,
-            bottom: 20,
+            bottom: 50,
           }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
           <XAxis 
             dataKey="month" 
-            label={{ 
-              value: 'Months', 
-              position: 'insideBottomRight', 
-              offset: -5,
-              fill: 'rgba(255,255,255,0.6)',
-              fontSize: 12
-            }}
+            axisLine={false}
             stroke="rgba(255,255,255,0.6)"
-            tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 10 }}
+            tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 8 }}
+            tickFormatter={formatMonthLabel}
+            interval="preserveStartEnd"
           />
           <YAxis 
             label={{ 
@@ -100,7 +135,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
               return (
                 <div className="bg-black/80 backdrop-blur-md p-4 rounded-lg border border-white/20 space-y-3 shadow-2xl">
                   <div className="font-bold text-accent border-b border-accent/30 pb-2 text-center">
-                    {isCurrentMonth ? 'Current Position' : `Month ${label} Projection`}
+                    {isCurrentMonth ? 'Current Position' : `Month ${label} (${getActualDate(label)}) Projection`}
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 text-xs">
@@ -154,11 +189,17 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                         {data.netChange >= 0 ? '+' : ''}{currencySymbol}{Math.round(data.netChange).toLocaleString()}
                       </span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span>Balance:</span>
-                      <span className="text-accent font-bold">
-                        {currencySymbol}{Number(data.balance).toLocaleString()}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-2 h-2 rounded-full" 
+                          style={{ backgroundColor: getDotColor(data.balance) }}
+                        ></div>
+                        <span className={`font-bold ${data.balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {currencySymbol}{Number(data.balance).toLocaleString()}
+                        </span>
+                      </div>
                     </div>
                     {data.cumulativeGrowth !== undefined && (
                       <div className="flex justify-between">
@@ -184,11 +225,38 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
             dataKey="balance" 
             stroke={isPositiveProjection ? "#00ff00" : "#ff0066"} 
             strokeWidth={2}
-            dot={{ r: 3, fill: isPositiveProjection ? "#00ff00" : "#ff0066" }}
-            activeDot={{ r: 5, fill: isPositiveProjection ? "#00ff00" : "#ff0066" }}
+            dot={(props) => {
+              const { cx, cy, payload } = props;
+              const dotColor = getDotColor(payload?.balance || 0);
+              return (
+                <circle 
+                  cx={cx} 
+                  cy={cy} 
+                  r={3} 
+                  fill={dotColor}
+                  stroke={dotColor}
+                  strokeWidth={1}
+                />
+              );
+            }}
+            activeDot={(props) => {
+              const { cx, cy, payload } = props;
+              const dotColor = getDotColor(payload?.balance || 0);
+              return (
+                <circle 
+                  cx={cx} 
+                  cy={cy} 
+                  r={5} 
+                  fill={dotColor}
+                  stroke="#ffffff"
+                  strokeWidth={2}
+                />
+              );
+            }}
           />
         </LineChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
