@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { useUserTitle } from '@/hooks/useUserTitle';
 import { ThemeSelector } from './devmenu/ThemeSelector';
 import { DegenModePanel } from './devmenu/DegenModePanel';
+import { PaymentSystemDiagnostic } from './devmenu/PaymentSystemDiagnostic';
 
 export const DevMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -151,9 +152,13 @@ export const DevMenu = () => {
         </DialogHeader>
 
         <Tabs value={tab} onValueChange={setTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4 h-auto">
+          <TabsList className="grid w-full grid-cols-4 mb-4 h-auto">
             <TabsTrigger value="theme" className="text-xs sm:text-sm py-2">Themes</TabsTrigger>
             <TabsTrigger value="degen" className="text-xs sm:text-sm py-2">Degen Mode</TabsTrigger>
+            <TabsTrigger value="diagnostic" className="text-xs sm:text-sm py-2">
+              <span className="hidden sm:inline">Diagnostics</span>
+              <span className="sm:hidden">Debug</span>
+            </TabsTrigger>
             <TabsTrigger
               value="testinstances"
               disabled={!isWhaleUser}
@@ -192,6 +197,10 @@ export const DevMenu = () => {
               activatePremiumCode={activatePremiumCodeWithRefresh}
               userName={data.userProfile.name}
             />
+          </TabsContent>
+
+          <TabsContent value="diagnostic">
+            <PaymentSystemDiagnostic />
           </TabsContent>
 
           <TabsContent value="testinstances">
