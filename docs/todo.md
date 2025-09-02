@@ -136,6 +136,8 @@ DO UPDATE SET
 
 🔄 31) Date to be shown on projection chart. (not only month x like month 12... but the real month of real year it will be)
 
+🔄 31) Automatically sort expenses by date.
+
 --------
 
 Don't break:
