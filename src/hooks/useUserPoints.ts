@@ -123,12 +123,22 @@ export const useUserPoints = () => {
         throw new Error('Target user not found');
       }
 
-      // Add points with proper source tracking
+      // Get existing points to add to them
+      const { data: existingPoints } = await supabase
+        .from('user_points')
+        .select('points')
+        .eq('user_id', userId)
+        .single();
+
+      const currentPoints = existingPoints?.points || 0;
+      const newTotalPoints = currentPoints + points;
+
+      // Add points with proper source tracking using UPSERT
       const { error, data: insertedData } = await supabase
         .from('user_points')
-        .insert({
+        .upsert({
           user_id: userId,
-          points,
+          points: newTotalPoints,
           activity_type: 'manual',
           activity_date: new Date().toISOString().split('T')[0],
           points_source: 'admin_assigned',
@@ -137,9 +147,13 @@ export const useUserPoints = () => {
             admin_assigned: true,
             admin_id: currentUser.user.id,
             admin_email: currentUser.user.email,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            points_added: points,
+            previous_points: currentPoints,
+            new_total: newTotalPoints
           }),
-          assigned_by_admin: currentUser.user.id
+          assigned_by_admin: currentUser.user.id,
+          updated_at: new Date().toISOString()
         })
         .select();
 

@@ -138,7 +138,7 @@ ${JSON.stringify(rawData, null, 2)}
     try {
       const { error } = await supabase
         .from('user_points')
-        .insert({
+        .upsert({
           user_id: user.id,
           points: points,
           activity_type: 'manual',
@@ -184,6 +184,176 @@ ${JSON.stringify(rawData, null, 2)}
     });
   };
 
+  const debugAdminPointAssignment = async () => {
+    if (!user) {
+      toast({
+        title: "Not Authenticated",
+        description: "Please log in to debug admin point assignment",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    addResult({ name: 'Admin Point Assignment Debug', status: 'info', message: 'Testing admin point assignment step by step...' });
+
+    try {
+      // Test 1: Check current auth context
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError || !authData.user) {
+        addResult({
+          name: 'Auth Context Check',
+          status: 'error',
+          message: `Authentication failed: ${authError?.message || 'No user'}`,
+          error: authError
+        });
+        setLoading(false);
+        return;
+      }
+
+      addResult({
+        name: 'Auth Context Check',
+        status: 'success',
+        message: `Authenticated as: ${authData.user.email}, ID: ${authData.user.id}`,
+        data: { email: authData.user.email, id: authData.user.id, role: authData.user.role }
+      });
+
+      // Test 2: Check JWT claims
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData.session) {
+        const jwtPayload = JSON.parse(atob(sessionData.session.access_token.split('.')[1]));
+        addResult({
+          name: 'JWT Claims Analysis',
+          status: 'info',
+          message: `JWT Email: ${jwtPayload.email}, Role: ${jwtPayload.role}`,
+          data: jwtPayload
+        });
+      }
+
+      // Test 3: Verify admin status in database
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        addResult({
+          name: 'Profile Admin Check',
+          status: 'error',
+          message: `Cannot read profile: ${profileError.message}`,
+          error: profileError
+        });
+      } else {
+        addResult({
+          name: 'Profile Admin Check',
+          status: 'success',
+          message: `Admin Role: ${profileData.admin_role}, Level: ${profileData.admin_level}, UID: ${profileData.user_uid}`,
+          data: profileData
+        });
+      }
+
+      // Test 4: Test each admin policy condition individually
+      const adminConditions = [
+        {
+          name: 'Email ends with @admin.%',
+          test: user.email?.endsWith('@admin.com') || user.email?.includes('@admin.'),
+          condition: "(auth.jwt() ->> 'email') LIKE '%@admin.%'"
+        },
+        {
+          name: 'Email in whitelist',
+          test: ['admin@numoraq.com', 'admin@admin.com', 'manera@gmail.com'].includes(user.email || ''),
+          condition: "(auth.jwt() ->> 'email') = ANY(ARRAY['admin@numoraq.com', 'admin@admin.com', 'manera@gmail.com'])"
+        },
+        {
+          name: 'User UID starts with admin_',
+          test: profileData?.user_uid?.startsWith('admin_'),
+          condition: "EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.user_uid LIKE 'admin_%')"
+        }
+      ];
+
+      adminConditions.forEach(condition => {
+        addResult({
+          name: `Admin Condition: ${condition.name}`,
+          status: condition.test ? 'success' : 'warning',
+          message: `${condition.test ? 'MATCHES' : 'DOES NOT MATCH'}: ${condition.condition}`,
+          data: { matches: condition.test, email: user.email, user_uid: profileData?.user_uid }
+        });
+      });
+
+      // Test 5: Try the exact INSERT that should work for manual points
+      try {
+        const manualPointsTest = await supabase
+          .from('user_points')
+          .insert({
+            user_id: user.id,
+            points: 1,
+            activity_type: 'manual',
+            activity_date: new Date().toISOString().split('T')[0],
+            points_source: 'admin_debug_test_' + Date.now(),
+            source_details: JSON.stringify({
+              debug_test: true,
+              admin_email: user.email,
+              admin_role: profileData?.admin_role,
+              timestamp: new Date().toISOString()
+            })
+          })
+          .select();
+
+        if (manualPointsTest.error) {
+          addResult({
+            name: 'Manual Points INSERT Test',
+            status: 'error',
+            message: `Failed to insert manual points: ${manualPointsTest.error.message}`,
+            error: manualPointsTest.error,
+            data: { 
+              attempted_insert: {
+                user_id: user.id,
+                activity_type: 'manual',
+                points_source: 'admin_debug_test'
+              }
+            }
+          });
+        } else {
+          addResult({
+            name: 'Manual Points INSERT Test',
+            status: 'success',
+            message: 'Successfully inserted manual points as admin!',
+            data: manualPointsTest.data
+          });
+
+          // Clean up test data
+          if (manualPointsTest.data?.[0]?.id) {
+            await supabase.from('user_points').delete().eq('id', manualPointsTest.data[0].id);
+          }
+        }
+      } catch (error) {
+        addResult({
+          name: 'Manual Points INSERT Test',
+          status: 'error',
+          message: `Exception during manual points test: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          error: error
+        });
+      }
+
+      toast({
+        title: "Admin Debug Complete! 🔍",
+        description: "Check results for detailed admin policy analysis",
+        duration: 3000
+      });
+
+    } catch (error) {
+      addResult({
+        name: 'Admin Point Assignment Debug',
+        status: 'error',
+        message: `Debug failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: error
+      });
+    }
+
+    setLoading(false);
+  };
+
   const checkRLSPolicies = async () => {
     if (!user) {
       toast({
@@ -205,8 +375,9 @@ ${JSON.stringify(rawData, null, 2)}
           test: () => supabase.from('user_points').insert({
             user_id: user.id,
             points: 1,
-            activity_type: 'rls_deep_test',
-            activity_date: new Date().toISOString().split('T')[0]
+            activity_type: 'diagnostic_test',
+            activity_date: new Date().toISOString().split('T')[0],
+            points_source: 'rls_test_' + Date.now()
           }).select()
         },
         {
@@ -214,8 +385,19 @@ ${JSON.stringify(rawData, null, 2)}
           test: () => supabase.from('user_points').insert({
             user_id: '00000000-0000-0000-0000-000000000000', // Fake UUID
             points: 1,
-            activity_type: 'rls_deep_test',
-            activity_date: new Date().toISOString().split('T')[0]
+            activity_type: 'diagnostic_test',
+            activity_date: new Date().toISOString().split('T')[0],
+            points_source: 'rls_test_' + Date.now()
+          }).select()
+        },
+        {
+          name: 'Insert user_points (manual activity)',
+          test: () => supabase.from('user_points').insert({
+            user_id: user.id,
+            points: 1,
+            activity_type: 'manual',
+            activity_date: new Date().toISOString().split('T')[0],
+            points_source: 'manual_test_' + Date.now()
           }).select()
         },
         {
@@ -758,6 +940,16 @@ ${JSON.stringify(rawData, null, 2)}
             >
               <AlertCircle size={16} />
               {loading ? 'Checking RLS...' : 'Check RLS Policies'}
+            </Button>
+
+            <Button 
+              onClick={debugAdminPointAssignment}
+              disabled={loading}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Users size={16} />
+              {loading ? 'Debugging Admin...' : 'Debug Admin Points'}
             </Button>
           </div>
 

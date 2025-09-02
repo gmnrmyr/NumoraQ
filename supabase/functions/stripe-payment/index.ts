@@ -377,12 +377,22 @@ async function activatePremiumAccess(userId: string, plan: SubscriptionPlan, ses
 async function activateDonationTier(userId: string, tier: DonationTier, sessionId: string) {
   console.log(`Activating donation tier: ${tier.tier} for user ${userId}, awarding ${tier.points} points`)
   
-  // Add donation points to user_points table
+  // Get existing points to add to them
+  const { data: existingPoints } = await supabase
+    .from('user_points')
+    .select('points')
+    .eq('user_id', userId)
+    .single();
+
+  const currentPoints = existingPoints?.points || 0;
+  const newTotalPoints = currentPoints + tier.points;
+
+  // Add donation points to user_points table using UPSERT
   const { error: pointsError } = await supabase
     .from('user_points')
-    .insert({
+    .upsert({
       user_id: userId,
-      points: tier.points,
+      points: newTotalPoints,
       activity_type: 'donation',
       activity_date: new Date().toISOString().split('T')[0],
       points_source: 'stripe_donation',
@@ -390,8 +400,12 @@ async function activateDonationTier(userId: string, tier: DonationTier, sessionI
         tier: tier.tier,
         session_id: sessionId,
         amount: tier.amount,
-        stripe_payment: true
-      })
+        stripe_payment: true,
+        points_added: tier.points,
+        previous_points: currentPoints,
+        new_total: newTotalPoints
+      }),
+      updated_at: new Date().toISOString()
     })
 
   if (pointsError) {
@@ -425,12 +439,22 @@ async function processDonationPayment(userId: string, tier: DonationTier, sessio
     // Add points to user for the donation - try with new columns first, fall back to basic columns
     let pointsError;
     
-    // Try with new columns first
+    // Get existing points to add to them
+    const { data: existingPoints } = await supabase
+      .from('user_points')
+      .select('points')
+      .eq('user_id', userId)
+      .single();
+
+    const currentPoints = existingPoints?.points || 0;
+    const newTotalPoints = currentPoints + tier.points;
+
+    // Try with new columns first using UPSERT
     const { error: newPointsError } = await supabase
       .from('user_points')
-      .insert({
+      .upsert({
         user_id: userId,
-        points: tier.points,
+        points: newTotalPoints,
         activity_type: 'donation',
         activity_date: new Date().toISOString().split('T')[0],
         points_source: 'stripe_donation',
@@ -439,21 +463,26 @@ async function processDonationPayment(userId: string, tier: DonationTier, sessio
           amount: tier.amount,
           currency: tier.currency,
           session_id: sessionId,
-          timestamp: new Date().toISOString()
-        })
+          timestamp: new Date().toISOString(),
+          points_added: tier.points,
+          previous_points: currentPoints,
+          new_total: newTotalPoints
+        }),
+        updated_at: new Date().toISOString()
       });
 
     if (newPointsError) {
       console.log('New columns not available, trying basic columns:', newPointsError);
       
-      // Fall back to basic columns if new columns don't exist
+      // Fall back to basic columns if new columns don't exist using UPSERT
       const { error: basicPointsError } = await supabase
         .from('user_points')
-        .insert({
+        .upsert({
           user_id: userId,
-          points: tier.points,
+          points: newTotalPoints,
           activity_type: 'donation',
-          activity_date: new Date().toISOString().split('T')[0]
+          activity_date: new Date().toISOString().split('T')[0],
+          updated_at: new Date().toISOString()
         });
 
       if (basicPointsError) {
@@ -461,9 +490,9 @@ async function processDonationPayment(userId: string, tier: DonationTier, sessio
         throw basicPointsError;
       }
       
-      console.log(`Successfully added ${tier.points} points for donation tier ${tier.tier} (basic columns)`);
+      console.log(`Successfully added ${tier.points} points for donation tier ${tier.tier} (basic columns). Total: ${newTotalPoints}`);
     } else {
-      console.log(`Successfully added ${tier.points} points for donation tier ${tier.tier} (extended columns)`);
+      console.log(`Successfully added ${tier.points} points for donation tier ${tier.tier} (extended columns). Total: ${newTotalPoints}`);
     }
 
     return { success: true, points: tier.points };
