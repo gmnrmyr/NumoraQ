@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import Stripe from 'https://esm.sh/stripe@14.21.0?target=deno'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,6 +16,12 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') || 'sk_test_51Rj4WCLiONz4H0DzdKAVwkIk6ODhKAA1AgFt27xII7E6lnWKxjFXOEbE4rH3Bm5eHovFjLNM4eOS2v7LCJ8ASP5Q00nbsIt597';
 const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET') || 'whsec_l0NkY7tWgKlFMCqWaZvVJplVzpJ3faoe';
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51Rj4WCLiONz4H0DzG7kW8rB81KhHHRMOEX96bqeq26YbbCtVKDf9r8fzV8zPZzqO3X4KjcW9Xl6wsOXlRIHaISzk00Gwi9ixCY';
+
+// Initialize Stripe client
+const stripe = new Stripe(STRIPE_SECRET_KEY, {
+  apiVersion: '2024-12-18.acacia',
+  httpClient: Stripe.createFetchHttpClient(),
+});
 
 interface PaymentSession {
   id: string;
@@ -191,12 +198,6 @@ const donationTiers: Record<string, DonationTier> = {
 };
 
 async function createStripeCheckoutSession(sessionId: string, plan: SubscriptionPlan | DonationTier, userEmail: string, paymentType: 'degen' | 'donation', req: Request) {
-  const stripe = await import('https://esm.sh/stripe@14.21.0?target=deno')
-  
-  const stripeClient = stripe.default(STRIPE_SECRET_KEY, {
-    apiVersion: '2024-12-18.acacia',
-    httpClient: stripe.Stripe.createFetchHttpClient(),
-  })
 
   // Dynamic base URL detection from request
   const origin = req.headers.get('origin') || req.headers.get('referer') || 'https://numoraq.online';
@@ -211,7 +212,7 @@ async function createStripeCheckoutSession(sessionId: string, plan: Subscription
   
   console.log(`Using site URL: ${siteUrl} (from origin: ${origin})`);
   
-  const session = await stripeClient.checkout.sessions.create({
+  const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [
       {
