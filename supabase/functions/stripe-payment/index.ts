@@ -13,13 +13,13 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // Stripe configuration
-const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') || 'sk_test_51Rj4WCLiONz4H0DzdKAVwkIk6ODhKAA1AgFt27xII7E6lnWKxjFXOEbE4rH3Bm5eHovFjLNM4eOS2v7LCJ8ASP5Q00nbsIt597';
+const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') || 'sk_test_51Rj4WJQ1mqL18ila4Vv7ZXXOWrlxMhfklCiBE1xp4Gx5TVHelY2PQ6OL450GIGePG3MeFqtu5AkRC96327MkEOmw00hhDYbW0t';
 const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET') || 'whsec_l0NkY7tWgKlFMCqWaZvVJplVzpJ3faoe';
-const STRIPE_PUBLISHABLE_KEY = 'pk_test_51Rj4WCLiONz4H0DzG7kW8rB81KhHHRMOEX96bqeq26YbbCtVKDf9r8fzV8zPZzqO3X4KjcW9Xl6wsOXlRIHaISzk00Gwi9ixCY';
+const STRIPE_PUBLISHABLE_KEY = 'pk_test_51Rj4WJQ1mqL18ilaTi6cnAHjmz2FiunvwKXGmfloi5mxLprgnLxDvKlseLVvNv6gzhTM8tSj5V86FaXGjcOJd5sg00LR7GM48y';
 
 // Initialize Stripe client
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-08-27.basil',
   httpClient: Stripe.createFetchHttpClient(),
 });
 
@@ -640,7 +640,7 @@ serve(async (req) => {
 
       try {
         const body = await req.text()
-        const event = stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET)
+        const event = await stripe.webhooks.constructEventAsync(body, signature, STRIPE_WEBHOOK_SECRET)
 
         if (event.type === 'checkout.session.completed') {
           const session = event.data.object
@@ -657,14 +657,16 @@ serve(async (req) => {
           const paymentType = metadata.payment_type || 'degen'
 
           // Get user ID from email
-          const { data: user, error: userError } = await supabase.auth.admin.getUserByEmail(userEmail)
+          const { data: user, error: userError } = await supabase.auth.admin.listUsers({
+            filter: `email.eq.${userEmail}`
+          })
           
-          if (userError || !user) {
+          if (userError || !user || !user.users || user.users.length === 0) {
             console.error('User not found:', userError)
             return new Response('User not found', { status: 404 })
           }
 
-          const userId = user.id
+          const userId = user.users[0].id
 
           // Process based on payment type
           if (paymentType === 'degen') {
