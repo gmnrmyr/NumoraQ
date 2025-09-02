@@ -209,36 +209,145 @@ const { error } = await supabase
 
 ---
 
-## 🎯 **Next Steps**
+## 🔄 **Final Webhook Configuration & Testing**
 
-### **Immediate Testing:**
-1. Verify admin panel point assignment works
-2. Test Stripe donation flow end-to-end
-3. Confirm tier upgrades happen automatically
+### **Webhook Issues Resolved:**
 
-### **Future Enhancements:**
-1. Add automatic tier calculation triggers
-2. Implement tier-based feature unlocking
-3. Add comprehensive audit logging
-4. Optimize payment session cleanup
+#### **Issue 1: Wrong Stripe Account**
+- **Problem**: Function was using old Stripe keys (`Rj4WCL`) instead of correct sandbox keys (`Rj4WJQ`)
+- **Fix**: Updated both secret and publishable keys to match correct Stripe account
+- **Result**: Webhooks started being delivered to correct account
+
+#### **Issue 2: Async/Sync Mismatch**
+- **Problem**: `stripe.webhooks.constructEvent()` causing "SubtleCryptoProvider cannot be used in a synchronous context"
+- **Fix**: Changed to `stripe.webhooks.constructEventAsync()` for proper async handling
+- **Result**: Webhook signature validation working correctly
+
+#### **Issue 3: Deprecated Supabase Admin Method**
+- **Problem**: `supabase.auth.admin.getUserByEmail()` not available in current Supabase version
+- **Fix**: Updated to `supabase.auth.admin.listUsers({ filter: email.eq.${email} })`
+- **Result**: User lookup in webhooks working correctly
+
+#### **Issue 4: API Version Mismatch**
+- **Problem**: Function using outdated API version `2024-12-18.acacia`
+- **Fix**: Updated to `2025-08-27.basil` to match Stripe test environment
+- **Result**: Webhook events properly formatted and processed
+
+### **Final Configuration:**
+- **Webhook URL**: `https://hcnoxyfztviuwkiysitm.supabase.co/functions/v1/stripe-payment/webhook`
+- **Stripe Keys**: Updated to correct sandbox account (`Rj4WJQ`)
+- **Webhook Secret**: `whsec_7AsFeo7PZqqAIr2GbwoU5F0PzBzgA3YP`
+- **API Version**: `2025-08-27.basil`
+- **Events**: `checkout.session.completed`
 
 ---
 
-## 👥 **Team Notes**
+## 🧪 **Testing Results & Verification**
 
-### **Branch Strategy:**
-- **Work Branch**: `developnpm` - Safe testing environment without Docker conflicts
-- **Changes**: All fixes committed to `developnpm` branch
-- **Deployment**: Edge functions deployed directly to production Supabase project
+### **Payment System Testing:**
+- ✅ **Admin Point Assignment**: Successfully adds points via CMS admin panel
+- ✅ **Stripe Donation Webhooks**: Automatically adds points (whale donation: +50,000 points)
+- ✅ **Stripe Degen Plan Webhooks**: Automatically extends premium time (time stacking working)
+- ✅ **Point Accumulation**: Multiple donations properly accumulate (160,112 total points)
+- ✅ **Time Stacking**: Multiple degen plans properly extend expiry date
+- ✅ **UI Refresh**: Status updates correctly when manually refreshed
 
-### **Documentation:**
-- **Branch Strategy**: Documented in `docs/main/branch_strategy.md`
-- **Diagnostic Tool**: Integrated into existing dev menu for easy access
-- **Payment Flow**: Updated with UPSERT patterns for future development
+### **Final User Status (manera@gmail.com):**
+- **Tier**: 🐋 **WHALE** (160,112 points)
+- **Premium Expires**: 2029-10-09 (4+ years from now)
+- **Total Donated**: $110,100
+- **Premium Type**: 1-year plan with multiple extensions
+- **Activation Source**: stripe_payment (automated processing)
+
+### **Database State:**
+- **user_points**: Single record per user with accumulated totals ✅
+- **user_premium_status**: Proper time stacking with detailed source tracking ✅
+- **payment_sessions**: Automatic completion status updates ✅
+- **RLS policies**: Working correctly for admin and service role access ✅
 
 ---
 
-*Fixed by: AI Assistant + manera@gmail.com*  
+## 🎯 **System Status: PRODUCTION READY**
+
+### **✅ Fully Functional:**
+1. **Admin Point Assignment** - CMS admin panel operational
+2. **Stripe Donation Processing** - Automatic point addition via webhooks
+3. **Stripe Premium Processing** - Automatic time extension via webhooks  
+4. **Point Accumulation** - Proper UPSERT logic preventing duplicate key errors
+5. **Time Stacking** - Multiple premium purchases extend expiry date correctly
+6. **UI Status Display** - Shows correct premium time and point totals
+7. **Payment Session Management** - Automatic status updates from pending to completed
+
+### **🔧 Minor Optimizations (Future):**
+1. **Auto-refresh UI** - Implement real-time updates without manual refresh
+2. **Process pending sessions** - Bulk activate remaining pending payment sessions
+3. **Webhook retry automation** - Handle transient failures automatically
+4. **Enhanced logging** - Add more detailed webhook processing logs
+
+### **🛡️ Security Verified:**
+- **RLS Policies**: Properly configured for admin and user access
+- **Service Role**: Webhooks bypass RLS correctly for automated processing
+- **Admin Permissions**: Email whitelist and admin_role detection working
+- **Payment Validation**: Stripe signature verification operational
+
+---
+
+## 📊 **Diagnostic Tool Status**
+
+### **PaymentSystemDiagnostic Component:**
+- **Location**: DEV menu → Diagnostics tab
+- **Features**: Comprehensive testing suite for all payment functionality
+- **Status**: Fully operational with RLS testing, admin verification, and interactive tools
+- **Usage**: Available for ongoing system monitoring and debugging
+
+### **Key Diagnostic Features:**
+- **RLS Policy Testing** - Verifies database permissions
+- **Admin Status Verification** - Confirms admin privileges
+- **Payment Processing Tests** - Interactive webhook and activation testing
+- **Copy/Export Functionality** - Full diagnostic report export
+- **Manual Operations** - Premium code testing, point addition, trial creation
+
+---
+
+## 🎯 **Final Deployment Status**
+
+### **Edge Functions:**
+- ✅ **stripe-payment**: Deployed with UPSERT logic, correct keys, and async webhook handling
+- ✅ **solana-payment**: Updated with UPSERT logic for point accumulation
+- ✅ **premium-codes**: Working correctly (not modified)
+
+### **Frontend Changes:**
+- ✅ **useUserPoints.ts**: Updated with UPSERT logic for admin point assignment
+- ✅ **PaymentSystemDiagnostic.tsx**: Comprehensive diagnostic and testing tool
+- ✅ **DevMenu.tsx**: Integrated diagnostic tool for easy access
+
+### **Database:**
+- ✅ **RLS Policies**: Correctly configured and tested
+- ✅ **Admin Access**: Email whitelist functional
+- ✅ **Service Role**: Webhook processing operational
+- ✅ **Data Integrity**: UPSERT patterns prevent duplicate key conflicts
+
+---
+
+## 🏆 **Achievement Summary**
+
+**Successfully diagnosed and resolved complex payment system issues affecting:**
+- Point assignment failures (RLS policy + database design mismatch)
+- Premium time stacking problems (webhook configuration issues)
+- Admin panel functionality (INSERT vs UPSERT logic)
+- Webhook automation failures (Stripe account/key mismatches)
+- UI refresh problems (manual refresh working, auto-refresh pending)
+
+**Root Cause**: Database table designed as summary table (single record per user) but code attempting transaction-style INSERTs, combined with Stripe webhook configuration issues.
+
+**Solution**: Systematic conversion to UPSERT patterns with point/time accumulation logic, plus comprehensive Stripe webhook debugging and reconfiguration.
+
+**Result**: Fully functional automated payment processing system with proper time stacking, point accumulation, and admin management capabilities.
+
+---
+
+*Debugging completed: September 2, 2025*  
+*Payment system status: ✅ FULLY OPERATIONAL*  
 *Branch: developnpm*  
-*Deployment: Production Supabase Edge Functions*  
-*Status: ✅ Ready for Testing*
+*Final deployment: Production Supabase Edge Functions*  
+*User status: 🐋 WHALE (160,112 points, 4+ years premium)*
