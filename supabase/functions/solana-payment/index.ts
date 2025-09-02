@@ -140,17 +140,38 @@ async function activatePremiumAccess(userId: string, tier: PaymentTier, sessionI
 }
 
 async function activateDonationTier(userId: string, tier: PaymentTier, sessionId: string) {
-  // Add donation points to user_points table
+  // Get existing points to add to them
+  const { data: existingPoints } = await supabase
+    .from('user_points')
+    .select('points, total_donated')
+    .eq('user_id', userId)
+    .single();
+
+  const currentPoints = existingPoints?.points || 0;
+  const currentDonated = existingPoints?.total_donated || 0;
+  const newTotalPoints = currentPoints + tier.points;
+  const newTotalDonated = currentDonated + tier.usdValue;
+
+  // Add donation points to user_points table using UPSERT
   const { error: pointsError } = await supabase
     .from('user_points')
-    .insert({
+    .upsert({
       user_id: userId,
-      points: tier.points,
+      points: newTotalPoints,
+      total_donated: newTotalDonated,
       activity_type: 'donation',
       activity_date: new Date().toISOString().split('T')[0],
-      donation_amount: tier.usdValue,
-      donation_tier: tier.tier.toLowerCase(),
-      notes: `Solana donation: ${tier.tier}`
+      points_source: 'solana_donation',
+      source_details: JSON.stringify({
+        tier: tier.tier,
+        session_id: sessionId,
+        donation_amount: tier.usdValue,
+        solana_payment: true,
+        points_added: tier.points,
+        previous_points: currentPoints,
+        new_total: newTotalPoints
+      }),
+      updated_at: new Date().toISOString()
     });
 
   if (pointsError) {
@@ -158,6 +179,7 @@ async function activateDonationTier(userId: string, tier: PaymentTier, sessionId
     throw pointsError;
   }
 
+  console.log(`Successfully added ${tier.points} points for Solana donation ${tier.tier}. Total: ${newTotalPoints}`);
   return true;
 }
 
