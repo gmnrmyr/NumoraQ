@@ -116,7 +116,7 @@ DO UPDATE SET
   (below projection maybe)
 *TODO: Historical data tracking and visualization system*
 
-🔄 25) **Polish UI**: 
+🔄 25) **Polish UI**:  A lot of redundant info. A lot to be improved, a lot of things not clear enough for users to find, although I can find them easily. Not all users can. And a lot of debugging features to be removed later. Maybe we can leave them as toggable for now until we fully debug everything.
 *ONGOING: Continuous UI/UX improvements*
 
 🔄 26) **Open banking sync**: paypal, pix, etc.
