@@ -19,7 +19,7 @@ const STRIPE_PUBLISHABLE_KEY = '***REMOVED***';
 
 // Initialize Stripe client
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-08-27.basil',
   httpClient: Stripe.createFetchHttpClient(),
 });
 
@@ -640,7 +640,7 @@ serve(async (req) => {
 
       try {
         const body = await req.text()
-        const event = stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET)
+        const event = await stripe.webhooks.constructEventAsync(body, signature, STRIPE_WEBHOOK_SECRET)
 
         if (event.type === 'checkout.session.completed') {
           const session = event.data.object
@@ -657,14 +657,16 @@ serve(async (req) => {
           const paymentType = metadata.payment_type || 'degen'
 
           // Get user ID from email
-          const { data: user, error: userError } = await supabase.auth.admin.getUserByEmail(userEmail)
+          const { data: user, error: userError } = await supabase.auth.admin.listUsers({
+            filter: `email.eq.${userEmail}`
+          })
           
-          if (userError || !user) {
+          if (userError || !user || !user.users || user.users.length === 0) {
             console.error('User not found:', userError)
             return new Response('User not found', { status: 404 })
           }
 
-          const userId = user.id
+          const userId = user.users[0].id
 
           // Process based on payment type
           if (paymentType === 'degen') {
