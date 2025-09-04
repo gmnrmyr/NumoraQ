@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Eye, EyeOff } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import { AssetListItem } from './AssetListItem';
 import { AssetDialog } from './AssetDialog';
 import { DevelopmentTooltip } from './DevelopmentTooltip';
@@ -30,6 +31,7 @@ export const LiquidAssetsCard = () => {
   } = useLiquidAssetManagement();
 
   const [showInactive, setShowInactive] = useState(true);
+  const [sortDesc, setSortDesc] = useState(true);
 
   // Use live price updates hook
   useLivePriceUpdates();
@@ -47,7 +49,10 @@ export const LiquidAssetsCard = () => {
 
   const activeAssets = data.liquidAssets.filter(asset => asset.isActive);
   const inactiveAssets = data.liquidAssets.filter(asset => !asset.isActive);
-  const displayAssets = showInactive ? [...activeAssets, ...inactiveAssets] : activeAssets;
+  const sortFn = (a: any, b: any) => (sortDesc ? (b.value || 0) - (a.value || 0) : (a.value || 0) - (b.value || 0));
+  const displayAssets = showInactive 
+    ? [...activeAssets.slice().sort(sortFn), ...inactiveAssets.slice().sort(sortFn)] 
+    : activeAssets.slice().sort(sortFn);
   const totalValue = activeAssets.reduce((sum, asset) => sum + asset.value, 0);
   const currency = data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$';
 
@@ -67,6 +72,15 @@ export const LiquidAssetsCard = () => {
               </Badge>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSortDesc(!sortDesc)}
+                className="brutalist-button text-xs"
+                title="Toggle sort by value"
+              >
+                Sort {sortDesc ? '▼' : '▲'}
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -111,17 +125,27 @@ export const LiquidAssetsCard = () => {
               <span className="text-xs">Add your first asset to get started!</span>
             </div>
           ) : (
-            displayAssets.map((asset: any) => (
-              <AssetListItem
-                key={asset.id}
-                asset={asset}
-                currency={currency}
-                onToggleActive={handleToggleActive}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onIconChange={handleIconChange}
-              />
-            ))
+            displayAssets.map((asset: any) => {
+              const percentage = totalValue > 0 && asset.isActive ? (asset.value / totalValue) * 100 : 0;
+              return (
+                <div key={asset.id} className="space-y-1">
+                  <AssetListItem
+                    asset={asset}
+                    currency={currency}
+                    onToggleActive={handleToggleActive}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onIconChange={handleIconChange}
+                  />
+                  {asset.isActive && (
+                    <div>
+                      <div className="text-right text-[10px] text-muted-foreground font-mono">{percentage.toFixed(1)}%</div>
+                      <Progress value={percentage} className="h-2 bg-muted" />
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
           
           {inactiveAssets.length > 0 && !showInactive && (
