@@ -69,6 +69,22 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
     
     return triggersThisMonth;
   };
+
+  // Function to get scheduled passive income triggers for a specific month
+  const getScheduledPassiveIncomeForMonth = (monthNumber: number) => {
+    const currentDate = new Date();
+    const targetMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthNumber, 1);
+    const targetYm = targetMonth.toISOString().slice(0, 7);
+    return (data.passiveIncome || [])
+      .filter((income: any) => income.useSchedule && income.startDate)
+      .filter((income: any) => {
+        const startYm = String(income.startDate).slice(0, 7);
+        const endYm = income.endDate ? String(income.endDate).slice(0, 7) : undefined;
+        const starts = targetYm >= startYm;
+        const notEnded = !endYm || targetYm <= endYm;
+        return starts && notEnded;
+      });
+  };
   return (
     <div className="w-full mb-6 py-4">
       {/* Color Legend */}
@@ -131,6 +147,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
               const data = payload[0].payload;
               const isCurrentMonth = label === 0;
               const variableTriggers = getVariableExpenseTriggers(label);
+              const scheduledPassive = getScheduledPassiveIncomeForMonth(label);
               
               return (
                 <div className="bg-black/80 backdrop-blur-md p-4 rounded-lg border border-white/20 space-y-3 shadow-2xl">
@@ -175,6 +192,28 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                             </span>
                             <span className="text-orange-400 font-mono">
                               {currencySymbol}{trigger.amount.toLocaleString()}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Scheduled Passive Income Active This Month */}
+                  {scheduledPassive.length > 0 && (
+                    <div className="border-t border-green-400/30 pt-2">
+                      <div className="text-green-400 font-semibold text-xs mb-1">
+                        ✅ SCHEDULED PASSIVE INCOME ACTIVE
+                      </div>
+                      <div className="space-y-1">
+                        {scheduledPassive.map((inc: any, index: number) => (
+                          <div key={index} className="flex justify-between text-xs">
+                            <span className="text-green-300 truncate max-w-32" title={inc.source}>
+                              {inc.source}
+                              <span className="text-muted-foreground"> ({String(inc.startDate).slice(0,7)}{inc.endDate ? ` → ${String(inc.endDate).slice(0,7)}` : ' → ∞'})</span>
+                            </span>
+                            <span className="text-green-400 font-mono">
+                              +{currencySymbol}{(inc.amount || 0).toLocaleString()}
                             </span>
                           </div>
                         ))}

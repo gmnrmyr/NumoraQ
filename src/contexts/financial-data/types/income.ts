@@ -6,6 +6,10 @@ export interface PassiveIncome {
   status: 'active' | 'inactive' | 'pending';
   icon: string;
   note?: string;
+  // Optional scheduling
+  useSchedule?: boolean;
+  startDate?: string; // YYYY-MM or YYYY-MM-DD
+  endDate?: string;   // YYYY-MM or YYYY-MM-DD (optional => open-ended)
 }
 
 export interface ActiveIncome {

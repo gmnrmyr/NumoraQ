@@ -37,6 +37,9 @@ export interface PassiveIncome {
   status: 'active' | 'inactive' | 'pending';
   icon: string;
   note?: string;
+  useSchedule?: boolean;
+  startDate?: string; // YYYY-MM or YYYY-MM-DD
+  endDate?: string;   // YYYY-MM or YYYY-MM-DD
 }
 
 export interface ActiveIncome {

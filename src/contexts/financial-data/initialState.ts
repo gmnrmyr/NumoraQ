@@ -29,7 +29,7 @@ export const defaultData: FinancialData = {
   passiveIncome: [
     { id: '1', source: 'Dividend Income', amount: 180, status: 'active', icon: 'TrendingUp', note: 'From stock portfolio' },
     { id: '2', source: 'Interest Savings', amount: 65, status: 'active', icon: 'DollarSign' },
-    { id: '3', source: 'Rental Property', amount: 1200, status: 'pending', icon: 'Home', note: 'Property under renovation' }
+    { id: '3', source: 'Rental Property', amount: 1200, status: 'pending', icon: 'Home', note: 'Property under renovation', useSchedule: false }
   ],
   activeIncome: [
     { id: '1', source: 'Software Engineer Salary', amount: 7500, status: 'active', icon: 'Briefcase' },
@@ -96,7 +96,7 @@ export const initialFinancialData: FinancialData = {
   passiveIncome: [
     { id: '1', source: 'Dividend Income', amount: 180, status: 'active', icon: 'TrendingUp', note: 'From stock portfolio' },
     { id: '2', source: 'Interest Savings', amount: 65, status: 'active', icon: 'DollarSign' },
-    { id: '3', source: 'Rental Property', amount: 1200, status: 'pending', icon: 'Home', note: 'Property under renovation' }
+    { id: '3', source: 'Rental Property', amount: 1200, status: 'pending', icon: 'Home', note: 'Property under renovation', useSchedule: false }
   ],
   activeIncome: [
     { id: '1', source: 'Software Engineer Salary', amount: 7500, status: 'active', icon: 'Briefcase' },
