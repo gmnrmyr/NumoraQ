@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ExpenseCard } from "./ExpenseCard";
 import { AddExpenseDialog } from "./AddExpenseDialog";
 import { useTranslation } from "@/contexts/TranslationContext";
@@ -35,27 +36,59 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
   const totalClass = type === 'recurring' ? "text-red-400" : "text-orange-400";
   const inactiveClass = type === 'recurring' ? "text-red-400/70" : "text-orange-400/70";
 
-  // Enhanced sorting for variable expenses with dates
+  // Sorting controls (variable expenses only)
+  const hasAnySpecificDate = React.useMemo(() => {
+    return type === 'variable' && expenses.some((e: any) => !!e.specificDate);
+  }, [expenses, type]);
+  const [sortField, setSortField] = React.useState<'date' | 'amount' | 'name'>(hasAnySpecificDate ? 'date' : 'name');
+  const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('asc');
+  const [userAdjustedSort, setUserAdjustedSort] = React.useState(false);
+
+  // Auto-switch to date sort when any specificDate exists and user hasn't overridden
+  React.useEffect(() => {
+    if (type === 'variable' && hasAnySpecificDate && !userAdjustedSort && sortField !== 'date') {
+      setSortField('date');
+    }
+  }, [type, hasAnySpecificDate, userAdjustedSort, sortField]);
+
+  // Enhanced sorting for variable expenses with dates (non-mutating)
   const sortedExpenses = React.useMemo(() => {
+    const copy = [...expenses];
     if (type === 'recurring') {
-      // Recurring expenses: simple sort by name or date if available
-      return expenses.sort((a, b) => {
+      // Recurring expenses: simple sort by name or date if available (non-mutating)
+      return copy.sort((a: any, b: any) => {
         if (a.date && b.date) {
           return new Date(a.date).getTime() - new Date(b.date).getTime();
         }
         if (a.date && !b.date) return -1;
         if (!a.date && b.date) return 1;
-        return a.name.localeCompare(b.name);
+        return (a.name || '').localeCompare(b.name || '');
       });
-    } else {
-      // Variable expenses: sort by date (chronological), then no dates in middle
-      const withDates = expenses.filter(e => e.date)
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      const withoutDates = expenses.filter(e => !e.date)
-        .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    const directionMultiplier = sortDirection === 'asc' ? 1 : -1;
+
+    if (sortField === 'date') {
+      const withDates = copy
+        .filter((e: any) => !!e.specificDate)
+        .sort((a: any, b: any) => {
+          const aTime = new Date(a.specificDate).getTime();
+          const bTime = new Date(b.specificDate).getTime();
+          return (aTime - bTime) * directionMultiplier;
+        });
+      const withoutDates = copy
+        .filter((e: any) => !e.specificDate)
+        .sort((a: any, b: any) => ((a.name || '').localeCompare(b.name || '')) * directionMultiplier);
       return [...withDates, ...withoutDates];
     }
-  }, [expenses, type]);
+
+    if (sortField === 'amount') {
+      return copy.sort((a: any, b: any) => (((a.amount || 0) - (b.amount || 0)) * directionMultiplier));
+    }
+
+    // Default: sort by name
+    return copy.sort((a: any, b: any) => ((a.name || '').localeCompare(b.name || '') * directionMultiplier));
+  }, [expenses, type, sortField, sortDirection]);
 
   return (
     <Card className={`${cardClass} border-2 backdrop-blur-sm`}>
@@ -73,9 +106,33 @@ export const ExpenseTabContent: React.FC<ExpenseTabContentProps> = ({
                 {expenses.filter(e => e.status === 'inactive').length} {t.inactiveExpenses}
               </div>
               {type === 'variable' && (
-                <div className={`text-xs ${titleClass} font-mono mt-1 break-words`}>
-                  💡 Tip: Set specific dates for better projections
-                </div>
+                <>
+                  <div className={`text-xs ${titleClass} font-mono mt-1 break-words`}>
+                    💡 Tip: Set specific dates for better projections
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className={`text-xs ${inactiveClass} font-mono`}>{t.sortBy}:</span>
+                    <Select value={sortField} onValueChange={(v) => { setSortField(v as 'date' | 'amount' | 'name'); setUserAdjustedSort(true); }}>
+                      <SelectTrigger className="h-6 w-28 text-xs bg-input border-2 border-border">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card border-2 border-border z-50">
+                        <SelectItem value="date" className="font-mono">{t.sortByDate}</SelectItem>
+                        <SelectItem value="amount" className="font-mono">{t.sortByAmount}</SelectItem>
+                        <SelectItem value="name" className="font-mono">{t.sortByName}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={sortDirection} onValueChange={(v) => { setSortDirection(v as 'asc' | 'desc'); setUserAdjustedSort(true); }}>
+                      <SelectTrigger className="h-6 w-28 text-xs bg-input border-2 border-border">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card border-2 border-border z-50">
+                        <SelectItem value="asc" className="font-mono">{t.ascending}</SelectItem>
+                        <SelectItem value="desc" className="font-mono">{t.descending}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
               )}
             </div>
             <div className="flex-shrink-0 w-full sm:w-auto">
