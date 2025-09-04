@@ -21,10 +21,12 @@ export const useProjectionCalculations = () => {
       return sum;
     }, 0);
     
-    // Get monthly income and expenses (only active ones)
-    const totalPassiveIncome = data.passiveIncome
-      .filter(income => income.status === 'active')
-      .reduce((sum, income) => sum + income.amount, 0);
+    // Get monthly income and expenses
+    // Base passive income: only active streams without scheduling
+    const passiveIncomeList = data.passiveIncome || [];
+    const baseUnscheduledActivePassiveIncome = passiveIncomeList
+      .filter((income: any) => income.status === 'active' && !income.useSchedule)
+      .reduce((sum: number, income: any) => sum + (income.amount || 0), 0);
     
     const totalActiveIncome = data.activeIncome
       .filter(income => income.status === 'active')
@@ -38,9 +40,27 @@ export const useProjectionCalculations = () => {
     const activeVariableExpenses = data.expenses
       .filter(expense => expense.type === 'variable' && expense.status === 'active');
     
-    // Include dividend income in passive income
-    const totalPassiveIncomeWithDividends = totalPassiveIncome + monthlyDividendIncome;
-    const monthlyNetIncome = totalPassiveIncomeWithDividends + totalActiveIncome - totalRecurringExpenses;
+    // Helper to get scheduled passive income amount for a given month offset
+    const getScheduledPassiveIncomeForMonth = (monthOffset: number) => {
+      const currentDate = new Date();
+      const targetMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthOffset, 1);
+      const targetYm = targetMonth.toISOString().slice(0, 7);
+      return passiveIncomeList
+        .filter((income: any) => income.useSchedule && income.startDate)
+        .filter((income: any) => {
+          const startYm = String(income.startDate).slice(0, 7);
+          const endYm = income.endDate ? String(income.endDate).slice(0, 7) : undefined;
+          const starts = targetYm >= startYm;
+          const notEnded = !endYm || targetYm <= endYm;
+          return starts && notEnded;
+        })
+        .reduce((sum: number, income: any) => sum + (income.amount || 0), 0);
+    };
+
+    // Include dividend income in passive income for month 0
+    const scheduledPassiveMonth0 = getScheduledPassiveIncomeForMonth(0);
+    const totalPassiveIncomeWithDividendsMonth0 = baseUnscheduledActivePassiveIncome + scheduledPassiveMonth0 + monthlyDividendIncome;
+    const monthlyNetIncomeMonth0 = totalPassiveIncomeWithDividendsMonth0 + totalActiveIncome - totalRecurringExpenses;
     
     // Calculate projection for each month
     let runningBalance = totalLiquid;
@@ -50,10 +70,10 @@ export const useProjectionCalculations = () => {
     projectionData.push({
       month: 0,
       balance: Math.round(runningBalance),
-      monthlyIncome: totalPassiveIncomeWithDividends + totalActiveIncome,
+      monthlyIncome: totalPassiveIncomeWithDividendsMonth0 + totalActiveIncome,
       monthlyExpenses: totalRecurringExpenses,
       netChange: 0,
-      passiveIncome: totalPassiveIncomeWithDividends,
+      passiveIncome: totalPassiveIncomeWithDividendsMonth0,
       activeIncome: totalActiveIncome,
       recurringExpenses: totalRecurringExpenses,
       cumulativeGrowth: 0,
@@ -100,7 +120,8 @@ export const useProjectionCalculations = () => {
       
       cumulativeDividends += currentMonthDividendIncome;
       
-      const totalPassiveThisMonth = totalPassiveIncome + currentMonthDividendIncome;
+      const scheduledPassiveThisMonth = getScheduledPassiveIncomeForMonth(i);
+      const totalPassiveThisMonth = baseUnscheduledActivePassiveIncome + scheduledPassiveThisMonth + currentMonthDividendIncome;
       const monthlyChange = totalPassiveThisMonth + totalActiveIncome - totalRecurringExpenses - variableExpensesThisMonth;
       
       runningBalance += monthlyChange;

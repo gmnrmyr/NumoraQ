@@ -6,6 +6,8 @@ import { Home, User, Heart, TrendingUp, Briefcase, Plus, Trash2 } from "lucide-r
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { EditableValue } from "@/components/ui/editable-value";
 import { StatusToggle } from "@/components/ui/status-toggle";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 
 const iconMap: { [key: string]: any } = {
   Home,
@@ -122,6 +124,39 @@ export const IncomeTracking = () => {
                 {income.amount > 0 && (
                   <Progress value={percentage} className="h-2 bg-muted" />
                 )}
+                {/* Scheduling Controls */}
+                <div className="mt-2 pt-2 border-t border-border/50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-mono">
+                      <span className="text-muted-foreground">Schedule</span>
+                      <Switch
+                        checked={Boolean((income as any).useSchedule)}
+                        onCheckedChange={(checked) => updatePassiveIncome(income.id, { useSchedule: checked } as any)}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 text-xs font-mono">
+                      <span className="text-muted-foreground">Start</span>
+                      <Input
+                        type="month"
+                        value={((income as any).startDate || '').slice(0,7)}
+                        onChange={(e) => updatePassiveIncome(income.id, { startDate: e.target.value } as any)}
+                        className="h-7 w-28 bg-input border-2 border-border px-2"
+                        disabled={!((income as any).useSchedule)}
+                      />
+                      <span className="text-muted-foreground">End</span>
+                      <Input
+                        type="month"
+                        value={((income as any).endDate || '').slice(0,7)}
+                        onChange={(e) => updatePassiveIncome(income.id, { endDate: e.target.value || undefined } as any)}
+                        className="h-7 w-28 bg-input border-2 border-border px-2"
+                        disabled={!((income as any).useSchedule)}
+                      />
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-1 font-mono">
+                    When scheduled, this income is included in projections between start and end months (end optional).
+                  </div>
+                </div>
                 <div className="mt-2">
                   <EditableValue
                     value={income.note || ""}
