@@ -44,6 +44,15 @@ export const ExpenseTrackingEditable = () => {
       return expenseMonth > currentMonth;
     });
 
+  // Auto-sort future expenses by date (chronological)
+  const sortedFutureVariableExpenses = React.useMemo(() => {
+    return [...futureVariableExpenses].sort((a, b) => {
+      const aTime = new Date(a.specificDate as string).getTime();
+      const bTime = new Date(b.specificDate as string).getTime();
+      return aTime - bTime;
+    });
+  }, [futureVariableExpenses]);
+
   // Calculate past dated variable expenses separately - INCLUDE INACTIVE ONES
   const pastVariableExpenses = variableExpenses
     .filter(expense => {
@@ -52,6 +61,15 @@ export const ExpenseTrackingEditable = () => {
       const expenseMonth = expense.specificDate.slice(0, 7);
       return expenseMonth < currentMonth;
     });
+
+  // Auto-sort past expenses by date (most recent first)
+  const sortedPastVariableExpenses = React.useMemo(() => {
+    return [...pastVariableExpenses].sort((a, b) => {
+      const aTime = new Date(a.specificDate as string).getTime();
+      const bTime = new Date(b.specificDate as string).getTime();
+      return bTime - aTime;
+    });
+  }, [pastVariableExpenses]);
 
   const categoryOptions = [
     { value: 'housing', label: t.housing },
@@ -102,13 +120,13 @@ export const ExpenseTrackingEditable = () => {
           />
           
           {/* Show future expenses separately - now shows ALL future expenses (active and inactive) */}
-          {futureVariableExpenses.length > 0 && (
+          {sortedFutureVariableExpenses.length > 0 && (
             <div className="mt-4 p-2 sm:p-3 bg-muted border-2 border-border">
               <h4 className="font-mono font-bold text-xs sm:text-sm mb-2 text-blue-400 break-words">
                 Future Scheduled Expenses:
               </h4>
               <div className="space-y-2 sm:space-y-3">
-                {futureVariableExpenses.map(expense => (
+                {sortedFutureVariableExpenses.map(expense => (
                   <ExpenseCard
                     key={expense.id}
                     expense={expense}
@@ -123,13 +141,13 @@ export const ExpenseTrackingEditable = () => {
           )}
 
           {/* Show past expenses separately - now shows ALL past expenses (active and inactive) */}
-          {pastVariableExpenses.length > 0 && (
+          {sortedPastVariableExpenses.length > 0 && (
             <div className="mt-4 p-2 sm:p-3 bg-muted border-2 border-border">
               <h4 className="font-mono font-bold text-xs sm:text-sm mb-2 text-orange-400 break-words">
                 Past Scheduled Expenses:
               </h4>
               <div className="space-y-2 sm:space-y-3">
-                {pastVariableExpenses.map(expense => (
+                {sortedPastVariableExpenses.map(expense => (
                   <ExpenseCard
                     key={expense.id}
                     expense={expense}
