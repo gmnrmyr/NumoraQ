@@ -59,6 +59,14 @@ export interface Expense {
   category: string;
   type: 'recurring' | 'variable';
   status: 'active' | 'inactive';
+  // Recurring-specific options
+  day?: number; // optional day of month for recurring display
+  frequency?: 'monthly' | 'yearly'; // default: monthly
+  triggerMonth?: number; // 1-12, for yearly expenses
+  // Optional schedule window for recurring
+  useSchedule?: boolean;
+  startDate?: string; // YYYY-MM or YYYY-MM-DD
+  endDate?: string;   // YYYY-MM or YYYY-MM-DD
   specificDate?: string; // Added for variable expenses with specific dates
 }
 

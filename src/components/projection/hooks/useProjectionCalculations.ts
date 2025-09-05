@@ -33,9 +33,29 @@ export const useProjectionCalculations = () => {
       .filter(income => income.status === 'active')
       .reduce((sum, income) => sum + income.amount, 0);
     
+    // Helper to check if a recurring expense is active for a target YYYY-MM
+    const isRecurringActiveForMonth = (exp: any, targetYm: string) => {
+      if (exp.status !== 'active') return false;
+      if (exp.useSchedule && exp.startDate) {
+        const startYm = String(exp.startDate).slice(0,7);
+        const endYm = exp.endDate ? String(exp.endDate).slice(0,7) : undefined;
+        if (!(targetYm >= startYm && (!endYm || targetYm <= endYm))) return false;
+      }
+      if (exp.frequency === 'yearly') {
+        // Trigger in triggerMonth (1-12); default to January if not set
+        const triggerMonth = Math.min(12, Math.max(1, Number(exp.triggerMonth || 1)));
+        const m = Number(targetYm.slice(5,7));
+        return m === triggerMonth;
+      }
+      // Default monthly
+      return true;
+    };
+    // Baseline recurring for month 0
+    const currentYm = new Date().toISOString().slice(0,7);
     const totalRecurringExpenses = data.expenses
-      .filter(expense => expense.type === 'recurring' && expense.status === 'active')
-      .reduce((sum, expense) => sum + expense.amount, 0);
+      .filter(exp => exp.type === 'recurring')
+      .filter(exp => isRecurringActiveForMonth(exp, currentYm))
+      .reduce((sum, exp) => sum + (exp.amount || 0), 0);
 
     // Get variable expenses with proper date handling
     const activeVariableExpenses = data.expenses
@@ -206,10 +226,15 @@ export const useProjectionCalculations = () => {
         return sum + gain;
       }, 0);
 
+      const targetYmStr = `${targetMonth.getFullYear()}-${String(targetMonth.getMonth()+1).padStart(2,'0')}`;
+      const recurringThisMonth = data.expenses
+        .filter(exp => exp.type === 'recurring')
+        .filter(exp => isRecurringActiveForMonth(exp, targetYmStr))
+        .reduce((sum, exp) => sum + (exp.amount || 0), 0);
       const totalPassiveThisMonth = baseUnscheduledActivePassiveIncome + scheduledPassiveThisMonth + compoundedGainThisMonth + currentMonthDividendIncome;
       // Include liquid asset compounding as monthly income contribution
       const monthlyIncomeThisMonth = totalPassiveThisMonth + totalActiveIncome + liquidCompoundedGainThisMonth;
-      const monthlyChange = monthlyIncomeThisMonth - (totalRecurringExpenses + variableExpensesThisMonth);
+      const monthlyChange = monthlyIncomeThisMonth - (recurringThisMonth + variableExpensesThisMonth);
       
       runningBalance += monthlyChange;
       
@@ -217,11 +242,11 @@ export const useProjectionCalculations = () => {
         month: i,
         balance: Math.round(runningBalance),
         monthlyIncome: monthlyIncomeThisMonth,
-        monthlyExpenses: totalRecurringExpenses + variableExpensesThisMonth,
+        monthlyExpenses: recurringThisMonth + variableExpensesThisMonth,
         netChange: monthlyChange,
         passiveIncome: totalPassiveThisMonth,
         activeIncome: totalActiveIncome,
-        recurringExpenses: totalRecurringExpenses,
+        recurringExpenses: recurringThisMonth,
         variableExpenses: variableExpensesThisMonth,
         cumulativeGrowth: runningBalance - totalLiquid,
         balanceChange: runningBalance - previousBalance,

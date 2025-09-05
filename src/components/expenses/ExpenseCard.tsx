@@ -8,6 +8,7 @@ import { EditableValue } from "@/components/ui/editable-value";
 import { StatusToggle } from "@/components/ui/status-toggle";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { getCategoryIcon } from "./expenseUtils";
+import { Switch } from "@/components/ui/switch";
 
 interface ExpenseCardProps {
   expense: any;
@@ -143,7 +144,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
               </Select>
             )}
             
-            {/* Date input for variable expenses or day for recurring */}
+            {/* Date input for variable expenses or recurrence controls for recurring */}
             {expense.type === 'variable' ? (
               <div className="flex items-center gap-1">
                 <Calendar size={12} className="text-muted-foreground" />
@@ -156,17 +157,45 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
                 />
               </div>
             ) : (
-              <div className="flex items-center gap-1">
-                <span className="font-mono">{t.day}:</span>
-                <Input 
-                  type="number" 
-                  min={1} 
-                  max={31} 
-                  value={expense.day || ''} 
-                  onChange={(e) => onUpdate(expense.id, { day: e.target.value })} 
-                  className="w-12 h-6 text-xs bg-input border-2 border-border px-1 font-mono"
-                  placeholder="1-31"
-                />
+              <div className="flex items-center gap-2">
+                <Select value={expense.frequency || 'monthly'} onValueChange={(value) => onUpdate(expense.id, { frequency: value })}>
+                  <SelectTrigger className="w-24 h-6 text-xs bg-input border-2 border-border font-mono">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-2 border-border z-50">
+                    <SelectItem value="monthly" className="font-mono">Monthly</SelectItem>
+                    <SelectItem value="yearly" className="font-mono">Yearly</SelectItem>
+                  </SelectContent>
+                </Select>
+                {(!expense.frequency || expense.frequency === 'monthly') && (
+                  <>
+                    <span className="font-mono">{t.day}:</span>
+                    <Input 
+                      type="number" 
+                      min={1} 
+                      max={31} 
+                      value={expense.day || ''} 
+                      onChange={(e) => onUpdate(expense.id, { day: Number(e.target.value) })} 
+                      className="w-12 h-6 text-xs bg-input border-2 border-border px-1 font-mono"
+                      placeholder="1-31"
+                    />
+                  </>
+                )}
+                {expense.frequency === 'yearly' && (
+                  <>
+                    <span className="font-mono">Month:</span>
+                    <Select value={String(expense.triggerMonth || 1)} onValueChange={(value) => onUpdate(expense.id, { triggerMonth: Number(value) })}>
+                      <SelectTrigger className="w-24 h-6 text-xs bg-input border-2 border-border font-mono">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card border-2 border-border z-50">
+                        {Array.from({ length: 12 }).map((_, i) => (
+                          <SelectItem key={i+1} value={String(i+1)} className="font-mono">{`M${i+1}`}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -187,6 +216,20 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
             </Button>
           </div>
         </div>
+        {expense.type === 'recurring' && (
+          <div className="flex items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground font-mono">Schedule</span>
+              <Switch checked={Boolean(expense.useSchedule)} onCheckedChange={(checked) => onUpdate(expense.id, { useSchedule: checked })} />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono">Start</span>
+              <Input type="month" value={(expense.startDate || '').slice(0,7)} onChange={(e) => onUpdate(expense.id, { startDate: e.target.value })} className="h-6 w-28 text-xs bg-input border-2 border-border px-1 font-mono" disabled={!expense.useSchedule} />
+              <span className="font-mono">End</span>
+              <Input type="month" value={(expense.endDate || '').slice(0,7)} onChange={(e) => onUpdate(expense.id, { endDate: e.target.value || undefined })} className="h-6 w-28 text-xs bg-input border-2 border-border px-1 font-mono" disabled={!expense.useSchedule} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
