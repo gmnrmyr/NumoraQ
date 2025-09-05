@@ -160,6 +160,12 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                       <div className="text-green-400 font-semibold">INCOME</div>
                       <div>Active: {currencySymbol}{data.activeIncome?.toLocaleString() || '0'}</div>
                       <div>Passive: {currencySymbol}{data.passiveIncome?.toLocaleString() || '0'}</div>
+                      {data.compoundedPassive > 0 && (
+                        <div className="text-emerald-400">Compounded: {currencySymbol}{data.compoundedPassive.toLocaleString()}</div>
+                      )}
+                      {data.compoundedAssets > 0 && (
+                        <div className="text-emerald-300">Assets (compounded): {currencySymbol}{data.compoundedAssets.toLocaleString()}</div>
+                      )}
                       {data.dividendIncome > 0 && (
                         <div className="text-cyan-400">Dividends: {currencySymbol}{data.dividendIncome.toLocaleString()}</div>
                       )}
@@ -225,7 +231,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                     <div className="flex justify-between">
                       <span>Net Change:</span>
                       <span className={data.netChange >= 0 ? 'text-green-400' : 'text-red-400'}>
-                        {data.netChange >= 0 ? '+' : ''}{currencySymbol}{Math.round(data.netChange).toLocaleString()}
+                        {data.netChange >= 0 ? '+' : ''}{currencySymbol}{Number(data.netChange).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">

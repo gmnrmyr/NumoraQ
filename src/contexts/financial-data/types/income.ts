@@ -10,6 +10,9 @@ export interface PassiveIncome {
   useSchedule?: boolean;
   startDate?: string; // YYYY-MM or YYYY-MM-DD
   endDate?: string;   // YYYY-MM or YYYY-MM-DD (optional => open-ended)
+  // Optional compounding
+  compoundEnabled?: boolean;
+  compoundAnnualRate?: number; // APY percent per year, e.g., 6
 }
 
 export interface ActiveIncome {

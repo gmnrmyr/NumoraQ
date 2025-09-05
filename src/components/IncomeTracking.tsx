@@ -157,6 +157,33 @@ export const IncomeTracking = () => {
                     When scheduled, this income is included in projections between start and end months (end optional).
                   </div>
                 </div>
+
+                {/* Compounding Controls */}
+                <div className="mt-2 pt-2 border-t border-border/50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-mono">
+                      <span className="text-muted-foreground">Compounding</span>
+                      <Switch
+                        checked={Boolean((income as any).compoundEnabled)}
+                        onCheckedChange={(checked) => updatePassiveIncome(income.id, { compoundEnabled: checked } as any)}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 text-xs font-mono">
+                      <span className="text-muted-foreground">APY %</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={String((income as any).compoundAnnualRate ?? '')}
+                        onChange={(e) => updatePassiveIncome(income.id, { compoundAnnualRate: e.target.value === '' ? undefined : Number(e.target.value) } as any)}
+                        className="h-7 w-20 bg-input border-2 border-border px-2"
+                        disabled={!((income as any).compoundEnabled)}
+                      />
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-1 font-mono">
+                    Monthly compounding from APY: growth is added to monthly income; principal assumed as the current amount.
+                  </div>
+                </div>
                 <div className="mt-2">
                   <EditableValue
                     value={income.note || ""}

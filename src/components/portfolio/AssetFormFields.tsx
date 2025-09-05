@@ -167,6 +167,31 @@ export const AssetFormFields = ({
               placeholder="1000"
               className="font-mono"
             />
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="compoundEnabled"
+                  checked={formData.compoundEnabled}
+                  onCheckedChange={(checked) => setFormData((prev: any) => ({ ...prev, compoundEnabled: checked }))}
+                />
+                <Label htmlFor="compoundEnabled" className="font-mono text-xs uppercase">Compound (APY)</Label>
+              </div>
+              {formData.compoundEnabled && (
+                <div>
+                  <Label className="font-mono text-xs uppercase">APY (%)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    value={formData.compoundAnnualRate || ''}
+                    onChange={(e) => setFormData((prev: any) => ({ ...prev, compoundAnnualRate: Number(e.target.value) }))}
+                    placeholder="6.0"
+                    className="font-mono"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         );
     }

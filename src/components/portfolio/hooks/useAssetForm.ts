@@ -19,6 +19,8 @@ export const useAssetForm = () => {
     walletAddress: '',
     autoCompound: false,
     monthlyYield: 0,
+    compoundEnabled: false,
+    compoundAnnualRate: 0,
     nftContractAddress: '',
     nftCollectionName: ''
   });
@@ -37,6 +39,8 @@ export const useAssetForm = () => {
       walletAddress: '',
       autoCompound: false,
       monthlyYield: 0,
+      compoundEnabled: false,
+      compoundAnnualRate: 0,
       nftContractAddress: '',
       nftCollectionName: ''
     });
@@ -86,6 +90,8 @@ export const useAssetForm = () => {
       walletAddress: asset.walletAddress || '',
       autoCompound: asset.autoCompound || false,
       monthlyYield: asset.monthlyYield || 0,
+      compoundEnabled: asset.compoundEnabled || false,
+      compoundAnnualRate: asset.compoundAnnualRate || 0,
       nftContractAddress: asset.nftContractAddress || '',
       nftCollectionName: asset.nftCollectionName || ''
     });
