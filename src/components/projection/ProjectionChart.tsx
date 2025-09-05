@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, BarChart, Bar } from "recharts";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 
 interface ProjectionChartProps {
@@ -15,6 +15,21 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
   currencySymbol
 }) => {
   const { data } = useFinancialData();
+  const [chartType, setChartType] = React.useState<'line' | 'bar'>(() => (localStorage.getItem('pj_chart_type') as any) || 'line');
+  const [chartHeight, setChartHeight] = React.useState<number>(() => Number(localStorage.getItem('pj_chart_h')) || 256);
+  const [showEvents, setShowEvents] = React.useState<boolean>(() => (localStorage.getItem('pj_chart_events') !== 'off'));
+  const [showIlliquidChart, setShowIlliquidChart] = React.useState<boolean>(() => (localStorage.getItem('pj_chart_illiquid') === 'on'));
+  // Annual rate (non-compounding, inflation-style growth)
+  const [illiquidApy, setIlliquidApy] = React.useState<number>(() => {
+    const v = localStorage.getItem('pj_illiq_apy');
+    const n = v ? parseFloat(v) : 3.0; // default ~3%/yr; user can adjust per country
+    return isNaN(n) ? 3.0 : n;
+  });
+  React.useEffect(() => { localStorage.setItem('pj_chart_type', chartType); }, [chartType]);
+  React.useEffect(() => { localStorage.setItem('pj_chart_h', String(chartHeight)); }, [chartHeight]);
+  React.useEffect(() => { localStorage.setItem('pj_chart_events', showEvents ? 'on' : 'off'); }, [showEvents]);
+  React.useEffect(() => { localStorage.setItem('pj_chart_illiquid', showIlliquidChart ? 'on' : 'off'); }, [showIlliquidChart]);
+  React.useEffect(() => { localStorage.setItem('pj_illiq_apy', String(illiquidApy)); }, [illiquidApy]);
   
   // Function to get actual calendar date for a given month offset
   const getActualDate = (monthOffset: number) => {
@@ -29,6 +44,90 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
     
     return `${monthName} ${year}`;
   };
+
+  // Build vertical markers (scheduled income starts/ends and yearly recurring triggers)
+  const monthDiff = (from: Date, to: Date) => (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth());
+  const startOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1);
+  const { markerMonths, eventsByMonth } = React.useMemo(() => {
+    const now = startOfMonth(new Date());
+    const maxMonth = (projectionData?.length || 0) - 1;
+    const byX = new Map<number, { starts: string[]; ends: string[]; yearly: number }>();
+
+    const ensure = (x: number) => {
+      let item = byX.get(x);
+      if (!item) { item = { starts: [], ends: [], yearly: 0 }; byX.set(x, item); }
+      return item;
+    };
+
+    // Passive income schedule markers
+    (data.passiveIncome || []).forEach((inc: any) => {
+      if (inc.useSchedule && inc.startDate) {
+        const s = startOfMonth(new Date(String(inc.startDate)));
+        const off = monthDiff(now, s);
+        if (off >= 1 && off <= maxMonth) ensure(off).starts.push(String(inc.source || 'Income'));
+      }
+      if (inc.useSchedule && inc.endDate) {
+        const e = startOfMonth(new Date(String(inc.endDate)));
+        const off = monthDiff(now, e);
+        if (off >= 1 && off <= maxMonth) ensure(off).ends.push(String(inc.source || 'Income'));
+      }
+    });
+
+    // Yearly recurring triggers across entire period
+    const recurring = (data.expenses || []).filter((e: any) => e.type === 'recurring' && e.status === 'active' && e.frequency === 'yearly');
+    for (let i = 1; i <= maxMonth; i++) {
+      const current = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const ym = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2,'0')}`;
+      const countThisMonth = recurring.filter((e: any) => {
+        if (e.useSchedule && e.startDate) {
+          const s = String(e.startDate).slice(0,7);
+          const en = e.endDate ? String(e.endDate).slice(0,7) : undefined;
+          if (!(ym >= s && (!en || ym <= en))) return false;
+        }
+        const trig = Math.min(12, Math.max(1, Number(e.triggerMonth || 1)));
+        return (current.getMonth() + 1) === trig;
+      }).length;
+      if (countThisMonth > 0) ensure(i).yearly += countThisMonth;
+    }
+
+    const months = Array.from(byX.keys()).sort((a,b) => a - b);
+    return { markerMonths: months, eventsByMonth: byX };
+  }, [data.passiveIncome, data.expenses, projectionData]);
+
+  // Helper for tooltip: events list for a given month number
+  const getEventsForMonth = (monthNumber: number) => {
+    const entry = eventsByMonth.get(monthNumber);
+    if (!entry) return { starts: [], ends: [], yearly: 0 };
+    return entry;
+  };
+
+  // Compact number formatter for Y-axis
+  const formatCompact = (n: number) => {
+    const abs = Math.abs(n);
+    if (abs >= 1e9) return `${(n/1e9).toFixed(1).replace(/\.0$/,'')}B`;
+    if (abs >= 1e6) return `${(n/1e6).toFixed(1).replace(/\.0$/,'')}M`;
+    if (abs >= 1e3) return `${(n/1e3).toFixed(0)}k`;
+    return String(n);
+  };
+
+  // Liquid chart uses projectionData directly
+  const chartData = projectionData;
+
+  // Illiquid projection chart (simple APY-based monthly compounding)
+  const illiquidData = React.useMemo(() => {
+    const totalNow = (data.illiquidAssets || [])
+      .filter((a: any) => a.isActive)
+      .reduce((sum: number, a: any) => sum + (a.value || 0), 0);
+    const months = (projectionData?.length || 0) - 1;
+    // Convert annual to simple monthly addition (no compounding)
+    const monthlyAdd = totalNow * (Math.max(0, illiquidApy) / 100) / 12;
+    const out: Array<{ month: number; value: number }> = [];
+    for (let i = 0; i <= months; i++) {
+      const v = totalNow + monthlyAdd * i;
+      out.push({ month: i, value: Math.round(v) });
+    }
+    return out;
+  }, [data.illiquidAssets, projectionData, illiquidApy]);
   
   // Function to format month label with actual date (shorter for X-axis)
   const formatMonthLabel = (monthNumber: number) => {
@@ -99,17 +198,13 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
         </div>
       </div>
       
-      <div className="h-64 w-full">
+      <div className="w-full" style={{ height: `${chartHeight}px` }}>
         <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={projectionData}
-          margin={{
-            top: 20,
-            right: 30,
-            left: 20,
-            bottom: 50,
-          }}
-        >
+        {chartType === 'line' ? (
+          <LineChart
+            data={chartData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
+          >
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
           <XAxis 
             dataKey="month" 
@@ -128,7 +223,8 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
               fontSize: 12
             }}
             stroke="rgba(255,255,255,0.6)"
-            tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 10 }}
+            tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: 700 as any }}
+            tickFormatter={formatCompact}
           />
           <Tooltip 
             contentStyle={{ 
@@ -148,6 +244,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
               const isCurrentMonth = label === 0;
               const variableTriggers = getVariableExpenseTriggers(label);
               const scheduledPassive = getScheduledPassiveIncomeForMonth(label);
+              const monthEvents = getEventsForMonth(label);
               
               return (
                 <div className="bg-black/80 backdrop-blur-md p-4 rounded-lg border border-white/20 space-y-3 shadow-2xl">
@@ -226,6 +323,21 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                       </div>
                     </div>
                   )}
+
+                  {showEvents && (monthEvents.starts.length > 0 || monthEvents.ends.length > 0 || monthEvents.yearly > 0) && (
+                    <div className="border-t border-cyan-400/30 pt-2">
+                      <div className="text-cyan-400 font-semibold text-xs mb-1">📌 EVENTS</div>
+                      {monthEvents.starts.length > 0 && (
+                        <div className="text-xs text-cyan-300">Starts: {monthEvents.starts.slice(0,3).join(', ')}{monthEvents.starts.length>3?' …':''}</div>
+                      )}
+                      {monthEvents.ends.length > 0 && (
+                        <div className="text-xs text-slate-300">Ends: {monthEvents.ends.slice(0,3).join(', ')}{monthEvents.ends.length>3?' …':''}</div>
+                      )}
+                      {monthEvents.yearly > 0 && (
+                        <div className="text-xs text-amber-300">Yearly bills: {monthEvents.yearly}</div>
+                      )}
+                    </div>
+                  )}
                   
                   <div className="border-t border-accent/30 pt-2 space-y-1">
                     <div className="flex justify-between">
@@ -265,6 +377,9 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
               );
             }}
           />
+          {showEvents && markerMonths.map((m, idx) => (
+            <ReferenceLine key={`mk-${idx}`} x={m} stroke="#22d3ee" strokeDasharray="6 4" ifOverflow="extendDomain" strokeWidth={2} strokeOpacity={0.35} />
+          ))}
           <Line 
             type="monotone" 
             dataKey="balance" 
@@ -299,9 +414,90 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
               );
             }}
           />
+          {/* Separate illiquid chart is shown below when enabled */}
         </LineChart>
+        ) : (
+          <BarChart
+            data={chartData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+            <XAxis dataKey="month" stroke="rgba(255,255,255,0.6)" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 8 }} tickFormatter={formatMonthLabel} interval="preserveStartEnd" />
+            <YAxis stroke="rgba(255,255,255,0.6)" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: 700 as any }} tickFormatter={formatCompact} />
+            <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.95)', border: '2px solid #333', borderRadius: 0, color: '#fff', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, minWidth: '280px', padding: '12px' }}
+              content={({ active, payload, label }) => {
+                if (!active || !payload || !payload[0]) return null;
+                return (
+                  <div className="bg-black/80 backdrop-blur-md p-4 rounded-lg border border-white/20 space-y-1 shadow-2xl">
+                    <div className="font-bold text-accent text-center">{`Month ${label} (${getActualDate(label)})`}</div>
+                    <div className="flex justify-between text-xs"><span>Balance:</span><span className="font-bold">{currencySymbol}{Number(payload[0].payload.balance).toLocaleString()}</span></div>
+                  </div>
+                );
+              }}
+            />
+            {showEvents && markerMonths.map((m, idx) => (
+              <ReferenceLine key={`mkb-${idx}`} x={m} stroke="#22d3ee" strokeDasharray="6 4" ifOverflow="extendDomain" strokeWidth={2} strokeOpacity={0.35} />
+            ))}
+            <Bar dataKey="balance" fill={isPositiveProjection ? "#00ff00" : "#ff0066"} />
+          </BarChart>
+        )}
         </ResponsiveContainer>
       </div>
+      {/* Small controls: chart type + height */}
+      <div className="flex items-center justify-end gap-2 mt-2 text-[10px] font-mono">
+        <div className="flex items-center gap-1 mr-auto">
+          <span className="text-muted-foreground">Events:</span>
+          <button className={`px-1 border ${showEvents?'border-accent text-accent':'border-border'}`} onClick={() => setShowEvents(!showEvents)}>{showEvents?'On':'Off'}</button>
+          <span className="ml-2 text-muted-foreground">Illiquid chart:</span>
+          <button className={`px-1 border ${showIlliquidChart?'border-accent text-accent':'border-border'}`} onClick={() => setShowIlliquidChart(!showIlliquidChart)}>{showIlliquidChart?'Shown':'Hidden'}</button>
+          {showIlliquidChart && (
+            <>
+              <span className="ml-2 text-muted-foreground">APY%:</span>
+              <input className="w-12 bg-input border border-border px-1"
+                type="number" step="0.1" min="0" value={illiquidApy}
+                onChange={(e)=> setIlliquidApy(Number(e.target.value) || 0)} />
+            </>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-muted-foreground">Style:</span>
+          <button className={`px-1 border ${chartType==='line'?'border-accent text-accent':'border-border'}`} onClick={() => setChartType('line')}>Line</button>
+          <button className={`px-1 border ${chartType==='bar'?'border-accent text-accent':'border-border'}`} onClick={() => setChartType('bar')}>Bar</button>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-muted-foreground">Height:</span>
+          <button className="px-1 border border-border" onClick={() => setChartHeight(Math.max(200, chartHeight-40))}>-</button>
+          <button className="px-1 border border-border" onClick={() => setChartHeight(Math.min(800, chartHeight+40))}>+</button>
+        </div>
+      </div>
+      <div className="text-[10px] text-muted-foreground font-mono mt-1">Liquid Projection</div>
+      {showIlliquidChart && (
+        <div className="w-full mt-4" style={{ height: `${Math.max(180, chartHeight-40)}px` }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={illiquidData} margin={{ top: 10, right: 30, left: 20, bottom: 30 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              <XAxis dataKey="month" stroke="rgba(255,255,255,0.6)" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 8 }} tickFormatter={formatMonthLabel} interval="preserveStartEnd" />
+              <YAxis stroke="rgba(255,255,255,0.6)" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: 700 as any }} tickFormatter={formatCompact} />
+              <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.95)', border: '2px solid #333', borderRadius: 0, color: '#fff', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, minWidth: '220px', padding: '10px' }}
+                content={({ active, payload, label }) => {
+                  if (!active || !payload || !payload[0]) return null;
+                  const d = payload[0].payload as any;
+                  return (
+                    <div className="bg-black/80 backdrop-blur-md p-3 rounded-lg border border-white/20 space-y-1 shadow-2xl">
+                      <div className="font-bold text-cyan-400 text-center">Illiquid Projection</div>
+                      <div className="flex justify-between text-xs"><span>Month:</span><span>M{label} ({getActualDate(label)})</span></div>
+                      <div className="flex justify-between text-xs"><span>Value:</span><span className="font-bold">{currencySymbol}{Number(d.value).toLocaleString()}</span></div>
+                      <div className="text-[10px] text-muted-foreground">Annual rate {illiquidApy}% (non-compounding)</div>
+                    </div>
+                  );
+                }}
+              />
+              <Line type="monotone" dataKey="value" stroke="#38bdf8" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+          <div className="text-[10px] text-muted-foreground font-mono mt-1">Illiquid Projection</div>
+        </div>
+      )}
     </div>
   );
 };
