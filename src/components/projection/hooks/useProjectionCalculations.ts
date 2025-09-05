@@ -24,8 +24,9 @@ export const useProjectionCalculations = () => {
     // Get monthly income and expenses
     // Base passive income: only active streams without scheduling
     const passiveIncomeList = data.passiveIncome || [];
+    // Exclude compounding-enabled incomes from base; they will be modeled as principal growth
     const baseUnscheduledActivePassiveIncome = passiveIncomeList
-      .filter((income: any) => income.status === 'active' && !income.useSchedule)
+      .filter((income: any) => income.status === 'active' && !income.useSchedule && !income.compoundEnabled)
       .reduce((sum: number, income: any) => sum + (income.amount || 0), 0);
     
     const totalActiveIncome = data.activeIncome
@@ -57,9 +58,46 @@ export const useProjectionCalculations = () => {
         .reduce((sum: number, income: any) => sum + (income.amount || 0), 0);
     };
 
+    // Compounding passive income: track principals and compute monthly growth
+    // Use APY to compute effective monthly compounding rate: (1+APY)^(1/12)-1
+    const monthlyRateFor = (annualApy?: number) => (annualApy ? Math.pow(1 + (annualApy / 100), 1/12) - 1 : 0);
+    // Initialize principals map for compounding-enabled items; principal derived from income.amount
+    const compoundedItems = (passiveIncomeList as any[]).filter((inc) => inc.compoundEnabled);
+    const principalById: Record<string, number> = {};
+    compoundedItems.forEach((inc) => {
+      principalById[inc.id] = Math.max(0, Number(inc.amount) || 0);
+    });
+
     // Include dividend income in passive income for month 0
     const scheduledPassiveMonth0 = getScheduledPassiveIncomeForMonth(0);
-    const totalPassiveIncomeWithDividendsMonth0 = baseUnscheduledActivePassiveIncome + scheduledPassiveMonth0 + monthlyDividendIncome;
+    // Add compounded monthly gains for month 0 (only for active + schedule conditions)
+    const compoundedGainMonth0 = compoundedItems.reduce((sum, inc) => {
+      // Respect status and schedule for month 0
+      const isActive = inc.status === 'active';
+      const month0Allowed = !inc.useSchedule || (inc.startDate && (!inc.endDate || String(inc.startDate).slice(0,7) <= new Date().toISOString().slice(0,7) && new Date().toISOString().slice(0,7) <= String(inc.endDate).slice(0,7)));
+      if (!isActive || !month0Allowed) return sum;
+      const rate = monthlyRateFor(inc.compoundAnnualRate);
+      const base = principalById[inc.id] || 0;
+      const gain = base * rate;
+      principalById[inc.id] = base + gain; // grow principal
+      return sum + gain;
+    }, 0);
+    // Liquid assets compounding month 0
+    const liquidCompoundItems = activeLiquidAssets.filter((a: any) => a.compoundEnabled);
+    const liquidMonthlyRateFor = (annualApy?: number) => (annualApy ? Math.pow(1 + (annualApy / 100), 1/12) - 1 : 0);
+    const liquidPrincipalById: Record<string, number> = {};
+    liquidCompoundItems.forEach((asset: any) => {
+      liquidPrincipalById[asset.id] = Math.max(0, Number(asset.value) || 0);
+    });
+    const liquidCompoundedGainMonth0 = liquidCompoundItems.reduce((sum, asset: any) => {
+      const rate = liquidMonthlyRateFor(asset.compoundAnnualRate);
+      const base = liquidPrincipalById[asset.id] || 0;
+      const gain = base * rate;
+      liquidPrincipalById[asset.id] = base + gain;
+      return sum + gain;
+    }, 0);
+
+    const totalPassiveIncomeWithDividendsMonth0 = baseUnscheduledActivePassiveIncome + scheduledPassiveMonth0 + compoundedGainMonth0 + monthlyDividendIncome;
     const monthlyNetIncomeMonth0 = totalPassiveIncomeWithDividendsMonth0 + totalActiveIncome - totalRecurringExpenses;
     
     // Calculate projection for each month
@@ -70,7 +108,7 @@ export const useProjectionCalculations = () => {
     projectionData.push({
       month: 0,
       balance: Math.round(runningBalance),
-      monthlyIncome: totalPassiveIncomeWithDividendsMonth0 + totalActiveIncome,
+      monthlyIncome: totalPassiveIncomeWithDividendsMonth0 + totalActiveIncome + liquidCompoundedGainMonth0,
       monthlyExpenses: totalRecurringExpenses,
       netChange: 0,
       passiveIncome: totalPassiveIncomeWithDividendsMonth0,
@@ -79,7 +117,9 @@ export const useProjectionCalculations = () => {
       cumulativeGrowth: 0,
       balanceChange: 0,
       dividendIncome: monthlyDividendIncome,
-      variableExpenses: 0
+      variableExpenses: 0,
+      compoundedPassive: compoundedGainMonth0,
+      compoundedAssets: liquidCompoundedGainMonth0
     });
     
     // Calculate future months with compound growth for REITs and specific date expenses
@@ -121,15 +161,40 @@ export const useProjectionCalculations = () => {
       cumulativeDividends += currentMonthDividendIncome;
       
       const scheduledPassiveThisMonth = getScheduledPassiveIncomeForMonth(i);
-      const totalPassiveThisMonth = baseUnscheduledActivePassiveIncome + scheduledPassiveThisMonth + currentMonthDividendIncome;
-      const monthlyChange = totalPassiveThisMonth + totalActiveIncome - totalRecurringExpenses - variableExpensesThisMonth;
+      // Compounded monthly gains per item this month (respect status and schedule)
+      const compoundedGainThisMonth = compoundedItems.reduce((sum, inc) => {
+        const isActive = inc.status === 'active';
+        const currentDate = new Date();
+        const targetMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+        const targetYm = targetMonth.toISOString().slice(0,7);
+        const scheduleOk = !inc.useSchedule || (inc.startDate && (!inc.endDate || (String(inc.startDate).slice(0,7) <= targetYm && targetYm <= String(inc.endDate).slice(0,7))));
+        if (!isActive || !scheduleOk) return sum;
+        const rate = monthlyRateFor(inc.compoundAnnualRate);
+        const base = principalById[inc.id] || 0;
+        const gain = base * rate;
+        principalById[inc.id] = base + gain; // grow principal
+        return sum + gain;
+      }, 0);
+      // Liquid assets compounding this month
+      const liquidCompoundedGainThisMonth = liquidCompoundItems.reduce((sum, asset: any) => {
+        const rate = liquidMonthlyRateFor(asset.compoundAnnualRate);
+        const base = liquidPrincipalById[asset.id] || 0;
+        const gain = base * rate;
+        liquidPrincipalById[asset.id] = base + gain;
+        return sum + gain;
+      }, 0);
+
+      const totalPassiveThisMonth = baseUnscheduledActivePassiveIncome + scheduledPassiveThisMonth + compoundedGainThisMonth + currentMonthDividendIncome;
+      // Include liquid asset compounding as monthly income contribution
+      const monthlyIncomeThisMonth = totalPassiveThisMonth + totalActiveIncome + liquidCompoundedGainThisMonth;
+      const monthlyChange = monthlyIncomeThisMonth - (totalRecurringExpenses + variableExpensesThisMonth);
       
       runningBalance += monthlyChange;
       
       projectionData.push({
         month: i,
         balance: Math.round(runningBalance),
-        monthlyIncome: totalPassiveThisMonth + totalActiveIncome,
+        monthlyIncome: monthlyIncomeThisMonth,
         monthlyExpenses: totalRecurringExpenses + variableExpensesThisMonth,
         netChange: monthlyChange,
         passiveIncome: totalPassiveThisMonth,
@@ -138,7 +203,9 @@ export const useProjectionCalculations = () => {
         variableExpenses: variableExpensesThisMonth,
         cumulativeGrowth: runningBalance - totalLiquid,
         balanceChange: runningBalance - previousBalance,
-        dividendIncome: currentMonthDividendIncome
+        dividendIncome: currentMonthDividendIncome,
+        compoundedPassive: compoundedGainThisMonth,
+        compoundedAssets: liquidCompoundedGainThisMonth
       });
     }
     

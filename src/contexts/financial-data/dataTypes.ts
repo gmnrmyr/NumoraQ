@@ -40,6 +40,8 @@ export interface PassiveIncome {
   useSchedule?: boolean;
   startDate?: string; // YYYY-MM or YYYY-MM-DD
   endDate?: string;   // YYYY-MM or YYYY-MM-DD
+  compoundEnabled?: boolean;
+  compoundAnnualRate?: number; // APY percent per year
 }
 
 export interface ActiveIncome {

@@ -35,7 +35,9 @@ export const useAssetOperations = () => {
       value: finalValue,
       icon: formData.icon,
       isActive: formData.isActive,
-      color: 'text-foreground'
+      color: 'text-foreground',
+      compoundEnabled: formData.compoundEnabled || false,
+      compoundAnnualRate: formData.compoundEnabled ? Number(formData.compoundAnnualRate || 0) : 0
     };
 
     if (assetType === 'crypto' && formData.cryptoSymbol && formData.quantity > 0) {

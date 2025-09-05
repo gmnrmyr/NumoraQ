@@ -19,6 +19,9 @@ export interface LiquidAsset {
   walletAddress?: string;
   autoCompound?: boolean;
   monthlyYield?: number;
+  // Generic compounding for liquid assets (APY-based, monthly compounding)
+  compoundEnabled?: boolean;
+  compoundAnnualRate?: number; // APY percent per year
   isNFT?: boolean;
   nftContractAddress?: string;
   nftCollectionName?: string;
