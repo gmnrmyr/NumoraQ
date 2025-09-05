@@ -83,11 +83,33 @@ export const useProjectionCalculations = () => {
       return sum + gain;
     }, 0);
     // Liquid assets compounding month 0
-    const liquidCompoundItems = activeLiquidAssets.filter((a: any) => a.compoundEnabled);
-    const liquidMonthlyRateFor = (annualApy?: number) => (annualApy ? Math.pow(1 + (annualApy / 100), 1/12) - 1 : 0);
+    // Treat assets with APY > 0 as compounding even if the toggle wasn't persisted
+    const getNumericApy = (apy: any) => {
+      if (typeof apy === 'number') return apy;
+      if (typeof apy === 'string') {
+        const n = parseFloat(apy);
+        return isNaN(n) ? 0 : n;
+      }
+      return 0;
+    };
+    const getNumericValue = (v: any) => {
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string') {
+        const n = parseFloat(v);
+        return isNaN(n) ? 0 : n;
+      }
+      return 0;
+    };
+    const liquidCompoundItems = activeLiquidAssets.filter((a: any) => (
+      Boolean(a.compoundEnabled) || getNumericApy(a.compoundAnnualRate) > 0
+    ));
+    const liquidMonthlyRateFor = (annualApy?: any) => {
+      const apyNum = getNumericApy(annualApy);
+      return apyNum ? Math.pow(1 + (apyNum / 100), 1/12) - 1 : 0;
+    };
     const liquidPrincipalById: Record<string, number> = {};
     liquidCompoundItems.forEach((asset: any) => {
-      liquidPrincipalById[asset.id] = Math.max(0, Number(asset.value) || 0);
+      liquidPrincipalById[asset.id] = Math.max(0, getNumericValue(asset.value));
     });
     const liquidCompoundedGainMonth0 = liquidCompoundItems.reduce((sum, asset: any) => {
       const rate = liquidMonthlyRateFor(asset.compoundAnnualRate);
