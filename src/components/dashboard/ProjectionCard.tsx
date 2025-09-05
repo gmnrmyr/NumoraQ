@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PieChart, ChevronDown, ChevronUp } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
+import { useProjectionCalculations } from "@/components/projection/hooks/useProjectionCalculations";
 
 export const ProjectionCard = () => {
   const { data } = useFinancialData();
@@ -29,31 +30,14 @@ export const ProjectionCard = () => {
 
   const currencySymbol = getCurrencySymbol(data.userProfile.defaultCurrency);
 
-  const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
-  const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
-  const totalAvailable = totalLiquid;
-  
-  const totalPassiveIncome = data.passiveIncome
-    .filter(income => income.status === 'active')
-    .reduce((sum, income) => sum + income.amount, 0);
-  
-  const totalActiveIncome = data.activeIncome
-    .filter(income => income.status === 'active')
-    .reduce((sum, income) => sum + income.amount, 0);
-  
-  const totalRecurringExpenses = data.expenses
-    .filter(expense => expense.type === 'recurring' && expense.status === 'active')
-    .reduce((sum, expense) => sum + expense.amount, 0);
-  
-  const totalVariableExpenses = data.expenses
-    .filter(expense => expense.type === 'variable' && expense.status === 'active')
-    .reduce((sum, expense) => sum + expense.amount, 0);
-
-  const activeDebts = data.debts.filter(debt => debt.isActive);
-  const totalActiveDebt = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
-
-  const monthlyBalance = totalPassiveIncome + totalActiveIncome - totalRecurringExpenses;
-  const yearProjection = (monthlyBalance * data.projectionMonths) - totalVariableExpenses + totalAvailable - totalActiveDebt;
+  // Use unified projection logic for consistency with the chart
+  const { projectionData } = useProjectionCalculations();
+  const projectedRevenue = projectionData.slice(1).reduce((sum, m: any) => sum + (m.monthlyIncome || 0), 0);
+  const projectedExpenses = projectionData.slice(1).reduce((sum, m: any) => sum + (m.monthlyExpenses || 0), 0);
+  const netResult = projectedRevenue - projectedExpenses;
+  const totalCompoundedPassive = projectionData.slice(1).reduce((sum, m: any) => sum + (m.compoundedPassive || 0), 0);
+  const totalCompoundedAssets = projectionData.slice(1).reduce((sum, m: any) => sum + (m.compoundedAssets || 0), 0);
+  const totalCompounded = totalCompoundedPassive + totalCompoundedAssets;
 
   return (
     <Card className="bg-card border-accent border-2 backdrop-blur-sm">
@@ -79,25 +63,28 @@ export const ProjectionCard = () => {
             <div className="text-center">
               <div className="text-xs text-muted-foreground font-mono uppercase">Revenue ({data.projectionMonths}m)</div>
               <div className="text-xs sm:text-sm md:text-xl font-bold text-accent truncate font-mono">
-                {currencySymbol} {((totalPassiveIncome + totalActiveIncome) * data.projectionMonths).toLocaleString()}
+                {currencySymbol} {projectedRevenue.toLocaleString()}
               </div>
             </div>
             <div className="text-center">
               <div className="text-xs text-muted-foreground font-mono uppercase">Expenses ({data.projectionMonths}m)</div>
               <div className="text-xs sm:text-sm md:text-xl font-bold text-red-400 truncate font-mono">
-                {currencySymbol} {(totalRecurringExpenses * data.projectionMonths + totalVariableExpenses).toLocaleString()}
+                {currencySymbol} {projectedExpenses.toLocaleString()}
               </div>
             </div>
             <div className="text-center">
               <div className="text-xs text-muted-foreground font-mono uppercase">Debt</div>
               <div className="text-xs sm:text-sm md:text-xl font-bold text-orange-400 truncate font-mono">
-                {currencySymbol} {totalActiveDebt.toLocaleString()}
+                {currencySymbol} {data.debts.filter(d => d.isActive).reduce((s, d) => s + d.amount, 0).toLocaleString()}
               </div>
             </div>
             <div className="text-center">
-              <div className="text-xs text-muted-foreground font-mono uppercase">Net Result</div>
-              <div className={`text-xs sm:text-sm md:text-xl font-bold truncate font-mono ${yearProjection >= 0 ? 'text-accent' : 'text-red-400'}`}>
-                {currencySymbol} {yearProjection.toLocaleString()}
+              <div className="text-xs text-muted-foreground font-mono uppercase">Compound Gains ({data.projectionMonths}m)</div>
+              <div className={`text-xs sm:text-sm md:text-xl font-bold truncate font-mono ${totalCompounded >= 0 ? 'text-accent' : 'text-red-400'}`}>
+                {currencySymbol} {totalCompounded.toLocaleString()}
+              </div>
+              <div className="text-[10px] text-muted-foreground font-mono mt-1">
+                Passive: {currencySymbol}{totalCompoundedPassive.toLocaleString()} · Assets: {currencySymbol}{totalCompoundedAssets.toLocaleString()}
               </div>
             </div>
           </div>
