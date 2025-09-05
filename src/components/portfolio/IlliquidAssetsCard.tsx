@@ -26,9 +26,16 @@ export const IlliquidAssetsCard = () => {
   });
   
   const [isAddingIlliquid, setIsAddingIlliquid] = useState(false);
+  const [sortDesc, setSortDesc] = useState(true);
 
   const activeIlliquidAssets = data.illiquidAssets.filter(asset => asset.isActive);
   const totalIlliquid = activeIlliquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  const inactiveIlliquidAssets = data.illiquidAssets.filter(asset => !asset.isActive);
+  const sortFn = (a: any, b: any) => (sortDesc ? (b.value || 0) - (a.value || 0) : (a.value || 0) - (b.value || 0));
+  const displayAssets = [
+    ...activeIlliquidAssets.slice().sort(sortFn),
+    ...inactiveIlliquidAssets.slice().sort(sortFn)
+  ];
 
   const handleAddIlliquidAsset = () => {
     if (newIlliquidAsset.name.trim()) {
@@ -52,41 +59,52 @@ export const IlliquidAssetsCard = () => {
             <Gem size={20} />
             {t.illiquidAssets || 'Illiquid Assets'}
           </CardTitle>
-          <Dialog open={isAddingIlliquid} onOpenChange={setIsAddingIlliquid}>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="outline" className="border-foreground text-foreground hover:bg-foreground hover:text-background">
-                <Plus size={16} />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-card border-foreground border-2">
-              <DialogHeader>
-                <DialogTitle className="font-mono uppercase text-foreground">{t.add || 'Add'} {t.illiquidAssets || 'Illiquid Asset'}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Input
-                  placeholder="Asset name (art, collectibles, etc.)"
-                  value={newIlliquidAsset.name}
-                  onChange={(e) => setNewIlliquidAsset({ ...newIlliquidAsset, name: e.target.value })}
-                  className="bg-input border-border border-2 text-foreground font-mono"
-                />
-                <Input
-                  type="number"
-                  placeholder={t.amount || "Value"}
-                  value={newIlliquidAsset.value}
-                  onChange={(e) => setNewIlliquidAsset({ ...newIlliquidAsset, value: parseFloat(e.target.value) || 0 })}
-                  className="bg-input border-border border-2 text-foreground font-mono"
-                />
-                <IconSelector
-                  value={newIlliquidAsset.icon}
-                  onChange={(value) => setNewIlliquidAsset({ ...newIlliquidAsset, icon: value })}
-                  placeholder="Choose an icon"
-                />
-                <Button onClick={handleAddIlliquidAsset} className="w-full bg-foreground text-background hover:bg-foreground/90 font-mono uppercase">
-                  {t.add || 'Add Asset'}
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setSortDesc(!sortDesc)}
+              className="border-foreground text-foreground hover:bg-foreground hover:text-background"
+              title="Toggle sort by value"
+            >
+              Sort {sortDesc ? '▼' : '▲'}
+            </Button>
+            <Dialog open={isAddingIlliquid} onOpenChange={setIsAddingIlliquid}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline" className="border-foreground text-foreground hover:bg-foreground hover:text-background">
+                  <Plus size={16} />
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="bg-card border-foreground border-2">
+                <DialogHeader>
+                  <DialogTitle className="font-mono uppercase text-foreground">{t.add || 'Add'} {t.illiquidAssets || 'Illiquid Asset'}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <Input
+                    placeholder="Asset name (art, collectibles, etc.)"
+                    value={newIlliquidAsset.name}
+                    onChange={(e) => setNewIlliquidAsset({ ...newIlliquidAsset, name: e.target.value })}
+                    className="bg-input border-border border-2 text-foreground font-mono"
+                  />
+                  <Input
+                    type="number"
+                    placeholder={t.amount || "Value"}
+                    value={newIlliquidAsset.value}
+                    onChange={(e) => setNewIlliquidAsset({ ...newIlliquidAsset, value: parseFloat(e.target.value) || 0 })}
+                    className="bg-input border-border border-2 text-foreground font-mono"
+                  />
+                  <IconSelector
+                    value={newIlliquidAsset.icon}
+                    onChange={(value) => setNewIlliquidAsset({ ...newIlliquidAsset, icon: value })}
+                    placeholder="Choose an icon"
+                  />
+                  <Button onClick={handleAddIlliquidAsset} className="w-full bg-foreground text-background hover:bg-foreground/90 font-mono uppercase">
+                    {t.add || 'Add Asset'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
         <div className="text-2xl font-bold text-foreground font-mono">
           {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} {totalIlliquid.toLocaleString()}
@@ -104,7 +122,7 @@ export const IlliquidAssetsCard = () => {
           </div>
         </div>
 
-        {data.illiquidAssets.map((asset) => {
+        {displayAssets.map((asset) => {
           const Icon = iconMap[asset.icon] || Gem;
           const percentage = totalIlliquid > 0 ? (asset.value / totalIlliquid) * 100 : 0;
           
