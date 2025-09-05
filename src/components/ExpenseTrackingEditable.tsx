@@ -15,13 +15,27 @@ export const ExpenseTrackingEditable = () => {
   const recurringExpenses = data.expenses.filter(expense => expense.type === 'recurring');
   const variableExpenses = data.expenses.filter(expense => expense.type === 'variable');
 
-  // Calculate monthly recurring expenses
+  // Calculate monthly recurring expenses (respect schedule and yearly triggers)
+  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
+  const isRecurringActiveForMonth = (exp: any, targetYm: string) => {
+    if (exp.status !== 'active') return false;
+    if (exp.useSchedule && exp.startDate) {
+      const startYm = String(exp.startDate).slice(0,7);
+      const endYm = exp.endDate ? String(exp.endDate).slice(0,7) : undefined;
+      if (!(targetYm >= startYm && (!endYm || targetYm <= endYm))) return false;
+    }
+    if (exp.frequency === 'yearly') {
+      const triggerMonth = Math.min(12, Math.max(1, Number(exp.triggerMonth || 1)));
+      const m = Number(targetYm.slice(5,7));
+      return m === triggerMonth;
+    }
+    return true; // default monthly
+  };
   const totalRecurring = recurringExpenses
-    .filter(expense => expense.status === 'active')
+    .filter(expense => isRecurringActiveForMonth(expense, currentMonth))
     .reduce((sum, expense) => sum + expense.amount, 0);
     
   // Calculate variable expenses (only those without specific dates or with current month dates count as monthly)
-  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
   const totalVariable = variableExpenses
     .filter(expense => {
       if (expense.status !== 'active') return false;
