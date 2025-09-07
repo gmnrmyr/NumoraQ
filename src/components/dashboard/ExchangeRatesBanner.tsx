@@ -48,7 +48,7 @@ export const ExchangeRatesBanner = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-3 gap-2 text-xs sm:text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs sm:text-sm">
               <div className="flex items-center gap-1 justify-center">
                 <DollarSign size={12} className="text-accent" />
                 <span className="text-foreground font-mono">BRL/USD:</span>
@@ -77,6 +77,17 @@ export const ExchangeRatesBanner = () => {
                 <EditableValue
                   value={data.exchangeRates.ethPrice}
                   onSave={(value) => updateExchangeRate('ethPrice', Number(value))}
+                  type="number"
+                  disabled={liveEnabled}
+                  className="text-foreground bg-background/50 hover:bg-background/70 border-border text-xs w-16"
+                />
+              </div>
+              <div className="flex items-center gap-1 justify-center">
+                <TrendingUp size={12} className="text-accent" />
+                <span className="text-foreground font-mono">SOL:</span>
+                <EditableValue
+                  value={data.exchangeRates.solPrice}
+                  onSave={(value) => updateExchangeRate('solPrice', Number(value))}
                   type="number"
                   disabled={liveEnabled}
                   className="text-foreground bg-background/50 hover:bg-background/70 border-border text-xs w-16"

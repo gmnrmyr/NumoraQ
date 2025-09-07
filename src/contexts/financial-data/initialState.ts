@@ -13,6 +13,7 @@ export const defaultData: FinancialData = {
     usdToBrl: 5.54,
     btcPrice: 100000,
     ethPrice: 2500,
+    solPrice: 150,
     lastUpdated: new Date().toISOString()
   },
   liquidAssets: [
@@ -80,6 +81,7 @@ export const initialFinancialData: FinancialData = {
     usdToBrl: 5.54,
     btcPrice: 100000,
     ethPrice: 2500,
+    solPrice: 150,
     lastUpdated: new Date().toISOString()
   },
   liquidAssets: [

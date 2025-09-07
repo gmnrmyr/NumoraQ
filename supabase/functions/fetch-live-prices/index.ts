@@ -11,6 +11,7 @@ interface PriceData {
   usdToBrl: number;
   btcPrice: number;
   ethPrice: number;
+  solPrice: number;
   lastUpdated: string;
 }
 
@@ -25,46 +26,52 @@ async function fetchExchangeRates(currency: string = 'BRL'): Promise<PriceData> 
     const brlToUsd = 1 / usdToBrl;
 
     // Fetch crypto prices from CoinGecko API
-    const cryptoResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd');
+    const cryptoResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd');
     const cryptoData = await cryptoResponse.json();
     
     const btcPriceUSD = cryptoData.bitcoin?.usd || 100000;
     const ethPriceUSD = cryptoData.ethereum?.usd || 2500;
+    const solPriceUSD = cryptoData.solana?.usd || 150;
     
     // Convert crypto prices based on user's currency preference
-    let btcPrice, ethPrice;
+    let btcPrice, ethPrice, solPrice;
     if (currency === 'USD') {
       btcPrice = Math.round(btcPriceUSD);
       ethPrice = Math.round(ethPriceUSD);
+      solPrice = Math.round(solPriceUSD);
     } else if (currency === 'BRL') {
       btcPrice = Math.round(btcPriceUSD * usdToBrl);
       ethPrice = Math.round(ethPriceUSD * usdToBrl);
+      solPrice = Math.round(solPriceUSD * usdToBrl);
     } else if (currency === 'EUR') {
       const eurRate = exchangeData.rates.EUR || 0.85;
       btcPrice = Math.round(btcPriceUSD * eurRate);
       ethPrice = Math.round(ethPriceUSD * eurRate);
+      solPrice = Math.round(solPriceUSD * eurRate);
     } else {
       // Default to USD
       btcPrice = Math.round(btcPriceUSD);
       ethPrice = Math.round(ethPriceUSD);
+      solPrice = Math.round(solPriceUSD);
     }
 
-    console.log(`Converted prices for ${currency}: BTC=${btcPrice}, ETH=${ethPrice}`);
+    console.log(`Converted prices for ${currency}: BTC=${btcPrice}, ETH=${ethPrice}, SOL=${solPrice}`);
 
     return {
       brlToUsd: Math.round(brlToUsd * 10000) / 10000,
       usdToBrl: Math.round(usdToBrl * 100) / 100,
       btcPrice,
       ethPrice,
+      solPrice,
       lastUpdated: new Date().toISOString()
     };
   } catch (error) {
     console.error('Error fetching prices:', error);
     // Return fallback values based on currency
     const fallbackPrices = {
-      BRL: { btc: 588300, eth: 14000 },
-      USD: { btc: 100000, eth: 2500 },
-      EUR: { btc: 85000, eth: 2125 }
+      BRL: { btc: 588300, eth: 14000, sol: 820 },
+      USD: { btc: 100000, eth: 2500, sol: 150 },
+      EUR: { btc: 85000, eth: 2125, sol: 130 }
     };
     
     const prices = fallbackPrices[currency as keyof typeof fallbackPrices] || fallbackPrices.USD;
@@ -74,6 +81,7 @@ async function fetchExchangeRates(currency: string = 'BRL'): Promise<PriceData> 
       usdToBrl: 5.54,
       btcPrice: prices.btc,
       ethPrice: prices.eth,
+      solPrice: prices.sol,
       lastUpdated: new Date().toISOString()
     };
   }
