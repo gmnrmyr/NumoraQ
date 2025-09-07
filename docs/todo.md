@@ -124,6 +124,7 @@ DO UPDATE SET
 
 ✅ 27) **(should be before) trial timer is working**: we need to make sure when trial is done either charge or allow more days for free while in beta
 *COMPLETED: Trial system working with 30-day trials, beta grace period functional, trial expiration handling working*
+<--- last tests: Trial ended after user had 30 days, but 3 days grace button isn not working.
 
 🔄 28) **Expense insights**: check if user pays health insurance and etc, otherwise advise to.
 *TODO: AI-powered expense analysis and recommendations*
