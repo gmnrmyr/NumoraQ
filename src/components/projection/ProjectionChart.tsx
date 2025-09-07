@@ -45,6 +45,17 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
     return `${monthName} ${year}`;
   };
 
+  // Helper to get month name and 4-digit year for a month offset
+  const getMonthMeta = (monthOffset: number) => {
+    const currentDate = new Date();
+    const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthOffset, 1);
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun','Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return {
+      monthName: monthNames[targetDate.getMonth()],
+      year: targetDate.getFullYear()
+    };
+  };
+
   // Build vertical markers (scheduled income starts/ends and yearly recurring triggers)
   const monthDiff = (from: Date, to: Date) => (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth());
   const startOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1);
@@ -259,7 +270,12 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
               return (
                 <div className="bg-black/80 backdrop-blur-md p-4 rounded-lg border border-white/20 space-y-3 shadow-2xl">
                   <div className="font-bold text-accent border-b border-accent/30 pb-2 text-center">
-                    {isCurrentMonth ? 'Current Position' : `Month ${label} (${getActualDate(label)}) Projection`}
+                    {isCurrentMonth ? 'Current Position' : (() => {
+                      const years = Math.floor(label / 12);
+                      const months = label % 12;
+                      const { monthName, year } = getMonthMeta(label);
+                      return `Month ${label} - Y${years},${months} - ${monthName} - ${year}`;
+                    })()}
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 text-xs">
