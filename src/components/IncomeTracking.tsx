@@ -8,6 +8,7 @@ import { EditableValue } from "@/components/ui/editable-value";
 import { StatusToggle } from "@/components/ui/status-toggle";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const iconMap: { [key: string]: any } = {
   Home,
@@ -126,7 +127,7 @@ export const IncomeTracking = () => {
                 )}
                 {/* Scheduling Controls */}
                 <div className="mt-2 pt-2 border-t border-border/50">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 text-xs font-mono">
                       <span className="text-muted-foreground">Schedule</span>
                       <Switch
@@ -134,27 +135,129 @@ export const IncomeTracking = () => {
                         onCheckedChange={(checked) => updatePassiveIncome(income.id, { useSchedule: checked } as any)}
                       />
                     </div>
-                    <div className="flex items-center gap-2 text-xs font-mono">
-                      <span className="text-muted-foreground">Start</span>
-                      <Input
-                        type="month"
-                        value={((income as any).startDate || '').slice(0,7)}
-                        onChange={(e) => updatePassiveIncome(income.id, { startDate: e.target.value } as any)}
-                        className="h-7 w-28 bg-input border-2 border-border px-2"
-                        disabled={!((income as any).useSchedule)}
-                      />
-                      <span className="text-muted-foreground">End</span>
-                      <Input
-                        type="month"
-                        value={((income as any).endDate || '').slice(0,7)}
-                        onChange={(e) => updatePassiveIncome(income.id, { endDate: e.target.value || undefined } as any)}
-                        className="h-7 w-28 bg-input border-2 border-border px-2"
-                        disabled={!((income as any).useSchedule)}
-                      />
+                    {/* Start/End compact month + 2-digit year inputs */}
+                    <div className="flex items-center gap-3 text-xs font-mono flex-wrap">
+                      {(() => {
+                        const startRaw: string = String((income as any).startDate || '');
+                        const startYm = startRaw ? startRaw.slice(0,7) : '';
+                        const [startYYYY, startMM] = startYm.includes('-') ? startYm.split('-') : ['', ''];
+                        const startYY = startYYYY ? startYYYY.slice(-2) : '';
+
+                        const endRaw: string = String((income as any).endDate || '');
+                        const endYm = endRaw ? endRaw.slice(0,7) : '';
+                        const [endYYYY, endMM] = endYm.includes('-') ? endYm.split('-') : ['', ''];
+                        const endYY = endYYYY ? endYYYY.slice(-2) : '';
+
+                        const monthLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+                        const toYYYY = (yy: string) => {
+                          if (!yy) return '';
+                          const n = Number(yy);
+                          if (Number.isNaN(n)) return '';
+                          return String(2000 + n).padStart(4,'0');
+                        };
+
+                        const combineYm = (yy: string, mm: string): string | undefined => {
+                          if (!yy || !mm || mm === 'none' || mm.length !== 2) return undefined;
+                          const yyyy = toYYYY(yy);
+                          if (!yyyy) return undefined;
+                          return `${yyyy}-${mm}`;
+                        };
+
+                        return (
+                          <>
+                            <div className="flex items-center gap-1">
+                              <span className="text-muted-foreground">Start</span>
+                              <Select
+                                value={startMM || 'none'}
+                                onValueChange={(value) => {
+                                  if (value === 'none') {
+                                    updatePassiveIncome(income.id, { startDate: undefined } as any);
+                                  } else {
+                                    const newDate = combineYm(startYY, value);
+                                    updatePassiveIncome(income.id, { startDate: newDate } as any);
+                                  }
+                                }}
+                                disabled={!((income as any).useSchedule)}
+                              >
+                                <SelectTrigger className="h-7 w-16 text-xs bg-input border-2 border-border px-2">
+                                  <SelectValue placeholder="Mon" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-card border-2 border-border z-50">
+                                  <SelectItem value="none" className="font-mono">—</SelectItem>
+                                  {monthLabels.map((label, idx) => (
+                                    <SelectItem key={idx} value={String(idx+1).padStart(2,'0')} className="font-mono">
+                                      {label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <Input
+                                type="number"
+                                inputMode="numeric"
+                                min={0}
+                                max={99}
+                                placeholder="YY"
+                                value={startYY}
+                                onChange={(e) => {
+                                  const raw = e.target.value.replace(/\D/g,'').slice(0,2);
+                                  const newDate = combineYm(raw, startMM || '');
+                                  updatePassiveIncome(income.id, { startDate: newDate } as any);
+                                }}
+                                className="h-7 w-12 text-center bg-input border-2 border-border px-1"
+                                disabled={!((income as any).useSchedule)}
+                              />
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-muted-foreground">End</span>
+                              <Select
+                                value={endMM || 'none'}
+                                onValueChange={(value) => {
+                                  if (value === 'none') {
+                                    updatePassiveIncome(income.id, { endDate: undefined } as any);
+                                  } else {
+                                    const newDate = combineYm(endYY, value);
+                                    updatePassiveIncome(income.id, { endDate: newDate } as any);
+                                  }
+                                }}
+                                disabled={!((income as any).useSchedule)}
+                              >
+                                <SelectTrigger className="h-7 w-16 text-xs bg-input border-2 border-border px-2">
+                                  <SelectValue placeholder="Mon" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-card border-2 border-border z-50">
+                                  <SelectItem value="none" className="font-mono">—</SelectItem>
+                                  {monthLabels.map((label, idx) => (
+                                    <SelectItem key={idx} value={String(idx+1).padStart(2,'0')} className="font-mono">
+                                      {label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <Input
+                                type="number"
+                                inputMode="numeric"
+                                min={0}
+                                max={99}
+                                placeholder="YY"
+                                value={endYY}
+                                onChange={(e) => {
+                                  const raw = e.target.value.replace(/\D/g,'').slice(0,2);
+                                  const newDate = combineYm(raw, endMM || '');
+                                  // When empty, keep undefined to represent open-ended (infinite)
+                                  updatePassiveIncome(income.id, { endDate: newDate } as any);
+                                }}
+                                className="h-7 w-12 text-center bg-input border-2 border-border px-1"
+                                disabled={!((income as any).useSchedule)}
+                              />
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-1 font-mono">
-                    When scheduled, this income is included in projections between start and end months (end optional).
+                    Compact schedule: choose month (Jan–Dec) and 2-digit year; leave End empty for ∞.
                   </div>
                 </div>
 
