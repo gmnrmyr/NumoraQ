@@ -62,16 +62,16 @@ export const LiquidAssetsCard = () => {
       
       <Card className="brutalist-card">
         <CardHeader className="pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <CardTitle className="text-sm sm:text-base font-mono uppercase text-accent truncate">
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col items-start gap-1 min-w-0">
+              <CardTitle className="text-lg sm:text-2xl font-mono uppercase text-accent whitespace-normal break-words leading-tight">
                 LIQUID ASSETS
               </CardTitle>
               <Badge variant="outline" className="font-mono text-xs whitespace-nowrap flex-shrink-0">
                 {currency} {totalValue.toLocaleString()}
               </Badge>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-wrap flex-shrink-0">
               <Button
                 variant="outline"
                 size="sm"
