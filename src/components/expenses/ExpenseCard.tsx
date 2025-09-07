@@ -185,12 +185,12 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
                   <>
                     <span className="font-mono">Month:</span>
                     <Select value={String(expense.triggerMonth || 1)} onValueChange={(value) => onUpdate(expense.id, { triggerMonth: Number(value) })}>
-                      <SelectTrigger className="w-24 h-6 text-xs bg-input border-2 border-border font-mono">
+                      <SelectTrigger className="w-16 h-6 text-xs bg-input border-2 border-border font-mono">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-card border-2 border-border z-50">
-                        {Array.from({ length: 12 }).map((_, i) => (
-                          <SelectItem key={i+1} value={String(i+1)} className="font-mono">{`M${i+1}`}</SelectItem>
+                        {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((label, i) => (
+                          <SelectItem key={i+1} value={String(i+1)} className="font-mono">{label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -222,11 +222,119 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
               <span className="text-muted-foreground font-mono">Schedule</span>
               <Switch checked={Boolean(expense.useSchedule)} onCheckedChange={(checked) => onUpdate(expense.id, { useSchedule: checked })} />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="font-mono">Start</span>
-              <Input type="month" value={(expense.startDate || '').slice(0,7)} onChange={(e) => onUpdate(expense.id, { startDate: e.target.value })} className="h-6 w-28 text-xs bg-input border-2 border-border px-1 font-mono" disabled={!expense.useSchedule} />
-              <span className="font-mono">End</span>
-              <Input type="month" value={(expense.endDate || '').slice(0,7)} onChange={(e) => onUpdate(expense.id, { endDate: e.target.value || undefined })} className="h-6 w-28 text-xs bg-input border-2 border-border px-1 font-mono" disabled={!expense.useSchedule} />
+            <div className="flex items-center gap-3 flex-wrap">
+              {(() => {
+                const startRaw: string = String(expense.startDate || '');
+                const startYm = startRaw ? startRaw.slice(0,7) : '';
+                const [startYYYY, startMM] = startYm.includes('-') ? startYm.split('-') : ['', ''];
+                const startYY = startYYYY ? startYYYY.slice(-2) : '';
+
+                const endRaw: string = String(expense.endDate || '');
+                const endYm = endRaw ? endRaw.slice(0,7) : '';
+                const [endYYYY, endMM] = endYm.includes('-') ? endYm.split('-') : ['', ''];
+                const endYY = endYYYY ? endYYYY.slice(-2) : '';
+
+                const monthLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+                const toYYYY = (yy: string) => {
+                  if (!yy) return '';
+                  const n = Number(yy);
+                  if (Number.isNaN(n)) return '';
+                  return String(2000 + n).padStart(4,'0');
+                };
+
+                const combineYm = (yy: string, mm: string): string | undefined => {
+                  if (!yy || !mm || mm === 'none' || mm.length !== 2) return undefined;
+                  const yyyy = toYYYY(yy);
+                  if (!yyyy) return undefined;
+                  return `${yyyy}-${mm}`;
+                };
+
+                return (
+                  <>
+                    <div className="flex items-center gap-1">
+                      <span className="font-mono text-muted-foreground">Start</span>
+                      <Select
+                        value={startMM || 'none'}
+                        onValueChange={(value) => {
+                          if (value === 'none') {
+                            onUpdate(expense.id, { startDate: undefined });
+                          } else {
+                            const newDate = combineYm(startYY, value);
+                            onUpdate(expense.id, { startDate: newDate });
+                          }
+                        }}
+                        disabled={!expense.useSchedule}
+                      >
+                        <SelectTrigger className="h-6 w-14 text-xs bg-input border-2 border-border px-2 font-mono">
+                          <SelectValue placeholder="Mon" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-2 border-border z-50">
+                          <SelectItem value="none" className="font-mono">—</SelectItem>
+                          {monthLabels.map((label, idx) => (
+                            <SelectItem key={idx} value={String(idx+1).padStart(2,'0')} className="font-mono">{label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        max={99}
+                        placeholder="YY"
+                        value={startYY}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g,'').slice(0,2);
+                          const newDate = combineYm(raw, startMM || '');
+                          onUpdate(expense.id, { startDate: newDate });
+                        }}
+                        className="h-6 w-10 text-center bg-input border-2 border-border px-1 font-mono"
+                        disabled={!expense.useSchedule}
+                      />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-mono text-muted-foreground">End</span>
+                      <Select
+                        value={endMM || 'none'}
+                        onValueChange={(value) => {
+                          if (value === 'none') {
+                            onUpdate(expense.id, { endDate: undefined });
+                          } else {
+                            const newDate = combineYm(endYY, value);
+                            onUpdate(expense.id, { endDate: newDate });
+                          }
+                        }}
+                        disabled={!expense.useSchedule}
+                      >
+                        <SelectTrigger className="h-6 w-14 text-xs bg-input border-2 border-border px-2 font-mono">
+                          <SelectValue placeholder="Mon" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-2 border-border z-50">
+                          <SelectItem value="none" className="font-mono">—</SelectItem>
+                          {monthLabels.map((label, idx) => (
+                            <SelectItem key={idx} value={String(idx+1).padStart(2,'0')} className="font-mono">{label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        max={99}
+                        placeholder="YY"
+                        value={endYY}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g,'').slice(0,2);
+                          const newDate = combineYm(raw, endMM || '');
+                          onUpdate(expense.id, { endDate: newDate });
+                        }}
+                        className="h-6 w-10 text-center bg-input border-2 border-border px-1 font-mono"
+                        disabled={!expense.useSchedule}
+                      />
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}

@@ -31,7 +31,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
   React.useEffect(() => { localStorage.setItem('pj_chart_illiquid', showIlliquidChart ? 'on' : 'off'); }, [showIlliquidChart]);
   React.useEffect(() => { localStorage.setItem('pj_illiq_apy', String(illiquidApy)); }, [illiquidApy]);
   
-  // Function to get actual calendar date for a given month offset
+  // Function to get actual calendar date for a given month offset (short year)
   const getActualDate = (monthOffset: number) => {
     const currentDate = new Date();
     const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthOffset, 1);
@@ -40,7 +40,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
     const monthName = monthNames[targetDate.getMonth()];
-    const year = targetDate.getFullYear();
+    const year = String(targetDate.getFullYear()).slice(-2);
     
     return `${monthName} ${year}`;
   };
@@ -184,6 +184,16 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
         return starts && notEnded;
       });
   };
+  // Helper to format YYYY-MM as Mon YY
+  const formatYmShort = (ym?: string) => {
+    if (!ym || ym.length < 7 || ym.indexOf('-') === -1) return '';
+    const [yyyy, mm] = ym.slice(0,7).split('-');
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun','Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const mIdx = Math.max(1, Math.min(12, Number(mm))) - 1;
+    const mon = monthNames[mIdx] || '';
+    const yy = String(yyyy).slice(-2);
+    return `${mon} ${yy}`;
+  };
   return (
     <div className="w-full mb-6 py-4">
       {/* Color Legend */}
@@ -313,7 +323,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                           <div key={index} className="flex justify-between text-xs">
                             <span className="text-green-300 truncate max-w-32" title={inc.source}>
                               {inc.source}
-                              <span className="text-muted-foreground"> ({String(inc.startDate).slice(0,7)}{inc.endDate ? ` → ${String(inc.endDate).slice(0,7)}` : ' → ∞'})</span>
+                              <span className="text-muted-foreground"> ({formatYmShort(String(inc.startDate))}{inc.endDate ? ` → ${formatYmShort(String(inc.endDate))}` : ' → ∞'})</span>
                             </span>
                             <span className="text-green-400 font-mono">
                               +{currencySymbol}{(inc.amount || 0).toLocaleString()}
