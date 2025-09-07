@@ -288,7 +288,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
                           const newDate = combineYm(raw, startMM || '');
                           onUpdate(expense.id, { startDate: newDate });
                         }}
-                        className="h-6 w-10 text-center bg-input border-2 border-border px-1 font-mono"
+                        className="h-6 w-12 text-center bg-input border-2 border-border px-1 font-mono"
                         disabled={!expense.useSchedule}
                       />
                     </div>
@@ -328,7 +328,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
                           const newDate = combineYm(raw, endMM || '');
                           onUpdate(expense.id, { endDate: newDate });
                         }}
-                        className="h-6 w-10 text-center bg-input border-2 border-border px-1 font-mono"
+                        className="h-6 w-12 text-center bg-input border-2 border-border px-1 font-mono"
                         disabled={!expense.useSchedule}
                       />
                     </div>
