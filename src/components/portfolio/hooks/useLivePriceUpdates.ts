@@ -5,7 +5,8 @@ import { fetchStockPrice, fetchMetalPrice, fetchWalletValue } from '@/services/s
 
 const CRYPTO_OPTIONS = [
   { symbol: 'BTC', name: 'Bitcoin', key: 'btcPrice' },
-  { symbol: 'ETH', name: 'Ethereum', key: 'ethPrice' }
+  { symbol: 'ETH', name: 'Ethereum', key: 'ethPrice' },
+  { symbol: 'SOL', name: 'Solana', key: 'solPrice' }
 ];
 
 export const useLivePriceUpdates = () => {
@@ -64,7 +65,7 @@ export const useLivePriceUpdates = () => {
         }
       }
     });
-  }, [data.exchangeRates.btcPrice, data.exchangeRates.ethPrice]);
+  }, [data.exchangeRates.btcPrice, data.exchangeRates.ethPrice, data.exchangeRates.solPrice]);
 
   // Periodically update all live-priced assets
   React.useEffect(() => {

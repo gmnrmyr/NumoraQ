@@ -25,13 +25,14 @@ export const EditableValue: React.FC<EditableValueProps> = ({
   disabled = false
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(value.toString());
+  const valueToString = (v: unknown) => (v === null || v === undefined) ? '' : String(v);
+  const [editValue, setEditValue] = useState(valueToString(value));
   const inputRef = useRef<HTMLInputElement>(null);
 
   // When value prop changes from parent, update our local copy if not editing
   useEffect(() => {
     if (!isEditing) {
-      setEditValue(value.toString());
+      setEditValue(valueToString(value));
     }
   }, [value, isEditing]);
 
@@ -46,7 +47,7 @@ export const EditableValue: React.FC<EditableValueProps> = ({
   const handleSave = () => {
     setIsEditing(false);
     // Only save if value actually changed
-    if (editValue !== value.toString()) {
+    if (editValue !== valueToString(value)) {
       if (type === 'text') {
         onSave(editValue);
       } else {
@@ -58,7 +59,7 @@ export const EditableValue: React.FC<EditableValueProps> = ({
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditValue(value.toString()); // Revert changes
+    setEditValue(valueToString(value)); // Revert changes
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -73,7 +74,7 @@ export const EditableValue: React.FC<EditableValueProps> = ({
 
   // Simple blur handler - only save if there are actual changes
   const handleBlur = () => {
-    if (editValue !== value.toString()) {
+    if (editValue !== valueToString(value)) {
       handleSave();
     } else {
       setIsEditing(false);
@@ -85,11 +86,12 @@ export const EditableValue: React.FC<EditableValueProps> = ({
     e.preventDefault();
     e.stopPropagation();
     // Sync with prop value before entering edit mode
-    setEditValue(value.toString());
+    setEditValue(valueToString(value));
     setIsEditing(true);
   };
 
-  const formatValue = (val: number | string) => {
+  const formatValue = (val: number | string | undefined | null) => {
+    if (val === null || val === undefined || val === '') return '';
     if (type === 'text') {
       return val.toString();
     }
@@ -125,12 +127,12 @@ export const EditableValue: React.FC<EditableValueProps> = ({
       className={cn(
         disabled ? "cursor-default opacity-60" : "cursor-pointer hover:bg-slate-100",
         "px-1 py-0.5 rounded transition-colors",
-        value === '' && placeholder ? 'text-slate-400' : '',
+        (value === '' || value === null || value === undefined) && placeholder ? 'text-slate-400' : '',
         className
       )}
       title={disabled ? "Editing disabled" : "Click to edit"}
     >
-      {value === '' && placeholder ? placeholder : `${prefix}${formatValue(value)}${suffix}`}
+      {(value === '' || value === null || value === undefined) && placeholder ? placeholder : `${prefix}${formatValue(value)}${suffix}`}
     </span>
   );
 };

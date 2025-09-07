@@ -123,6 +123,7 @@ export interface ExchangeRates {
   usdToBrl: number;
   btcPrice: number;
   ethPrice: number;
+  solPrice: number;
   lastUpdated: string;
 }
 

@@ -7,6 +7,7 @@ interface LivePriceData {
   usdToBrl: number;
   btcPrice: number;
   ethPrice: number;
+  solPrice: number;
   lastUpdated: string;
 }
 
@@ -48,6 +49,7 @@ export const useLivePrices = () => {
         updateExchangeRate('usdToBrl', priceData.usdToBrl);
         updateExchangeRate('btcPrice', priceData.btcPrice);
         updateExchangeRate('ethPrice', priceData.ethPrice);
+        updateExchangeRate('solPrice', priceData.solPrice);
         updateExchangeRate('lastUpdated', priceData.lastUpdated);
         
         setLastFetchTime(new Date());
