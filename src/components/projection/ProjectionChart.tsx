@@ -45,14 +45,20 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
     return `${monthName} ${year}`;
   };
 
-  // Helper to get month name and 4-digit year for a month offset
+  // Helper to get month meta (name, 1-12 number, 4-digit year, year delta) for a month offset
   const getMonthMeta = (monthOffset: number) => {
     const currentDate = new Date();
     const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthOffset, 1);
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun','Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthIndex = targetDate.getMonth(); // 0-11
+    const monthNum = monthIndex + 1; // 1-12
+    const year = targetDate.getFullYear();
+    const yearsDiff = Math.max(0, year - currentDate.getFullYear());
     return {
-      monthName: monthNames[targetDate.getMonth()],
-      year: targetDate.getFullYear()
+      monthName: monthNames[monthIndex],
+      monthNum,
+      year,
+      yearsDiff
     };
   };
 
@@ -271,10 +277,8 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                 <div className="bg-black/80 backdrop-blur-md p-4 rounded-lg border border-white/20 space-y-3 shadow-2xl">
                   <div className="font-bold text-accent border-b border-accent/30 pb-2 text-center">
                     {isCurrentMonth ? 'Current Position' : (() => {
-                      const years = Math.floor(label / 12);
-                      const months = label % 12;
-                      const { monthName, year } = getMonthMeta(label);
-                      return `Month ${label} - Y${years},${months} - ${monthName} - ${year}`;
+                      const { monthName, monthNum, year, yearsDiff } = getMonthMeta(label);
+                      return `Month ${label} - Y${yearsDiff},${monthNum} - ${monthName} - ${year}`;
                     })()}
                   </div>
                   
