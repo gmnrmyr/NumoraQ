@@ -188,6 +188,20 @@ DO UPDATE SET
 
 38) visual gallery of your assets & all you got... stuff like that. So if its a NFT, dislpay the nft. If it's a real estate, users get to add either a nice google street view or input picture, something like that. Stuff like that to the future.
 
+39) income breakdown (at advanced dashboard) seems to be wrong, look:
+
+Income Breakdown
+Passive Income
+R$ 4,118.005
+Active Income
+R$ 600
+Recurring Expenses
+R$ 9,495
+Net Monthly
+R$ -18,816
+
+--> I think it's taking in consideration the one-time expense which isn't good to be displayed o this panel. Maybe we can remove it and put something else, or proper calculations in there.
+
 --------
 
 Don't break:
