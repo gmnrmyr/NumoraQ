@@ -63,6 +63,7 @@ DO UPDATE SET
 
 🔄 8.6) **nft category** (for our ai chatbot to also consider) and nft floor prices with opensea api.
 *TODO: NFT category exists in asset management but needs OpenSea API integration for floor prices*
+<-- tried to add new edge function and using opensea api correctly placed on env and also on supabase edge function secrets... stil wasnt able to suceed.>
   
 🔄 9) **solana working to pay for tiers and degen plans**
 *PARTIALLY DONE: Solana payment function exists with UPSERT logic, but needs wallet integration testing*
@@ -152,3 +153,5 @@ Keep using free APIs.
 
 1) link expense to achievement.
 2) add a way for users to track what he spent on a month, then we can use this to make an average or allow the user to see it raw in order to have info to fill his recurring expenses. Maybe our ai can auto fetch and fill as well. <- This would be nice to be implemented on onboarding as well in the future.
+
+3) I think the Openai secret that is glitched can be linked to supabase edge function secrets? <-- double check that...>
