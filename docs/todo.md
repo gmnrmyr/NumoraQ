@@ -201,6 +201,7 @@ Net Monthly
 R$ -18,816
 
 --> I think it's taking in consideration the one-time expense which isn't good to be displayed o this panel. Maybe we can remove it and put something else, or proper calculations in there.
+(((( FIXED!!!))))
 
 --------
 
