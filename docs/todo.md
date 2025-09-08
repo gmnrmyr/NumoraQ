@@ -172,7 +172,7 @@ DO UPDATE SET
 ✅ 31) Automatically sort expenses by date. ((done))
 
 
-32) link expense to achievement (iliquid asset to have value assigned upon said expense is paied - after this expense is triggered, user`s iliquid asset should have grown - schedule this asset to have value upon that maybe. or the asset to be CREATED with VALUE opon that event). <--- 
+32) link expense to achievement (iliquid asset to have value assigned upon said variable expense is paied - after this expense is triggered, user`s iliquid asset should have grown - schedule this asset to have value upon that maybe. or the asset to be CREATED with VALUE opon that event). <---  And, if the date for this EXPENSE that is linked is changed by user, the iliquid asset value assign or creation should follow. (and then, we will have a really good Liquid and Iliquid Assets charts that makes sense considering that some users will be setting expenses there to purchase real estate and stuff like that.)
 
 33) add a way for users to track what he spent on a month, then we can use this to make an average or allow the user to see it raw in order to have info to fill his recurring expenses. Maybe our ai can auto fetch and fill as well. <- This would be nice to be implemented on onboarding as well in the future.
 
