@@ -154,4 +154,4 @@ Keep using free APIs.
 1) link expense to achievement.
 2) add a way for users to track what he spent on a month, then we can use this to make an average or allow the user to see it raw in order to have info to fill his recurring expenses. Maybe our ai can auto fetch and fill as well. <- This would be nice to be implemented on onboarding as well in the future.
 
-3) I think the Openai secret that is glitched can be linked to supabase edge function secrets? <-- double check that...>
+3) I think the Openai secret that is glitched can be linked to supabase edge function secrets? <-- double check that...> (i think supabase edge functions SECRETS are the equivalent to project .env right?)
