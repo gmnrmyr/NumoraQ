@@ -182,6 +182,8 @@ DO UPDATE SET
 35) Debt and User when goes negative. -> For example, debt should be ticking %fees. when user goes negative, usualy pays %fees daily or monthly for bank. This should be in place for DEBT and when certain amount of expenses are triggering a debt on the projection as well. 
 <---- would be reallly nice to have that, don't really know how to.>
 
+36) PROFILE PAGE. let's build a profile page that is outside the dashboard. We will build it from scratch, adding functionalities we have on user_info_config_ui (panel on advanced dashboard).
+
 --------
 
 Don't break:
