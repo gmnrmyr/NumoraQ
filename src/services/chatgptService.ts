@@ -43,12 +43,10 @@ interface FinancialContext {
 }
 
 export class ChatGPTService {
-  private apiKey: string;
-  private baseURL = 'https://api.openai.com/v1/chat/completions';
+  private baseURL = 'https://hcnoxyfztviuwkiysitm.functions.supabase.co/ai-chat';
 
   constructor() {
-    // Use environment variable in production, fallback for development
-    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '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';
+    // No API key needed in the browser; requests go through Supabase Edge Function
   }
 
   private getSystemPrompt(personality: string, context?: FinancialContext): string {
@@ -125,10 +123,9 @@ RESPONSE GUIDELINES:
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini', // Using the cost-effective model
+          model: 'gpt-4o-mini',
           messages,
           max_tokens: 300,
           temperature: 0.7,
