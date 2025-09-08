@@ -127,8 +127,8 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
         </div>
         
         {/* Bottom row - Category, Date/Day, Status, Delete */}
-        <div className="flex items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-2 flex-1">
+        <div className="flex items-center justify-between gap-2 text-xs flex-wrap">
+          <div className="flex items-center gap-2 flex-1 flex-wrap min-w-0">
             {showCategory && (
               <Select value={expense.category} onValueChange={(value) => onUpdate(expense.id, { category: value })}>
                 <SelectTrigger className="w-20 h-6 text-xs bg-input border-2 border-border font-mono">
@@ -200,7 +200,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
             )}
           </div>
           
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0 w-full sm:w-auto justify-end">
             <StatusToggle
               status={expense.status || 'active'}
               onToggle={(newStatus) => onUpdate(expense.id, { status: newStatus })}
@@ -210,7 +210,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
               onClick={() => onRemove(expense.id)}
               variant="outline"
               size="sm"
-              className="text-destructive hover:text-destructive-foreground hover:bg-destructive p-1 h-6 w-6 border-2 border-border font-mono"
+              className="text-destructive hover:text-destructive-foreground hover:bg-destructive p-1 h-6 w-6 border-2 border-border font-mono flex-shrink-0"
             >
               <Trash2 size={12} />
             </Button>

@@ -474,8 +474,8 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
         </ResponsiveContainer>
       </div>
       {/* Small controls: chart type + height */}
-      <div className="flex items-center justify-end gap-2 mt-2 text-[10px] font-mono">
-        <div className="flex items-center gap-1 mr-auto">
+      <div className="flex items-center justify-end gap-2 mt-2 text-[10px] font-mono flex-wrap">
+        <div className="flex items-center gap-1 mr-auto w-full sm:w-auto justify-center sm:justify-start">
           <span className="text-muted-foreground">Events:</span>
           <button className={`px-1 border ${showEvents?'border-accent text-accent':'border-border'}`} onClick={() => setShowEvents(!showEvents)}>{showEvents?'On':'Off'}</button>
           <span className="ml-2 text-muted-foreground">Illiquid chart:</span>
@@ -489,12 +489,12 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
             </>
           )}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 w-full sm:w-auto justify-center">
           <span className="text-muted-foreground">Style:</span>
           <button className={`px-1 border ${chartType==='line'?'border-accent text-accent':'border-border'}`} onClick={() => setChartType('line')}>Line</button>
           <button className={`px-1 border ${chartType==='bar'?'border-accent text-accent':'border-border'}`} onClick={() => setChartType('bar')}>Bar</button>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 w-full sm:w-auto justify-center">
           <span className="text-muted-foreground">Height:</span>
           <button className="px-1 border border-border" onClick={() => setChartHeight(Math.max(200, chartHeight-40))}>-</button>
           <button className="px-1 border border-border" onClick={() => setChartHeight(Math.min(800, chartHeight+40))}>+</button>

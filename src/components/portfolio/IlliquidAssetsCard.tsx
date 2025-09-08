@@ -128,8 +128,8 @@ export const IlliquidAssetsCard = () => {
           
           return (
             <div key={asset.id} className={`space-y-2 min-w-0 ${!asset.isActive ? 'opacity-50' : ''}`}>
-              <div className="flex items-center justify-between gap-2 min-w-0">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2 min-w-0 flex-wrap">
+                <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
                   <Select value={asset.icon} onValueChange={(value) => updateIlliquidAsset(asset.id, { icon: value })}>
                     <SelectTrigger className="w-12 h-8 p-1 border-border bg-input">
                       <Icon size={16} className={asset.color} />
@@ -158,13 +158,13 @@ export const IlliquidAssetsCard = () => {
                   <Input
                     value={asset.name}
                     onChange={(e) => updateIlliquidAsset(asset.id, { name: e.target.value })}
-                    className="border-none p-0 font-medium bg-transparent flex-1 min-w-0 font-mono text-foreground"
+                    className="border-none p-0 font-medium bg-transparent flex-1 min-w-0 font-mono text-foreground whitespace-normal break-words"
                   />
                   <Button
                     onClick={() => updateIlliquidAsset(asset.id, { isActive: !asset.isActive })}
                     variant="outline"
                     size="sm"
-                    className={`whitespace-nowrap font-mono uppercase text-xs ${
+                    className={`whitespace-normal break-words text-center px-2 font-mono uppercase text-[10px] ${
                       asset.isActive 
                         ? "bg-accent/20 text-accent border-accent" 
                         : "bg-muted text-muted-foreground border-muted-foreground"
@@ -173,8 +173,8 @@ export const IlliquidAssetsCard = () => {
                     {asset.isActive ? (t.active || "Active") : (t.inactive || "Inactive")}
                   </Button>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <div className="text-right min-w-0">
+                <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-between sm:justify-end">
+                  <div className="text-right min-w-0 flex-1">
                     <div className="font-bold font-mono text-foreground text-sm">
                       {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} 
                       <EditableValue
