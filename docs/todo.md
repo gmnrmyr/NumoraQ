@@ -3,11 +3,13 @@ ToDo List after we've properly implemented our tech branches & test database.
 ✅ 0) **purchase logic for degen purchases**: use purchase as degen, backend consider as time + when done, stop service or allow user with ads (freemium).
 *COMPLETED: Full Stripe integration with time stacking, webhook automation, and freemium trial system working*
 
-⚠️ 0.1) **Fix chat gpt api** (was leaked when we made the project public). Webhook Stripe secret was also exposed. (i didnt notice those where hardcoded)
+✅ 0.1) **Fix chat gpt api** (was leaked when we made the project public). Webhook Stripe secret was also exposed. (i didnt notice those where hardcoded)
 *PARTIALLY DONE: Stripe secrets moved to environment variables, ChatGPT API still hardcoded in chatgptService.ts line 51*
 
-🔄 0.2) **Environment keys management**: Not sure how to merge dev to prod and if that will work well with env keys (chatgpt,stripe,supabase).. same as supabase keys.)
+✅ 0.2) **Environment keys management**: Not sure how to merge dev to prod and if that will work well with env keys (chatgpt,stripe,supabase).. same as supabase keys.)
 *IN PROGRESS: Stripe keys properly configured for sandbox/prod, need vault setup for other services*
+<----- Found out! just write them on supabase edge function -> secrets. and it has been working with proper linking.
+
 
 ✅ 0.5) **purchase logic for tier purchases**: 
 *COMPLETED: Donation tier system fully working with point accumulation and tier recognition*
@@ -151,8 +153,8 @@ Don't break:
 
 Keep using free APIs.
 
-1) link expense to achievement.
+xx1) link expense to achievement.
 
-2) add a way for users to track what he spent on a month, then we can use this to make an average or allow the user to see it raw in order to have info to fill his recurring expenses. Maybe our ai can auto fetch and fill as well. <- This would be nice to be implemented on onboarding as well in the future.
+xx2) add a way for users to track what he spent on a month, then we can use this to make an average or allow the user to see it raw in order to have info to fill his recurring expenses. Maybe our ai can auto fetch and fill as well. <- This would be nice to be implemented on onboarding as well in the future.
 
-3) I think the Openai secret that is glitched can be linked to supabase edge function secrets? <-- double check that...> (i think supabase edge functions SECRETS are the equivalent to project .env right?) <------ FIXED> working, made it following the notes on the left (working on dev.)
+xx3) I think the Openai secret that is glitched can be linked to supabase edge function secrets? <-- double check that...> (i think supabase edge functions SECRETS are the equivalent to project .env right?) <------ FIXED> working, made it following the notes on the left (working on dev.)
