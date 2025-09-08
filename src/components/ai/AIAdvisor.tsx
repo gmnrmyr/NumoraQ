@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -34,6 +34,8 @@ export const AIAdvisor = () => {
   const [selectedPersonality, setSelectedPersonality] = useState('professional');
   const [isLoading, setIsLoading] = useState(false);
   const [chatGPTService] = useState(() => new ChatGPTService());
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const bottomAnchorRef = useRef<HTMLDivElement | null>(null);
 
   const personalities = [
     { value: 'professional', label: 'Professional Advisor' },
@@ -121,6 +123,20 @@ export const AIAdvisor = () => {
     }
   };
 
+  // Auto-scroll to bottom whenever messages or loading state changes
+  useEffect(() => {
+    // Prefer scrolling to an invisible anchor for consistent behavior
+    if (bottomAnchorRef.current) {
+      bottomAnchorRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      return;
+    }
+    // Fallback: scroll the container itself
+    if (scrollContainerRef.current) {
+      const el = scrollContainerRef.current;
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    }
+  }, [messages, isLoading]);
+
   if (!isOpen) {
     return (
       <div className="fixed bottom-4 right-4 z-50">
@@ -196,7 +212,7 @@ export const AIAdvisor = () => {
         </CardHeader>
         
         <CardContent className="flex-1 flex flex-col p-3 md:p-4 space-y-4 min-h-0">
-          <div className="flex-1 overflow-y-auto space-y-3 pr-2 min-h-0">
+          <div className="flex-1 overflow-y-auto space-y-3 pr-2 min-h-0" ref={scrollContainerRef}>
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -224,6 +240,7 @@ export const AIAdvisor = () => {
                 </div>
               </div>
             )}
+            <div ref={bottomAnchorRef} />
           </div>
           
           <div className="flex gap-2 flex-shrink-0">
