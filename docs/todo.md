@@ -211,5 +211,3 @@ Don't break:
 - Any other logic already implemented (there is really a LOT.)
 
 Keep using free APIs.
-
-small
