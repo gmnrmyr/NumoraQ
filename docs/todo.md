@@ -203,6 +203,8 @@ R$ -18,816
 --> I think it's taking in consideration the one-time expense which isn't good to be displayed o this panel. Maybe we can remove it and put something else, or proper calculations in there.
 (((( FIXED!!!))))
 
+40) "assets" tab? we have centralized everything on portfolio -> liquid and iliquid assets, we MIGHT remove this one. but it's gonna be a decision for later. Or sync both... and also sync passive income... but not sure if it's needed.
+
 --------
 
 Don't break:
