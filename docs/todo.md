@@ -184,6 +184,10 @@ DO UPDATE SET
 
 36) PROFILE PAGE. let's build a profile page that is outside the dashboard. We will build it from scratch, adding functionalities we have on user_info_config_ui (panel on advanced dashboard).
 
+37) better categories for better reports and for our ai chat to understand everything. On all places: expenses, portfolio (liquid and iliquid) both needs to have nft, real estate (commercial) - real estate (residential) and stuff like that.
+
+38) visual gallery of your assets & all you got... stuff like that. So if its a NFT, dislpay the nft. If it's a real estate, users get to add either a nice google street view or input picture, something like that. Stuff like that to the future.
+
 --------
 
 Don't break:
