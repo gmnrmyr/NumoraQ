@@ -31,21 +31,34 @@ export const MetricsOverview = () => {
   const activeActiveIncome = data.activeIncome.filter(income => income.status === 'active');
   const totalActiveIncome = activeActiveIncome.reduce((sum, income) => sum + income.amount, 0);
   
-  // Calculate monthly expenses correctly: only recurring + unscheduled variable expenses
-  const recurringExpenses = data.expenses.filter(expense => 
-    expense.type === 'recurring' && expense.status === 'active'
-  );
-  const totalRecurringExpenses = recurringExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-  
-  // Only include variable expenses that are active AND have no specific date (unscheduled)
-  const unscheduledVariableExpenses = data.expenses.filter(expense => 
-    expense.type === 'variable' && 
-    expense.status === 'active' && 
-    !expense.specificDate
-  );
-  const totalUnscheduledVariableExpenses = unscheduledVariableExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-  
-  const totalExpenses = totalRecurringExpenses + totalUnscheduledVariableExpenses;
+  // Calculate monthly expenses correctly: recurring (active, respecting schedule if used) + variable for current month
+  const currentYm = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const isRecurringActiveForMonth = (exp: any, targetYm: string) => {
+    if (exp.status !== 'active') return false;
+    if (exp.type !== 'recurring') return false;
+    if (exp.useSchedule && exp.startDate) {
+      const startYm = String(exp.startDate).slice(0,7);
+      const endYm = exp.endDate ? String(exp.endDate).slice(0,7) : undefined;
+      if (!(targetYm >= startYm && (!endYm || targetYm <= endYm))) return false;
+    }
+    if (exp.frequency === 'yearly') {
+      const triggerMonth = Math.min(12, Math.max(1, Number(exp.triggerMonth || 1)));
+      const m = Number(targetYm.slice(5,7));
+      return m === triggerMonth;
+    }
+    return true; // default monthly
+  };
+
+  const totalRecurringExpenses = (data.expenses || [])
+    .filter((e: any) => isRecurringActiveForMonth(e, currentYm))
+    .reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+
+  // Variable this month: active variable with specificDate in current month OR no specificDate (unscheduled)
+  const totalVariableThisMonth = (data.expenses || [])
+    .filter((e: any) => e.type === 'variable' && e.status === 'active' && (!e.specificDate || String(e.specificDate).slice(0,7) === currentYm))
+    .reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+
+  const totalExpenses = totalRecurringExpenses + totalVariableThisMonth;
   
   const activeDebts = data.debts.filter(debt => debt.isActive && debt.status !== 'paid');
   const totalActiveDebts = activeDebts.reduce((sum, debt) => sum + debt.amount, 0);
@@ -115,7 +128,7 @@ export const MetricsOverview = () => {
       title: t.monthlyExpenses,
       value: totalExpenses,
       icon: TrendingDown,
-      description: `${recurringExpenses.length + unscheduledVariableExpenses.length} ${t.active.toLowerCase()} ${t.expenses.toLowerCase()}`,
+      description: `${formatCurrency(totalRecurringExpenses)} recurring + ${formatCurrency(totalVariableThisMonth)} variable (this month)`,
       color: "text-red-500",
       borderColor: "border-red-500"
     },

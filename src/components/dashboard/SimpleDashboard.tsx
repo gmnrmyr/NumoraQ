@@ -97,7 +97,33 @@ export const SimpleDashboard: React.FC = () => {
   const totalActiveIncome = data?.activeIncome?.reduce((sum, income) => sum + (income.amount || 0), 0) || 0;
   const totalIncome = totalPassiveIncome + totalActiveIncome;
   
-  const totalExpenses = data?.expenses?.reduce((sum, expense) => sum + (expense.amount || 0), 0) || 0;
+  // Monthly expenses: recurring (active, respecting schedule) + variable (this month)
+  const currentYm = new Date().toISOString().slice(0, 7);
+  const isRecurringActiveForMonth = (exp: any, targetYm: string) => {
+    if (exp.status !== 'active') return false;
+    if (exp.type !== 'recurring') return false;
+    if (exp.useSchedule && exp.startDate) {
+      const startYm = String(exp.startDate).slice(0,7);
+      const endYm = exp.endDate ? String(exp.endDate).slice(0,7) : undefined;
+      if (!(targetYm >= startYm && (!endYm || targetYm <= endYm))) return false;
+    }
+    if (exp.frequency === 'yearly') {
+      const triggerMonth = Math.min(12, Math.max(1, Number(exp.triggerMonth || 1)));
+      const m = Number(targetYm.slice(5,7));
+      return m === triggerMonth;
+    }
+    return true;
+  };
+
+  const totalRecurringExpenses = (data?.expenses || [])
+    .filter((e: any) => isRecurringActiveForMonth(e, currentYm))
+    .reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+
+  const totalVariableThisMonth = (data?.expenses || [])
+    .filter((e: any) => e.type === 'variable' && e.status === 'active' && (!e.specificDate || String(e.specificDate).slice(0,7) === currentYm))
+    .reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+
+  const totalExpenses = totalRecurringExpenses + totalVariableThisMonth;
   const totalDebt = data?.debts?.reduce((sum, debt) => sum + (debt.amount || 0), 0) || 0;
   const netWorth = totalAssets - totalDebt;
   const monthlyCashFlow = totalIncome - totalExpenses;
@@ -697,7 +723,7 @@ export const SimpleDashboard: React.FC = () => {
                 ${totalExpenses.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {data?.expenses?.length || 0} expense items
+                {`(${totalRecurringExpenses.toLocaleString()} recurring + ${totalVariableThisMonth.toLocaleString()} variable this month)`}
               </p>
             </CardContent>
           </Card>
