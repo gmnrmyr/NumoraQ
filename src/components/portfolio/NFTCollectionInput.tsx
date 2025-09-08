@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { WalletService } from '@/services/walletService';
 
 interface NFTCollectionInputProps {
   contractAddress: string;
@@ -29,14 +30,21 @@ export const NFTCollectionInput = ({
     
     setIsSearching(true);
     try {
-      // This will be implemented to fetch collection name from contract address
       console.log('Looking up collection for address:', contractAddress);
-      // For now, just use a placeholder
-      if (!collectionName) {
-        onCollectionNameChange('Unknown Collection');
+      const addr = contractAddress.trim();
+      const isHexAddress = /^0x[a-fA-F0-9]{40}$/.test(addr);
+
+      if (isHexAddress) {
+        const nftData = await WalletService.fetchNFTCollectionValue(addr, 1);
+        const resolvedName = nftData.collectionName || 'Unknown Collection';
+        onCollectionNameChange(resolvedName);
+      } else {
+        // Optional: Future enhancement to search by slug/name
+        onCollectionNameChange(collectionName || 'Unknown Collection');
       }
     } catch (error) {
       console.error('Error looking up collection:', error);
+      onCollectionNameChange('Unknown Collection');
     }
     setIsSearching(false);
   };
