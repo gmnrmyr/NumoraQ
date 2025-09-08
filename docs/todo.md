@@ -169,8 +169,7 @@ DO UPDATE SET
 ✅ 31) **Enhanced projection chart dates and balance indicators**: Date to be shown on projection chart. (not only month x like month 12... but the real month of real year it will be)
 *COMPLETED: Chart now shows "M3 (Mar 2025)" format with color-coded dots (green for positive balance, red for negative balance), enhanced tooltips, and visual legend*
 
-🔄 31) Automatically sort expenses by date.
-(completed)
+✅ 31) Automatically sort expenses by date. ((done))
 
 
 32) link expense to achievement.
