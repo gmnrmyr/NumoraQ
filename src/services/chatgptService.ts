@@ -13,7 +13,9 @@ interface FinancialContext {
   
   // Income & Expenses
   totalMonthlyIncome?: number;
-  totalMonthlyExpenses?: number;
+  totalMonthlyExpenses?: number; // current month: recurring + variable (this month)
+  totalRecurringMonthlyExpenses?: number; // baseline recurring only
+  totalVariableThisMonthExpenses?: number;
   totalAnnualIncome?: number;
   totalAnnualExpenses?: number;
   incomeStreams?: any[];
@@ -27,7 +29,20 @@ interface FinancialContext {
   // Goals & Projections
   projectionPeriod?: number;
   projectedNetWorth?: number;
-  savingsRate?: number;
+  savingsRate?: number; // baseline: income vs recurring only
+  savingsRateCurrentMonth?: number; // income vs (recurring + variable this month)
+  monthlySavingsBaseline?: number;
+  monthlySavingsCurrent?: number;
+  // Simple projection summary (baseline-based)
+  projectionInitialBalance?: number;
+  projectionFinalBalance?: number;
+  projectionMonthlyAverage?: number;
+  preferredSavingsRate?: number;
+  // Liquidity runway
+  runwayBaselineMonths?: number; // using recurring-only deficit
+  runwayCurrentMonths?: number; // using current-month deficit (recurring + variable)
+  hasNegativeCashFlowBaseline?: boolean;
+  hasNegativeCashFlowCurrent?: boolean;
   timeToFI?: number;
   
   // User Profile
@@ -69,9 +84,14 @@ NUMORAQ PLATFORM FEATURES:
     const contextInfo = context ? `
 CURRENT USER FINANCIAL SNAPSHOT:
 • Portfolio: $${context.totalLiquidAssets?.toFixed(2) || 'Not set'} liquid + $${context.totalIlliquidAssets?.toFixed(2) || 'Not set'} illiquid assets
-• Cash Flow: $${context.totalMonthlyIncome?.toFixed(2) || 'Not set'}/month income - $${context.totalMonthlyExpenses?.toFixed(2) || 'Not set'}/month expenses
+• Cash Flow (baseline): $${context.totalMonthlyIncome?.toFixed(2) || 'Not set'}/month income - $${context.totalRecurringMonthlyExpenses?.toFixed(2) || 'Not set'}/month recurring
+• Cash Flow (current): $${context.totalMonthlyIncome?.toFixed(2) || 'Not set'}/month income - $${context.totalMonthlyExpenses?.toFixed(2) || 'Not set'}/month (recurring + variable this month)
+• Monthly Expenses: $${context.totalMonthlyExpenses?.toFixed(2) || 'Not set'} (=$${context.totalRecurringMonthlyExpenses?.toFixed(2) || '0.00'} recurring + $${context.totalVariableThisMonthExpenses?.toFixed(2) || '0.00'} variable this month)
+• Cash Runway: ${Number.isFinite(context.runwayBaselineMonths || Infinity) ? `${(context.runwayBaselineMonths || 0).toFixed(1)} months baseline` : 'No deficit'}${Number.isFinite(context.runwayCurrentMonths || Infinity) ? `, ${(context.runwayCurrentMonths || 0).toFixed(1)} months current` : ''}
 • Debt: $${context.totalDebt?.toFixed(2) || 'No debt tracked'}${context.debtPayoffStrategy ? ` (${context.debtPayoffStrategy} strategy)` : ''}
-• Savings Rate: ${context.savingsRate?.toFixed(1) || 'Not calculated'}%
+• Savings Rate (projection-based): ${context.preferredSavingsRate?.toFixed(1) || context.savingsRate?.toFixed(1) || 'Not calculated'}%
+• Projection Summary: Start $${context.projectionInitialBalance?.toFixed(2) || '0.00'} → End $${context.projectionFinalBalance?.toFixed(2) || '0.00'} over ${context.projectionPeriod || 12} months (avg $${context.projectionMonthlyAverage?.toFixed(2) || '0.00'}/mo)
+• Projection-Based Savings Rate (preferred): ${context.preferredSavingsRate?.toFixed(1) || context.savingsRate?.toFixed(1) || 'Not calculated'}%
 • Projection Period: ${context.projectionPeriod || 12} months
 • Net Worth Projection: $${context.projectedNetWorth?.toFixed(2) || 'Not calculated'}
 • User Profile: ${context.userNickname || 'Anonymous'} (${context.userTier || 'Free'} tier)
@@ -95,6 +115,10 @@ RESPONSE GUIDELINES:
 • Use **bold text** for emphasis on key points and recommendations
 • Reference specific Numoraq features when giving advice (e.g., "Add this to your liquid assets tracking", "Update your projection period")
 • Provide actionable, specific advice based on their current dashboard data
+• IMPORTANT: Do NOT treat one-time variable expenses as recurring monthly obligations. Baseline uses only recurring.
+• When stating monthly expenses, ALWAYS show breakdown: "$TOTAL ($RECURRING recurring + $VARIABLE variable this month)" using the exact values provided above.
+• When discussing cash flow deficits, ALSO report cash runway using current liquid assets. If runway ≥ 6 months, acknowledge the deficit is presently covered and focus recommendations on planned adjustments rather than urgent alarm.
+• Prefer projection metrics (final balance, monthly average, projection-based savings rate) over single-month snapshots when giving forward-looking advice. If baseline/current conflict, use the projection-based values. When reporting "Savings Rate", use the projection-based value unless the user explicitly asks for current-month.
 • Ask clarifying questions about their Numoraq setup when needed
 • Encourage them to utilize features they haven't explored yet
 • Be encouraging about their financial journey and progress tracking
@@ -222,15 +246,24 @@ RESPONSE GUIDELINES:
       
       // Projections & Goals
       const projectionPeriod = userData?.projectionMonths || 12;
-      const monthlySavings = totalMonthlyIncome - totalMonthlyExpenses;
-      const savingsRate = totalMonthlyIncome > 0 ? (monthlySavings / totalMonthlyIncome) * 100 : 0;
-      // Projected net worth = current net worth (assets - debts) + monthly savings * months
-      const projectedNetWorth = (totalLiquidAssets + totalIlliquidAssets - totalDebt) + (monthlySavings * projectionPeriod);
+      // Baseline (recurring only) vs current (recurring + variable this month)
+      const monthlySavingsBaseline = totalMonthlyIncome - totalRecurringExpenses;
+      const monthlySavingsCurrent = totalMonthlyIncome - totalMonthlyExpenses;
+      const savingsRate = totalMonthlyIncome > 0 ? (monthlySavingsBaseline / totalMonthlyIncome) * 100 : 0;
+      const savingsRateCurrentMonth = totalMonthlyIncome > 0 ? (monthlySavingsCurrent / totalMonthlyIncome) * 100 : 0;
+      // Projected net worth aligned to baseline (no variable shock, no compounding)
+      const projectedNetWorth = (totalLiquidAssets + totalIlliquidAssets - totalDebt) + (monthlySavingsBaseline * projectionPeriod);
       
       // User Profile
       const userProfile = userData?.userProfile || {};
       const userTier = userData?.userTier || 'Free';
       
+      // Derive simple projection summary to guide AI (aligned to baseline)
+      const initialBalance = totalLiquidAssets; // advanced uses liquid for running balance start
+      const finalBalance = initialBalance + (monthlySavingsBaseline * projectionPeriod);
+      const monthlyAverage = projectionPeriod > 0 ? (finalBalance - initialBalance) / projectionPeriod : 0;
+      const preferredSavingsRate = savingsRate;
+
       return {
         // Portfolio & Assets
         totalLiquidAssets,
@@ -260,7 +293,16 @@ RESPONSE GUIDELINES:
         projectionPeriod,
         projectedNetWorth,
         savingsRate,
-        timeToFI: this.calculateTimeToFI(monthlySavings, totalLiquidAssets + totalIlliquidAssets, totalMonthlyExpenses),
+        savingsRateCurrentMonth,
+        monthlySavingsBaseline,
+        monthlySavingsCurrent,
+        totalRecurringMonthlyExpenses: totalRecurringExpenses,
+        totalVariableThisMonthExpenses: totalVariableThisMonth,
+        projectionInitialBalance: initialBalance,
+        projectionFinalBalance: finalBalance,
+        projectionMonthlyAverage: monthlyAverage,
+        preferredSavingsRate,
+        timeToFI: this.calculateTimeToFI(monthlySavingsBaseline, totalLiquidAssets + totalIlliquidAssets, totalMonthlyExpenses),
         
         // User Profile
         userAge: userProfile.age,
