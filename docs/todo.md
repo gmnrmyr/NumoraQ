@@ -4,7 +4,7 @@ ToDo List after we've properly implemented our tech branches & test database.
 *COMPLETED: Full Stripe integration with time stacking, webhook automation, and freemium trial system working*
 
 ✅ 0.1) **Fix chat gpt api** (was leaked when we made the project public). Webhook Stripe secret was also exposed. (i didnt notice those where hardcoded)
-*PARTIALLY DONE: Stripe secrets moved to environment variables, ChatGPT API still hardcoded in chatgptService.ts line 51*
+*PARTIALLY DONE: Stripe secrets moved to environment variables, ChatGPT API still hardcoded in chatgptService.ts line 51* <--- not any longer, we fixed and added to supabase edge functions -> secrets.
 
 ✅ 0.2) **Environment keys management**: Not sure how to merge dev to prod and if that will work well with env keys (chatgpt,stripe,supabase).. same as supabase keys.)
 *IN PROGRESS: Stripe keys properly configured for sandbox/prod, need vault setup for other services*
