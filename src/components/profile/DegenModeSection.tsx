@@ -185,10 +185,10 @@ export const DegenModeSection = () => {
 
   return (
     <div className="border-t border-border pt-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
           <Crown size={16} className={isTrialOrPremium ? "text-yellow-400" : "text-muted-foreground"} />
-          <span className="font-mono text-sm">{t.degenMode}</span>
+          <span className="font-mono text-sm whitespace-nowrap">{t.degenMode}</span>
           {hasAnyAccess && (
             <Badge 
               variant="outline" 
@@ -203,20 +203,21 @@ export const DegenModeSection = () => {
         </div>
         
         {/* Action buttons - different for different user states */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end w-full sm:w-auto">
           {/* For active premium users - allow extending time */}
           {isPremiumUser && (
             <>
               <Dialog open={showExtendDialog} onOpenChange={setShowExtendDialog}>
                 <DialogTrigger asChild>
                   <Button 
-                    size="sm" 
+                    size="sm"
                     variant="outline" 
-                    className="text-xs font-mono bg-blue-600/20 text-blue-400 border-blue-600/40 hover:bg-blue-600/30"
+                    className="text-xs font-mono bg-blue-600/20 text-blue-400 border-blue-600/40 hover:bg-blue-600/30 whitespace-nowrap px-2"
                     title="Redeem a code to extend your premium time"
                   >
                     <Plus size={12} className="mr-1" />
-                    EXTEND TIME
+                    <span className="hidden sm:inline">EXTEND TIME</span>
+                    <span className="inline sm:hidden">EXTEND</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
@@ -256,12 +257,13 @@ export const DegenModeSection = () => {
               <Button 
                 size="sm" 
                 variant="outline" 
-                className="text-xs font-mono bg-green-600/20 text-green-400 border-green-600/40 hover:bg-green-600/30"
+                className="text-xs font-mono bg-green-600/20 text-green-400 border-green-600/40 hover:bg-green-600/30 whitespace-nowrap px-2"
                 onClick={() => navigate('/payment')}
                 title="Purchase more degen time"
               >
                 <ShoppingCart size={12} className="mr-1" />
-                BUY MORE
+                <span className="hidden sm:inline">BUY MORE</span>
+                <span className="inline sm:hidden">BUY</span>
               </Button>
             </>
           )}

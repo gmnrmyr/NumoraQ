@@ -102,15 +102,17 @@ export const PWASetup = () => {
       
       {/* Install Button - show if not installed and can be installed */}
       {!isInstalled && (deferredPrompt || isIOS) && (
-        <Button
-          onClick={handleInstallClick}
-          variant="outline"
-          size="sm"
-          className="brutalist-button"
-        >
-          <Download size={16} className="mr-1" />
-          Install App
-        </Button>
+        <div className="w-full flex justify-center my-3">
+          <Button
+            onClick={handleInstallClick}
+            variant="outline"
+            size="sm"
+            className="brutalist-button"
+          >
+            <Download size={16} className="mr-1" />
+            Install App
+          </Button>
+        </div>
       )}
 
       {/* Success indicator for installed apps */}

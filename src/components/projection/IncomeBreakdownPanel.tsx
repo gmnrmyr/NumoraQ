@@ -26,32 +26,32 @@ export const IncomeBreakdownPanel: React.FC<IncomeBreakdownPanelProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-2 flex-wrap">
             <span className="text-xs font-mono text-green-400">Passive Income</span>
             <span className="text-xs font-mono font-bold text-green-400">
               {currencySymbol} {(month.passiveIncome || 0).toLocaleString()}
             </span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-2 flex-wrap">
             <span className="text-xs font-mono text-blue-400">Active Income</span>
             <span className="text-xs font-mono font-bold text-blue-400">
               {currencySymbol} {(month.activeIncome || 0).toLocaleString()}
             </span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-2 flex-wrap">
             <span className="text-xs font-mono text-red-400">Recurring Expenses</span>
             <span className="text-xs font-mono font-bold text-red-400">
               {currencySymbol} {(month.recurringExpenses || 0).toLocaleString()}
             </span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-2 flex-wrap">
             <span className="text-xs font-mono text-orange-400">Variable Expenses (this month)</span>
             <span className="text-xs font-mono font-bold text-orange-400">
               {currencySymbol} {(month.variableExpenses || 0).toLocaleString()}
             </span>
           </div>
           <hr className="border-border" />
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-2 flex-wrap">
             <span className="text-xs font-mono font-bold">Net Monthly</span>
             <span className={`text-xs font-mono font-bold ${(month.monthlyIncome - (month.monthlyExpenses || (month.recurringExpenses || 0) + (month.variableExpenses || 0))) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
               {((month.monthlyIncome - (month.monthlyExpenses || (month.recurringExpenses || 0) + (month.variableExpenses || 0))) >= 0 ? '+' : '')}{currencySymbol} {Math.round((month.monthlyIncome || 0) - (month.monthlyExpenses ?? ((month.recurringExpenses || 0) + (month.variableExpenses || 0)))).toLocaleString()}
