@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Bot, Send, X, MessageCircle, Crown, Loader2, Maximize2, Minimize2 } from "lucide-react";
+import { Bot, Send, X, MessageCircle, Crown, Loader2, Maximize2, Minimize2, Check, ArrowUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ChatGPTService } from "@/services/chatgptService";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
@@ -139,15 +139,20 @@ export const AIAdvisor = () => {
 
   if (!isOpen) {
     return (
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50">
         <Button
           onClick={() => setIsOpen(true)}
           variant="outline"
           size="sm"
-          className="bg-card/90 backdrop-blur-sm border-accent/50 hover:bg-accent/10 rounded-full p-3 md:p-4 shadow-lg"
-          title="Open AI Financial Advisor"
+          className="bg-card/90 backdrop-blur-sm border-accent/50 hover:bg-accent/10 rounded-full p-3 md:p-4 shadow-lg flex items-center gap-2"
+          title={isPremiumUser ? 'AI (Degen active)' : 'AI (Upgrade available)'}
         >
-          <Bot size={20} className="md:w-6 md:h-6" />
+          {isPremiumUser ? (
+            <Check size={18} className="text-green-500" />
+          ) : (
+            <ArrowUp size={18} className="text-yellow-500" />
+          )}
+          <Bot size={18} />
           <span className="sr-only">Open AI Financial Advisor</span>
         </Button>
       </div>
