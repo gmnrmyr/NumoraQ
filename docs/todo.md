@@ -1,4 +1,4 @@
-ToDo List after we've properly implemented our tech branches & test database.
+ToDo List. (ignore the number sorting, i just throwed the todos here!
 
 ✅ 0) **purchase logic for degen purchases**: use purchase as degen, backend consider as time + when done, stop service or allow user with ads (freemium).
 *COMPLETED: Full Stripe integration with time stacking, webhook automation, and freemium trial system working*
