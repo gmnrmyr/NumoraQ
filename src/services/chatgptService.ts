@@ -186,20 +186,33 @@ RESPONSE GUIDELINES:
       
       const totalMonthlyIncome = totalPassiveIncome + totalActiveIncome;
       
-      // Calculate total monthly expenses (only active recurring expenses + unscheduled variable)
-      const recurringExpenses = expenseCategories
-        .filter((expense: any) => expense.type === 'recurring' && expense.status === 'active')
-        .reduce((sum: number, expense: any) => sum + (expense.amount || 0), 0);
-      
-      const unscheduledVariableExpenses = expenseCategories
-        .filter((expense: any) => 
-          expense.type === 'variable' && 
-          expense.status === 'active' && 
-          !expense.specificDate
-        )
-        .reduce((sum: number, expense: any) => sum + (expense.amount || 0), 0);
-      
-      const totalMonthlyExpenses = recurringExpenses + unscheduledVariableExpenses;
+      // Calculate total monthly expenses: recurring (schedule-aware) + variable (this month)
+      const currentYm = new Date().toISOString().slice(0, 7);
+      const isRecurringActiveForMonth = (exp: any, targetYm: string) => {
+        if (exp.status !== 'active') return false;
+        if (exp.type !== 'recurring') return false;
+        if (exp.useSchedule && exp.startDate) {
+          const startYm = String(exp.startDate).slice(0,7);
+          const endYm = exp.endDate ? String(exp.endDate).slice(0,7) : undefined;
+          if (!(targetYm >= startYm && (!endYm || targetYm <= endYm))) return false;
+        }
+        if (exp.frequency === 'yearly') {
+          const triggerMonth = Math.min(12, Math.max(1, Number(exp.triggerMonth || 1)));
+          const m = Number(targetYm.slice(5,7));
+          return m === triggerMonth;
+        }
+        return true;
+      };
+
+      const totalRecurringExpenses = expenseCategories
+        .filter((e: any) => isRecurringActiveForMonth(e, currentYm))
+        .reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+
+      const totalVariableThisMonth = expenseCategories
+        .filter((e: any) => e.type === 'variable' && e.status === 'active' && (!e.specificDate || String(e.specificDate).slice(0,7) === currentYm))
+        .reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+
+      const totalMonthlyExpenses = totalRecurringExpenses + totalVariableThisMonth;
       
       // Debt - Fix data structure matching
       const debtAccounts = userData?.debts || [];
@@ -211,7 +224,8 @@ RESPONSE GUIDELINES:
       const projectionPeriod = userData?.projectionMonths || 12;
       const monthlySavings = totalMonthlyIncome - totalMonthlyExpenses;
       const savingsRate = totalMonthlyIncome > 0 ? (monthlySavings / totalMonthlyIncome) * 100 : 0;
-      const projectedNetWorth = (totalLiquidAssets + totalIlliquidAssets) + (monthlySavings * projectionPeriod);
+      // Projected net worth = current net worth (assets - debts) + monthly savings * months
+      const projectedNetWorth = (totalLiquidAssets + totalIlliquidAssets - totalDebt) + (monthlySavings * projectionPeriod);
       
       // User Profile
       const userProfile = userData?.userProfile || {};
