@@ -178,6 +178,9 @@ DO UPDATE SET
 
 34) I think the Openai secret that is glitched can be linked to supabase edge function secrets? <-- double check that...> (i think supabase edge functions SECRETS are the equivalent to project .env right?) <------ FIXED> working, made it following the notes on the left (working on dev.)
 
+35) Debt and User when goes negative. -> For example, debt should be ticking %fees. when user goes negative, usualy pays %fees daily or monthly for bank. This should be in place for DEBT and when certain amount of expenses are triggering a debt on the projection as well. 
+<---- would be reallly nice to have that, don't really know how to.>
+
 --------
 
 Don't break:
