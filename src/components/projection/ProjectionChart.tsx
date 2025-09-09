@@ -134,6 +134,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
   const illiquidData = React.useMemo(() => {
     const totalNow = (data.illiquidAssets || [])
       .filter((a: any) => a.isActive)
+      .filter((a: any) => !a.isScheduled || a.isTriggered) // Only include non-scheduled or triggered assets
       .reduce((sum: number, a: any) => sum + (a.value || 0), 0);
     const months = (projectionData?.length || 0) - 1;
     // Convert annual to simple monthly addition (no compounding)

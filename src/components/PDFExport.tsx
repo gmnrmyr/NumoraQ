@@ -18,7 +18,9 @@ export const PDFExport = () => {
     const activeDebts = data.debts.filter(debt => debt.isActive !== false);
 
     const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
-    const totalIlliquid = activeIlliquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+    const totalIlliquid = activeIlliquidAssets
+      .filter(asset => !asset.isScheduled || asset.isTriggered) // Only include non-scheduled or triggered assets
+      .reduce((sum, asset) => sum + asset.value, 0);
     const totalActiveIncome = activeIncome.reduce((sum, income) => sum + income.amount, 0);
     const totalPassiveIncome = passiveIncome.reduce((sum, income) => sum + income.amount, 0);
     const totalRecurringExpenses = recurringExpenses.reduce((sum, expense) => sum + expense.amount, 0);
