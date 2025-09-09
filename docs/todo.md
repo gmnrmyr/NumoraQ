@@ -210,6 +210,8 @@ R$ -18,816
 
 42) info toolbox on panels --> a small i for users to hover or click and understand best pratices on using such panel on advanced dashboard mostly..
 
+43) Juros. We need to add "fees" or juros in portuguese. its a tax that banks charge when we go on debt. (negative) this should be triggered when users goes on debt and trigger an event or something. we also would need to see this on chart i think... and it kidna compunds
+
 --------
 
 Don't break:
