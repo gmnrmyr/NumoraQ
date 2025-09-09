@@ -28,6 +28,13 @@ export interface IlliquidAsset {
   icon: string;
   color: string;
   isActive: boolean;
+  // Scheduling properties
+  isScheduled?: boolean;
+  scheduledDate?: string; // YYYY-MM-DD format
+  scheduledValue?: number; // Value to be assigned when triggered
+  linkedExpenseId?: string; // ID of the expense that triggers this asset
+  isTriggered?: boolean; // Whether the asset has been triggered
+  triggeredDate?: string; // When the asset was triggered
 }
 
 export interface PassiveIncome {
@@ -68,6 +75,8 @@ export interface Expense {
   startDate?: string; // YYYY-MM or YYYY-MM-DD
   endDate?: string;   // YYYY-MM or YYYY-MM-DD
   specificDate?: string; // Added for variable expenses with specific dates
+  // Linking to illiquid assets
+  linkedIlliquidAssetId?: string; // ID of the illiquid asset this expense will trigger
 }
 
 export interface Task {
