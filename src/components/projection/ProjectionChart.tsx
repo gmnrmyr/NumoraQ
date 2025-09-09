@@ -68,11 +68,11 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
   const { markerMonths, eventsByMonth } = React.useMemo(() => {
     const now = startOfMonth(new Date());
     const maxMonth = (projectionData?.length || 0) - 1;
-    const byX = new Map<number, { starts: string[]; ends: string[]; yearly: number }>();
+    const byX = new Map<number, { starts: string[]; ends: string[]; yearly: number; assetTriggers: string[] }>();
 
     const ensure = (x: number) => {
       let item = byX.get(x);
-      if (!item) { item = { starts: [], ends: [], yearly: 0 }; byX.set(x, item); }
+      if (!item) { item = { starts: [], ends: [], yearly: 0, assetTriggers: [] }; byX.set(x, item); }
       return item;
     };
 
@@ -87,6 +87,29 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
         const e = startOfMonth(new Date(String(inc.endDate)));
         const off = monthDiff(now, e);
         if (off >= 1 && off <= maxMonth) ensure(off).ends.push(String(inc.source || 'Income'));
+      }
+    });
+
+    // Expense schedule markers (starts and ends)
+    (data.expenses || []).forEach((exp: any) => {
+      if (exp.useSchedule && exp.startDate) {
+        const s = startOfMonth(new Date(String(exp.startDate)));
+        const off = monthDiff(now, s);
+        if (off >= 1 && off <= maxMonth) ensure(off).starts.push(`${exp.name} (expense starts)`);
+      }
+      if (exp.useSchedule && exp.endDate) {
+        const e = startOfMonth(new Date(String(exp.endDate)));
+        const off = monthDiff(now, e);
+        if (off >= 1 && off <= maxMonth) ensure(off).ends.push(`${exp.name} (expense ends)`);
+      }
+    });
+
+    // Scheduled illiquid asset triggers
+    (data.illiquidAssets || []).forEach((asset: any) => {
+      if (asset.isScheduled && asset.scheduledDate && !asset.isTriggered) {
+        const s = startOfMonth(new Date(String(asset.scheduledDate)));
+        const off = monthDiff(now, s);
+        if (off >= 1 && off <= maxMonth) ensure(off).assetTriggers.push(`${asset.name} (asset triggers)`);
       }
     });
 
@@ -109,12 +132,12 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
 
     const months = Array.from(byX.keys()).sort((a,b) => a - b);
     return { markerMonths: months, eventsByMonth: byX };
-  }, [data.passiveIncome, data.expenses, projectionData]);
+  }, [data.passiveIncome, data.expenses, data.illiquidAssets, projectionData]);
 
   // Helper for tooltip: events list for a given month number
   const getEventsForMonth = (monthNumber: number) => {
     const entry = eventsByMonth.get(monthNumber);
-    if (!entry) return { starts: [], ends: [], yearly: 0 };
+    if (!entry) return { starts: [], ends: [], yearly: 0, assetTriggers: [] };
     return entry;
   };
 
@@ -130,19 +153,57 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
   // Liquid chart uses projectionData directly
   const chartData = projectionData;
 
-  // Illiquid projection chart (simple APY-based monthly compounding)
+  // Illiquid projection chart with scheduled asset triggers and cumulative 3-year APY
   const illiquidData = React.useMemo(() => {
-    const totalNow = (data.illiquidAssets || [])
-      .filter((a: any) => a.isActive)
-      .reduce((sum: number, a: any) => sum + (a.value || 0), 0);
+    const now = startOfMonth(new Date());
     const months = (projectionData?.length || 0) - 1;
-    // Convert annual to simple monthly addition (no compounding)
-    const monthlyAdd = totalNow * (Math.max(0, illiquidApy) / 100) / 12;
     const out: Array<{ month: number; value: number }> = [];
+    
+    // Get all illiquid assets (active, non-scheduled, and triggered)
+    const activeAssets = (data.illiquidAssets || [])
+      .filter((a: any) => a.isActive)
+      .filter((a: any) => !a.isScheduled || a.isTriggered);
+    
+    // Get scheduled assets that will be triggered
+    const scheduledAssets = (data.illiquidAssets || [])
+      .filter((a: any) => a.isScheduled && !a.isTriggered && a.scheduledDate);
+    
+    let baseValue = activeAssets.reduce((sum: number, a: any) => sum + (a.value || 0), 0);
+    let cumulativeValue = baseValue;
+    let lastApyMonth = 0;
+    
     for (let i = 0; i <= months; i++) {
-      const v = totalNow + monthlyAdd * i;
-      out.push({ month: i, value: Math.round(v) });
+      let monthValue = cumulativeValue;
+      
+      // Check for scheduled asset triggers this month
+      const currentDate = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const currentMonthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+      
+      scheduledAssets.forEach((asset: any) => {
+        const assetDate = new Date(String(asset.scheduledDate));
+        const assetMonthStr = `${assetDate.getFullYear()}-${String(assetDate.getMonth() + 1).padStart(2, '0')}`;
+        
+        if (currentMonthStr === assetMonthStr) {
+          const assetValue = asset.scheduledValue || asset.value || 0;
+          monthValue += assetValue;
+          // Add to cumulative value so it stays permanently
+          cumulativeValue += assetValue;
+        }
+      });
+      
+      // Apply APY every 3 years (36 months) - cumulative, not peaks
+      if (i > 0 && i % 36 === 0) {
+        const yearsSinceLastApy = (i - lastApyMonth) / 12;
+        const apyMultiplier = Math.pow(1 + (illiquidApy / 100), yearsSinceLastApy);
+        monthValue = monthValue * apyMultiplier;
+        // Update cumulative value to maintain the growth
+        cumulativeValue = monthValue;
+        lastApyMonth = i;
+      }
+      
+      out.push({ month: i, value: Math.round(monthValue) });
     }
+    
     return out;
   }, [data.illiquidAssets, projectionData, illiquidApy]);
   
@@ -354,7 +415,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                     </div>
                   )}
 
-                  {showEvents && (monthEvents.starts.length > 0 || monthEvents.ends.length > 0 || monthEvents.yearly > 0) && (
+                  {showEvents && (monthEvents.starts.length > 0 || monthEvents.ends.length > 0 || monthEvents.yearly > 0 || monthEvents.assetTriggers.length > 0) && (
                     <div className="border-t border-cyan-400/30 pt-2">
                       <div className="text-cyan-400 font-semibold text-xs mb-1">📌 EVENTS</div>
                       {monthEvents.starts.length > 0 && (
@@ -362,6 +423,9 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                       )}
                       {monthEvents.ends.length > 0 && (
                         <div className="text-xs text-slate-300">Ends: {monthEvents.ends.slice(0,3).join(', ')}{monthEvents.ends.length>3?' …':''}</div>
+                      )}
+                      {monthEvents.assetTriggers.length > 0 && (
+                        <div className="text-xs text-purple-300">Asset Triggers: {monthEvents.assetTriggers.slice(0,3).join(', ')}{monthEvents.assetTriggers.length>3?' …':''}</div>
                       )}
                       {monthEvents.yearly > 0 && (
                         <div className="text-xs text-amber-300">Yearly bills: {monthEvents.yearly}</div>
@@ -512,12 +576,27 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                 content={({ active, payload, label }) => {
                   if (!active || !payload || !payload[0]) return null;
                   const d = payload[0].payload as any;
+                  const monthEvents = getEventsForMonth(label);
                   return (
                     <div className="bg-black/80 backdrop-blur-md p-3 rounded-lg border border-white/20 space-y-1 shadow-2xl">
                       <div className="font-bold text-cyan-400 text-center">Illiquid Projection</div>
                       <div className="flex justify-between text-xs"><span>Month:</span><span>M{label} ({getActualDate(label)})</span></div>
                       <div className="flex justify-between text-xs"><span>Value:</span><span className="font-bold">{currencySymbol}{Number(d.value).toLocaleString()}</span></div>
-                      <div className="text-[10px] text-muted-foreground">Annual rate {illiquidApy}% (non-compounding)</div>
+                      <div className="text-[10px] text-muted-foreground">Annual rate {illiquidApy}% (applied every 3 years)</div>
+                      
+                      {/* Asset Events */}
+                      {monthEvents.assetTriggers.length > 0 && (
+                        <div className="border-t border-purple-400/30 pt-2 mt-2">
+                          <div className="text-purple-400 font-semibold text-xs mb-1">🎯 ASSET TRIGGERS</div>
+                          <div className="space-y-1">
+                            {monthEvents.assetTriggers.map((trigger, index) => (
+                              <div key={index} className="text-xs text-purple-300">
+                                {trigger}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 }}

@@ -90,7 +90,9 @@ export const SimpleDashboard: React.FC = () => {
 
   // Calculate simple metrics with null checks - using correct data structure
   const totalLiquidAssets = data?.liquidAssets?.reduce((sum, asset) => sum + (asset.value || 0), 0) || 0;
-  const totalIlliquidAssets = data?.illiquidAssets?.reduce((sum, asset) => sum + (asset.value || 0), 0) || 0;
+  const totalIlliquidAssets = data?.illiquidAssets
+    ?.filter((asset: any) => !asset.isScheduled || asset.isTriggered) // Only include non-scheduled or triggered assets
+    ?.reduce((sum, asset) => sum + (asset.value || 0), 0) || 0;
   const totalAssets = totalLiquidAssets + totalIlliquidAssets;
   
   const totalPassiveIncome = data?.passiveIncome?.reduce((sum, income) => sum + (income.amount || 0), 0) || 0;

@@ -44,6 +44,19 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     }
   }, [user]);
 
+  // Check for scheduled assets on mount and periodically
+  useEffect(() => {
+    // Check immediately on mount
+    checkAndTriggerScheduledAssets();
+    
+    // Check every hour for scheduled assets
+    const interval = setInterval(() => {
+      checkAndTriggerScheduledAssets();
+    }, 60 * 60 * 1000); // 1 hour
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Update entire data object
   const updateData = (newData: Partial<FinancialData>) => {
     setData(prev => ({ ...prev, ...newData }));
@@ -100,6 +113,87 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     }));
   };
 
+  // Function to check and trigger scheduled assets
+  const checkAndTriggerScheduledAssets = () => {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    setData(prev => {
+      const updatedAssets = prev.illiquidAssets.map(asset => {
+        // Check if asset is scheduled, not triggered, and scheduled date has arrived
+        if (asset.isScheduled && 
+            !asset.isTriggered && 
+            asset.scheduledDate && 
+            asset.scheduledDate <= today) {
+          
+          // Trigger the asset
+          return {
+            ...asset,
+            isTriggered: true,
+            triggeredDate: today,
+            value: asset.scheduledValue || asset.value,
+            isActive: true
+          };
+        }
+        return asset;
+      });
+
+      // Check if any assets were triggered
+      const triggeredAssets = updatedAssets.filter(asset => 
+        asset.isScheduled && 
+        !prev.illiquidAssets.find(prevAsset => 
+          prevAsset.id === asset.id && prevAsset.isTriggered
+        ) && 
+        asset.isTriggered
+      );
+
+      // Show toast for triggered assets
+      if (triggeredAssets.length > 0) {
+        triggeredAssets.forEach(asset => {
+          toast({
+            title: "Asset Triggered!",
+            description: `${asset.name} has been activated with value $${asset.value.toLocaleString()}`,
+            duration: 5000,
+          });
+        });
+      }
+
+      return {
+        ...prev,
+        illiquidAssets: updatedAssets
+      };
+    });
+  };
+
+  // Function to link expense to illiquid asset and update asset scheduling
+  const linkExpenseToAsset = (expenseId: string, assetId: string) => {
+    const expense = data.expenses.find(exp => exp.id === expenseId);
+    const asset = data.illiquidAssets.find(ast => ast.id === assetId);
+    
+    if (expense && asset) {
+      // Update expense with linked asset
+      updateExpense(expenseId, { linkedIlliquidAssetId: assetId });
+      
+      // Determine which date to use for scheduling
+      let scheduleDate = expense.specificDate || expense.startDate || expense.endDate;
+      
+      // Update asset with linked expense and schedule if it has a date
+      if (scheduleDate) {
+        updateIlliquidAsset(assetId, {
+          linkedExpenseId: expenseId,
+          scheduledDate: scheduleDate,
+          scheduledValue: expense.amount,
+          isScheduled: true,
+          isActive: false // Keep inactive until triggered
+        });
+      } else {
+        // Just link without scheduling if no date
+        updateIlliquidAsset(assetId, {
+          linkedExpenseId: expenseId
+        });
+      }
+    }
+  };
+
   const updatePassiveIncome = (id: string, updates: Partial<PassiveIncomeItem>) => {
     setData(prev => ({
       ...prev,
@@ -119,12 +213,75 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
   };
 
   const updateExpense = (id: string, updates: Partial<ExpenseItem>) => {
-    setData(prev => ({
-      ...prev,
-      expenses: prev.expenses.map(expense => 
+    setData(prev => {
+      const updatedExpenses = prev.expenses.map(expense => 
         expense.id === id ? { ...expense, ...updates } : expense
-      )
-    }));
+      );
+      
+      // Find the updated expense
+      const updatedExpense = updatedExpenses.find(exp => exp.id === id);
+      
+      // Handle linked asset updates
+      if (updatedExpense && updatedExpense.linkedIlliquidAssetId) {
+        const linkedAsset = prev.illiquidAssets.find(asset => asset.id === updatedExpense.linkedIlliquidAssetId);
+        
+        if (linkedAsset) {
+          // If the expense was unlinked (linkedIlliquidAssetId set to undefined)
+          if (updates.linkedIlliquidAssetId === undefined) {
+            const updatedAssets = prev.illiquidAssets.map(asset => 
+              asset.id === updatedExpense.linkedIlliquidAssetId 
+                ? { 
+                    ...asset, 
+                    linkedExpenseId: undefined,
+                    isScheduled: false,
+                    scheduledDate: undefined,
+                    scheduledValue: undefined,
+                    isActive: true // Reactivate the asset
+                  }
+                : asset
+            );
+            
+            return {
+              ...prev,
+              expenses: updatedExpenses,
+              illiquidAssets: updatedAssets
+            };
+          }
+          
+          // If the expense date changed, update the asset's scheduled date
+          if (linkedAsset.isScheduled && (updates.specificDate || updates.startDate || updates.endDate)) {
+            // Determine which date to use for the asset
+            let newScheduledDate = linkedAsset.scheduledDate;
+            
+            if (updates.specificDate) {
+              newScheduledDate = updates.specificDate;
+            } else if (updates.startDate) {
+              newScheduledDate = updates.startDate;
+            } else if (updates.endDate) {
+              newScheduledDate = updates.endDate;
+            }
+            
+            // Update the asset's scheduled date to match the expense date
+            const updatedAssets = prev.illiquidAssets.map(asset => 
+              asset.id === updatedExpense.linkedIlliquidAssetId 
+                ? { ...asset, scheduledDate: newScheduledDate }
+                : asset
+            );
+            
+            return {
+              ...prev,
+              expenses: updatedExpenses,
+              illiquidAssets: updatedAssets
+            };
+          }
+        }
+      }
+      
+      return {
+        ...prev,
+        expenses: updatedExpenses
+      };
+    });
   };
 
   const updateTask = (id: string, updates: Partial<TaskItem>) => {
@@ -429,6 +586,9 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     deleteBackup,
     getBackupStats,
     formatBackupSize,
+    // Asset scheduling functionality
+    checkAndTriggerScheduledAssets,
+    linkExpenseToAsset,
   };
 
   return (

@@ -19,7 +19,9 @@ export const PortfolioSummary: React.FC<PortfolioSummaryProps> = ({ showWalletTr
   const activeIlliquidAssets = data.illiquidAssets.filter(asset => asset.isActive);
   
   const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
-  const totalIlliquid = activeIlliquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  const totalIlliquid = activeIlliquidAssets
+    .filter(asset => !asset.isScheduled || asset.isTriggered) // Only include non-scheduled or triggered assets
+    .reduce((sum, asset) => sum + asset.value, 0);
   const totalPortfolio = totalLiquid + totalIlliquid;
 
   return (
