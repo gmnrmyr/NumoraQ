@@ -153,20 +153,57 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
   // Liquid chart uses projectionData directly
   const chartData = projectionData;
 
-  // Illiquid projection chart (simple APY-based monthly compounding)
+  // Illiquid projection chart with scheduled asset triggers and cumulative 3-year APY
   const illiquidData = React.useMemo(() => {
-    const totalNow = (data.illiquidAssets || [])
-      .filter((a: any) => a.isActive)
-      .filter((a: any) => !a.isScheduled || a.isTriggered) // Only include non-scheduled or triggered assets
-      .reduce((sum: number, a: any) => sum + (a.value || 0), 0);
+    const now = startOfMonth(new Date());
     const months = (projectionData?.length || 0) - 1;
-    // Convert annual to simple monthly addition (no compounding)
-    const monthlyAdd = totalNow * (Math.max(0, illiquidApy) / 100) / 12;
     const out: Array<{ month: number; value: number }> = [];
+    
+    // Get all illiquid assets (active, non-scheduled, and triggered)
+    const activeAssets = (data.illiquidAssets || [])
+      .filter((a: any) => a.isActive)
+      .filter((a: any) => !a.isScheduled || a.isTriggered);
+    
+    // Get scheduled assets that will be triggered
+    const scheduledAssets = (data.illiquidAssets || [])
+      .filter((a: any) => a.isScheduled && !a.isTriggered && a.scheduledDate);
+    
+    let baseValue = activeAssets.reduce((sum: number, a: any) => sum + (a.value || 0), 0);
+    let cumulativeValue = baseValue;
+    let lastApyMonth = 0;
+    
     for (let i = 0; i <= months; i++) {
-      const v = totalNow + monthlyAdd * i;
-      out.push({ month: i, value: Math.round(v) });
+      let monthValue = cumulativeValue;
+      
+      // Check for scheduled asset triggers this month
+      const currentDate = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const currentMonthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+      
+      scheduledAssets.forEach((asset: any) => {
+        const assetDate = new Date(String(asset.scheduledDate));
+        const assetMonthStr = `${assetDate.getFullYear()}-${String(assetDate.getMonth() + 1).padStart(2, '0')}`;
+        
+        if (currentMonthStr === assetMonthStr) {
+          const assetValue = asset.scheduledValue || asset.value || 0;
+          monthValue += assetValue;
+          // Add to cumulative value so it stays permanently
+          cumulativeValue += assetValue;
+        }
+      });
+      
+      // Apply APY every 3 years (36 months) - cumulative, not peaks
+      if (i > 0 && i % 36 === 0) {
+        const yearsSinceLastApy = (i - lastApyMonth) / 12;
+        const apyMultiplier = Math.pow(1 + (illiquidApy / 100), yearsSinceLastApy);
+        monthValue = monthValue * apyMultiplier;
+        // Update cumulative value to maintain the growth
+        cumulativeValue = monthValue;
+        lastApyMonth = i;
+      }
+      
+      out.push({ month: i, value: Math.round(monthValue) });
     }
+    
     return out;
   }, [data.illiquidAssets, projectionData, illiquidApy]);
   
@@ -545,7 +582,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({
                       <div className="font-bold text-cyan-400 text-center">Illiquid Projection</div>
                       <div className="flex justify-between text-xs"><span>Month:</span><span>M{label} ({getActualDate(label)})</span></div>
                       <div className="flex justify-between text-xs"><span>Value:</span><span className="font-bold">{currencySymbol}{Number(d.value).toLocaleString()}</span></div>
-                      <div className="text-[10px] text-muted-foreground">Annual rate {illiquidApy}% (non-compounding)</div>
+                      <div className="text-[10px] text-muted-foreground">Annual rate {illiquidApy}% (applied every 3 years)</div>
                       
                       {/* Asset Events */}
                       {monthEvents.assetTriggers.length > 0 && (

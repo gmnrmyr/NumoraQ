@@ -173,14 +173,22 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
       // Update expense with linked asset
       updateExpense(expenseId, { linkedIlliquidAssetId: assetId });
       
-      // Update asset with linked expense and schedule if it has a specific date
-      if (expense.specificDate) {
+      // Determine which date to use for scheduling
+      let scheduleDate = expense.specificDate || expense.startDate || expense.endDate;
+      
+      // Update asset with linked expense and schedule if it has a date
+      if (scheduleDate) {
         updateIlliquidAsset(assetId, {
           linkedExpenseId: expenseId,
-          scheduledDate: expense.specificDate,
+          scheduledDate: scheduleDate,
           scheduledValue: expense.amount,
           isScheduled: true,
           isActive: false // Keep inactive until triggered
+        });
+      } else {
+        // Just link without scheduling if no date
+        updateIlliquidAsset(assetId, {
+          linkedExpenseId: expenseId
         });
       }
     }
@@ -213,33 +221,59 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
       // Find the updated expense
       const updatedExpense = updatedExpenses.find(exp => exp.id === id);
       
-      // If expense has a linked asset and the date changed, update the asset's scheduled date
-      if (updatedExpense && updatedExpense.linkedIlliquidAssetId && (updates.specificDate || updates.startDate || updates.endDate)) {
+      // Handle linked asset updates
+      if (updatedExpense && updatedExpense.linkedIlliquidAssetId) {
         const linkedAsset = prev.illiquidAssets.find(asset => asset.id === updatedExpense.linkedIlliquidAssetId);
-        if (linkedAsset && linkedAsset.isScheduled) {
-          // Determine which date to use for the asset
-          let newScheduledDate = linkedAsset.scheduledDate;
-          
-          if (updates.specificDate) {
-            newScheduledDate = updates.specificDate;
-          } else if (updates.startDate) {
-            newScheduledDate = updates.startDate;
-          } else if (updates.endDate) {
-            newScheduledDate = updates.endDate;
+        
+        if (linkedAsset) {
+          // If the expense was unlinked (linkedIlliquidAssetId set to undefined)
+          if (updates.linkedIlliquidAssetId === undefined) {
+            const updatedAssets = prev.illiquidAssets.map(asset => 
+              asset.id === updatedExpense.linkedIlliquidAssetId 
+                ? { 
+                    ...asset, 
+                    linkedExpenseId: undefined,
+                    isScheduled: false,
+                    scheduledDate: undefined,
+                    scheduledValue: undefined,
+                    isActive: true // Reactivate the asset
+                  }
+                : asset
+            );
+            
+            return {
+              ...prev,
+              expenses: updatedExpenses,
+              illiquidAssets: updatedAssets
+            };
           }
           
-          // Update the asset's scheduled date to match the expense date
-          const updatedAssets = prev.illiquidAssets.map(asset => 
-            asset.id === updatedExpense.linkedIlliquidAssetId 
-              ? { ...asset, scheduledDate: newScheduledDate }
-              : asset
-          );
-          
-          return {
-            ...prev,
-            expenses: updatedExpenses,
-            illiquidAssets: updatedAssets
-          };
+          // If the expense date changed, update the asset's scheduled date
+          if (linkedAsset.isScheduled && (updates.specificDate || updates.startDate || updates.endDate)) {
+            // Determine which date to use for the asset
+            let newScheduledDate = linkedAsset.scheduledDate;
+            
+            if (updates.specificDate) {
+              newScheduledDate = updates.specificDate;
+            } else if (updates.startDate) {
+              newScheduledDate = updates.startDate;
+            } else if (updates.endDate) {
+              newScheduledDate = updates.endDate;
+            }
+            
+            // Update the asset's scheduled date to match the expense date
+            const updatedAssets = prev.illiquidAssets.map(asset => 
+              asset.id === updatedExpense.linkedIlliquidAssetId 
+                ? { ...asset, scheduledDate: newScheduledDate }
+                : asset
+            );
+            
+            return {
+              ...prev,
+              expenses: updatedExpenses,
+              illiquidAssets: updatedAssets
+            };
+          }
         }
       }
       
