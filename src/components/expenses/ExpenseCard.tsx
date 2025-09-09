@@ -220,7 +220,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
         </div>
         
         {/* Asset Linking Section */}
-        <div className="flex items-center justify-between gap-2 text-xs">
+        <div className="space-y-2 text-xs">
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground font-mono">{t.linkToAsset || 'Link to Asset'}:</span>
             <Select 
@@ -257,8 +257,8 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
             </Select>
           </div>
           {expense.linkedIlliquidAssetId && (
-            <div className="text-xs text-blue-400 font-mono">
-{t.willTriggerAssetOnPayment || 'Will trigger asset on payment'}
+            <div className="text-xs text-blue-400 font-mono bg-blue-500/10 p-2 rounded border border-blue-500/20">
+              {t.willTriggerAssetOnPayment || 'Will trigger asset on payment'}
             </div>
           )}
         </div>

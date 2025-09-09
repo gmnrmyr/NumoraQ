@@ -34,7 +34,10 @@ export const IlliquidAssetsCard = () => {
   const [sortDesc, setSortDesc] = useState(true);
 
   const activeIlliquidAssets = data.illiquidAssets.filter(asset => asset.isActive);
-  const totalIlliquid = activeIlliquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  // Only include assets that are not scheduled or have been triggered
+  const totalIlliquid = activeIlliquidAssets
+    .filter(asset => !asset.isScheduled || asset.isTriggered)
+    .reduce((sum, asset) => sum + asset.value, 0);
   const inactiveIlliquidAssets = data.illiquidAssets.filter(asset => !asset.isActive);
   const sortFn = (a: any, b: any) => (sortDesc ? (b.value || 0) - (a.value || 0) : (a.value || 0) - (b.value || 0));
   const displayAssets = [
@@ -181,11 +184,12 @@ export const IlliquidAssetsCard = () => {
           
           return (
             <div key={asset.id} className={`space-y-2 min-w-0 ${!asset.isActive ? 'opacity-50' : ''}`}>
-              <div className="flex items-center justify-between gap-2 min-w-0 flex-wrap">
-                <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
+              {/* First row - Icon, Name, Status, Delete */}
+              <div className="flex items-center justify-between gap-2 w-full">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                   <Select value={asset.icon} onValueChange={(value) => updateIlliquidAsset(asset.id, { icon: value })}>
-                    <SelectTrigger className="w-12 h-8 p-1 border-border bg-input">
-                      <Icon size={16} className={asset.color} />
+                    <SelectTrigger className="w-10 h-8 p-1 border-border bg-input flex-shrink-0">
+                      <Icon size={14} className={asset.color} />
                     </SelectTrigger>
                     <SelectContent className="max-h-80 bg-card border-border border-2">
                       {Object.entries(groupedIcons).map(([category, icons]) => (
@@ -211,75 +215,89 @@ export const IlliquidAssetsCard = () => {
                   <Input
                     value={asset.name}
                     onChange={(e) => updateIlliquidAsset(asset.id, { name: e.target.value })}
-                    className="border-none p-0 font-medium bg-transparent flex-1 min-w-0 font-mono text-foreground whitespace-normal break-words"
+                    className="border-none p-0 font-medium bg-transparent flex-1 min-w-0 font-mono text-foreground text-sm"
                   />
-                  
-                  {/* Status indicators */}
-                  <div className="flex items-center gap-1">
-                    {isScheduled && (
-                      <div className="flex items-center gap-1 px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded text-[10px] font-mono uppercase">
-                        <Clock size={10} />
-                        {t.scheduled || 'Scheduled'}
-                      </div>
-                    )}
-                    {isTriggered && (
-                      <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded text-[10px] font-mono uppercase">
-                        <Calendar size={10} />
-                        {t.triggered || 'Triggered'}
-                      </div>
-                    )}
-                    <Button
-                      onClick={() => updateIlliquidAsset(asset.id, { isActive: !asset.isActive })}
-                      variant="outline"
-                      size="sm"
-                      className={`whitespace-normal break-words text-center px-2 font-mono uppercase text-[10px] ${
-                        asset.isActive 
-                          ? "bg-accent/20 text-accent border-accent" 
-                          : "bg-muted text-muted-foreground border-muted-foreground"
-                      }`}
-                    >
-                      {asset.isActive ? (t.active || "Active") : (t.inactive || "Inactive")}
-                    </Button>
-                  </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-between sm:justify-end">
-                  <div className="text-right min-w-0 flex-1">
-                    <div className="font-bold font-mono text-foreground text-sm">
-                      {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} 
-                      <EditableValue
-                        value={asset.value}
-                        onSave={(value) => updateIlliquidAsset(asset.id, { value: Number(value) })}
-                        type="number"
-                        className="inline font-mono"
-                      />
-                    </div>
-                    {asset.isActive && (
-                      <div className="text-xs text-muted-foreground font-mono">{percentage.toFixed(1)}%</div>
-                    )}
-                    {isScheduled && asset.scheduledDate && (
-                      <div className="text-xs text-blue-400 font-mono">
-{t.scheduled || 'Scheduled'}: {new Date(asset.scheduledDate).toLocaleDateString()}
-                      </div>
-                    )}
-                    {isTriggered && asset.triggeredDate && (
-                      <div className="text-xs text-green-400 font-mono">
-{t.triggered || 'Triggered'}: {new Date(asset.triggeredDate).toLocaleDateString()}
-                      </div>
-                    )}
-                    {asset.linkedExpenseId && (
-                      <div className="text-xs text-blue-400 font-mono">
-{t.linkedToExpense || 'Linked to expense'}: {data.expenses.find(exp => exp.id === asset.linkedExpenseId)?.name || 'Unknown'}
-                      </div>
-                    )}
-                  </div>
+                
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <Button
+                    onClick={() => updateIlliquidAsset(asset.id, { isActive: !asset.isActive })}
+                    variant="outline"
+                    size="sm"
+                    className={`px-2 py-1 font-mono uppercase text-[10px] ${
+                      asset.isActive 
+                        ? "bg-accent/20 text-accent border-accent" 
+                        : "bg-muted text-muted-foreground border-muted-foreground"
+                    }`}
+                  >
+                    {asset.isActive ? (t.active || "Active") : (t.inactive || "Inactive")}
+                  </Button>
                   <Button
                     onClick={() => removeIlliquidAsset(asset.id)}
                     variant="outline"
                     size="sm"
-                    className="text-red-400 hover:text-red-300 border-red-400 hover:border-red-300 bg-transparent flex-shrink-0"
+                    className="text-red-400 hover:text-red-300 border-red-400 hover:border-red-300 bg-transparent p-1 h-8 w-8"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={12} />
                   </Button>
+                </div>
+              </div>
+
+              {/* Second row - Status indicators */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {isScheduled && (
+                  <div className="flex items-center gap-1 px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded text-[10px] font-mono uppercase">
+                    <Clock size={10} />
+                    {t.scheduled || 'Scheduled'}
+                  </div>
+                )}
+                {isTriggered && (
+                  <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded text-[10px] font-mono uppercase">
+                    <Calendar size={10} />
+                    {t.triggered || 'Triggered'}
+                  </div>
+                )}
+                {asset.linkedExpenseId && (
+                  <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded text-[10px] font-mono uppercase">
+                    <Link size={10} />
+                    Linked
+                  </div>
+                )}
+              </div>
+
+              {/* Third row - Value and details */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1">
+                  <div className="font-bold font-mono text-foreground text-sm">
+                    {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} 
+                    <EditableValue
+                      value={asset.value}
+                      onSave={(value) => updateIlliquidAsset(asset.id, { value: Number(value) })}
+                      type="number"
+                      className="inline font-mono"
+                    />
+                  </div>
+                  {asset.isActive && (
+                    <div className="text-xs text-muted-foreground font-mono">{percentage.toFixed(1)}%</div>
+                  )}
+                </div>
+                
+                <div className="text-right text-xs space-y-1">
+                  {isScheduled && asset.scheduledDate && (
+                    <div className="text-blue-400 font-mono">
+                      {t.scheduled || 'Scheduled'}: {new Date(asset.scheduledDate).toLocaleDateString()}
+                    </div>
+                  )}
+                  {isTriggered && asset.triggeredDate && (
+                    <div className="text-green-400 font-mono">
+                      {t.triggered || 'Triggered'}: {new Date(asset.triggeredDate).toLocaleDateString()}
+                    </div>
+                  )}
+                  {asset.linkedExpenseId && (
+                    <div className="text-purple-400 font-mono">
+                      {t.linkedToExpense || 'Linked to'}: {data.expenses.find(exp => exp.id === asset.linkedExpenseId)?.name || 'Unknown'}
+                    </div>
+                  )}
                 </div>
               </div>
               {asset.isActive && <Progress value={percentage} className="h-2 bg-muted" />}
