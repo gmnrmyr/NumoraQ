@@ -44,6 +44,19 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     }
   }, [user]);
 
+  // Check for scheduled assets on mount and periodically
+  useEffect(() => {
+    // Check immediately on mount
+    checkAndTriggerScheduledAssets();
+    
+    // Check every hour for scheduled assets
+    const interval = setInterval(() => {
+      checkAndTriggerScheduledAssets();
+    }, 60 * 60 * 1000); // 1 hour
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Update entire data object
   const updateData = (newData: Partial<FinancialData>) => {
     setData(prev => ({ ...prev, ...newData }));
@@ -98,6 +111,79 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
         asset.id === id ? { ...asset, ...updates } : asset
       )
     }));
+  };
+
+  // Function to check and trigger scheduled assets
+  const checkAndTriggerScheduledAssets = () => {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    setData(prev => {
+      const updatedAssets = prev.illiquidAssets.map(asset => {
+        // Check if asset is scheduled, not triggered, and scheduled date has arrived
+        if (asset.isScheduled && 
+            !asset.isTriggered && 
+            asset.scheduledDate && 
+            asset.scheduledDate <= today) {
+          
+          // Trigger the asset
+          return {
+            ...asset,
+            isTriggered: true,
+            triggeredDate: today,
+            value: asset.scheduledValue || asset.value,
+            isActive: true
+          };
+        }
+        return asset;
+      });
+
+      // Check if any assets were triggered
+      const triggeredAssets = updatedAssets.filter(asset => 
+        asset.isScheduled && 
+        !prev.illiquidAssets.find(prevAsset => 
+          prevAsset.id === asset.id && prevAsset.isTriggered
+        ) && 
+        asset.isTriggered
+      );
+
+      // Show toast for triggered assets
+      if (triggeredAssets.length > 0) {
+        triggeredAssets.forEach(asset => {
+          toast({
+            title: "Asset Triggered!",
+            description: `${asset.name} has been activated with value $${asset.value.toLocaleString()}`,
+            duration: 5000,
+          });
+        });
+      }
+
+      return {
+        ...prev,
+        illiquidAssets: updatedAssets
+      };
+    });
+  };
+
+  // Function to link expense to illiquid asset and update asset scheduling
+  const linkExpenseToAsset = (expenseId: string, assetId: string) => {
+    const expense = data.expenses.find(exp => exp.id === expenseId);
+    const asset = data.illiquidAssets.find(ast => ast.id === assetId);
+    
+    if (expense && asset) {
+      // Update expense with linked asset
+      updateExpense(expenseId, { linkedIlliquidAssetId: assetId });
+      
+      // Update asset with linked expense and schedule if it has a specific date
+      if (expense.specificDate) {
+        updateIlliquidAsset(assetId, {
+          linkedExpenseId: expenseId,
+          scheduledDate: expense.specificDate,
+          scheduledValue: expense.amount,
+          isScheduled: true,
+          isActive: false // Keep inactive until triggered
+        });
+      }
+    }
   };
 
   const updatePassiveIncome = (id: string, updates: Partial<PassiveIncomeItem>) => {
@@ -429,6 +515,9 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
     deleteBackup,
     getBackupStats,
     formatBackupSize,
+    // Asset scheduling functionality
+    checkAndTriggerScheduledAssets,
+    linkExpenseToAsset,
   };
 
   return (

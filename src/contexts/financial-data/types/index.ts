@@ -85,4 +85,7 @@ export interface FinancialDataContextType {
   deleteBackup: (backupId: string) => void;
   getBackupStats: () => { totalBackups: number; manualBackups: number; automaticBackups: number; totalSize: number; latestBackup: string | null };
   formatBackupSize: (size: number) => string;
+  // Asset scheduling functionality
+  checkAndTriggerScheduledAssets: () => void;
+  linkExpenseToAsset: (expenseId: string, assetId: string) => void;
 }
