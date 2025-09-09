@@ -186,7 +186,8 @@ DO UPDATE SET
 
 37) better categories for better reports and for our ai chat to understand everything. On all places: expenses, portfolio (liquid and iliquid) both needs to have nft, real estate (commercial) - real estate (residential) and stuff like that.
 
-38) visual gallery of your assets & all you got... stuff like that. So if its a NFT, dislpay the nft. If it's a real estate, users get to add either a nice google street view or input picture, something like that. Stuff like that to the future.
+38) visual gallery of your assets & all you got... stuff like that. So if its a NFT, dislpay the nft. If it's a real estate, users get to add either a nice google street view or input picture, something like that. Stuff like that to the future. 
+->> second idea would be a 3d version of the assets... for premium user... toggleable, maybe. made on spline, easy to upload on frontend.. but on a gallery view or something, cause would take a lot of gpu from user like our main page anim. does.
 
 39) income breakdown (at advanced dashboard) seems to be wrong, look:
 
