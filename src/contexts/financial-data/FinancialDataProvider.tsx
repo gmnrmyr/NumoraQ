@@ -205,12 +205,49 @@ export const FinancialDataProvider: React.FC<{ children: ReactNode }> = ({ child
   };
 
   const updateExpense = (id: string, updates: Partial<ExpenseItem>) => {
-    setData(prev => ({
-      ...prev,
-      expenses: prev.expenses.map(expense => 
+    setData(prev => {
+      const updatedExpenses = prev.expenses.map(expense => 
         expense.id === id ? { ...expense, ...updates } : expense
-      )
-    }));
+      );
+      
+      // Find the updated expense
+      const updatedExpense = updatedExpenses.find(exp => exp.id === id);
+      
+      // If expense has a linked asset and the date changed, update the asset's scheduled date
+      if (updatedExpense && updatedExpense.linkedIlliquidAssetId && (updates.specificDate || updates.startDate || updates.endDate)) {
+        const linkedAsset = prev.illiquidAssets.find(asset => asset.id === updatedExpense.linkedIlliquidAssetId);
+        if (linkedAsset && linkedAsset.isScheduled) {
+          // Determine which date to use for the asset
+          let newScheduledDate = linkedAsset.scheduledDate;
+          
+          if (updates.specificDate) {
+            newScheduledDate = updates.specificDate;
+          } else if (updates.startDate) {
+            newScheduledDate = updates.startDate;
+          } else if (updates.endDate) {
+            newScheduledDate = updates.endDate;
+          }
+          
+          // Update the asset's scheduled date to match the expense date
+          const updatedAssets = prev.illiquidAssets.map(asset => 
+            asset.id === updatedExpense.linkedIlliquidAssetId 
+              ? { ...asset, scheduledDate: newScheduledDate }
+              : asset
+          );
+          
+          return {
+            ...prev,
+            expenses: updatedExpenses,
+            illiquidAssets: updatedAssets
+          };
+        }
+      }
+      
+      return {
+        ...prev,
+        expenses: updatedExpenses
+      };
+    });
   };
 
   const updateTask = (id: string, updates: Partial<TaskItem>) => {
