@@ -207,6 +207,8 @@ R$ -18,816
 
 41) Iliquid assets to accept a list (csv or json from excel). Keep the list inside a Title. allow a ">" to open the list and edit each item, see category (will input excel for example) - good for my "notforsale goods" list. And also in order for the title not to get too big. Cause some users are putitng on title the items they have inside a "not for sale goods" list like notebook, car, electronis, etc. but they still want to keep track of those items, category and value.
 
+42) info toolbox on panels --> a small i for users to hover or click and understand best pratices on using such panel on advanced dashboard mostly..
+
 --------
 
 Don't break:
