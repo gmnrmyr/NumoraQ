@@ -134,12 +134,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onReorder }) => {
           </div>
           
           {getTaskDescription() && (
-            <div className="mb-2">
+            <div className="mb-2 break-words overflow-wrap-anywhere">
               <EditableValue
                 value={getTaskDescription() || ''}
                 onSave={(value) => updateTask(task.id, { description: String(value) })}
                 type="text"
-                className="text-xs text-muted-foreground font-mono"
+                className="text-xs text-muted-foreground font-mono break-words overflow-wrap-anywhere"
                 placeholder="Add description..."
               />
             </div>
