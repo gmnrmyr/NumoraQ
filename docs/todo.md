@@ -205,6 +205,8 @@ R$ -18,816
 
 40) "assets" tab? we have centralized everything on portfolio -> liquid and iliquid assets, we MIGHT remove this one. but it's gonna be a decision for later. Or sync both... and also sync passive income... but not sure if it's needed.
 
+41) Iliquid assets to accept a list (csv or json from excel). Keep the list inside a Title. allow a ">" to open the list and edit each item, see category (will input excel for example) - good for my "notforsale goods" list.
+
 --------
 
 Don't break:
