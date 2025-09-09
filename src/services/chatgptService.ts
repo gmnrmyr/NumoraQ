@@ -192,7 +192,9 @@ RESPONSE GUIDELINES:
       const activeIlliquidAssets = illiquidAssets.filter((asset: any) => asset.isActive);
       
       const totalLiquidAssets = activeLiquidAssets.reduce((sum: number, asset: any) => sum + (asset.value || 0), 0);
-      const totalIlliquidAssets = activeIlliquidAssets.reduce((sum: number, asset: any) => sum + (asset.value || 0), 0);
+      const totalIlliquidAssets = activeIlliquidAssets
+        .filter((asset: any) => !asset.isScheduled || asset.isTriggered) // Only include non-scheduled or triggered assets
+        .reduce((sum: number, asset: any) => sum + (asset.value || 0), 0);
       
       // Income & Expenses - Fix data structure matching
       const passiveIncomeStreams = userData?.passiveIncome || [];

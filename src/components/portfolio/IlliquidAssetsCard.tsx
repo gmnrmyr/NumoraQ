@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import { Plus, Trash2, Gem, Info } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Trash2, Gem, Info, Calendar, Link, Clock } from "lucide-react";
 import { useFinancialData } from "@/contexts/FinancialDataContext";
 import { useTranslation } from "@/contexts/TranslationContext";
 import { EditableValue } from "@/components/ui/editable-value";
@@ -22,14 +23,21 @@ export const IlliquidAssetsCard = () => {
     value: 0,
     icon: 'Gem',
     color: 'text-foreground',
-    isActive: true
+    isActive: true,
+    isScheduled: false,
+    scheduledDate: '',
+    scheduledValue: 0,
+    linkedExpenseId: ''
   });
   
   const [isAddingIlliquid, setIsAddingIlliquid] = useState(false);
   const [sortDesc, setSortDesc] = useState(true);
 
   const activeIlliquidAssets = data.illiquidAssets.filter(asset => asset.isActive);
-  const totalIlliquid = activeIlliquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  // Only include assets that are not scheduled or have been triggered
+  const totalIlliquid = activeIlliquidAssets
+    .filter(asset => !asset.isScheduled || asset.isTriggered)
+    .reduce((sum, asset) => sum + asset.value, 0);
   const inactiveIlliquidAssets = data.illiquidAssets.filter(asset => !asset.isActive);
   const sortFn = (a: any, b: any) => (sortDesc ? (b.value || 0) - (a.value || 0) : (a.value || 0) - (b.value || 0));
   const displayAssets = [
@@ -45,7 +53,11 @@ export const IlliquidAssetsCard = () => {
         value: 0,
         icon: 'Gem',
         color: 'text-foreground',
-        isActive: true
+        isActive: true,
+        isScheduled: false,
+        scheduledDate: '',
+        scheduledValue: 0,
+        linkedExpenseId: ''
       });
       setIsAddingIlliquid(false);
     }
@@ -98,6 +110,48 @@ export const IlliquidAssetsCard = () => {
                     onChange={(value) => setNewIlliquidAsset({ ...newIlliquidAsset, icon: value })}
                     placeholder="Choose an icon"
                   />
+                  
+                  {/* Scheduling Section */}
+                  <div className="space-y-3 p-3 bg-muted/50 border border-border rounded">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="isScheduled"
+                        checked={newIlliquidAsset.isScheduled}
+                        onCheckedChange={(checked) => setNewIlliquidAsset({ ...newIlliquidAsset, isScheduled: !!checked })}
+                      />
+                      <label htmlFor="isScheduled" className="text-sm font-medium text-foreground font-mono">
+                        {t.scheduleForFutureActivation || 'Schedule for future activation'}
+                      </label>
+                    </div>
+                    
+                    {newIlliquidAsset.isScheduled && (
+                      <div className="space-y-3 pl-6">
+                        <div className="flex items-center gap-2">
+                          <Calendar size={16} className="text-muted-foreground" />
+                          <Input
+                            type="date"
+                            value={newIlliquidAsset.scheduledDate}
+                            onChange={(e) => setNewIlliquidAsset({ ...newIlliquidAsset, scheduledDate: e.target.value })}
+                            className="bg-input border-border border-2 text-foreground font-mono"
+                            placeholder={t.scheduledDate || "Scheduled date"}
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            placeholder={t.scheduledValue || "Scheduled value"}
+                            value={newIlliquidAsset.scheduledValue}
+                            onChange={(e) => setNewIlliquidAsset({ ...newIlliquidAsset, scheduledValue: parseFloat(e.target.value) || 0 })}
+                            className="bg-input border-border border-2 text-foreground font-mono"
+                          />
+                        </div>
+                        <div className="text-xs text-muted-foreground font-mono">
+                          This asset will remain inactive until the scheduled date, then automatically activate with the scheduled value.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
                   <Button onClick={handleAddIlliquidAsset} className="w-full bg-foreground text-background hover:bg-foreground/90 font-mono uppercase">
                     {t.add || 'Add Asset'}
                   </Button>
@@ -125,14 +179,17 @@ export const IlliquidAssetsCard = () => {
         {displayAssets.map((asset) => {
           const Icon = iconMap[asset.icon] || Gem;
           const percentage = totalIlliquid > 0 ? (asset.value / totalIlliquid) * 100 : 0;
+          const isScheduled = asset.isScheduled && !asset.isTriggered;
+          const isTriggered = asset.isTriggered;
           
           return (
             <div key={asset.id} className={`space-y-2 min-w-0 ${!asset.isActive ? 'opacity-50' : ''}`}>
-              <div className="flex items-center justify-between gap-2 min-w-0 flex-wrap">
-                <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
+              {/* First row - Icon, Name, Status, Delete */}
+              <div className="flex items-center justify-between gap-2 w-full">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                   <Select value={asset.icon} onValueChange={(value) => updateIlliquidAsset(asset.id, { icon: value })}>
-                    <SelectTrigger className="w-12 h-8 p-1 border-border bg-input">
-                      <Icon size={16} className={asset.color} />
+                    <SelectTrigger className="w-10 h-8 p-1 border-border bg-input flex-shrink-0">
+                      <Icon size={14} className={asset.color} />
                     </SelectTrigger>
                     <SelectContent className="max-h-80 bg-card border-border border-2">
                       {Object.entries(groupedIcons).map(([category, icons]) => (
@@ -158,13 +215,16 @@ export const IlliquidAssetsCard = () => {
                   <Input
                     value={asset.name}
                     onChange={(e) => updateIlliquidAsset(asset.id, { name: e.target.value })}
-                    className="border-none p-0 font-medium bg-transparent flex-1 min-w-0 font-mono text-foreground whitespace-normal break-words"
+                    className="border-none p-0 font-medium bg-transparent flex-1 min-w-0 font-mono text-foreground text-sm"
                   />
+                </div>
+                
+                <div className="flex items-center gap-1 flex-shrink-0">
                   <Button
                     onClick={() => updateIlliquidAsset(asset.id, { isActive: !asset.isActive })}
                     variant="outline"
                     size="sm"
-                    className={`whitespace-normal break-words text-center px-2 font-mono uppercase text-[10px] ${
+                    className={`px-2 py-1 font-mono uppercase text-[10px] ${
                       asset.isActive 
                         ? "bg-accent/20 text-accent border-accent" 
                         : "bg-muted text-muted-foreground border-muted-foreground"
@@ -172,30 +232,72 @@ export const IlliquidAssetsCard = () => {
                   >
                     {asset.isActive ? (t.active || "Active") : (t.inactive || "Inactive")}
                   </Button>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-between sm:justify-end">
-                  <div className="text-right min-w-0 flex-1">
-                    <div className="font-bold font-mono text-foreground text-sm">
-                      {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} 
-                      <EditableValue
-                        value={asset.value}
-                        onSave={(value) => updateIlliquidAsset(asset.id, { value: Number(value) })}
-                        type="number"
-                        className="inline font-mono"
-                      />
-                    </div>
-                    {asset.isActive && (
-                      <div className="text-xs text-muted-foreground font-mono">{percentage.toFixed(1)}%</div>
-                    )}
-                  </div>
                   <Button
                     onClick={() => removeIlliquidAsset(asset.id)}
                     variant="outline"
                     size="sm"
-                    className="text-red-400 hover:text-red-300 border-red-400 hover:border-red-300 bg-transparent flex-shrink-0"
+                    className="text-red-400 hover:text-red-300 border-red-400 hover:border-red-300 bg-transparent p-1 h-8 w-8"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={12} />
                   </Button>
+                </div>
+              </div>
+
+              {/* Second row - Status indicators */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {isScheduled && (
+                  <div className="flex items-center gap-1 px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded text-[10px] font-mono uppercase">
+                    <Clock size={10} />
+                    {t.scheduled || 'Scheduled'}
+                  </div>
+                )}
+                {isTriggered && (
+                  <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded text-[10px] font-mono uppercase">
+                    <Calendar size={10} />
+                    {t.triggered || 'Triggered'}
+                  </div>
+                )}
+                {asset.linkedExpenseId && (
+                  <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded text-[10px] font-mono uppercase">
+                    <Link size={10} />
+                    Linked
+                  </div>
+                )}
+              </div>
+
+              {/* Third row - Value and details */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1">
+                  <div className="font-bold font-mono text-foreground text-sm">
+                    {data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$'} 
+                    <EditableValue
+                      value={asset.value}
+                      onSave={(value) => updateIlliquidAsset(asset.id, { value: Number(value) })}
+                      type="number"
+                      className="inline font-mono"
+                    />
+                  </div>
+                  {asset.isActive && (
+                    <div className="text-xs text-muted-foreground font-mono">{percentage.toFixed(1)}%</div>
+                  )}
+                </div>
+                
+                <div className="text-right text-xs space-y-1">
+                  {isScheduled && asset.scheduledDate && (
+                    <div className="text-blue-400 font-mono">
+                      {t.scheduled || 'Scheduled'}: {new Date(asset.scheduledDate).toLocaleDateString()}
+                    </div>
+                  )}
+                  {isTriggered && asset.triggeredDate && (
+                    <div className="text-green-400 font-mono">
+                      {t.triggered || 'Triggered'}: {new Date(asset.triggeredDate).toLocaleDateString()}
+                    </div>
+                  )}
+                  {asset.linkedExpenseId && (
+                    <div className="text-purple-400 font-mono">
+                      {t.linkedToExpense || 'Linked to'}: {data.expenses.find(exp => exp.id === asset.linkedExpenseId)?.name || 'Unknown'}
+                    </div>
+                  )}
                 </div>
               </div>
               {asset.isActive && <Progress value={percentage} className="h-2 bg-muted" />}

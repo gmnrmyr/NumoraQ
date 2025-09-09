@@ -7,6 +7,8 @@ export interface Expense {
   type: 'recurring' | 'variable';
   status: 'active' | 'inactive';
   specificDate?: string; // Added for variable expenses with specific dates
+  // Linking to illiquid assets
+  linkedIlliquidAssetId?: string; // ID of the illiquid asset this expense will trigger
 }
 
 export interface Debt {

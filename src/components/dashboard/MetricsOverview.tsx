@@ -23,7 +23,9 @@ export const MetricsOverview = () => {
   const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
   
   const activeIlliquidAssets = data.illiquidAssets.filter(asset => asset.isActive);
-  const totalIlliquid = activeIlliquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  const totalIlliquid = activeIlliquidAssets
+    .filter(asset => !asset.isScheduled || asset.isTriggered) // Only include non-scheduled or triggered assets
+    .reduce((sum, asset) => sum + asset.value, 0);
   
   const activePassiveIncome = data.passiveIncome.filter(income => income.status === 'active');
   const totalPassiveIncome = activePassiveIncome.reduce((sum, income) => sum + income.amount, 0);

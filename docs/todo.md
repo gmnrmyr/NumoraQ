@@ -186,7 +186,8 @@ DO UPDATE SET
 
 37) better categories for better reports and for our ai chat to understand everything. On all places: expenses, portfolio (liquid and iliquid) both needs to have nft, real estate (commercial) - real estate (residential) and stuff like that.
 
-38) visual gallery of your assets & all you got... stuff like that. So if its a NFT, dislpay the nft. If it's a real estate, users get to add either a nice google street view or input picture, something like that. Stuff like that to the future.
+38) visual gallery of your assets & all you got... stuff like that. So if its a NFT, dislpay the nft. If it's a real estate, users get to add either a nice google street view or input picture, something like that. Stuff like that to the future. 
+->> second idea would be a 3d version of the assets... for premium user... toggleable, maybe. made on spline, easy to upload on frontend.. but on a gallery view or something, cause would take a lot of gpu from user like our main page anim. does.
 
 39) income breakdown (at advanced dashboard) seems to be wrong, look:
 
@@ -205,9 +206,19 @@ R$ -18,816
 
 40) "assets" tab? we have centralized everything on portfolio -> liquid and iliquid assets, we MIGHT remove this one. but it's gonna be a decision for later. Or sync both... and also sync passive income... but not sure if it's needed.
 
+41) Iliquid assets to accept a list (csv or json from excel). Keep the list inside a Title. allow a ">" to open the list and edit each item, see category (will input excel for example) - good for my "notforsale goods" list. And also in order for the title not to get too big. Cause some users are putitng on title the items they have inside a "not for sale goods" list like notebook, car, electronis, etc. but they still want to keep track of those items, category and value.
+
+42) info toolbox on panels --> a small i for users to hover or click and understand best pratices on using such panel on advanced dashboard mostly..
+
+43) Juros. We need to add "fees" or juros in portuguese. its a tax that banks charge when we go on debt. (negative) this should be triggered when users goes on debt and trigger an event or something. we also would need to see this on chart i think... and it kidna compunds
+
+44) passive income chart and expense chart? (troughout projected time.) i think that would be nice. not to be open, but toggleable as the iliquid chart is.
+
 --------
 
 Don't break:
 - Any other logic already implemented (there is really a LOT.)
 
 Keep using free APIs.
+
+small
