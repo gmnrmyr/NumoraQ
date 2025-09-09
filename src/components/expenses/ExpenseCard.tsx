@@ -219,49 +219,53 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
           </div>
         </div>
         
-        {/* Asset Linking Section */}
-        <div className="space-y-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground font-mono">{t.linkToAsset || 'Link to Asset'}:</span>
-            <Select 
-              value={expense.linkedIlliquidAssetId || 'none'} 
-              onValueChange={(value) => {
-                if (value === 'none') {
-                  onUpdate(expense.id, { linkedIlliquidAssetId: undefined });
-                } else {
-                  onUpdate(expense.id, { linkedIlliquidAssetId: value });
-                  // Automatically link the expense to the asset
-                  linkExpenseToAsset(expense.id, value);
-                }
-              }}
-            >
-              <SelectTrigger className="h-6 w-32 text-xs bg-input border-2 border-border px-2 font-mono">
-                <SelectValue placeholder="Select asset" />
-              </SelectTrigger>
-              <SelectContent className="bg-card border-2 border-border z-50">
-                <SelectItem value="none" className="font-mono">
-                  <div className="flex items-center gap-2">
-                    <Unlink size={12} />
-                    <span>No link</span>
-                  </div>
-                </SelectItem>
-                {data.illiquidAssets.map(asset => (
-                  <SelectItem key={asset.id} value={asset.id} className="font-mono">
+        {/* Asset Linking Section - Only for variable expenses */}
+        {expense.type === 'variable' && (
+          <div className="space-y-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground font-mono">{t.linkToAsset || 'Link to Asset'}:</span>
+              <Select 
+                value={expense.linkedIlliquidAssetId || 'none'} 
+                onValueChange={(value) => {
+                  if (value === 'none') {
+                    onUpdate(expense.id, { linkedIlliquidAssetId: undefined });
+                  } else {
+                    onUpdate(expense.id, { linkedIlliquidAssetId: value });
+                    // Automatically link the expense to the asset
+                    linkExpenseToAsset(expense.id, value);
+                  }
+                }}
+              >
+                <SelectTrigger className="h-6 w-32 text-xs bg-input border-2 border-border px-2 font-mono">
+                  <SelectValue placeholder="Select asset" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-2 border-border z-50">
+                  <SelectItem value="none" className="font-mono">
                     <div className="flex items-center gap-2">
-                      <Link size={12} />
-                      <span>{asset.name}</span>
+                      <Unlink size={12} />
+                      <span>No link</span>
                     </div>
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {expense.linkedIlliquidAssetId && (
-            <div className="text-xs text-blue-400 font-mono bg-blue-500/10 p-2 rounded border border-blue-500/20">
-              {t.willTriggerAssetOnPayment || 'Will trigger asset on payment'}
+                  {data.illiquidAssets.map(asset => (
+                    <SelectItem key={asset.id} value={asset.id} className="font-mono">
+                      <div className="flex items-center gap-2">
+                        <Link size={12} />
+                        <span className="truncate max-w-20" title={asset.name}>
+                          {asset.name.length > 12 ? `${asset.name.substring(0, 12)}...` : asset.name}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          )}
-        </div>
+            {expense.linkedIlliquidAssetId && (
+              <div className="text-xs text-blue-400 font-mono bg-blue-500/10 p-2 rounded border border-blue-500/20">
+                {t.willTriggerAssetOnPayment || 'Will trigger asset on payment'}
+              </div>
+            )}
+          </div>
+        )}
         {expense.type === 'recurring' && (
           <div className="flex items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2">
