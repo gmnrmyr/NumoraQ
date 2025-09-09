@@ -158,10 +158,24 @@ export const IncomeTracking = () => {
                         };
 
                         const combineYm = (yy: string, mm: string): string | undefined => {
-                          if (!yy || !mm || mm === 'none' || mm.length !== 2) return undefined;
-                          const yyyy = toYYYY(yy);
-                          if (!yyyy) return undefined;
-                          return `${yyyy}-${mm}`;
+                          // If both are empty, return undefined
+                          if (!yy && !mm) return undefined;
+                          // If month is 'none', return undefined
+                          if (mm === 'none') return undefined;
+                          // If we have a month but no year, use current year
+                          if (mm && mm.length === 2 && !yy) {
+                            const currentYear = new Date().getFullYear();
+                            return `${currentYear}-${mm}`;
+                          }
+                          // If we have a year but no month, return undefined (can't have year without month)
+                          if (yy && (!mm || mm === 'none')) return undefined;
+                          // If we have both, combine them
+                          if (yy && mm && mm.length === 2) {
+                            const yyyy = toYYYY(yy);
+                            if (!yyyy) return undefined;
+                            return `${yyyy}-${mm}`;
+                          }
+                          return undefined;
                         };
 
                         return (
