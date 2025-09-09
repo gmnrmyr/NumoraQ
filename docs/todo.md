@@ -212,6 +212,8 @@ R$ -18,816
 
 43) Juros. We need to add "fees" or juros in portuguese. its a tax that banks charge when we go on debt. (negative) this should be triggered when users goes on debt and trigger an event or something. we also would need to see this on chart i think... and it kidna compunds
 
+44) passive income chart and expense chart? (troughout projected time.) i think that would be nice. not to be open, but toggleable as the iliquid chart is.
+
 --------
 
 Don't break:
