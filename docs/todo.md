@@ -223,3 +223,12 @@ Keep using free APIs.
 
 small
 -_-b4 merge
+
+----
+
+Most Important Functions:
+- Onboarding
+- Tooltips
+- Debank API
+- NFT Floors maybe
+- 
