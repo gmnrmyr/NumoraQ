@@ -229,6 +229,9 @@ small
 Most Important Functions:
 - Onboarding
 - Tooltips
+- Income Register Page
 - Debank API
 - NFT Floors maybe
-- 
+- Portuguese full translation
+- Animations fix (black hole)
+- Categories rework
