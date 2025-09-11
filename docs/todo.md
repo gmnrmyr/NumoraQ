@@ -236,3 +236,4 @@ Most Important Functions:
 - Animations fix (black hole)
 - Categories rework
 - Landing page small aditions. Need login button on top as well, small changes
+- Simple Dashboard
