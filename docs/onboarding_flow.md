@@ -17,6 +17,8 @@ Written in 11 SEPT 2021
 
 8) portfolio. Explain users that we separate portfolio in two parts: liquid and iliquid assets. explain why, and why things that are in liquid is more like your bank and cash flow and iliquid is more like real estate, car, something you spent a lot and doesnt sell easily often with a click for example. Explain that most of these are manually set for better controls, but will also be able to sync with banks in the future.
 
-9) User will set his liquid assets first. Explain what users can set and why he would scheduele it... it`s for planning, renting, ideas like that.
+9) User will set his liquid assets first. Explain what users can set it, like bank accounts, crypto accounts (btc and eth price works), manually added and automatically updated by system. if you change your bank account value (spend) you have to manually change it (until we have bank syncs, but that for the far future). So be aware that you will have to manually change those values if you spend or earn more on bank acc or the way you want to register your liquid assets.
 
-10) 
+10) iliquid assets: those are more real estate, if user has. or car, stuff like that. some users also add their goods here. Like notebook, celphone (things that has value) and you can keep those updated manually.
+
+11) 
