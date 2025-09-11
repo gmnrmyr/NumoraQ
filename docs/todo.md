@@ -237,4 +237,3 @@ Most Important Functions:
 - Categories rework
 - Landing page small aditions. Need login button on top as well, small changes
 - Simple Dashboard
-- Asset gallery?
