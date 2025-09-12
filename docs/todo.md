@@ -237,3 +237,22 @@ Most Important Functions:
 - Categories rework
 - Landing page small aditions. Need login button on top as well, small changes
 - Simple Dashboard
+
+
+----
+
+User Feedback.
+Me and my gf were using the app and she noticed a few possible improvements
+
+1) F.i Ratio (financial independence ratio). Shows 4 years to achieve regardless of how she changed. this needs to be more accurate and consider person needs liquid capital able to invest and generate passive income of 100% of his or hers monthly spending sum or something like that.
+
+2) saves still not great (for her). it saves perfectly, but when she leaves the screen to check excel, it loads the last save. So leave the autoload not so soon maybe :)
+
+3) some FIIS (brazilian fiis, reits) didnt sync for her and some had the wrong price. we need to improve that.
+
+4) she had some solana. we have btc and eth working as liquid asset on portfolio, we might be able to have solana as well to be added.
+
+5) onboarding. i showed her the way around it, but an onboarding might be good if user dont know his or hers way (added onboarding_flow.md)
+
+----
+
