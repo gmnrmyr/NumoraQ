@@ -214,6 +214,8 @@ R$ -18,816
 
 44) passive income chart and expense chart? (troughout projected time.) i think that would be nice. not to be open, but toggleable as the iliquid chart is.
 
+45) "Next expenses" - somewhere on advanced dashboard, show next expenses that will be triggered (by date). So user knows when he will have to pay for something.
+
 --------
 
 Don't break:
