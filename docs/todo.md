@@ -176,6 +176,7 @@ DO UPDATE SET
 
 33) add a way for users to track what he spent on a month, then we can use this to make an average or allow the user to see it raw in order to have info to fill his recurring expenses. Maybe our ai can auto fetch and fill as well. <- This would be nice to be implemented on onboarding as well in the future.
 <--- I think: Expenses Inputter or somehting should be on hamburger menu, when user clicks, open a new page (that is not on dashboard) where users can go adding what he spent on this month and then there will be a live result below showing how much total and categorizing it for him and there should be a button like -> import to recurring expenses" option.<<--- >>
+<---- this also needs a pizza like chart to show the categories>
 
 34) I think the Openai secret that is glitched can be linked to supabase edge function secrets? <-- double check that...> (i think supabase edge functions SECRETS are the equivalent to project .env right?) <------ FIXED> working, made it following the notes on the left (working on dev.)
 
