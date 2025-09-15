@@ -217,6 +217,8 @@ R$ -18,816
 
 45) "Next expenses" - somewhere on advanced dashboard, show next expenses that will be triggered (by date). So user knows when he will have to pay for something.
 
+46) Taxes embeded on passive incomes, active incomes. A toggle to turn it on and add the % of the taxes. This will deduct from the value and actually trigger only the liquid value on the income. User can also choose to leave taxes money on a separate account and pay only yearly. this should be opetional, and if user chooses that this account that where he pay income taxes from, should trigger a new liquid asset on the portfolio. (scheduled) and use this to pay for the taxes (yearly).
+
 --------
 
 Don't break:
