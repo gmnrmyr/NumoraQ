@@ -231,6 +231,8 @@ R$ -18,816
 
 52) fix: on projected (number shown on advanced dashbaord). it should take in account the illiquid assets as well. because sometimes it might show a negative "total growth" - another number on the advanced dashboard, and both those should take in consideration when the user is triggering expenses to purchase illiquid assets. so these numbers wouldnt be negative or smaller than they should be.
 
+53) growth trend -> sometimes it can be negative but user is using liquid assets to purchase for iliquid assets (real estate and etc). so, it should still be negative but show that in consideration (growth trend is a number shown on advanced dashboard)
+
 --------
 
 Don't break:
