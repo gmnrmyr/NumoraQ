@@ -219,6 +219,10 @@ R$ -18,816
 
 46) Taxes embeded on passive incomes, active incomes. A toggle to turn it on and add the % of the taxes. This will deduct from the value and actually trigger only the liquid value on the income. User can also choose to leave taxes money on a separate account and pay only yearly. this should be opetional, and if user chooses that this account that where he pay income taxes from, should trigger a new liquid asset on the portfolio. (scheduled) and use this to pay for the taxes (yearly).
 
+47) a button to go left right via mouse click (on chart) instead of having to hover.
+
+48) hability to change expenses (variable) date by clicking up and down on the date like we have on portfolio scheduling.
+
 --------
 
 Don't break:
@@ -226,8 +230,6 @@ Don't break:
 
 Keep using free APIs.
 
-small
--_-b4 merge
 
 ----
 
@@ -261,3 +263,4 @@ Me and my gf were using the app and she noticed a few possible improvements
 
 ----
 
+  
