@@ -239,6 +239,8 @@ R$ -18,816
 
 56) previous spendings (or history) chart... we really need to find a way to do this and we can improve it along the way. i know its hard, the idea was to use previous saves but some users might delete it. so it's something to do on future. (so user can keep track of not only the future as our app does but on what's past.)
 
+57) on passive income, we should add the field to toggle taxes (fees) and toggle other fees (if any), (two different toggles) and then show the liquid value as result and calculat e on top of the liquid value. Maybe also a toggle for earn apy on taxable brute vs liquid if that wouldnt be too advanced - and the quantity of apy (third toogle which would be a 3way on liquid, on "brute;total" or no if liquid or on total accept apy quantity.) <--- hope the last isnt too complex>
+
 --------
 
 Don't break:
