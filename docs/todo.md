@@ -233,6 +233,10 @@ R$ -18,816
 
 53) growth trend -> sometimes it can be negative but user is using liquid assets to purchase for iliquid assets (real estate and etc). so, it should still be negative but show that in consideration (growth trend is a number shown on advanced dashboard)
 
+54) new chart. Sum of Liquid chart and Iliquid chart (total assets).
+
+55) iliquid projection chart is taking too much space from 0 to where it starts. it shouldn't take that much space on the bottom side where it is empty.
+
 --------
 
 Don't break:
