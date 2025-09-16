@@ -237,6 +237,8 @@ R$ -18,816
 
 55) iliquid projection chart is taking too much space from 0 to where it starts. it shouldn't take that much space on the bottom side where it is empty.
 
+56) previous spendings (or history) chart... we really need to find a way to do this and we can improve it along the way. i know its hard, the idea was to use previous saves but some users might delete it. so it's something to do on future. (so user can keep track of not only the future as our app does but on what's past.)
+
 --------
 
 Don't break:
