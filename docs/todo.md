@@ -227,6 +227,10 @@ R$ -18,816
 
 50) make option for users to see value in btc, eth as well not only in fiat currencies.
 
+51) another chart below the liquid, which is the passive income chart (quantity of passive income as scheduled and triggered)
+
+52) fix: on projected (number shown on advanced dashbaord). it should take in account the illiquid assets as well. because sometimes it might show a negative "total growth" - another number on the advanced dashboard, and both those should take in consideration when the user is triggering expenses to purchase illiquid assets. so these numbers wouldnt be negative or smaller than they should be.
+
 --------
 
 Don't break:
