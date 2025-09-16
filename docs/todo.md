@@ -223,6 +223,10 @@ R$ -18,816
 
 48) hability to change expenses (variable) date by clicking up and down on the date like we have on portfolio scheduling.
 
+49) make apy on liquid assets to work and be editable.
+
+50) make option for users to see value in btc, eth as well not only in fiat currencies.
+
 --------
 
 Don't break:
