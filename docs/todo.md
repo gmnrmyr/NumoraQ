@@ -241,6 +241,8 @@ R$ -18,816
 
 57) on passive income, we should add the field to toggle taxes (fees) and toggle other fees (if any), (two different toggles) and then show the liquid value as result and calculat e on top of the liquid value. Maybe also a toggle for earn apy on taxable brute vs liquid if that wouldnt be too advanced - and the quantity of apy (third toogle which would be a 3way on liquid, on "brute;total" or no if liquid or on total accept apy quantity.) <--- hope the last isnt too complex>
 
+58) for sure -> on expenses, a chart (pizza like) showing the different categories and stuff like that. (active only)
+
 --------
 
 Don't break:
