@@ -243,6 +243,8 @@ R$ -18,816
 
 58) for sure -> on expenses, a chart (pizza like) showing the different categories and stuff like that. (active only)
 
+59) the pdf export is pretty amazing, but we need dates on variable expenses and show what is inactive, and more dates as well. same as if possible a visual capture of the user's set amout of time in the projection. so a capture of the charts liquid assets, iliquid and prob passive income chart as well.
+
 --------
 
 Don't break:
