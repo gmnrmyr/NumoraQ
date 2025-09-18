@@ -245,6 +245,8 @@ R$ -18,816
 
 59) the pdf export is pretty amazing, but we need dates on variable expenses and show what is inactive, and more dates as well. same as if possible a visual capture of the user's set amout of time in the projection. so a capture of the charts liquid assets, iliquid and prob passive income chart as well.
 
+60) tooltips: likely need this on separate components because we will be changing often... [tooltips for liquid assets, iliquid, variable expenses, recurring expenses, projections (charts), pdf export] Some are already there, but we need to change and improve. will place here one by one.
+
 --------
 
 Don't break:
