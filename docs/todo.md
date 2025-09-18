@@ -247,6 +247,8 @@ R$ -18,816
 
 60) tooltips: likely need this on separate components because we will be changing often... [tooltips for liquid assets, iliquid, variable expenses, recurring expenses, projections (charts), pdf export] Some are already there, but we need to change and improve. will place here one by one.
 
+61) crypto on liquid assets should also have the hability to toggle compound and apy input (as we have on manual entry).
+
 --------
 
 Don't break:
