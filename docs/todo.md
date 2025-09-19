@@ -250,6 +250,10 @@ R$ -18,816
 61) crypto on liquid assets should also have the hability to toggle compound and apy input (as we have on manual entry).
 
 62) borders on mobile are white (this default borders that every app has). should def be black or darkest gray.
+
+63) Future Scheduled Expenses: Also need to have sort by amount(value), date or name as the panel above. or just follow the panel above ( variable expenses ) 
+
+
 --------
 
 Don't break:
