@@ -253,6 +253,9 @@ R$ -18,816
 
 63) Future Scheduled Expenses: Also need to have sort by amount(value), date or name as the panel above. or just follow the panel above ( variable expenses ) 
 
+64) user should be able to choose from where the money on projection is mostly debitiong form. he can choose order like. X liquid asset, all passive incomes, etc. ->->-> or something like that.
+
+65) 
 
 --------
 
