@@ -249,6 +249,7 @@ R$ -18,816
 
 61) crypto on liquid assets should also have the hability to toggle compound and apy input (as we have on manual entry).
 
+62) borders on mobile are white (this default borders that every app has). should def be black or darkest gray.
 --------
 
 Don't break:
