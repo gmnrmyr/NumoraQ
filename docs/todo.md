@@ -255,7 +255,7 @@ R$ -18,816
 
 64) user should be able to choose from where the money on projection is mostly debitiong form. he can choose order like. X liquid asset, all passive incomes, etc. ->->-> or something like that.
 
-65) 
+65) sidebar on right hover or something... with profile, and other links like the gallery maybe.
 
 --------
 
