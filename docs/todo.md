@@ -260,6 +260,9 @@ R$ -18,816
 
 66) active income - need schedule as well.
 
+67) yearly bills on liquid projection chart tooltip should show what bills and what value (like the other items)
+
+
 --------
 
 Don't break:
