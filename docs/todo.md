@@ -221,7 +221,7 @@ R$ -18,816
 
 47) a button to go left right via mouse click (on chart) instead of having to hover.
 
-48) hability to change expenses (variable) date by clicking up and down on the date like we have on portfolio scheduling.
+48) hability to change expenses (variable) date by clicking up and down on the date like we have on portfolio scheduling. (NOT ONLY BY TYPING) <-- the typing is weird, when we click and start typing it goes to the bottom>
 
 49) make apy on liquid assets to work and be editable.
 
