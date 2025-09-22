@@ -1,5 +1,7 @@
 
+
 import { useFinancialData } from "@/contexts/FinancialDataContext";
+import { getAssetValueInUserCurrency } from '@/utils/currencyConversion';
 
 export const useProjectionCalculations = () => {
   const { data } = useFinancialData();
@@ -8,15 +10,16 @@ export const useProjectionCalculations = () => {
     const months = data.projectionMonths;
     const projectionData = [];
     
-    // Get current liquid assets (only active ones)
-    const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
-    const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + asset.value, 0);
+  // Get current liquid assets (only active ones)
+  const activeLiquidAssets = data.liquidAssets.filter(asset => asset.isActive);
+  const totalLiquid = activeLiquidAssets.reduce((sum, asset) => sum + getAssetValueInUserCurrency(asset, data.userProfile.defaultCurrency, data.exchangeRates), 0);
     
     // Calculate monthly dividend income from auto-compound REITs
     const autoCompoundAssets = activeLiquidAssets.filter(asset => asset.isReit && asset.autoCompound);
     const monthlyDividendIncome = autoCompoundAssets.reduce((sum, asset) => {
       if (asset.monthlyYield && asset.value) {
-        return sum + (asset.value * (asset.monthlyYield / 100));
+        const assetValueInUserCurrency = getAssetValueInUserCurrency(asset, data.userProfile.defaultCurrency, data.exchangeRates);
+        return sum + Math.round(assetValueInUserCurrency * (asset.monthlyYield / 100) * 100) / 100;
       }
       return sum;
     }, 0);
@@ -129,12 +132,13 @@ export const useProjectionCalculations = () => {
     };
     const liquidPrincipalById: Record<string, number> = {};
     liquidCompoundItems.forEach((asset: any) => {
-      liquidPrincipalById[asset.id] = Math.max(0, getNumericValue(asset.value));
+      // Always use value in user currency
+      liquidPrincipalById[asset.id] = Math.max(0, getAssetValueInUserCurrency(asset, data.userProfile.defaultCurrency, data.exchangeRates));
     });
     const liquidCompoundedGainMonth0 = liquidCompoundItems.reduce((sum, asset: any) => {
       const rate = liquidMonthlyRateFor(asset.compoundAnnualRate);
       const base = liquidPrincipalById[asset.id] || 0;
-      const gain = base * rate;
+      const gain = Math.round(base * rate * 100) / 100;
       liquidPrincipalById[asset.id] = base + gain;
       return sum + gain;
     }, 0);
@@ -194,12 +198,13 @@ export const useProjectionCalculations = () => {
       const currentMonthDividendIncome = autoCompoundAssets.reduce((sum, asset) => {
         if (asset.monthlyYield && asset.value) {
           // Compound the REIT value with accumulated dividends
-          const currentValue = asset.value + (cumulativeDividends * (asset.value / totalLiquid));
-          return sum + (currentValue * (asset.monthlyYield / 100));
+          const assetValueInUserCurrency = getAssetValueInUserCurrency(asset, data.userProfile.defaultCurrency, data.exchangeRates);
+          const currentValue = assetValueInUserCurrency + (cumulativeDividends * (assetValueInUserCurrency / totalLiquid));
+          return sum + Math.round(currentValue * (asset.monthlyYield / 100) * 100) / 100;
         }
         return sum;
       }, 0);
-      
+
       cumulativeDividends += currentMonthDividendIncome;
       
       const scheduledPassiveThisMonth = getScheduledPassiveIncomeForMonth(i);
@@ -221,7 +226,7 @@ export const useProjectionCalculations = () => {
       const liquidCompoundedGainThisMonth = liquidCompoundItems.reduce((sum, asset: any) => {
         const rate = liquidMonthlyRateFor(asset.compoundAnnualRate);
         const base = liquidPrincipalById[asset.id] || 0;
-        const gain = base * rate;
+        const gain = Math.round(base * rate * 100) / 100;
         liquidPrincipalById[asset.id] = base + gain;
         return sum + gain;
       }, 0);

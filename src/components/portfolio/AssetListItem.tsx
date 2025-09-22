@@ -1,4 +1,5 @@
 import React from 'react';
+import { ExchangeRates } from '@/contexts/financial-data/types/user';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,16 +13,36 @@ interface AssetListItemProps {
   onEdit: (asset: any) => void;
   onDelete: (id: string) => void;
   onIconChange: (id: string, icon: string) => void;
+  userCurrency?: string;
+  exchangeRates?: ExchangeRates;
 }
 
-export const AssetListItem = ({ 
+const AssetListItem = ({
   asset, 
   currency, 
   onToggleActive, 
   onEdit, 
   onDelete, 
-  onIconChange 
+  onIconChange,
+  userCurrency,
+  exchangeRates
 }: AssetListItemProps) => {
+  // Helper to convert asset value to user's currency if needed
+  const getConvertedValue = () => {
+    if (!asset.currency || !userCurrency || !exchangeRates || asset.currency === userCurrency) return asset.value;
+    // Only convert for manual assets
+    if (asset.currency === 'USD' && userCurrency === 'BRL') return asset.value * exchangeRates.usdToBrl;
+    if (asset.currency === 'BRL' && userCurrency === 'USD') return asset.value * exchangeRates.brlToUsd;
+    if (asset.currency === 'BTC') {
+      if (userCurrency === 'BRL') return asset.value * exchangeRates.btcPrice;
+      if (userCurrency === 'USD') return asset.value * (exchangeRates.btcPrice * exchangeRates.brlToUsd);
+    }
+    if (asset.currency === 'ETH') {
+      if (userCurrency === 'BRL') return asset.value * exchangeRates.ethPrice;
+      if (userCurrency === 'USD') return asset.value * (exchangeRates.ethPrice * exchangeRates.brlToUsd);
+    }
+    return asset.value;
+  };
   const Icon = iconMap[asset.icon] || iconMap['Wallet'];
 
   const getAssetBadge = () => {
@@ -144,7 +165,11 @@ export const AssetListItem = ({
             {getAssetBadge()}
           </div>
           <div className="text-xs text-muted-foreground font-mono">
-            {currency} {asset.value.toLocaleString()}
+            {currency} {getConvertedValue().toLocaleString()}
+            {/* Show original value/currency if different */}
+            {asset.currency && userCurrency && asset.currency !== userCurrency && (
+              <span className="ml-2">({asset.value} {asset.currency})</span>
+            )}
             {getQuantityDisplay() && (
               <span className="ml-2">{getQuantityDisplay()}</span>
             )}
@@ -181,5 +206,8 @@ export const AssetListItem = ({
         </Button>
       </div>
     </div>
+
   );
 };
+
+export { AssetListItem };
