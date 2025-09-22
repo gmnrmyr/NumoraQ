@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { getAssetValueInUserCurrency } from '@/utils/currencyConversion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -53,7 +54,10 @@ export const LiquidAssetsCard = () => {
   const displayAssets = showInactive 
     ? [...activeAssets.slice().sort(sortFn), ...inactiveAssets.slice().sort(sortFn)] 
     : activeAssets.slice().sort(sortFn);
-  const totalValue = activeAssets.reduce((sum, asset) => sum + asset.value, 0);
+  const totalValue = activeAssets.reduce(
+    (sum, asset) => sum + getAssetValueInUserCurrency(asset, data.userProfile.defaultCurrency, data.exchangeRates),
+    0
+  );
   const currency = data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$';
 
   return (
@@ -126,7 +130,8 @@ export const LiquidAssetsCard = () => {
             </div>
           ) : (
             displayAssets.map((asset: any) => {
-              const percentage = totalValue > 0 && asset.isActive ? (asset.value / totalValue) * 100 : 0;
+              const assetValueInUserCurrency = getAssetValueInUserCurrency(asset, data.userProfile.defaultCurrency, data.exchangeRates);
+              const percentage = totalValue > 0 && asset.isActive ? (assetValueInUserCurrency / totalValue) * 100 : 0;
               return (
                 <div key={asset.id} className="space-y-1">
                   <AssetListItem
@@ -136,6 +141,8 @@ export const LiquidAssetsCard = () => {
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                     onIconChange={handleIconChange}
+                    userCurrency={data.userProfile.defaultCurrency}
+                    exchangeRates={data.exchangeRates}
                   />
                   {asset.isActive && (
                     <div>
