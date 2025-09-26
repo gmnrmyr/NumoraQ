@@ -37,7 +37,9 @@ export const useAssetOperations = () => {
       isActive: formData.isActive,
       color: 'text-foreground',
       compoundEnabled: formData.compoundEnabled || false,
-      compoundAnnualRate: formData.compoundEnabled ? Number(formData.compoundAnnualRate || 0) : 0
+      compoundAnnualRate: formData.compoundEnabled ? Number(formData.compoundAnnualRate || 0) : 0,
+      // Add currency for manual assets
+      currency: assetType === 'manual' ? (formData.currency || 'BRL') : undefined
     };
 
     if (assetType === 'crypto' && formData.cryptoSymbol && formData.quantity > 0) {

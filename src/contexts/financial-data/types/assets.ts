@@ -25,6 +25,8 @@ export interface LiquidAsset {
   isNFT?: boolean;
   nftContractAddress?: string;
   nftCollectionName?: string;
+  // Added: currency for manual assets
+  currency?: 'BRL' | 'USD' | 'BTC' | 'ETH';
 }
 
 export interface IlliquidAsset {

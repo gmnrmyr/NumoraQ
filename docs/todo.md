@@ -176,6 +176,7 @@ DO UPDATE SET
 
 33) add a way for users to track what he spent on a month, then we can use this to make an average or allow the user to see it raw in order to have info to fill his recurring expenses. Maybe our ai can auto fetch and fill as well. <- This would be nice to be implemented on onboarding as well in the future.
 <--- I think: Expenses Inputter or somehting should be on hamburger menu, when user clicks, open a new page (that is not on dashboard) where users can go adding what he spent on this month and then there will be a live result below showing how much total and categorizing it for him and there should be a button like -> import to recurring expenses" option.<<--- >>
+<---- this also needs a pizza like chart to show the categories>
 
 34) I think the Openai secret that is glitched can be linked to supabase edge function secrets? <-- double check that...> (i think supabase edge functions SECRETS are the equivalent to project .env right?) <------ FIXED> working, made it following the notes on the left (working on dev.)
 
@@ -187,7 +188,7 @@ DO UPDATE SET
 37) better categories for better reports and for our ai chat to understand everything. On all places: expenses, portfolio (liquid and iliquid) both needs to have nft, real estate (commercial) - real estate (residential) and stuff like that.
 
 38) visual gallery of your assets & all you got... stuff like that. So if its a NFT, dislpay the nft. If it's a real estate, users get to add either a nice google street view or input picture, something like that. Stuff like that to the future. 
-->> second idea would be a 3d version of the assets... for premium user... toggleable, maybe. made on spline, easy to upload on frontend.. but on a gallery view or something, cause would take a lot of gpu from user like our main page anim. does.
+->> second idea would be a 3d version of the assets... for premium user... toggleable, maybe. made on spline, easy to upload on frontend.. but on a gallery view or something, cause would take a lot of gpu from user like our main page anim. does. [[THREEJS. OR OPENGL, 3D.JS SOMETHING EASY AND SIMPLE LIKE THAT. wireframe look if possible]] starts on a different screen that only degen (payed users) has access.
 
 39) income breakdown (at advanced dashboard) seems to be wrong, look:
 
@@ -214,6 +215,54 @@ R$ -18,816
 
 44) passive income chart and expense chart? (troughout projected time.) i think that would be nice. not to be open, but toggleable as the iliquid chart is.
 
+45) "Next expenses" - somewhere on advanced dashboard, show next expenses that will be triggered (by date). So user knows when he will have to pay for something.
+
+46) Taxes embeded on passive incomes, active incomes. A toggle to turn it on and add the % of the taxes. This will deduct from the value and actually trigger only the liquid value on the income. User can also choose to leave taxes money on a separate account and pay only yearly. this should be opetional, and if user chooses that this account that where he pay income taxes from, should trigger a new liquid asset on the portfolio. (scheduled) and use this to pay for the taxes (yearly).
+
+47) a button to go left right via mouse click (on chart) instead of having to hover.
+
+48) hability to change expenses (variable) date by clicking up and down on the date like we have on portfolio scheduling. (NOT ONLY BY TYPING) <-- the typing is weird, when we click and start typing it goes to the bottom>
+
+49) make apy on liquid assets to work and be editable.
+
+50) make option for users to see value in btc, eth as well not only in fiat currencies.
+
+51) another chart below the liquid, which is the passive income chart (quantity of passive income as scheduled and triggered)
+
+52) fix: on projected (number shown on advanced dashbaord). it should take in account the illiquid assets as well. because sometimes it might show a negative "total growth" - another number on the advanced dashboard, and both those should take in consideration when the user is triggering expenses to purchase illiquid assets. so these numbers wouldnt be negative or smaller than they should be.
+
+53) growth trend -> sometimes it can be negative but user is using liquid assets to purchase for iliquid assets (real estate and etc). so, it should still be negative but show that in consideration (growth trend is a number shown on advanced dashboard)
+
+54) new chart. Sum of Liquid chart and Iliquid chart (total assets).
+
+55) iliquid projection chart is taking too much space from 0 to where it starts. it shouldn't take that much space on the bottom side where it is empty.
+
+56) previous spendings (or history) chart... we really need to find a way to do this and we can improve it along the way. i know its hard, the idea was to use previous saves but some users might delete it. so it's something to do on future. (so user can keep track of not only the future as our app does but on what's past.)
+<--- another idea and great about this one is leave an option on liquid assets and iliquid assets maybe for users to add when he bought it and how much he payed. and that can trigger past expenses. he can also say yes or no if had same recurring expenses as ACTUAL month for example, and that would set the "previoust" spendings chart which we want to be able to!!!!>
+
+57) on passive income, we should add the field to toggle taxes (fees) and toggle other fees (if any), (two different toggles) and then show the liquid value as result and calculat e on top of the liquid value. Maybe also a toggle for earn apy on taxable brute vs liquid if that wouldnt be too advanced - and the quantity of apy (third toogle which would be a 3way on liquid, on "brute;total" or no if liquid or on total accept apy quantity.) <--- hope the last isnt too complex>
+
+58) for sure -> on expenses, a chart (pizza like) showing the different categories and stuff like that. (active only)
+
+59) the pdf export is pretty amazing, but we need dates on variable expenses and show what is inactive, and more dates as well. same as if possible a visual capture of the user's set amout of time in the projection. so a capture of the charts liquid assets, iliquid and prob passive income chart as well.
+
+60) tooltips: likely need this on separate components because we will be changing often... [tooltips for liquid assets, iliquid, variable expenses, recurring expenses, projections (charts), pdf export] Some are already there, but we need to change and improve. will place here one by one.
+
+61) crypto on liquid assets should also have the hability to toggle compound and apy input (as we have on manual entry).
+
+62) borders on mobile are white (this default borders that every app has). should def be black or darkest gray.
+
+63) Future Scheduled Expenses: Also need to have sort by amount(value), date or name as the panel above. or just follow the panel above ( variable expenses ) 
+
+64) user should be able to choose from where the money on projection is mostly debitiong form. he can choose order like. X liquid asset, all passive incomes, etc. ->->-> or something like that.
+
+65) sidebar on right hover or something... with profile, and other links like the gallery maybe.
+
+66) active income - need schedule as well.
+
+67) yearly bills on liquid projection chart tooltip should show what bills and what value (like the other items)
+
+
 --------
 
 Don't break:
@@ -222,3 +271,4 @@ Don't break:
 Keep using free APIs.
 
 small
+-_-b4 merge

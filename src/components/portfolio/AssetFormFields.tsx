@@ -210,7 +210,24 @@ export const AssetFormFields = ({
           />
         </div>
       )}
-      
+
+      {/* Currency selector for manual entry */}
+      {assetType === 'manual' && (
+        <div>
+          <Label className="font-mono text-xs uppercase">Currency</Label>
+          <select
+            value={formData.currency || 'BRL'}
+            onChange={e => setFormData((prev: any) => ({ ...prev, currency: e.target.value }))}
+            className="w-full p-2 border-2 border-border bg-input font-mono"
+          >
+            <option value="BRL">BRL (R$)</option>
+            <option value="USD">USD ($)</option>
+            <option value="BTC">BTC (₿)</option>
+            <option value="ETH">ETH (Ξ)</option>
+          </select>
+        </div>
+      )}
+
       {renderTypeSpecificFields()}
     </div>
   );
