@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { getAssetValueInUserCurrency } from '@/utils/currencyConversion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -49,11 +50,24 @@ export const LiquidAssetsCard = () => {
 
   const activeAssets = data.liquidAssets.filter(asset => asset.isActive);
   const inactiveAssets = data.liquidAssets.filter(asset => !asset.isActive);
-  const sortFn = (a: any, b: any) => (sortDesc ? (b.value || 0) - (a.value || 0) : (a.value || 0) - (b.value || 0));
-  const displayAssets = showInactive 
-    ? [...activeAssets.slice().sort(sortFn), ...inactiveAssets.slice().sort(sortFn)] 
+  // Calculate totalValue first so it is available for getPercentage and sortFn
+  const totalValue = activeAssets.reduce(
+    (sum, asset) => sum + getAssetValueInUserCurrency(asset, data.userProfile.defaultCurrency, data.exchangeRates),
+    0
+  );
+  // Sort by percentage (share of total value in user's currency)
+  const getPercentage = (asset: any) => {
+    const assetValue = getAssetValueInUserCurrency(asset, data.userProfile.defaultCurrency, data.exchangeRates);
+    return totalValue > 0 && asset.isActive ? (assetValue / totalValue) * 100 : 0;
+  };
+  const sortFn = (a: any, b: any) => {
+    const percA = getPercentage(a);
+    const percB = getPercentage(b);
+    return sortDesc ? percB - percA : percA - percB;
+  };
+  const displayAssets = showInactive
+    ? [...activeAssets.slice().sort(sortFn), ...inactiveAssets.slice().sort(sortFn)]
     : activeAssets.slice().sort(sortFn);
-  const totalValue = activeAssets.reduce((sum, asset) => sum + asset.value, 0);
   const currency = data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$';
 
   return (
@@ -126,7 +140,8 @@ export const LiquidAssetsCard = () => {
             </div>
           ) : (
             displayAssets.map((asset: any) => {
-              const percentage = totalValue > 0 && asset.isActive ? (asset.value / totalValue) * 100 : 0;
+              const assetValueInUserCurrency = getAssetValueInUserCurrency(asset, data.userProfile.defaultCurrency, data.exchangeRates);
+              const percentage = totalValue > 0 && asset.isActive ? (assetValueInUserCurrency / totalValue) * 100 : 0;
               return (
                 <div key={asset.id} className="space-y-1">
                   <AssetListItem
@@ -136,6 +151,8 @@ export const LiquidAssetsCard = () => {
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                     onIconChange={handleIconChange}
+                    userCurrency={data.userProfile.defaultCurrency}
+                    exchangeRates={data.exchangeRates}
                   />
                   {asset.isActive && (
                     <div>
