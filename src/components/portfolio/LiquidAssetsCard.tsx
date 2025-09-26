@@ -50,14 +50,24 @@ export const LiquidAssetsCard = () => {
 
   const activeAssets = data.liquidAssets.filter(asset => asset.isActive);
   const inactiveAssets = data.liquidAssets.filter(asset => !asset.isActive);
-  const sortFn = (a: any, b: any) => (sortDesc ? (b.value || 0) - (a.value || 0) : (a.value || 0) - (b.value || 0));
-  const displayAssets = showInactive 
-    ? [...activeAssets.slice().sort(sortFn), ...inactiveAssets.slice().sort(sortFn)] 
-    : activeAssets.slice().sort(sortFn);
+  // Calculate totalValue first so it is available for getPercentage and sortFn
   const totalValue = activeAssets.reduce(
     (sum, asset) => sum + getAssetValueInUserCurrency(asset, data.userProfile.defaultCurrency, data.exchangeRates),
     0
   );
+  // Sort by percentage (share of total value in user's currency)
+  const getPercentage = (asset: any) => {
+    const assetValue = getAssetValueInUserCurrency(asset, data.userProfile.defaultCurrency, data.exchangeRates);
+    return totalValue > 0 && asset.isActive ? (assetValue / totalValue) * 100 : 0;
+  };
+  const sortFn = (a: any, b: any) => {
+    const percA = getPercentage(a);
+    const percB = getPercentage(b);
+    return sortDesc ? percB - percA : percA - percB;
+  };
+  const displayAssets = showInactive
+    ? [...activeAssets.slice().sort(sortFn), ...inactiveAssets.slice().sort(sortFn)]
+    : activeAssets.slice().sort(sortFn);
   const currency = data.userProfile.defaultCurrency === 'BRL' ? 'R$' : '$';
 
   return (
