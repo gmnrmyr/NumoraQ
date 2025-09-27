@@ -262,6 +262,8 @@ R$ -18,816
 
 67) yearly bills on liquid projection chart tooltip should show what bills and what value (like the other items)
 
+68) "Insanced data" -> Users should be able to change from "default" and create new instances of data. As for example, create new instance from default called "doomer" where user can keep all the data, but change some parameters like expenses where he would be expending in diferent things. and then he can toggle between "default" and "doomer" instances of data. The toggle should be on the navbar probably, at the left side of the hamburger menu.
+
 
 --------
 
