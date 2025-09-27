@@ -262,6 +262,8 @@ R$ -18,816
 
 67) yearly bills on liquid projection chart tooltip should show what bills and what value (like the other items)
 
+68) "Insanced data" -> Users should be able to change from "default" and create new instances of data. As for example, create new instance from default called "doomer" where user can keep all the data, but change some parameters like expenses where he would be expending in diferent things. and then he can toggle between "default" and "doomer" instances of data. The toggle should be on the navbar probably, at the left side of the hamburger menu. All the date on the instanced database should be save upon user's backup and cloud save. And all the data should be interchangeable. User can have literally a diferent setup of data on each instance. (maybe limit to no instance for free users and 5 for degen users or something like that)
+
 
 --------
 
