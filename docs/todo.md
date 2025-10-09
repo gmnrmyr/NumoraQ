@@ -264,6 +264,14 @@ R$ -18,816
 
 68) "Insanced data" -> Users should be able to change from "default" and create new instances of data. As for example, create new instance from default called "doomer" where user can keep all the data, but change some parameters like expenses where he would be expending in diferent things. and then he can toggle between "default" and "doomer" instances of data. The toggle should be on the navbar probably, at the left side of the hamburger menu. All the date on the instanced database should be save upon user's backup and cloud save. And all the data should be interchangeable. User can have literally a diferent setup of data on each instance. (maybe limit to no instance for free users and 5 for degen users or something like that)
 
+69) projection tooltip on mobile is terrible. needs to be improved
+
+70) brl count on advanced dashboard needs to be fixed (following the same logic as on projection)
+
+71) all the system should take in account what DAY we are, if user has recurring expenses with dates, it should discount the ones that are on the days before. That should also be considered on projection and all charts and stuff like that.
+
+72) 
+
 
 --------
 
