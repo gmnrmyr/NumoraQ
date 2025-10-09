@@ -268,7 +268,7 @@ R$ -18,816
 
 69) projection tooltip on mobile is terrible. needs to be improved
 
-70) brl count on advanced dashboard needs to be fixed (following the same logic as on projection)
+70) since we added brl exchange rate to dollars on portfolio, we need to add on the advanced dashboard needs to be fixed (following the same logic as on projection) (numbers doesnt fit cause it doesnt take account converted brl into usd or vice versa.) But in the monthly projection it's counting perfeclty.
 
 71) all the system should take in account what DAY we are, if user has recurring expenses with dates, it should discount the ones that are on the days before. That should also be considered on projection and all charts and stuff like that.
 
