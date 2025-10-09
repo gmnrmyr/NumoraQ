@@ -265,6 +265,7 @@ R$ -18,816
 68) "Insanced data" -> Users should be able to change from "default" and create new instances of data. As for example, create new instance from default called "doomer" where user can keep all the data, but change some parameters like expenses where he would be expending in diferent things. and then he can toggle between "default" and "doomer" instances of data. The toggle should be on the navbar probably, at the left side of the hamburger menu. All the date on the instanced database should be save upon user's backup and cloud save. And all the data should be interchangeable. User can have literally a diferent setup of data on each instance. (maybe limit to no instance for free users and 5 for degen users or something like that) 
 
 <---- i've tried to build the instanced data, but it's really hard and it takes so much time to load... it kinda works but not really well... so i revered the changes and will try later.>
+<--- since it spend a lot of data on backend to have multiple instances per user, we should also to as degen only feature (only payed customers can access)>
 
 69) projection tooltip on mobile is terrible. needs to be improved
 
@@ -273,6 +274,10 @@ R$ -18,816
 71) all the system should take in account what DAY we are, if user has recurring expenses with dates, it should discount the ones that are on the days before. That should also be considered on projection and all charts and stuff like that.
 
 72) ideas about swapping all the payment logic from stripe only to "revenuecat" which is a service that manages subscriptions and payments for us. (i think we can keep the codes and stuff like that, but the payment part would be on revenuecat) - I think it's a simpler system. But that would be for after MVP cause now we seem to have everything fine with stripe on the sandbox.
+
+73) I had some idea with n8n. we could have a chat to find leads on instagram or answer them on whatsapp... then we could sound like its a real person offering a financial consultancy to help build his financial freedom or plans for the future. or even fix some financial behaviours. Then... we ask him him some info about his finances like spendings and stuff like that, and we build him his plan already on the app automatically with n8n. then send him a print with his financial situation and possibilities, and link to the app to sign up with more details with his login and password already created. we would give him 2 month trial or something, if he hinds useful we can charge him after that (optional) or keep free with ads.
+
+
 
 
 --------
