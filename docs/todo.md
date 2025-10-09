@@ -272,7 +272,7 @@ R$ -18,816
 
 71) all the system should take in account what DAY we are, if user has recurring expenses with dates, it should discount the ones that are on the days before. That should also be considered on projection and all charts and stuff like that.
 
-72) 
+72) ideas about swapping all the payment logic from stripe only to "revenuecat" which is a service that manages subscriptions and payments for us. (i think we can keep the codes and stuff like that, but the payment part would be on revenuecat) - I think it's a simpler system. But that would be for after MVP cause now we seem to have everything fine with stripe on the sandbox.
 
 
 --------
