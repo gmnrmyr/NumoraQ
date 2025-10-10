@@ -267,6 +267,9 @@ R$ -18,816
 <---- i've tried to build the instanced data, but it's really hard and it takes so much time to load... it kinda works but not really well... so i revered the changes and will try later.>
 <--- since it spend a lot of data on backend to have multiple instances per user, we should also to as degen only feature (only payed customers can access)>
 
+<<<---- this should also allow users to make total different scenarios. An example is a user that has his financial life with his wife. But he wants to see how it would be if he was alone. So he would create an instance called "alone" and then change all the data to reflect his life alone. and then he can toggle between "default" (with wife) and "alone" (without wife) and see how his projection would be in both scenarios. In the Alone, he should also be able to create one for whis wife, like "wife alone" and then he can toggle between "default" (with wife), "alone" (without wife) and "wife alone" (wife without him). This would be really nice for couples that want to see how their finances would be if they were alone. same for families with kids, etc. He should also be able to see ap projection or some sort of with both toggled for example: "alone(without wife) and "wife alone" for a more advanced projection. (this would be really nice for couples that want to see how their finances would be if they were alone. same for families with kids, etc or changes for uers who use the app for companies and would like to see his life without the company for example.>>>
+
+
 69) projection tooltip on mobile is terrible. needs to be improved
 
 70) since we added brl exchange rate to dollars on portfolio, we need to add on the advanced dashboard needs to be fixed (following the same logic as on projection) (numbers doesnt fit cause it doesnt take account converted brl into usd or vice versa.) But in the monthly projection it's counting perfeclty.
