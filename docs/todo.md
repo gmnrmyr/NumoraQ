@@ -271,7 +271,7 @@ R$ -18,816
 
 70) since we added brl exchange rate to dollars on portfolio, we need to add on the advanced dashboard needs to be fixed (following the same logic as on projection) (numbers doesnt fit cause it doesnt take account converted brl into usd or vice versa.) But in the monthly projection it's counting perfeclty.
 
-71) all the system should take in account what DAY we are, if user has recurring expenses with dates, it should discount the ones that are on the days before. That should also be considered on projection and all charts and stuff like that.
+71) all the system should take in account what DAY we are, if user has recurring expenses with dates, it should discount the ones that are on the days before. That should also be considered on projection and all charts and stuff like that.. ALSO -> User should be able to "tick" if he antecipated one of those payments FOR THIS MONTH. and this would trigger the projection to discount that expenses. Both projection and our dashboard numbers as well. All for a more precise projection towards the month the user is in.
 
 72) ideas about swapping all the payment logic from stripe only to "revenuecat" which is a service that manages subscriptions and payments for us. (i think we can keep the codes and stuff like that, but the payment part would be on revenuecat) - I think it's a simpler system. But that would be for after MVP cause now we seem to have everything fine with stripe on the sandbox.
 
