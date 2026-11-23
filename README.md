@@ -2,9 +2,9 @@
 
 **A crypto-native financial management platform for serious investors, Web3 enthusiasts, and financially curious individuals.**
 
-[![Production](https://img.shields.io/badge/Production-Live-green)](https://numoraq.online/)
-[![Development](https://img.shields.io/badge/Development-Live-yellow)](https://testnumoraq.vercel.app/)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/gmnrmyr/NumoraQ)
+
+> **Status: archived (2025 cloud version).** This repo is the multi-user SaaS version of NumoraQ, built June to September 2025 (500+ commits): React + TypeScript + Vite on the front, Supabase (Postgres, RLS, edge functions) on the back, Stripe and Solana payments in test mode. The hosted site is offline. Development continues as a private, local-first app that runs on my own machine, so the links to the live site below no longer work.
 
 ## 🎯 Overview
 

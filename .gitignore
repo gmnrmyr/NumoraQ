@@ -25,3 +25,8 @@ backups/
 *.njsproj
 *.sln
 *.sw?
+
+# secrets and local CLI state
+.env
+.env.*
+supabase/.temp/
